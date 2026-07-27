@@ -1,38 +1,13 @@
 # NIKA Leaderboard
 
-Official submission archive for the [NIKA](https://github.com/sands-lab/nika) network troubleshooting benchmark.
+Official submission archive for [NIKA](https://github.com/sands-lab/nika).
 
-Submissions are packaged locally with `nika leaderboard pack`, validated with `nika leaderboard validate`, and opened as pull requests with `nika leaderboard submit`. See the [submission guide](https://github.com/sands-lab/nika/blob/main/docs/leaderboard-submission.md).
+Pack, validate, and open a PR with the NIKA CLI. Full instructions, package layout, metadata schema, and PR checklist:
 
-## Layout
-
-```text
-submissions/
-  <release_version>/          # e.g. 0.1.0
-    {YYYYMMDD}_{slug}/
-      README.md
-      metadata.yaml
-      files.json
-      results/
-        identity.yaml
-        metrics.json
-        trials/
-          {trial_id}/result.json
-```
-
-## How to submit
-
-1. Run an official release (`nika benchmark run --release …`).
-2. Fill templates, pack, and validate locally.
-3. Install and authenticate [`gh`](https://cli.github.com/) (`gh auth login`).
-4. Run:
+**[docs/leaderboard-submission.md](https://github.com/sands-lab/nika/blob/main/docs/leaderboard-submission.md)**
 
 ```shell
 nika leaderboard submit path/to/YYYYMMDD_slug
 ```
 
-This opens a PR against this repository. CI re-runs `nika leaderboard validate` on new packages under `submissions/`.
-
-## Review checklist
-
-See [checklist.md](checklist.md).
+Submissions land under `submissions/<release_version>/{YYYYMMDD}_{slug}/`. CI re-runs `nika leaderboard validate` on PRs that touch `submissions/`.
