@@ -1,0 +1,20 @@
+info:
+  name: NIKA CI OK nika_ci_ok_1785162293
+  authors: NIKA CI
+  org: null
+  site: null
+  report: null
+  logo: null
+  email: null
+  github: null
+agent:
+  model: mock-v1
+  framework: mock
+  tools: []
+  skills: []
+  optimization_methods: []
+  tags:
+  - ci
+  os_model: false
+  os_system: false
+  extra: {}

@@ -1,0 +1,24 @@
+{
+  "case_key": "sdn_star__sdn_controller_crash__14cb40c8",
+  "metrics": {
+    "detection_score": 1.0,
+    "in_tokens": 10,
+    "localization_accuracy": 1.0,
+    "localization_f1": 1.0,
+    "localization_precision": 1.0,
+    "localization_recall": 1.0,
+    "out_tokens": 5,
+    "rca_accuracy": 1.0,
+    "rca_f1": 1.0,
+    "rca_precision": 1.0,
+    "rca_recall": 1.0,
+    "steps": 2,
+    "tool_calls": 2,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "problem": "sdn_controller_crash",
+  "scenario": "sdn_star",
+  "trial_id": "sdn_star__sdn_controller_crash__14cb40c8__t02",
+  "trial_index": 2
+}
