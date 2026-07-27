@@ -1,0 +1,94 @@
+name: Validate submission
+
+on:
+  pull_request:
+    paths:
+      - "submissions/**"
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install NIKA
+        env:
+          NIKA_REF: ${{ vars.NIKA_REF }}
+        run: |
+          REF="${NIKA_REF:-main}"
+          python -m pip install --upgrade pip
+          python -m pip install "nika @ git+https://github.com/sands-lab/nika.git@${REF}"
+
+      - name: Discover new submission packages
+        id: discover
+        shell: bash
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.pull_request.base.sha }}"
+          HEAD="${{ github.event.pull_request.head.sha }}"
+          mapfile -t CHANGED < <(
+            git diff --name-only --diff-filter=ACMR "$BASE"..."$HEAD" -- submissions \
+              | awk -F/ 'NF>=3 && $1=="submissions" { print $1"/"$2"/"$3 }' \
+              | sort -u
+          )
+          PACKAGES=()
+          for dir in "${CHANGED[@]:-}"; do
+            if [[ -f "$dir/metadata.yaml" && -f "$dir/results/identity.yaml" ]]; then
+              PACKAGES+=("$dir")
+            fi
+          done
+          if [[ ${#PACKAGES[@]} -eq 0 ]]; then
+            echo "No new submission packages found under submissions/."
+            echo "packages=" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          {
+            echo "packages<<EOF"
+            printf '%s\n' "${PACKAGES[@]}"
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+          echo "Found packages:"
+          printf '  - %s\n' "${PACKAGES[@]}"
+
+      - name: Validate packages
+        if: steps.discover.outputs.packages != ''
+        env:
+          PACKAGES: ${{ steps.discover.outputs.packages }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          FAILED=0
+          SUMMARY=""
+          while IFS= read -r pkg; do
+            [[ -z "$pkg" ]] && continue
+            echo "::group::validate $pkg"
+            if nika leaderboard validate "$pkg"; then
+              SUMMARY+="- ✅ \`$pkg\`\n"
+            else
+              SUMMARY+="- ❌ \`$pkg\`\n"
+              FAILED=1
+            fi
+            echo "::endgroup::"
+          done <<< "$PACKAGES"
+          {
+            echo "## Leaderboard validation"
+            echo ""
+            echo -e "$SUMMARY"
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit "$FAILED"
+
+      - name: No packages to validate
+        if: steps.discover.outputs.packages == ''
+        run: echo "No submission packages to validate."
