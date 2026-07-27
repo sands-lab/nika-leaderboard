@@ -1,0 +1,17 @@
+schema_version: '1'
+benchmark:
+  id: nika-bench
+  version: 0.1.0
+  digest: '0000000000000000000000000000000000000000000000000000000000000000'
+  split: test
+  cases_sha256: '0000000000000000000000000000000000000000000000000000000000000000'
+  case_count: 1
+  n_trials: 1
+  scoring_id: rule-based-v1
+  leaderboard_primary: rca_f1
+run:
+  run_id: e2e
+  official: true
+  agent_type: mock
+  model: mock
+  n_trials: 1

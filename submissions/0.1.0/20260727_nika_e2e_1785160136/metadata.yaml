@@ -1,0 +1,11 @@
+info:
+  name: NIKA E2E nika_e2e_1785160136
+  authors: NIKA CI
+agent:
+  model: mock
+  framework: mock
+  tools: []
+  skills: []
+  optimization_methods: []
+  tags:
+  - e2e
