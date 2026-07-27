@@ -25,16 +25,16 @@ jobs:
 
       - name: Install NIKA
         env:
-          # Pack/validate currently live on sands-lab/nika `dev` (not yet on main).
-          # Override with repo variable NIKA_REF once leaderboard is on main.
+          # Override with repo variable NIKA_REF to pin a branch/tag/commit.
           NIKA_REF: ${{ vars.NIKA_REF }}
         run: |
-          REF="${NIKA_REF:-dev}"
+          REF="${NIKA_REF:-main}"
           python -m pip install --upgrade pip
           python -m pip install "nika @ git+https://github.com/sands-lab/nika.git@${REF}"
           if ! nika leaderboard --help >/dev/null 2>&1; then
             echo "::error::Installed NIKA from ref '${REF}' has no 'nika leaderboard' command."
-            echo "Set repository variable NIKA_REF to a branch/tag that includes leaderboard validate."
+            echo "Set repository variable NIKA_REF to a branch/tag that includes leaderboard validate,"
+            echo "or merge leaderboard support into sands-lab/nika@${REF}."
             nika --help || true
             exit 1
           fi
