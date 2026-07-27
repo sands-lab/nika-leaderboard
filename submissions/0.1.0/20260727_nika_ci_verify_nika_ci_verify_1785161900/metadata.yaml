@@ -1,0 +1,20 @@
+info:
+  name: NIKA CI Verify nika_ci_verify_1785161900
+  authors: NIKA CI
+  org: null
+  site: null
+  report: null
+  logo: null
+  email: null
+  github: null
+agent:
+  model: mock-v1
+  framework: mock
+  tools: []
+  skills: []
+  optimization_methods: []
+  tags:
+  - ci-verify
+  os_model: false
+  os_system: false
+  extra: {}

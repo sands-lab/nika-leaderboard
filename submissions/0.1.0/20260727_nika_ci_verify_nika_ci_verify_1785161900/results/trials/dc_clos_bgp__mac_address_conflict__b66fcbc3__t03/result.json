@@ -1,0 +1,24 @@
+{
+  "case_key": "dc_clos_bgp__mac_address_conflict__b66fcbc3",
+  "metrics": {
+    "detection_score": 1.0,
+    "in_tokens": 10,
+    "localization_accuracy": 1.0,
+    "localization_f1": 1.0,
+    "localization_precision": 1.0,
+    "localization_recall": 1.0,
+    "out_tokens": 5,
+    "rca_accuracy": 1.0,
+    "rca_f1": 1.0,
+    "rca_precision": 1.0,
+    "rca_recall": 1.0,
+    "steps": 2,
+    "tool_calls": 2,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "problem": "mac_address_conflict",
+  "scenario": "dc_clos_bgp",
+  "trial_id": "dc_clos_bgp__mac_address_conflict__b66fcbc3__t03",
+  "trial_index": 3
+}
