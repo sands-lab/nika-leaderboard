@@ -85,7 +85,7 @@ jobs:
           while IFS= read -r pkg; do
             [[ -z "$pkg" ]] && continue
             echo "::group::validate $pkg"
-            if nika leaderboard validate "$pkg"; then
+            if nika leaderboard validate "$GITHUB_WORKSPACE/$pkg"; then
               SUMMARY+="- ✅ \`$pkg\`\n"
             else
               SUMMARY+="- ❌ \`$pkg\`\n"
