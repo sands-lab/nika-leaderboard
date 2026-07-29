@@ -1,0 +1,39 @@
+{
+  "name": "nika-leaderboard-web",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:local": "VITE_BASE_PATH=/ vite",
+    "build": "tsc -b && vite build",
+    "build:local": "VITE_BASE_PATH=/ tsc -b && VITE_BASE_PATH=/ vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "data": "cd .. && uv run python scripts/build_leaderboard_data.py"
+  },
+  "dependencies": {
+    "@tanstack/react-table": "^8.21.3",
+    "echarts": "^6.1.0",
+    "echarts-for-react": "^3.0.6",
+    "jspdf": "^4.2.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.30.4",
+    "svg2pdf.js": "^2.7.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@types/node": "^26.1.2",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "@vitejs/plugin-react": "^4.3.3",
+    "eslint": "^9.13.0",
+    "eslint-plugin-react-hooks": "^5.0.0",
+    "eslint-plugin-react-refresh": "^0.4.14",
+    "globals": "^15.11.0",
+    "typescript": "~5.6.2",
+    "typescript-eslint": "^8.11.0",
+    "vite": "^5.4.10"
+  }
+}

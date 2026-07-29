@@ -1,0 +1,20 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+.python-version
+
+# Node / web
+web/node_modules/
+web/dist/
+web/.vite/
+
+# OS / editors
+.DS_Store
+*.swp
+.idea/
+.vscode/
+
+# Local secrets / env
+.env
+.env.*

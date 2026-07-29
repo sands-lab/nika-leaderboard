@@ -1,0 +1,28 @@
+{
+  "versions": [
+    "0.1.0"
+  ],
+  "filters": {
+    "framework": [
+      "react"
+    ],
+    "llm_provider": [],
+    "model": [
+      "gpt-5",
+      "gpt-5-mini",
+      "gpt-oss:20b"
+    ],
+    "optimization_methods": [],
+    "tags": [
+      "legacy_csv_import",
+      "mockup"
+    ],
+    "org": [
+      "Local mockup"
+    ],
+    "split": [
+      "dev"
+    ]
+  },
+  "primary_metric": "mean_rca_f1"
+}

@@ -1,0 +1,15 @@
+[project]
+name = "nika-leaderboard"
+version = "0.1.0"
+description = "NIKA leaderboard submission archive and static web UI"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = []
+
+[tool.uv]
+package = false
