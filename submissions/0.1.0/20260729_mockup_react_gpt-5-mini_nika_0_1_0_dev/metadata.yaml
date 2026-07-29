@@ -1,0 +1,23 @@
+info:
+  name: Mockup React (gpt-5-mini)
+  authors: NIKA Mockup Import
+  org: Local mockup
+  site: null
+  report: null
+  logo: null
+  email: null
+  github: null
+agent:
+  model: gpt-5-mini
+  framework: react
+  tools: []
+  skills: []
+  optimization_methods: []
+  tags:
+  - mockup
+  - legacy_csv_import
+  os_model: false
+  os_system: false
+  extra:
+    source_csv: results/test/0_summary/evaluation_summary_old.csv
+    note: Fabricated package to match frozen leaderboard trials for validate().

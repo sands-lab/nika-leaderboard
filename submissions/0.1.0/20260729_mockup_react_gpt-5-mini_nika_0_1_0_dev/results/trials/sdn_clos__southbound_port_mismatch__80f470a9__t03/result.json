@@ -1,0 +1,24 @@
+{
+  "case_key": "sdn_clos__southbound_port_mismatch__80f470a9",
+  "metrics": {
+    "detection_score": 1.0,
+    "in_tokens": 448204,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 8926,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 17,
+    "tool_calls": 27,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "problem": "southbound_port_mismatch",
+  "scenario": "sdn_clos",
+  "trial_id": "sdn_clos__southbound_port_mismatch__80f470a9__t03",
+  "trial_index": 3
+}

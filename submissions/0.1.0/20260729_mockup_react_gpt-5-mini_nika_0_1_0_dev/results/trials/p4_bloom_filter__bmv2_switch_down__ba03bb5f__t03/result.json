@@ -1,0 +1,9 @@
+{
+  "case_key": "p4_bloom_filter__bmv2_switch_down__ba03bb5f",
+  "metrics": {},
+  "outcome": "agent_failed",
+  "problem": "bmv2_switch_down",
+  "scenario": "p4_bloom_filter",
+  "trial_id": "p4_bloom_filter__bmv2_switch_down__ba03bb5f__t03",
+  "trial_index": 3
+}

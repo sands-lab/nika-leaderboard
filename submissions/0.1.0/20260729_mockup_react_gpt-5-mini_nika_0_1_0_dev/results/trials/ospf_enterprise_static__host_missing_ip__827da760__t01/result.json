@@ -1,0 +1,24 @@
+{
+  "case_key": "ospf_enterprise_static__host_missing_ip__827da760",
+  "metrics": {
+    "detection_score": 1.0,
+    "in_tokens": 253711,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 14330,
+    "rca_accuracy": 1.0,
+    "rca_f1": 0.6667,
+    "rca_precision": 0.5,
+    "rca_recall": 1.0,
+    "steps": 16,
+    "tool_calls": 27,
+    "tool_errors": 6
+  },
+  "outcome": "success",
+  "problem": "host_missing_ip",
+  "scenario": "ospf_enterprise_static",
+  "trial_id": "ospf_enterprise_static__host_missing_ip__827da760__t01",
+  "trial_index": 1
+}
