@@ -1,0 +1,9 @@
+{
+  "case_key": "p4_bloom_filter__p4_header_definition_error__e3525e1d",
+  "metrics": {},
+  "outcome": "agent_failed",
+  "problem": "p4_header_definition_error",
+  "scenario": "p4_bloom_filter",
+  "trial_id": "p4_bloom_filter__p4_header_definition_error__e3525e1d__t02",
+  "trial_index": 2
+}

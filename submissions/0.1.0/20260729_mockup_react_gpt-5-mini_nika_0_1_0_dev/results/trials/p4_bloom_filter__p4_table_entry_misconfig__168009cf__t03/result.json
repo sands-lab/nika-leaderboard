@@ -1,0 +1,9 @@
+{
+  "case_key": "p4_bloom_filter__p4_table_entry_misconfig__168009cf",
+  "metrics": {},
+  "outcome": "agent_failed",
+  "problem": "p4_table_entry_misconfig",
+  "scenario": "p4_bloom_filter",
+  "trial_id": "p4_bloom_filter__p4_table_entry_misconfig__168009cf__t03",
+  "trial_index": 3
+}

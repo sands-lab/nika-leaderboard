@@ -1,0 +1,9 @@
+{
+  "case_key": "p4_bloom_filter__p4_table_entry_missing__8dd22c3a",
+  "metrics": {},
+  "outcome": "agent_failed",
+  "problem": "p4_table_entry_missing",
+  "scenario": "p4_bloom_filter",
+  "trial_id": "p4_bloom_filter__p4_table_entry_missing__8dd22c3a__t01",
+  "trial_index": 1
+}

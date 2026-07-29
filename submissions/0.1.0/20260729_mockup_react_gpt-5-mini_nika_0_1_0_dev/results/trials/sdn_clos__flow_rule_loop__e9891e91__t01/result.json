@@ -1,0 +1,24 @@
+{
+  "case_key": "sdn_clos__flow_rule_loop__e9891e91",
+  "metrics": {
+    "detection_score": 1.0,
+    "in_tokens": 147046,
+    "localization_accuracy": 0.5,
+    "localization_f1": 0.6667,
+    "localization_precision": 1.0,
+    "localization_recall": 0.5,
+    "out_tokens": 10473,
+    "rca_accuracy": 1.0,
+    "rca_f1": 1.0,
+    "rca_precision": 1.0,
+    "rca_recall": 1.0,
+    "steps": 17,
+    "tool_calls": 16,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "problem": "flow_rule_loop",
+  "scenario": "sdn_clos",
+  "trial_id": "sdn_clos__flow_rule_loop__e9891e91__t01",
+  "trial_index": 1
+}

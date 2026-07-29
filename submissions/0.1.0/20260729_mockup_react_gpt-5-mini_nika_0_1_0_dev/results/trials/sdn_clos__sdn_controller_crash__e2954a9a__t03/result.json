@@ -1,0 +1,24 @@
+{
+  "case_key": "sdn_clos__sdn_controller_crash__e2954a9a",
+  "metrics": {
+    "detection_score": 1.0,
+    "in_tokens": 16977,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 3490,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 3,
+    "tool_calls": 13,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "problem": "sdn_controller_crash",
+  "scenario": "sdn_clos",
+  "trial_id": "sdn_clos__sdn_controller_crash__e2954a9a__t03",
+  "trial_index": 3
+}

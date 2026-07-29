@@ -1,0 +1,24 @@
+{
+  "case_key": "dc_clos_bgp__link_bandwidth_throttling__32c5a1d7",
+  "metrics": {
+    "detection_score": 0.0,
+    "in_tokens": 41286,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 5598,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 5,
+    "tool_calls": 19,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "problem": "link_bandwidth_throttling",
+  "scenario": "dc_clos_bgp",
+  "trial_id": "dc_clos_bgp__link_bandwidth_throttling__32c5a1d7__t01",
+  "trial_index": 1
+}

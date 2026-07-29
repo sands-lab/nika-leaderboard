@@ -1,0 +1,9 @@
+{
+  "case_key": "ospf_enterprise_dhcp__dhcp_spoofed_subnet__7167b386",
+  "metrics": {},
+  "outcome": "agent_failed",
+  "problem": "dhcp_spoofed_subnet",
+  "scenario": "ospf_enterprise_dhcp",
+  "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_subnet__7167b386__t03",
+  "trial_index": 3
+}
