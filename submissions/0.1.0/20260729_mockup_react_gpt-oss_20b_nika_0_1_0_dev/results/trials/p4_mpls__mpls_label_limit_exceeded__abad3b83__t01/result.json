@@ -1,0 +1,9 @@
+{
+  "case_key": "p4_mpls__mpls_label_limit_exceeded__abad3b83",
+  "metrics": {},
+  "outcome": "agent_failed",
+  "problem": "mpls_label_limit_exceeded",
+  "scenario": "p4_mpls",
+  "trial_id": "p4_mpls__mpls_label_limit_exceeded__abad3b83__t01",
+  "trial_index": 1
+}

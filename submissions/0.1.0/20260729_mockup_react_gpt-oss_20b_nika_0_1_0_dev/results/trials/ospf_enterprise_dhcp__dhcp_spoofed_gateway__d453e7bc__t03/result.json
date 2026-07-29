@@ -1,0 +1,24 @@
+{
+  "case_key": "ospf_enterprise_dhcp__dhcp_spoofed_gateway__d453e7bc",
+  "metrics": {
+    "detection_score": 1.0,
+    "in_tokens": 34498,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 2609,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 7,
+    "tool_calls": 6,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "problem": "dhcp_spoofed_gateway",
+  "scenario": "ospf_enterprise_dhcp",
+  "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_gateway__d453e7bc__t03",
+  "trial_index": 3
+}

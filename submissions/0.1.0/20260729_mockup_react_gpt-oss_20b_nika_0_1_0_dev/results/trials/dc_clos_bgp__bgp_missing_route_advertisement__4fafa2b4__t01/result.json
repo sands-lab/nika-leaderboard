@@ -1,0 +1,24 @@
+{
+  "case_key": "dc_clos_bgp__bgp_missing_route_advertisement__4fafa2b4",
+  "metrics": {
+    "detection_score": -1.0,
+    "in_tokens": 136232,
+    "localization_accuracy": -1.0,
+    "localization_f1": -1.0,
+    "localization_precision": -1.0,
+    "localization_recall": -1.0,
+    "out_tokens": 2801,
+    "rca_accuracy": -1.0,
+    "rca_f1": -1.0,
+    "rca_precision": -1.0,
+    "rca_recall": -1.0,
+    "steps": 20,
+    "tool_calls": 19,
+    "tool_errors": 0
+  },
+  "outcome": "agent_failed",
+  "problem": "bgp_missing_route_advertisement",
+  "scenario": "dc_clos_bgp",
+  "trial_id": "dc_clos_bgp__bgp_missing_route_advertisement__4fafa2b4__t01",
+  "trial_index": 1
+}
