@@ -1,0 +1,24 @@
+{
+  "case_key": "ospf_enterprise_dhcp__arp_cache_poisoning__4bd04228",
+  "metrics": {
+    "detection_score": -1.0,
+    "in_tokens": 111729,
+    "localization_accuracy": -1.0,
+    "localization_f1": -1.0,
+    "localization_precision": -1.0,
+    "localization_recall": -1.0,
+    "out_tokens": 1872,
+    "rca_accuracy": -1.0,
+    "rca_f1": -1.0,
+    "rca_precision": -1.0,
+    "rca_recall": -1.0,
+    "steps": 19,
+    "tool_calls": 18,
+    "tool_errors": 0
+  },
+  "outcome": "agent_failed",
+  "problem": "arp_cache_poisoning",
+  "scenario": "ospf_enterprise_dhcp",
+  "trial_id": "ospf_enterprise_dhcp__arp_cache_poisoning__4bd04228__t01",
+  "trial_index": 1
+}

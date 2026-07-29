@@ -1,0 +1,24 @@
+{
+  "case_key": "ospf_enterprise_dhcp__load_balancer_overload__222448aa",
+  "metrics": {
+    "detection_score": -1.0,
+    "in_tokens": 47551,
+    "localization_accuracy": -1.0,
+    "localization_f1": -1.0,
+    "localization_precision": -1.0,
+    "localization_recall": -1.0,
+    "out_tokens": 1204,
+    "rca_accuracy": -1.0,
+    "rca_f1": -1.0,
+    "rca_precision": -1.0,
+    "rca_recall": -1.0,
+    "steps": 10,
+    "tool_calls": 9,
+    "tool_errors": 0
+  },
+  "outcome": "agent_failed",
+  "problem": "load_balancer_overload",
+  "scenario": "ospf_enterprise_dhcp",
+  "trial_id": "ospf_enterprise_dhcp__load_balancer_overload__222448aa__t02",
+  "trial_index": 2
+}

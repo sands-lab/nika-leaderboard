@@ -1,0 +1,24 @@
+{
+  "case_key": "ospf_enterprise_dhcp__sender_application_delay__e6bcc149",
+  "metrics": {
+    "detection_score": -1.0,
+    "in_tokens": 100813,
+    "localization_accuracy": -1.0,
+    "localization_f1": -1.0,
+    "localization_precision": -1.0,
+    "localization_recall": -1.0,
+    "out_tokens": 1090,
+    "rca_accuracy": -1.0,
+    "rca_f1": -1.0,
+    "rca_precision": -1.0,
+    "rca_recall": -1.0,
+    "steps": 20,
+    "tool_calls": 19,
+    "tool_errors": 0
+  },
+  "outcome": "agent_failed",
+  "problem": "sender_application_delay",
+  "scenario": "ospf_enterprise_dhcp",
+  "trial_id": "ospf_enterprise_dhcp__sender_application_delay__e6bcc149__t03",
+  "trial_index": 3
+}

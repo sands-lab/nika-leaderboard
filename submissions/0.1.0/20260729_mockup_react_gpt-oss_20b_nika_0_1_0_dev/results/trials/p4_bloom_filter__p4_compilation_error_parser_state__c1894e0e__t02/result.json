@@ -1,0 +1,9 @@
+{
+  "case_key": "p4_bloom_filter__p4_compilation_error_parser_state__c1894e0e",
+  "metrics": {},
+  "outcome": "agent_failed",
+  "problem": "p4_compilation_error_parser_state",
+  "scenario": "p4_bloom_filter",
+  "trial_id": "p4_bloom_filter__p4_compilation_error_parser_state__c1894e0e__t02",
+  "trial_index": 2
+}

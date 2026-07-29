@@ -1,0 +1,19 @@
+{
+  "case_key": "sdn_clos__southbound_port_block__02c651b7",
+  "metrics": {
+    "detection_score": -1.0,
+    "localization_accuracy": -1.0,
+    "localization_f1": -1.0,
+    "localization_precision": -1.0,
+    "localization_recall": -1.0,
+    "rca_accuracy": -1.0,
+    "rca_f1": -1.0,
+    "rca_precision": -1.0,
+    "rca_recall": -1.0
+  },
+  "outcome": "agent_failed",
+  "problem": "southbound_port_block",
+  "scenario": "sdn_clos",
+  "trial_id": "sdn_clos__southbound_port_block__02c651b7__t02",
+  "trial_index": 2
+}
