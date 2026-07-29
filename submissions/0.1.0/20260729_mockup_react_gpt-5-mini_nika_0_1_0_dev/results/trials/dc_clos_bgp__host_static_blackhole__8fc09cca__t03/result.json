@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__host_static_blackhole__8fc09cca",
+  "gt_root_cause_name": [
+    "host_static_blackhole"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 115046,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_static_blackhole"
+  ],
   "problem": "host_static_blackhole",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__host_static_blackhole__8fc09cca__t03",

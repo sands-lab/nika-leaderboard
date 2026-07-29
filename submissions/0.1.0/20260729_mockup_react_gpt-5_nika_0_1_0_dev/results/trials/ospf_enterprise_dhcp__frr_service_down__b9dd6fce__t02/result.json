@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__frr_service_down__b9dd6fce",
+  "gt_root_cause_name": [
+    "frr_service_down"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 108348,
@@ -17,6 +20,10 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "frr_service_down",
+    "dhcp_service_down"
+  ],
   "problem": "frr_service_down",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__frr_service_down__b9dd6fce__t02",

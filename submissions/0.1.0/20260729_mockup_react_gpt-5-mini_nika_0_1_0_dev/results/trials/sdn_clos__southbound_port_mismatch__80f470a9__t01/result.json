@@ -1,5 +1,8 @@
 {
   "case_key": "sdn_clos__southbound_port_mismatch__80f470a9",
+  "gt_root_cause_name": [
+    "southbound_port_mismatch"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 448204,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "sdn_controller_crash"
+  ],
   "problem": "southbound_port_mismatch",
   "scenario": "sdn_clos",
   "trial_id": "sdn_clos__southbound_port_mismatch__80f470a9__t01",

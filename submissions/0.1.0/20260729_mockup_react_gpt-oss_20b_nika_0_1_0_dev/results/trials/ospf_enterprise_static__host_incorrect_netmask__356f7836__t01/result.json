@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_static__host_incorrect_netmask__356f7836",
+  "gt_root_cause_name": [
+    "host_incorrect_netmask"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 54322,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "host_incorrect_netmask",
   "scenario": "ospf_enterprise_static",
   "trial_id": "ospf_enterprise_static__host_incorrect_netmask__356f7836__t01",

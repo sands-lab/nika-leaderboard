@@ -1,22 +1,28 @@
 {
   "case_key": "ospf_enterprise_dhcp__load_balancer_overload__222448aa",
+  "gt_root_cause_name": [
+    "load_balancer_overload"
+  ],
   "metrics": {
     "detection_score": 1.0,
-    "in_tokens": 31784,
+    "in_tokens": 228940,
     "localization_accuracy": 1.0,
-    "localization_f1": 0.5,
-    "localization_precision": 0.3333,
+    "localization_f1": 0.6667,
+    "localization_precision": 0.5,
     "localization_recall": 1.0,
-    "out_tokens": 7342,
+    "out_tokens": 6310,
     "rca_accuracy": 0.0,
     "rca_f1": 0.0,
     "rca_precision": 0.0,
     "rca_recall": 0.0,
-    "steps": 5,
-    "tool_calls": 28,
-    "tool_errors": 2
+    "steps": 15,
+    "tool_calls": 25,
+    "tool_errors": 1
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_incorrect_ip"
+  ],
   "problem": "load_balancer_overload",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__load_balancer_overload__222448aa__t03",

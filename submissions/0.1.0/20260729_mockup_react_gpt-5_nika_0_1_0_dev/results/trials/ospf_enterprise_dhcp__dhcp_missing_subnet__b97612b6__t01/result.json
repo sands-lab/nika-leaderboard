@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__dhcp_missing_subnet__b97612b6",
+  "gt_root_cause_name": [
+    "dhcp_missing_subnet"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 59556,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "dhcp_service_down"
+  ],
   "problem": "dhcp_missing_subnet",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__dhcp_missing_subnet__b97612b6__t01",

@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__arp_cache_poisoning__4bd04228",
+  "gt_root_cause_name": [
+    "arp_cache_poisoning"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 91244,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_static_blackhole"
+  ],
   "problem": "arp_cache_poisoning",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__arp_cache_poisoning__4bd04228__t02",

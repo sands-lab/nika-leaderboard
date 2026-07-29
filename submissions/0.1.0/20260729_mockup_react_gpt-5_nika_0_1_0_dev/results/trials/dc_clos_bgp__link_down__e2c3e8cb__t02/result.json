@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__link_down__e2c3e8cb",
+  "gt_root_cause_name": [
+    "link_down"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 119813,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "link_down"
+  ],
   "problem": "link_down",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__link_down__e2c3e8cb__t02",

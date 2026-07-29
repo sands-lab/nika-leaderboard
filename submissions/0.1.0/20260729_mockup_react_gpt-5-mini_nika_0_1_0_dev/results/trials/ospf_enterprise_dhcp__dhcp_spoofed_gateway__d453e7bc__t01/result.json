@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__dhcp_spoofed_gateway__d453e7bc",
+  "gt_root_cause_name": [
+    "dhcp_spoofed_gateway"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 274957,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "dhcp_spoofed_gateway",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_gateway__d453e7bc__t01",

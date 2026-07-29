@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__host_crash__45fc915a",
+  "gt_root_cause_name": [
+    "host_crash"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 17995,
@@ -17,6 +20,9 @@
     "tool_errors": 4
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_crash"
+  ],
   "problem": "host_crash",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__host_crash__45fc915a__t01",

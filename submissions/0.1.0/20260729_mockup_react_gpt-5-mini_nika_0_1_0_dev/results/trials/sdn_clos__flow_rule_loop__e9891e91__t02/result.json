@@ -1,5 +1,8 @@
 {
   "case_key": "sdn_clos__flow_rule_loop__e9891e91",
+  "gt_root_cause_name": [
+    "flow_rule_loop"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 92106,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "bmv2_switch_down"
+  ],
   "problem": "flow_rule_loop",
   "scenario": "sdn_clos",
   "trial_id": "sdn_clos__flow_rule_loop__e9891e91__t02",

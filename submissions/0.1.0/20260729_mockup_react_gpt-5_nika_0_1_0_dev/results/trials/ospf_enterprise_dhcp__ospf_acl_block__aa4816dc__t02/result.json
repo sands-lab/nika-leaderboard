@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__ospf_acl_block__aa4816dc",
+  "gt_root_cause_name": [
+    "ospf_acl_block"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 138376,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "ospf_neighbor_missing"
+  ],
   "problem": "ospf_acl_block",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__ospf_acl_block__aa4816dc__t02",

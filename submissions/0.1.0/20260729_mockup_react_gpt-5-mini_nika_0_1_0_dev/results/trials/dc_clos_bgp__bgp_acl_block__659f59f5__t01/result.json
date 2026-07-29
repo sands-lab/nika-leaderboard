@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__bgp_acl_block__659f59f5",
+  "gt_root_cause_name": [
+    "bgp_acl_block"
+  ],
   "metrics": {
     "detection_score": 0.0,
     "in_tokens": 12504,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": null,
   "problem": "bgp_acl_block",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__bgp_acl_block__659f59f5__t01",

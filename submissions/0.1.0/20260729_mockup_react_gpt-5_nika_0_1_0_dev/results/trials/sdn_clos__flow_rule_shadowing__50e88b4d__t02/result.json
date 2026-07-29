@@ -1,5 +1,8 @@
 {
   "case_key": "sdn_clos__flow_rule_shadowing__50e88b4d",
+  "gt_root_cause_name": [
+    "flow_rule_shadowing"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 33313,
@@ -17,6 +20,11 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "p4_table_entry_missing",
+    "flow_rule_shadowing",
+    "link_detach"
+  ],
   "problem": "flow_rule_shadowing",
   "scenario": "sdn_clos",
   "trial_id": "sdn_clos__flow_rule_shadowing__50e88b4d__t02",

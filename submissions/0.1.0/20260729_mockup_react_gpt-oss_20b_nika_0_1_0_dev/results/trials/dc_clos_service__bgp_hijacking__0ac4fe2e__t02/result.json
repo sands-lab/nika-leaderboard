@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_service__bgp_hijacking__0ac4fe2e",
+  "gt_root_cause_name": [
+    "bgp_hijacking"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 109187,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "bgp_hijacking",
   "scenario": "dc_clos_service",
   "trial_id": "dc_clos_service__bgp_hijacking__0ac4fe2e__t02",

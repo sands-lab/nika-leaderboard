@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__sender_resource_contention__93912e95",
+  "gt_root_cause_name": [
+    "sender_resource_contention"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 63219,
@@ -17,6 +20,10 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "ospf_missing_route_advertisement",
+    "icmp_acl_block"
+  ],
   "problem": "sender_resource_contention",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__sender_resource_contention__93912e95__t01",

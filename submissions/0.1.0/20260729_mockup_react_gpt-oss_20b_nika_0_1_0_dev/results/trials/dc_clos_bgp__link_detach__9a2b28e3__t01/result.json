@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__link_detach__9a2b28e3",
+  "gt_root_cause_name": [
+    "link_detach"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 37131,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_missing_ip"
+  ],
   "problem": "link_detach",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__link_detach__9a2b28e3__t01",

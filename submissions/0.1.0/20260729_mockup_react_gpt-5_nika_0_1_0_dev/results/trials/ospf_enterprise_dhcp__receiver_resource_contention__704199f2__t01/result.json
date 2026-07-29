@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__receiver_resource_contention__704199f2",
+  "gt_root_cause_name": [
+    "receiver_resource_contention"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 41006,
@@ -17,6 +20,9 @@
     "tool_errors": 1
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "sender_application_delay"
+  ],
   "problem": "receiver_resource_contention",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__receiver_resource_contention__704199f2__t01",

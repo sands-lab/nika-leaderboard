@@ -1,22 +1,28 @@
 {
   "case_key": "ospf_enterprise_dhcp__sender_resource_contention__93912e95",
+  "gt_root_cause_name": [
+    "sender_resource_contention"
+  ],
   "metrics": {
     "detection_score": 1.0,
-    "in_tokens": 101058,
+    "in_tokens": 62884,
     "localization_accuracy": 1.0,
     "localization_f1": 1.0,
     "localization_precision": 1.0,
     "localization_recall": 1.0,
-    "out_tokens": 15574,
+    "out_tokens": 16547,
     "rca_accuracy": 0.0,
     "rca_f1": 0.0,
     "rca_precision": 0.0,
     "rca_recall": 0.0,
-    "steps": 11,
-    "tool_calls": 43,
-    "tool_errors": 1
+    "steps": 7,
+    "tool_calls": 29,
+    "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "sender_application_delay"
+  ],
   "problem": "sender_resource_contention",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__sender_resource_contention__93912e95__t03",

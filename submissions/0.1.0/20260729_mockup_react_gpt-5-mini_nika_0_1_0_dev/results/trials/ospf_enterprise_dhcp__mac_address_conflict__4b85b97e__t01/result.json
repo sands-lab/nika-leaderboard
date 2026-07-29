@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__mac_address_conflict__4b85b97e",
+  "gt_root_cause_name": [
+    "mac_address_conflict"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 194307,
@@ -17,6 +20,10 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "dhcp_service_down",
+    "host_missing_ip"
+  ],
   "problem": "mac_address_conflict",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__mac_address_conflict__4b85b97e__t01",

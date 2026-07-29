@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__dns_lookup_latency__bd3b9394",
+  "gt_root_cause_name": [
+    "dns_lookup_latency"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 28348,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "dns_lookup_latency"
+  ],
   "problem": "dns_lookup_latency",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__dns_lookup_latency__bd3b9394__t01",

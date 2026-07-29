@@ -1,5 +1,8 @@
 {
   "case_key": "sdn_clos__southbound_port_block__02c651b7",
+  "gt_root_cause_name": [
+    "southbound_port_block"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 54944,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "southbound_port_block"
+  ],
   "problem": "southbound_port_block",
   "scenario": "sdn_clos",
   "trial_id": "sdn_clos__southbound_port_block__02c651b7__t01",

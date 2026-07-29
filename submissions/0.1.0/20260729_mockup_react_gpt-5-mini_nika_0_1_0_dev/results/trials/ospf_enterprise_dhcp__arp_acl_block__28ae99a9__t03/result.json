@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__arp_acl_block__28ae99a9",
+  "gt_root_cause_name": [
+    "arp_acl_block"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 114442,
@@ -17,6 +20,10 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "arp_acl_block",
+    "host_static_blackhole"
+  ],
   "problem": "arp_acl_block",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__arp_acl_block__28ae99a9__t03",

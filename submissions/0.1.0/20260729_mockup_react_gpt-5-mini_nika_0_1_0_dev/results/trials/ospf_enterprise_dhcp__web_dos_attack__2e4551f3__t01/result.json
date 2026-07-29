@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__web_dos_attack__2e4551f3",
+  "gt_root_cause_name": [
+    "web_dos_attack"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 42960,
@@ -17,6 +20,10 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "ospf_area_misconfiguration",
+    "link_bandwidth_throttling"
+  ],
   "problem": "web_dos_attack",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__web_dos_attack__2e4551f3__t01",

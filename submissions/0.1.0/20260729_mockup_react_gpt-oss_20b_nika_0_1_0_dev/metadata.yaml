@@ -20,4 +20,5 @@ agent:
   os_system: false
   extra:
     source_csv: results/test/0_summary/evaluation_summary_old.csv
-    note: Fabricated package to match frozen leaderboard trials for validate().
+    source_zip: results/merged_results.zip
+    note: Fabricated schema-2 package aligned to frozen 0.1.0/dev trials.

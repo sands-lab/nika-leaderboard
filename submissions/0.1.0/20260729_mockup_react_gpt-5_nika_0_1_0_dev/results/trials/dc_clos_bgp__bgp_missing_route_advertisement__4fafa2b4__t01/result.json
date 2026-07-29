@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__bgp_missing_route_advertisement__4fafa2b4",
+  "gt_root_cause_name": [
+    "bgp_missing_route_advertisement"
+  ],
   "metrics": {
     "detection_score": 0.0,
     "in_tokens": 11754,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": null,
   "problem": "bgp_missing_route_advertisement",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__bgp_missing_route_advertisement__4fafa2b4__t01",

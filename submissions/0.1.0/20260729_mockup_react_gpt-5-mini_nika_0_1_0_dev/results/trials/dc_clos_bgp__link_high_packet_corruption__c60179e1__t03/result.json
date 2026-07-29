@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__link_high_packet_corruption__c60179e1",
+  "gt_root_cause_name": [
+    "link_high_packet_corruption"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 93680,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "link_high_packet_corruption"
+  ],
   "problem": "link_high_packet_corruption",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__link_high_packet_corruption__c60179e1__t03",

@@ -1,5 +1,8 @@
 {
   "case_key": "sdn_clos__sdn_controller_crash__e2954a9a",
+  "gt_root_cause_name": [
+    "sdn_controller_crash"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 43807,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "sdn_controller_crash"
+  ],
   "problem": "sdn_controller_crash",
   "scenario": "sdn_clos",
   "trial_id": "sdn_clos__sdn_controller_crash__e2954a9a__t02",

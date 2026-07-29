@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__link_flap__e7bb9ecc",
+  "gt_root_cause_name": [
+    "link_flap"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 171708,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "link_flap",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__link_flap__e7bb9ecc__t02",
