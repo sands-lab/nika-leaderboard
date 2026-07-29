@@ -203,7 +203,7 @@ export function InsightsPage() {
             const p = params as { data: { name: string } }
             return p.data.name
           },
-          position: 'right',
+          position: 'right' as const,
           fontSize: 11,
           color: '#1c2421',
         },
@@ -426,7 +426,7 @@ export function InsightsPage() {
           barMaxWidth: 42,
           label: {
             show: true,
-            position: 'top',
+            position: 'top' as const,
             formatter: (p: unknown) => {
               const v = (p as { value: number }).value
               return v.toFixed(2)
