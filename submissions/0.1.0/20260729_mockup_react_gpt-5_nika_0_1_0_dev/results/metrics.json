@@ -1,0 +1,19 @@
+{
+  "mean_detection_score": 0.7380952380952381,
+  "mean_localization_f1": 0.5894869047619049,
+  "mean_rca_f1": 0.4623053571428572,
+  "n_agent_failed": 25,
+  "n_success": 143,
+  "n_trials_expected": 168,
+  "n_trials_present": 168,
+  "primary_metric": "rca_f1",
+  "steps_totals": {
+    "steps": 1057,
+    "tool_calls": 4309,
+    "tool_errors": 42
+  },
+  "token_totals": {
+    "in_tokens": 9135074,
+    "out_tokens": 2179422
+  }
+}
