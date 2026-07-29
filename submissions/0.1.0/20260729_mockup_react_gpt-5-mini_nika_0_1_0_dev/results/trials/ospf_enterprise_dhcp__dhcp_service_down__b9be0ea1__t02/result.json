@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__dhcp_service_down__b9be0ea1",
+  "gt_root_cause_name": [
+    "dhcp_service_down"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 30441,
@@ -17,6 +20,12 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "dns_record_error",
+    "ospf_area_misconfiguration",
+    "load_balancer_overload",
+    "receiver_resource_contention"
+  ],
   "problem": "dhcp_service_down",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__dhcp_service_down__b9be0ea1__t02",

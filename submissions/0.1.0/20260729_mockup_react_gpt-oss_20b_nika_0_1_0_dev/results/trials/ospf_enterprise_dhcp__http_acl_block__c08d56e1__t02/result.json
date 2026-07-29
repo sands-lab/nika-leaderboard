@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__http_acl_block__c08d56e1",
+  "gt_root_cause_name": [
+    "http_acl_block"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 67819,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "http_acl_block",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__http_acl_block__c08d56e1__t02",

@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__sender_application_delay__e6bcc149",
+  "gt_root_cause_name": [
+    "sender_application_delay"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 53643,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "sender_application_delay",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__sender_application_delay__e6bcc149__t02",

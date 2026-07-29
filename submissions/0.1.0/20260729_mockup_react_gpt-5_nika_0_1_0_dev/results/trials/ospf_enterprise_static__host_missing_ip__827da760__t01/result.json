@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_static__host_missing_ip__827da760",
+  "gt_root_cause_name": [
+    "host_missing_ip"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 40826,
@@ -17,6 +20,9 @@
     "tool_errors": 1
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_missing_ip"
+  ],
   "problem": "host_missing_ip",
   "scenario": "ospf_enterprise_static",
   "trial_id": "ospf_enterprise_static__host_missing_ip__827da760__t01",

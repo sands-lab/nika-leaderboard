@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__dhcp_spoofed_dns__9630e588",
+  "gt_root_cause_name": [
+    "dhcp_spoofed_dns"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 40115,
@@ -17,6 +20,10 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_incorrect_dns",
+    "dns_port_blocked"
+  ],
   "problem": "dhcp_spoofed_dns",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_dns__9630e588__t02",

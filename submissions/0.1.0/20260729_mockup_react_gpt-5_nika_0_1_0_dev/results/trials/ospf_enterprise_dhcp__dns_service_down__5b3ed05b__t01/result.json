@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__dns_service_down__5b3ed05b",
+  "gt_root_cause_name": [
+    "dns_service_down"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 42442,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "dns_service_down"
+  ],
   "problem": "dns_service_down",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__dns_service_down__5b3ed05b__t01",

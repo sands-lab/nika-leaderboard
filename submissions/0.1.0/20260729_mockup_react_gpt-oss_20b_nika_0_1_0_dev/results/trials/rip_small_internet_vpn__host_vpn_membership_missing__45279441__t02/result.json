@@ -1,5 +1,8 @@
 {
   "case_key": "rip_small_internet_vpn__host_vpn_membership_missing__45279441",
+  "gt_root_cause_name": [
+    "host_vpn_membership_missing"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 107130,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "host_vpn_membership_missing",
   "scenario": "rip_small_internet_vpn",
   "trial_id": "rip_small_internet_vpn__host_vpn_membership_missing__45279441__t02",

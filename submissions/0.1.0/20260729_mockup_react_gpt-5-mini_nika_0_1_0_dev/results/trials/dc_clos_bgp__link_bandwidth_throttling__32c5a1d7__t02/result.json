@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__link_bandwidth_throttling__32c5a1d7",
+  "gt_root_cause_name": [
+    "link_bandwidth_throttling"
+  ],
   "metrics": {
     "detection_score": 0.0,
     "in_tokens": 19688,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": null,
   "problem": "link_bandwidth_throttling",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__link_bandwidth_throttling__32c5a1d7__t02",

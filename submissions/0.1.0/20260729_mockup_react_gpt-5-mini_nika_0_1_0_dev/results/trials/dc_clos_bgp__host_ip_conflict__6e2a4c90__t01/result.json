@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__host_ip_conflict__6e2a4c90",
+  "gt_root_cause_name": [
+    "host_ip_conflict"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 202598,
@@ -17,6 +20,11 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_incorrect_ip",
+    "host_incorrect_gateway",
+    "host_ip_conflict"
+  ],
   "problem": "host_ip_conflict",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__host_ip_conflict__6e2a4c90__t01",

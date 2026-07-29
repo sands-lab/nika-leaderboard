@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__load_balancer_overload__222448aa",
+  "gt_root_cause_name": [
+    "load_balancer_overload"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 228940,
@@ -17,6 +20,9 @@
     "tool_errors": 1
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_incorrect_ip"
+  ],
   "problem": "load_balancer_overload",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__load_balancer_overload__222448aa__t02",

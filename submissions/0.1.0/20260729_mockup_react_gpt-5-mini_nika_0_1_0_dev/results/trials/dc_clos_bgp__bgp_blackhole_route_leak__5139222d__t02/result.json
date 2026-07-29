@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__bgp_blackhole_route_leak__5139222d",
+  "gt_root_cause_name": [
+    "bgp_blackhole_route_leak"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 174407,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "bgp_blackhole_route_leak",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__bgp_blackhole_route_leak__5139222d__t02",

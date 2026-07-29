@@ -1,22 +1,26 @@
 {
   "case_key": "dc_clos_bgp__bgp_blackhole_route_leak__5139222d",
+  "gt_root_cause_name": [
+    "bgp_blackhole_route_leak"
+  ],
   "metrics": {
     "detection_score": -1.0,
-    "in_tokens": 101188,
+    "in_tokens": 62808,
     "localization_accuracy": -1.0,
     "localization_f1": -1.0,
     "localization_precision": -1.0,
     "localization_recall": -1.0,
-    "out_tokens": 3836,
+    "out_tokens": 546,
     "rca_accuracy": -1.0,
     "rca_f1": -1.0,
     "rca_precision": -1.0,
     "rca_recall": -1.0,
-    "steps": 20,
-    "tool_calls": 20,
+    "steps": 14,
+    "tool_calls": 13,
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "bgp_blackhole_route_leak",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__bgp_blackhole_route_leak__5139222d__t03",

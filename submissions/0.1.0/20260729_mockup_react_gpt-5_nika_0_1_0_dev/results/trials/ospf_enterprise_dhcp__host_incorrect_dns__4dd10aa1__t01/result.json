@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__host_incorrect_dns__4dd10aa1",
+  "gt_root_cause_name": [
+    "host_incorrect_dns"
+  ],
   "metrics": {
     "detection_score": 0.0,
     "in_tokens": 93918,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": null,
   "problem": "host_incorrect_dns",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__host_incorrect_dns__4dd10aa1__t01",

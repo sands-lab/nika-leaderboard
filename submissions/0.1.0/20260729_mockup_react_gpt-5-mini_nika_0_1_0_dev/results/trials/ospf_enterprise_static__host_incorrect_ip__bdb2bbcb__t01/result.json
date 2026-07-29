@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_static__host_incorrect_ip__bdb2bbcb",
+  "gt_root_cause_name": [
+    "host_incorrect_ip"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 256398,
@@ -17,6 +20,10 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "ospf_neighbor_missing",
+    "ospf_area_misconfiguration"
+  ],
   "problem": "host_incorrect_ip",
   "scenario": "ospf_enterprise_static",
   "trial_id": "ospf_enterprise_static__host_incorrect_ip__bdb2bbcb__t01",

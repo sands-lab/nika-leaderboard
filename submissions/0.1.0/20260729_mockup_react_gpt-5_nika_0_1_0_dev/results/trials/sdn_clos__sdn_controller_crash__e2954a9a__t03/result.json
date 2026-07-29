@@ -1,22 +1,28 @@
 {
   "case_key": "sdn_clos__sdn_controller_crash__e2954a9a",
+  "gt_root_cause_name": [
+    "sdn_controller_crash"
+  ],
   "metrics": {
     "detection_score": 1.0,
-    "in_tokens": 46458,
-    "localization_accuracy": 0.0,
-    "localization_f1": 0.0,
-    "localization_precision": 0.0,
-    "localization_recall": 0.0,
-    "out_tokens": 10296,
+    "in_tokens": 43807,
+    "localization_accuracy": 1.0,
+    "localization_f1": 1.0,
+    "localization_precision": 1.0,
+    "localization_recall": 1.0,
+    "out_tokens": 8132,
     "rca_accuracy": 1.0,
     "rca_f1": 1.0,
     "rca_precision": 1.0,
     "rca_recall": 1.0,
-    "steps": 6,
-    "tool_calls": 35,
+    "steps": 7,
+    "tool_calls": 26,
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "sdn_controller_crash"
+  ],
   "problem": "sdn_controller_crash",
   "scenario": "sdn_clos",
   "trial_id": "sdn_clos__sdn_controller_crash__e2954a9a__t03",

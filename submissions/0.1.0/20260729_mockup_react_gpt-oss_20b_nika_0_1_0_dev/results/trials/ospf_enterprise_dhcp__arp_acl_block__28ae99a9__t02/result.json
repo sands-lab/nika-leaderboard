@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__arp_acl_block__28ae99a9",
+  "gt_root_cause_name": [
+    "arp_acl_block"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 119934,
@@ -17,6 +20,7 @@
     "tool_errors": 1
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "arp_acl_block",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__arp_acl_block__28ae99a9__t02",

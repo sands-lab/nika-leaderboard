@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__ospf_neighbor_missing__c942db33",
+  "gt_root_cause_name": [
+    "ospf_neighbor_missing"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 79291,
@@ -17,6 +20,10 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "link_flap",
+    "host_missing_ip"
+  ],
   "problem": "ospf_neighbor_missing",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__ospf_neighbor_missing__c942db33__t02",

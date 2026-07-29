@@ -1,5 +1,8 @@
 {
   "case_key": "sdn_clos__flow_rule_shadowing__50e88b4d",
+  "gt_root_cause_name": [
+    "flow_rule_shadowing"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 109306,
@@ -17,6 +20,9 @@
     "tool_errors": 3
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_crash"
+  ],
   "problem": "flow_rule_shadowing",
   "scenario": "sdn_clos",
   "trial_id": "sdn_clos__flow_rule_shadowing__50e88b4d__t02",

@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__dns_record_error__4f65fcd4",
+  "gt_root_cause_name": [
+    "dns_record_error"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 147543,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "dns_record_error",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__dns_record_error__4f65fcd4__t02",

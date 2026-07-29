@@ -1,22 +1,28 @@
 {
   "case_key": "sdn_clos__flow_rule_shadowing__50e88b4d",
+  "gt_root_cause_name": [
+    "flow_rule_shadowing"
+  ],
   "metrics": {
     "detection_score": 1.0,
-    "in_tokens": 38789,
+    "in_tokens": 109306,
     "localization_accuracy": 0.0,
     "localization_f1": 0.0,
     "localization_precision": 0.0,
     "localization_recall": 0.0,
-    "out_tokens": 6547,
+    "out_tokens": 2221,
     "rca_accuracy": 0.0,
     "rca_f1": 0.0,
     "rca_precision": 0.0,
     "rca_recall": 0.0,
-    "steps": 8,
-    "tool_calls": 7,
-    "tool_errors": 0
+    "steps": 17,
+    "tool_calls": 16,
+    "tool_errors": 3
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "host_crash"
+  ],
   "problem": "flow_rule_shadowing",
   "scenario": "sdn_clos",
   "trial_id": "sdn_clos__flow_rule_shadowing__50e88b4d__t03",

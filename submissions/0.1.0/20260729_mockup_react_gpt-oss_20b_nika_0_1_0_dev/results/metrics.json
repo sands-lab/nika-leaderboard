@@ -8,12 +8,12 @@
   "n_trials_present": 168,
   "primary_metric": "rca_f1",
   "steps_totals": {
-    "steps": 1917,
-    "tool_calls": 1803,
-    "tool_errors": 25
+    "steps": 1905,
+    "tool_calls": 1793,
+    "tool_errors": 31
   },
   "token_totals": {
-    "in_tokens": 10092143,
-    "out_tokens": 1171959
+    "in_tokens": 10122016,
+    "out_tokens": 763817
   }
 }

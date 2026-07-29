@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__web_dos_attack__2e4551f3",
+  "gt_root_cause_name": [
+    "web_dos_attack"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 106762,
@@ -17,6 +20,10 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "sender_resource_contention",
+    "link_flap"
+  ],
   "problem": "web_dos_attack",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__web_dos_attack__2e4551f3__t02",

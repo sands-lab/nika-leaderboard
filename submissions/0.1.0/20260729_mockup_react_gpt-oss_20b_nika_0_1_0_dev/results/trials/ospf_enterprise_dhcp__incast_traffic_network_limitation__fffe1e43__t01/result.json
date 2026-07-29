@@ -1,5 +1,8 @@
 {
   "case_key": "ospf_enterprise_dhcp__incast_traffic_network_limitation__fffe1e43",
+  "gt_root_cause_name": [
+    "incast_traffic_network_limitation"
+  ],
   "metrics": {
     "detection_score": -1.0,
     "in_tokens": 113481,
@@ -17,6 +20,7 @@
     "tool_errors": 0
   },
   "outcome": "agent_failed",
+  "predicted_root_cause_name": null,
   "problem": "incast_traffic_network_limitation",
   "scenario": "ospf_enterprise_dhcp",
   "trial_id": "ospf_enterprise_dhcp__incast_traffic_network_limitation__fffe1e43__t01",

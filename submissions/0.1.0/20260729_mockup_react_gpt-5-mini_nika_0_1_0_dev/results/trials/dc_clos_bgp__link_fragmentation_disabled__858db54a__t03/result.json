@@ -1,5 +1,8 @@
 {
   "case_key": "dc_clos_bgp__link_fragmentation_disabled__858db54a",
+  "gt_root_cause_name": [
+    "link_fragmentation_disabled"
+  ],
   "metrics": {
     "detection_score": 1.0,
     "in_tokens": 46927,
@@ -17,6 +20,9 @@
     "tool_errors": 0
   },
   "outcome": "success",
+  "predicted_root_cause_name": [
+    "bgp_asn_misconfig"
+  ],
   "problem": "link_fragmentation_disabled",
   "scenario": "dc_clos_bgp",
   "trial_id": "dc_clos_bgp__link_fragmentation_disabled__858db54a__t03",
