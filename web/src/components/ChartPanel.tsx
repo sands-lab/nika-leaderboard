@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type RefObject } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import type { EChartsType } from 'echarts'
@@ -16,6 +16,9 @@ interface ChartPanelProps {
   /** Show the bottom dataZoom slider (can collide with rotated x-axis labels). */
   zoomSlider?: boolean
   onEvents?: Record<string, (params: unknown) => void>
+  /** Overlay rendered above the chart canvas (same size box). */
+  overlay?: ReactNode
+  onChartReady?: (chart: EChartsType | null) => void
 }
 
 function withInteractions(
@@ -69,12 +72,11 @@ function withInteractions(
         ? option.legend
         : {
             ...option.legend,
-            bottom:
-              typeof option.legend === 'object' &&
-              'bottom' in option.legend &&
-              option.legend.bottom != null
-                ? option.legend.bottom
-                : 28,
+            // Only pin legend to bottom when the option didn't already place it.
+            ...(!('top' in option.legend) &&
+            !('bottom' in option.legend && option.legend.bottom != null)
+              ? { bottom: 28 }
+              : {}),
           }
       : option.legend,
     toolbox: {
@@ -103,6 +105,7 @@ function ChartCanvas({
   zoomable,
   zoomSlider,
   onEvents,
+  onChartReady,
 }: {
   option: EChartsOption
   height: number
@@ -110,11 +113,18 @@ function ChartCanvas({
   zoomable: boolean
   zoomSlider: boolean
   onEvents?: Record<string, (params: unknown) => void>
+  onChartReady?: (chart: EChartsType | null) => void
 }) {
   const merged = useMemo(
     () => withInteractions(option, zoomable, zoomSlider),
     [option, zoomable, zoomSlider],
   )
+
+  useEffect(() => {
+    const chart = chartRef.current?.getEchartsInstance() ?? null
+    onChartReady?.(chart)
+    return () => onChartReady?.(null)
+  }, [chartRef, onChartReady, merged])
 
   return (
     <ReactECharts
@@ -126,6 +136,7 @@ function ChartCanvas({
       notMerge
       lazyUpdate
       onEvents={onEvents}
+      onChartReady={(instance) => onChartReady?.(instance)}
     />
   )
 }
@@ -140,6 +151,8 @@ export function ChartPanel({
   zoomable = true,
   zoomSlider = true,
   onEvents,
+  overlay,
+  onChartReady,
 }: ChartPanelProps) {
   const chartRef = useRef<ReactECharts>(null)
   const modalChartRef = useRef<ReactECharts>(null)
@@ -227,14 +240,18 @@ export function ChartPanel({
           </div>
         ) : (
           ready && (
-            <ChartCanvas
-              chartRef={chartRef}
-              option={option}
-              height={height}
-              zoomable={zoomable}
-              zoomSlider={zoomSlider}
-              onEvents={onEvents}
-            />
+            <div className="chart-panel__stage" style={{ height }}>
+              <ChartCanvas
+                chartRef={chartRef}
+                option={option}
+                height={height}
+                zoomable={zoomable}
+                zoomSlider={zoomSlider}
+                onEvents={onEvents}
+                onChartReady={onChartReady}
+              />
+              {overlay}
+            </div>
           )
         )}
         {!empty && zoomable && (

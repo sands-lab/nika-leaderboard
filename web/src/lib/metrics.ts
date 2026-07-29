@@ -1,3 +1,4 @@
+import { resolveProvider } from './providerMeta'
 import type { FilterState, SubmissionSummary } from './types'
 
 export const defaultFilters = (version: string | 'all' = 'all'): FilterState => ({
@@ -27,11 +28,9 @@ export function applyFilters(
     if (filters.framework !== 'all' && s.framework !== filters.framework) {
       return false
     }
-    if (
-      filters.llm_provider !== 'all' &&
-      (s.llm_provider || '') !== filters.llm_provider
-    ) {
-      return false
+    if (filters.llm_provider !== 'all') {
+      const provider = resolveProvider(s.llm_provider, s.model)
+      if (provider !== filters.llm_provider) return false
     }
     if (filters.model !== 'all' && s.model !== filters.model) return false
     if (
@@ -56,6 +55,7 @@ export function applyFilters(
         s.model,
         s.framework,
         s.llm_provider,
+        resolveProvider(s.llm_provider, s.model),
         ...(s.tags || []),
       ]
         .filter(Boolean)

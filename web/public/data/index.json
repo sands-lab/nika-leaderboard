@@ -14,7 +14,7 @@
       "model": "gpt-5",
       "framework": "react",
       "agent_type": "react",
-      "llm_provider": null,
+      "llm_provider": "openai",
       "tools": [],
       "skills": [],
       "optimization_methods": [],
@@ -29,8 +29,8 @@
       "case_count": 56,
       "n_trials": 3,
       "primary_metric": "rca_f1",
-      "mean_rca_f1": 0.4623053571428572,
-      "mean_localization_f1": 0.5894869047619049,
+      "mean_rca_f1": 0.42956785714285717,
+      "mean_localization_f1": 0.5728202380952384,
       "mean_detection_score": 0.7380952380952381,
       "n_trials_expected": 168,
       "n_trials_present": 168,
@@ -38,24 +38,22 @@
       "n_agent_failed": 25,
       "success_rate": 0.85119,
       "token_totals": {
-        "in_tokens": 9135074,
-        "out_tokens": 2179422
+        "in_tokens": 9505243,
+        "out_tokens": 2236564
       },
       "steps_totals": {
-        "steps": 1057,
-        "tool_calls": 4309,
-        "tool_errors": 42
+        "steps": 1083,
+        "tool_calls": 4396,
+        "tool_errors": 28
       },
-      "mean_tokens": 67348.19,
-      "mean_steps": 6.292,
-      "total_tokens": 11314496,
+      "mean_tokens": 69891.708,
+      "mean_steps": 6.446,
+      "total_tokens": 11741807,
       "max_steps": null,
       "case_timeout_sec": 2400,
       "created_at": "2026-07-29T09:16:21+00:00",
       "run_id": "mockup-react-gpt-5",
       "official": true,
-      "rca_prediction_source": "synthetic",
-      "has_rca_predictions": true,
       "rank": 1
     },
     {
@@ -72,7 +70,7 @@
       "model": "gpt-5-mini",
       "framework": "react",
       "agent_type": "react",
-      "llm_provider": null,
+      "llm_provider": "openai",
       "tools": [],
       "skills": [],
       "optimization_methods": [],
@@ -87,33 +85,31 @@
       "case_count": 56,
       "n_trials": 3,
       "primary_metric": "rca_f1",
-      "mean_rca_f1": 0.2331363095238095,
-      "mean_localization_f1": 0.32596785714285703,
-      "mean_detection_score": 0.7261904761904762,
+      "mean_rca_f1": 0.22123154761904762,
+      "mean_localization_f1": 0.32140357142857134,
+      "mean_detection_score": 0.7142857142857143,
       "n_trials_expected": 168,
       "n_trials_present": 168,
       "n_success": 130,
       "n_agent_failed": 38,
       "success_rate": 0.77381,
       "token_totals": {
-        "in_tokens": 15580985,
-        "out_tokens": 1074498
+        "in_tokens": 14540912,
+        "out_tokens": 1028145
       },
       "steps_totals": {
-        "steps": 1521,
-        "tool_calls": 2653,
-        "tool_errors": 43
+        "steps": 1465,
+        "tool_calls": 2637,
+        "tool_errors": 39
       },
-      "mean_tokens": 99139.78,
-      "mean_steps": 9.054,
-      "total_tokens": 16655483,
+      "mean_tokens": 92672.958,
+      "mean_steps": 8.72,
+      "total_tokens": 15569057,
       "max_steps": null,
       "case_timeout_sec": 2400,
       "created_at": "2026-07-29T09:16:21+00:00",
       "run_id": "mockup-react-gpt-5-mini",
       "official": true,
-      "rca_prediction_source": "synthetic",
-      "has_rca_predictions": true,
       "rank": 2
     },
     {
@@ -130,7 +126,7 @@
       "model": "gpt-oss:20b",
       "framework": "react",
       "agent_type": "react",
-      "llm_provider": null,
+      "llm_provider": "openai",
       "tools": [],
       "skills": [],
       "optimization_methods": [],
@@ -154,24 +150,22 @@
       "n_agent_failed": 130,
       "success_rate": 0.22619,
       "token_totals": {
-        "in_tokens": 10092143,
-        "out_tokens": 1171959
+        "in_tokens": 10122016,
+        "out_tokens": 763817
       },
       "steps_totals": {
-        "steps": 1917,
-        "tool_calls": 1803,
-        "tool_errors": 25
+        "steps": 1905,
+        "tool_calls": 1793,
+        "tool_errors": 31
       },
-      "mean_tokens": 67048.226,
-      "mean_steps": 11.411,
-      "total_tokens": 11264102,
+      "mean_tokens": 64796.625,
+      "mean_steps": 11.339,
+      "total_tokens": 10885833,
       "max_steps": null,
       "case_timeout_sec": 2400,
       "created_at": "2026-07-29T09:16:21+00:00",
       "run_id": "mockup-react-gpt-oss_20b",
       "official": true,
-      "rca_prediction_source": "synthetic",
-      "has_rca_predictions": true,
       "rank": 3
     }
   ]

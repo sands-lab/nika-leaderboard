@@ -3,15 +3,17 @@ import { Link, useSearchParams } from 'react-router-dom'
 import type { EChartsOption } from 'echarts'
 import { ChartPanel } from '../components/ChartPanel'
 import { EntryPicker } from '../components/EntryPicker'
+import { SortableTh } from '../components/SortableTh'
 import { aggregateByCase } from '../lib/compare'
 import { formatPct, formatScore, loadSubmissionDetails } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
+import { compareSortValues, useTableSort } from '../lib/tableSort'
 import type { CaseAggregate } from '../lib/compare'
 import type { SubmissionDetail } from '../lib/types'
 
 type AggregateMode = 'problem' | 'category' | 'scenario' | 'size'
 type MetricMode = 'success' | 'rca'
-type SortMode = 'hardest' | 'easiest' | 'name'
+type MatrixSortKey = 'key' | 'avg' | `col:${number}`
 
 function rowKey(c: CaseAggregate, mode: AggregateMode): string {
   if (mode === 'category') return c.root_cause_category || 'unknown'
@@ -27,7 +29,10 @@ export function MatrixPage() {
   const [selected, setSelected] = useState<string[]>([])
   const [mode, setMode] = useState<AggregateMode>('problem')
   const [metric, setMetric] = useState<MetricMode>('success')
-  const [sortMode, setSortMode] = useState<SortMode>('hardest')
+  const { sort, toggle } = useTableSort<MatrixSortKey>({
+    key: 'avg',
+    dir: 'desc',
+  })
   const [detailError, setDetailError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
 
@@ -121,13 +126,17 @@ export function MatrixPage() {
     })
 
     rows.sort((a, b) => {
-      if (sortMode === 'name') return a.key.localeCompare(b.key)
-      if (sortMode === 'easiest') return b.avg - a.avg
-      return a.avg - b.avg // hardest first
+      if (sort.key === 'key') return compareSortValues(a.key, b.key, sort.dir)
+      if (sort.key === 'avg') return compareSortValues(a.avg, b.avg, sort.dir)
+      if (sort.key.startsWith('col:')) {
+        const i = Number(sort.key.slice(4))
+        return compareSortValues(a.values[i], b.values[i], sort.dir)
+      }
+      return 0
     })
 
     return rows
-  }, [details, mode, metric, sortMode])
+  }, [details, mode, metric, sort])
 
   const heatOption = useMemo((): EChartsOption => {
     const yLabels = matrix.map((r) => r.key)
@@ -206,13 +215,14 @@ export function MatrixPage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>Instance / failure matrix</h1>
+          <h1>Case Matrix</h1>
           <p className="lede">
-            Solve rate or RCA F1 by problem, category, scenario, or size.
+            Solve rate or RCA F1 by problem, category, scenario, or size. Click
+            column headers to sort.
           </p>
         </div>
         <Link className="btn btn--ghost" to="/">
-          Back to table
+          Back to leaderboard
         </Link>
       </div>
 
@@ -246,17 +256,6 @@ export function MatrixPage() {
             <option value="rca">Mean RCA F1</option>
           </select>
         </label>
-        <label>
-          Sort
-          <select
-            value={sortMode}
-            onChange={(e) => setSortMode(e.target.value as SortMode)}
-          >
-            <option value="hardest">Hardest first</option>
-            <option value="easiest">Easiest first</option>
-            <option value="name">Name</option>
-          </select>
-        </label>
       </div>
 
       <ChartPanel
@@ -272,11 +271,22 @@ export function MatrixPage() {
         <table className="data-table matrix-table">
           <thead>
             <tr>
-              <th>{mode}</th>
-              {details.map((d) => (
-                <th key={d.id}>{d.name}</th>
+              <SortableTh
+                label={mode}
+                sortKey="key"
+                sort={sort}
+                onSort={toggle}
+              />
+              {details.map((d, i) => (
+                <SortableTh
+                  key={d.id}
+                  label={d.name}
+                  sortKey={`col:${i}`}
+                  sort={sort}
+                  onSort={toggle}
+                />
               ))}
-              <th>Avg</th>
+              <SortableTh label="Avg" sortKey="avg" sort={sort} onSort={toggle} />
             </tr>
           </thead>
           <tbody>

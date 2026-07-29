@@ -69,22 +69,30 @@ export function formatInt(value: number | null | undefined): string {
   return Math.round(value).toLocaleString()
 }
 
-/** Format submission timestamp for table display (UTC date + time). */
-export function formatSubmittedAt(value: string | null | undefined): string {
-  if (!value) return '—'
+/** Format as UTC calendar date `YYYY-MM-DD` (no time). */
+export function formatDateUtc(value: string | Date | null | undefined): string {
+  if (value == null || value === '') return '—'
+  if (value instanceof Date) {
+    if (Number.isNaN(value.getTime())) return '—'
+    const yyyy = value.getUTCFullYear()
+    const mm = String(value.getUTCMonth() + 1).padStart(2, '0')
+    const dd = String(value.getUTCDate()).padStart(2, '0')
+    return `${yyyy}-${mm}-${dd}`
+  }
   const d = new Date(value)
   if (Number.isNaN(d.getTime())) {
     // Fallback: YYYYMMDD from package dirname prefix
     const m = value.match(/^(\d{4})(\d{2})(\d{2})/)
     if (m) return `${m[1]}-${m[2]}-${m[3]}`
+    // Already a bare ISO date
+    if (/^\d{4}-\d{2}-\d{2}$/.test(value)) return value
     return value
   }
-  const yyyy = d.getUTCFullYear()
-  const mm = String(d.getUTCMonth() + 1).padStart(2, '0')
-  const dd = String(d.getUTCDate()).padStart(2, '0')
-  const hh = String(d.getUTCHours()).padStart(2, '0')
-  const mi = String(d.getUTCMinutes()).padStart(2, '0')
-  return `${yyyy}-${mm}-${dd} ${hh}:${mi} UTC`
+  return formatDateUtc(d)
+}
+
+export function formatSubmittedAt(value: string | null | undefined): string {
+  return formatDateUtc(value)
 }
 
 export function primaryLink(s: SubmissionSummary): string | null {

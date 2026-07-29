@@ -21,13 +21,13 @@ export function Layout() {
         </div>
         <nav className="nav">
           <NavLink to="/" end>
-            Table
+            Leaderboard
           </NavLink>
-          <NavLink to="/insights">Insights</NavLink>
-          <NavLink to="/compare">Compare</NavLink>
-          <NavLink to="/matrix">Matrix</NavLink>
-          <NavLink to="/confusion">Confusion</NavLink>
-          <NavLink to="/analyze">Analyze</NavLink>
+          <NavLink to="/insights">Performance Bubbles</NavLink>
+          <NavLink to="/compare">Compare Entries</NavLink>
+          <NavLink to="/matrix">Case Matrix</NavLink>
+          <NavLink to="/confusion">RCA Confusion</NavLink>
+          <NavLink to="/analyze">Score Trends</NavLink>
         </nav>
         <a
           className="topbar__link"

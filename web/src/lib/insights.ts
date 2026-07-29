@@ -108,6 +108,7 @@ export function formatAxisValue(point: BubblePoint, key: BubbleAxisKey): string 
   return String(raw)
 }
 
+/** Format a score/metric delta for comparison arrows (no jargon). */
 export function formatAxisDelta(
   a: BubblePoint,
   b: BubblePoint,
@@ -116,12 +117,52 @@ export function formatAxisDelta(
   const opt = bubbleAxisOption(key)
   const av = axisRawValue(a, key)
   const bv = axisRawValue(b, key)
-  if (opt.asPercent) return formatDeltaPp(av, bv)
+  if (opt.asPercent) {
+    const d = (bv - av) * 100
+    const sign = d > 0 ? '+' : ''
+    return `${sign}${d.toFixed(1)}%`
+  }
   const d = bv - av
   const sign = d > 0 ? '+' : ''
   if (key === 'mean_tokens') return `${sign}${Math.round(d).toLocaleString()}`
   if (key === 'mean_steps') return `${sign}${d.toFixed(1)}`
   return `${sign}${d.toFixed(0)}`
+}
+
+/** Compact tick label — avoid long floats on axes. */
+export function formatAxisTick(value: number, asPercent: boolean): string {
+  if (!Number.isFinite(value)) return ''
+  if (asPercent) {
+    const rounded = Math.round(value * 10) / 10
+    return Number.isInteger(rounded) ? `${rounded}` : rounded.toFixed(1)
+  }
+  const abs = Math.abs(value)
+  if (abs >= 1000) return `${Math.round(value).toLocaleString()}`
+  if (abs >= 100) return `${Math.round(value)}`
+  if (abs >= 10) {
+    const rounded = Math.round(value * 10) / 10
+    return Number.isInteger(rounded) ? `${rounded}` : rounded.toFixed(1)
+  }
+  const rounded = Math.round(value * 100) / 100
+  if (Number.isInteger(rounded)) return `${rounded}`
+  const asFixed = rounded.toFixed(2).replace(/\.?0+$/, '')
+  return asFixed
+}
+
+function niceNum(range: number, round: boolean): number {
+  const exp = Math.floor(Math.log10(Math.max(range, Number.EPSILON)))
+  const frac = range / 10 ** exp
+  let nice: number
+  if (round) {
+    if (frac < 1.5) nice = 1
+    else if (frac < 3) nice = 2
+    else if (frac < 7) nice = 5
+    else nice = 10
+  } else if (frac <= 1) nice = 1
+  else if (frac <= 2) nice = 2
+  else if (frac <= 5) nice = 5
+  else nice = 10
+  return nice * 10 ** exp
 }
 
 export function axisRange(
@@ -140,10 +181,74 @@ export function axisRange(
   }
   if (dataMin === dataMax) {
     const pad = Math.max(Math.abs(dataMax) * 0.1, 1)
-    return { min: Math.max(0, dataMin - pad), max: dataMax + pad }
+    const lo = Math.max(0, dataMin - pad)
+    const hi = dataMax + pad
+    return { min: Number(lo.toFixed(2)), max: Number(hi.toFixed(2)) }
   }
-  const pad = (dataMax - dataMin) * 0.08
-  return { min: Math.max(0, dataMin - pad), max: dataMax + pad }
+  const span = dataMax - dataMin
+  const pad = span * 0.08
+  let lo = Math.max(0, dataMin - pad)
+  let hi = dataMax + pad
+  const nice = niceNum(hi - lo, false)
+  lo = Math.floor(lo / nice) * nice
+  hi = Math.ceil(hi / nice) * nice
+  if (lo < 0) lo = 0
+  // Snap to short decimals for tick readability.
+  const decimals = nice >= 1 ? 0 : nice >= 0.1 ? 1 : 2
+  return {
+    min: Number(lo.toFixed(decimals)),
+    max: Number(hi.toFixed(decimals)),
+  }
+}
+
+export type BubbleEncodeKey = BubbleAxisKey | 'fixed'
+
+export const BUBBLE_SIZE_OPTIONS: Array<{ key: BubbleEncodeKey; label: string }> =
+  [
+    { key: 'cases', label: 'Cases' },
+    { key: 'mean_tokens', label: 'Avg tokens' },
+    { key: 'mean_steps', label: 'Avg steps' },
+    { key: 'rca', label: 'RCA F1' },
+    { key: 'detection', label: 'Detection' },
+    { key: 'localization', label: 'Localization' },
+    { key: 'success_rate', label: 'Success' },
+    { key: 'fixed', label: 'Fixed' },
+  ]
+
+export const BUBBLE_OPACITY_OPTIONS: Array<{
+  key: BubbleEncodeKey
+  label: string
+}> = [
+  { key: 'rca', label: 'RCA F1' },
+  { key: 'detection', label: 'Detection' },
+  { key: 'localization', label: 'Localization' },
+  { key: 'success_rate', label: 'Success' },
+  { key: 'cases', label: 'Cases' },
+  { key: 'mean_tokens', label: 'Avg tokens' },
+  { key: 'mean_steps', label: 'Avg steps' },
+  { key: 'fixed', label: 'Fixed' },
+]
+
+export function encodeRawValue(
+  point: BubblePoint,
+  key: BubbleEncodeKey,
+): number {
+  if (key === 'fixed') return 0
+  return axisRawValue(point, key)
+}
+
+export function encodeExtents(
+  points: BubblePoint[],
+  key: BubbleEncodeKey,
+): { min: number; max: number } {
+  if (key === 'fixed' || !points.length) return { min: 0, max: 1 }
+  const vals = points.map((p) => encodeRawValue(p, key))
+  return { min: Math.min(...vals), max: Math.max(...vals) }
+}
+
+export function encodeLabel(key: BubbleEncodeKey): string {
+  if (key === 'fixed') return 'Fixed'
+  return bubbleAxisOption(key).label
 }
 
 export interface PairAnnotation {
@@ -152,6 +257,10 @@ export interface PairAnnotation {
   toId: string
   label: string
   color: string
+  /** Hide the floating gain tag (arrow remains). */
+  labelHidden?: boolean
+  /** Pixel offset from the segment midpoint. */
+  labelOffset?: { x: number; y: number }
 }
 
 export function makePairId(fromId: string, toId: string): string {
@@ -165,5 +274,5 @@ export function deltaPp(a: number, b: number): number {
 export function formatDeltaPp(a: number, b: number, digits = 1): string {
   const d = deltaPp(a, b)
   const sign = d > 0 ? '+' : ''
-  return `${sign}${d.toFixed(digits)} pp`
+  return `${sign}${d.toFixed(digits)}%`
 }

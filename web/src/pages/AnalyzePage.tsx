@@ -1,12 +1,41 @@
 import { useMemo, useState } from 'react'
 import type { EChartsOption } from 'echarts'
 import { ChartPanel } from '../components/ChartPanel'
+import { SortableTh } from '../components/SortableTh'
 import { formatPct, formatScore } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { modelReleaseDate } from '../lib/modelMeta'
+import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import type { SubmissionSummary } from '../lib/types'
 
 type ResolvedMetric = 'success' | 'rca'
+type AnalyzeSortKey =
+  | 'name'
+  | 'release'
+  | 'split'
+  | 'model'
+  | 'rca'
+  | 'success'
+  | 'avg_tokens'
+  | 'total_tokens'
+  | 'max_steps'
+  | 'timeout'
+
+const ANALYZE_ACCESSORS: Record<
+  AnalyzeSortKey,
+  (s: SubmissionSummary) => unknown
+> = {
+  name: (s) => s.name,
+  release: (s) => s.benchmark_version,
+  split: (s) => s.split,
+  model: (s) => s.model,
+  rca: (s) => s.mean_rca_f1,
+  success: (s) => s.success_rate,
+  avg_tokens: (s) => s.mean_tokens,
+  total_tokens: (s) => s.total_tokens,
+  max_steps: (s) => s.max_steps,
+  timeout: (s) => s.case_timeout_sec,
+}
 
 const COLORS = ['#0e7490', '#ea580c', '#1d4ed8', '#7c3aed', '#ca8a04', '#be123c']
 
@@ -32,6 +61,16 @@ function scatterOption(args: {
   yAsPercent?: boolean
 }): EChartsOption {
   const { points, xName, yName, xIsDate, yMax, yAsPercent } = args
+  const xs = points.map((p) => p.x)
+  const ys = points.map((p) => p.y)
+  const xPad = xIsDate
+    ? paddedExtent(xs, 0.2, 5 * 24 * 60 * 60 * 1000)
+    : paddedExtent(xs, 0.1, 0)
+  // Keep scores in [0, yMax] but leave headroom so markers/labels stay inside.
+  const yHi = yMax ?? 1
+  const yDataMax = ys.length ? Math.max(...ys) : 0
+  const yAxisMax = Math.min(yHi * 1.05, Math.max(yHi, yDataMax * 1.08))
+
   return {
     tooltip: {
       trigger: 'item',
@@ -48,28 +87,32 @@ function scatterOption(args: {
         return `${item.data.name}<br/>${xName}: ${xVal}<br/>${yName}: ${yText}`
       },
     },
-    grid: { left: 56, right: 24, top: 28, bottom: 56 },
+    grid: { left: 64, right: 48, top: 36, bottom: 64, containLabel: true },
     xAxis: xIsDate
       ? {
           type: 'time',
           name: xName,
           nameLocation: 'middle',
-          nameGap: 30,
+          nameGap: 36,
+          min: xPad.min,
+          max: xPad.max,
         }
       : {
           type: 'value',
           name: xName,
           nameLocation: 'middle',
-          nameGap: 30,
+          nameGap: 36,
+          min: xPad.min,
+          max: xPad.max,
           scale: true,
         },
     yAxis: {
       type: 'value',
       name: yName,
       nameLocation: 'middle',
-      nameGap: 42,
+      nameGap: 48,
       min: 0,
-      max: yMax ?? 1,
+      max: yAxisMax,
       axisLabel: {
         formatter: (v: number) =>
           yAsPercent ? `${Math.round(v * 100)}%` : v.toFixed(2),
@@ -78,7 +121,7 @@ function scatterOption(args: {
     series: [
       {
         type: 'scatter',
-        symbolSize: 14,
+        symbolSize: 16,
         data: points.map((pt) => ({
           name: pt.name,
           value: [pt.x, pt.y],
@@ -89,9 +132,10 @@ function scatterOption(args: {
           label: {
             show: points.length <= 20,
             formatter: pt.name,
-            position: 'right',
-            fontSize: 10,
-            color: '#64748b',
+            position: 'top',
+            distance: 8,
+            fontSize: 11,
+            color: '#334155',
           },
         })),
       },
@@ -99,11 +143,35 @@ function scatterOption(args: {
   }
 }
 
+function paddedExtent(
+  values: number[],
+  padRatio = 0.1,
+  minPad = 0,
+): { min: number; max: number } {
+  if (!values.length) return { min: 0, max: 1 }
+  const lo = Math.min(...values)
+  const hi = Math.max(...values)
+  if (lo === hi) {
+    const pad = Math.max(Math.abs(lo) * padRatio, minPad || Math.abs(lo) * 0.05 || 1)
+    return { min: lo - pad, max: hi + pad }
+  }
+  const pad = Math.max((hi - lo) * padRatio, minPad)
+  return { min: lo - pad, max: hi + pad }
+}
+
 export function AnalyzePage() {
   const { filtered, loading, error } = useLeaderboardData()
   const [resolvedMetric, setResolvedMetric] = useState<ResolvedMetric>('success')
+  const { sort, toggle } = useTableSort<AnalyzeSortKey>({
+    key: 'rca',
+    dir: 'desc',
+  })
 
   const scoped = filtered
+  const sortedRows = useMemo(
+    () => sortByAccessors(scoped, sort, ANALYZE_ACCESSORS),
+    [scoped, sort],
+  )
   const versions = useMemo(
     () => [...new Set(scoped.map((r) => r.benchmark_version))].sort(),
     [scoped],
@@ -133,7 +201,7 @@ export function AnalyzePage() {
       }))
     return scatterOption({
       points,
-      xName: 'Total tokens (cost proxy)',
+      xName: 'Total tokens',
       yName,
       yMax,
       yAsPercent,
@@ -141,7 +209,7 @@ export function AnalyzePage() {
   }, [colored, resolvedMetric, yName, yAsPercent])
 
   const vsReleaseDate = useMemo((): EChartsOption => {
-    const points = colored
+    const raw = colored
       .map(({ s, color }) => {
         const d = modelReleaseDate(s.model)
         if (!d) return null
@@ -153,6 +221,14 @@ export function AnalyzePage() {
         }
       })
       .filter((p): p is NonNullable<typeof p> => p != null)
+    // Nudge coincident release dates so markers/labels don't stack on the edge.
+    const byX = new Map<number, number>()
+    const points = raw.map((p) => {
+      const n = byX.get(p.x) || 0
+      byX.set(p.x, n + 1)
+      const day = 24 * 60 * 60 * 1000
+      return { ...p, x: p.x + n * day * 0.35 }
+    })
     return scatterOption({
       points,
       xName: 'Model release date',
@@ -192,7 +268,7 @@ export function AnalyzePage() {
       }))
     return scatterOption({
       points,
-      xName: 'Case timeout (s) — cost-limit proxy',
+      xName: 'Case timeout (s)',
       yName,
       yMax,
       yAsPercent,
@@ -284,8 +360,8 @@ export function AnalyzePage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>Analyze</h1>
-          <p className="lede">Resolved rate against cost and limits.</p>
+          <h1>Score Trends</h1>
+          <p className="lede">Resolved rate against tokens and run limits.</p>
         </div>
         <div className="analyze-controls">
           <label className="filter">
@@ -305,13 +381,13 @@ export function AnalyzePage() {
 
       <h2 className="section-title">Scatters</h2>
 
-      <div className="chart-grid">
+      <div className="chart-grid chart-grid--stack">
         <ChartPanel
-          title={`${yName} vs cost (total tokens)`}
+          title={`${yName} vs total tokens`}
           option={vsCost}
           filename="nika-resolved-vs-cost"
           empty={!scoped.length}
-          height={380}
+          height={520}
         />
         <ChartPanel
           title={`${yName} vs model release date`}
@@ -319,22 +395,22 @@ export function AnalyzePage() {
           filename="nika-resolved-vs-release-date"
           empty={!hasReleaseDates}
           emptyMessage="No known model release dates for the current entries."
-          height={380}
+          height={520}
         />
         <ChartPanel
-          title={`${yName} vs average cost (tokens / trial)`}
+          title={`${yName} vs avg tokens / trial`}
           option={vsAvgCost}
           filename="nika-resolved-vs-avg-cost"
           empty={!scoped.length}
-          height={380}
+          height={520}
         />
         <ChartPanel
-          title={`${yName} vs cost limit (timeout proxy)`}
+          title={`${yName} vs case timeout`}
           option={vsCostLimit}
-          filename="nika-resolved-vs-cost-limit"
+          filename="nika-resolved-vs-timeout"
           empty={!hasTimeout}
           emptyMessage="No case_timeout_sec on current submissions."
-          height={380}
+          height={520}
         />
         <ChartPanel
           title={`${yName} vs step limit`}
@@ -342,23 +418,25 @@ export function AnalyzePage() {
           filename="nika-resolved-vs-step-limit"
           empty={!hasStepLimit}
           emptyMessage="No max_steps set on current submissions."
-          height={380}
+          height={520}
         />
       </div>
 
       <h2 className="section-title">Across releases</h2>
-      <div className="chart-grid">
+      <div className="chart-grid chart-grid--stack">
         <ChartPanel
           title="Average RCA F1 by release"
           option={byVersionOption}
           filename="nika-by-version"
           empty={!scoped.length}
+          height={480}
         />
         <ChartPanel
           title="System family across releases"
           option={systemAcrossVersions}
           filename="nika-system-versions"
           empty={!scoped.length}
+          height={480}
         />
       </div>
 
@@ -366,20 +444,50 @@ export function AnalyzePage() {
         <table className="data-table">
           <thead>
             <tr>
-              <th>Name</th>
-              <th>Release</th>
-              <th>Split</th>
-              <th>Model</th>
-              <th>RCA F1</th>
-              <th>Success</th>
-              <th>Avg tokens</th>
-              <th>Total tokens</th>
-              <th>Max steps</th>
-              <th>Timeout</th>
+              <SortableTh label="Name" sortKey="name" sort={sort} onSort={toggle} />
+              <SortableTh
+                label="Release"
+                sortKey="release"
+                sort={sort}
+                onSort={toggle}
+              />
+              <SortableTh label="Split" sortKey="split" sort={sort} onSort={toggle} />
+              <SortableTh label="Model" sortKey="model" sort={sort} onSort={toggle} />
+              <SortableTh label="RCA F1" sortKey="rca" sort={sort} onSort={toggle} />
+              <SortableTh
+                label="Success"
+                sortKey="success"
+                sort={sort}
+                onSort={toggle}
+              />
+              <SortableTh
+                label="Avg tokens"
+                sortKey="avg_tokens"
+                sort={sort}
+                onSort={toggle}
+              />
+              <SortableTh
+                label="Total tokens"
+                sortKey="total_tokens"
+                sort={sort}
+                onSort={toggle}
+              />
+              <SortableTh
+                label="Max steps"
+                sortKey="max_steps"
+                sort={sort}
+                onSort={toggle}
+              />
+              <SortableTh
+                label="Timeout"
+                sortKey="timeout"
+                sort={sort}
+                onSort={toggle}
+              />
             </tr>
           </thead>
           <tbody>
-            {scoped.map((s) => (
+            {sortedRows.map((s) => (
               <tr key={s.id}>
                 <td>{s.name}</td>
                 <td>{s.benchmark_version}</td>

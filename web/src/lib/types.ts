@@ -58,9 +58,6 @@ export interface SubmissionSummary {
   created_at: string | null
   run_id: string | null
   official: boolean | null
-  /** How predicted RCA names were obtained for this package. */
-  rca_prediction_source?: 'packed' | 'enrichment' | 'synthetic' | 'none' | null
-  has_rca_predictions?: boolean
 }
 
 export interface TrialRow {
@@ -72,6 +69,8 @@ export interface TrialRow {
   outcome: string
   topo_size: string | null
   root_cause_category: string | null
+  /** Gold RCA names from the packed trial (multi-label). */
+  gt_root_cause_name?: string[]
   detection_score: number
   localization_f1: number
   rca_f1: number
@@ -80,15 +79,32 @@ export interface TrialRow {
   steps: number | null
   tool_calls: number | null
   tool_errors: number | null
-  /** Gold problem names predicted by the agent (multi-label). */
-  predicted_root_cause_names?: string[]
+  /** Packed predicted_root_cause_name; null when the agent submitted none. */
+  predicted_root_cause_name?: string[] | null
+  /** @deprecated alias — prefer predicted_root_cause_name */
+  predicted_root_cause_names?: string[] | null
   /** Categories derived from predicted names via catalog. */
   predicted_root_cause_categories?: string[]
-  rca_prediction_source?: 'packed' | 'enrichment' | 'synthetic' | 'none'
+}
+
+export interface RcaConfusionPairRow {
+  gt: string
+  predicted: string
+  count: number
+}
+
+export interface RcaConfusionBlock {
+  labeling?: string
+  pairs: RcaConfusionPairRow[]
+  n_missing_prediction: number
+  missing_prediction_trial_ids?: string[]
 }
 
 export interface SubmissionDetail extends SubmissionSummary {
   trials: TrialRow[]
+  rca_confusion?: RcaConfusionBlock | null
+  /** problem / root-cause name → failure category */
+  name_to_category?: Record<string, string>
 }
 
 export interface LeaderboardIndex {

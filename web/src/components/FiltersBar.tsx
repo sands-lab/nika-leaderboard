@@ -1,3 +1,5 @@
+import { defaultFilters } from '../lib/metrics'
+import { providerDisplayName } from '../lib/providerMeta'
 import type { FilterState, MetaFilters } from '../lib/types'
 
 interface FiltersBarProps {
@@ -12,11 +14,13 @@ function Select({
   value,
   options,
   onChange,
+  formatOption,
 }: {
   label: string
   value: string
   options: string[]
   onChange: (v: string) => void
+  formatOption?: (v: string) => string
 }) {
   return (
     <label className="filter">
@@ -25,11 +29,18 @@ function Select({
         <option value="all">All</option>
         {options.map((o) => (
           <option key={o} value={o}>
-            {o}
+            {formatOption ? formatOption(o) : o}
           </option>
         ))}
       </select>
     </label>
+  )
+}
+
+function isDefaultFilters(filters: FilterState): boolean {
+  const d = defaultFilters('all')
+  return (Object.keys(d) as Array<keyof FilterState>).every(
+    (k) => filters[k] === d[k],
   )
 }
 
@@ -41,6 +52,7 @@ export function FiltersBar({
 }: FiltersBarProps) {
   const set = <K extends keyof FilterState>(key: K, value: FilterState[K]) =>
     onChange({ ...filters, [key]: value })
+  const cleared = isDefaultFilters(filters)
 
   return (
     <div className="filters">
@@ -76,6 +88,7 @@ export function FiltersBar({
         value={filters.llm_provider}
         options={metaFilters.llm_provider}
         onChange={(v) => set('llm_provider', v)}
+        formatOption={providerDisplayName}
       />
       <Select
         label="Model"
@@ -102,17 +115,31 @@ export function FiltersBar({
         onChange={(v) => set('org', v)}
       />
       <Select
-        label="OS model"
+        label="Open-source model"
         value={filters.os_model}
         options={['true', 'false']}
         onChange={(v) => set('os_model', v as FilterState['os_model'])}
       />
       <Select
-        label="OS system"
+        label="Open-source system"
         value={filters.os_system}
         options={['true', 'false']}
         onChange={(v) => set('os_system', v as FilterState['os_system'])}
       />
+      <div className="filter filter--action">
+        <span className="filter__spacer" aria-hidden="true">
+          &nbsp;
+        </span>
+        <button
+          type="button"
+          className="btn btn--ghost"
+          disabled={cleared}
+          onClick={() => onChange(defaultFilters('all'))}
+          title="Reset all filters"
+        >
+          Clear filters
+        </button>
+      </div>
     </div>
   )
 }

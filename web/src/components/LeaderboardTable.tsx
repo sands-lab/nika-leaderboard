@@ -1,6 +1,22 @@
+import { useMemo } from 'react'
 import { Link } from 'react-router-dom'
+import { SortableTh } from './SortableTh'
 import type { SubmissionSummary } from '../lib/types'
-import { dash, formatInt, formatPct, formatScore, formatSubmittedAt, primaryLink } from '../lib/data'
+import {
+  dash,
+  formatDateUtc,
+  formatInt,
+  formatPct,
+  formatScore,
+  primaryLink,
+} from '../lib/data'
+import { modelReleaseDate } from '../lib/modelMeta'
+import {
+  providerDisplayName,
+  providerIconSrc,
+  resolveProvider,
+} from '../lib/providerMeta'
+import { sortByAccessors, useTableSort } from '../lib/tableSort'
 
 interface LeaderboardTableProps {
   rows: SubmissionSummary[]
@@ -9,13 +25,100 @@ interface LeaderboardTableProps {
   onToggleAll: (ids: string[], checked: boolean) => void
 }
 
+type LbSortKey =
+  | 'rank'
+  | 'name'
+  | 'submitted'
+  | 'model'
+  | 'model_release'
+  | 'scaffold'
+  | 'provider'
+  | 'release'
+  | 'split'
+  | 'rca'
+  | 'loc'
+  | 'detection'
+  | 'success'
+  | 'avg_tokens'
+  | 'avg_steps'
+
+function ScorePill({ value }: { value: number | null | undefined }) {
+  if (value == null || Number.isNaN(value)) {
+    return <span className="num">—</span>
+  }
+  const t = Math.max(0, Math.min(1, value))
+  return (
+    <span
+      className="score-pill"
+      style={{
+        background: `rgba(14, 116, 144, ${0.1 + t * 0.32})`,
+        boxShadow: `inset 0 0 0 1px rgba(14, 116, 144, ${0.12 + t * 0.28})`,
+      }}
+    >
+      {formatScore(value)}
+    </span>
+  )
+}
+
+function ProviderIcon({
+  llmProvider,
+  model,
+}: {
+  llmProvider: string | null | undefined
+  model: string | null | undefined
+}) {
+  const provider = resolveProvider(llmProvider, model)
+  if (!provider) return <span className="muted">—</span>
+  const src = providerIconSrc(provider)
+  const label = providerDisplayName(provider)
+  if (!src) {
+    return (
+      <span className="provider-fallback" title={label}>
+        {label}
+      </span>
+    )
+  }
+  return (
+    <span className="provider-icon" title={label}>
+      <img src={src} alt={label} width={18} height={18} loading="lazy" />
+      <span className="visually-hidden">{label}</span>
+    </span>
+  )
+}
+
+const ACCESSORS: Record<LbSortKey, (s: SubmissionSummary) => unknown> = {
+  rank: (s) => s.rank ?? 0,
+  name: (s) => s.name,
+  submitted: (s) => s.created_at,
+  model: (s) => s.model,
+  model_release: (s) => modelReleaseDate(s.model)?.getTime() ?? null,
+  scaffold: (s) => s.framework,
+  provider: (s) => resolveProvider(s.llm_provider, s.model),
+  release: (s) => s.benchmark_version,
+  split: (s) => s.split,
+  rca: (s) => s.mean_rca_f1,
+  loc: (s) => s.mean_localization_f1,
+  detection: (s) => s.mean_detection_score,
+  success: (s) => s.success_rate,
+  avg_tokens: (s) => s.mean_tokens,
+  avg_steps: (s) => s.mean_steps,
+}
+
 export function LeaderboardTable({
   rows,
   selected,
   onToggle,
   onToggleAll,
 }: LeaderboardTableProps) {
-  const allIds = rows.map((r) => r.id)
+  const { sort, toggle } = useTableSort<LbSortKey>({
+    key: 'rank',
+    dir: 'asc',
+  })
+  const sorted = useMemo(
+    () => sortByAccessors(rows, sort, ACCESSORS),
+    [rows, sort],
+  )
+  const allIds = sorted.map((r) => r.id)
   const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id))
 
   return (
@@ -31,26 +134,78 @@ export function LeaderboardTable({
                 aria-label="Select all"
               />
             </th>
-            <th>Rank</th>
-            <th>System</th>
-            <th title="Package identity created_at">Submitted</th>
-            <th>Model</th>
-            <th>Scaffold</th>
-            <th>Provider</th>
-            <th>Release</th>
-            <th>Split</th>
-            <th>RCA F1</th>
-            <th>Loc F1</th>
-            <th>Detection</th>
-            <th>Success</th>
-            <th title="Mean tokens per trial (in + out)">Avg tokens</th>
-            <th title="Mean steps per trial">Avg steps</th>
+            <SortableTh label="Rank" sortKey="rank" sort={sort} onSort={toggle} />
+            <SortableTh label="System" sortKey="name" sort={sort} onSort={toggle} />
+            <SortableTh
+              label="Submitted"
+              sortKey="submitted"
+              sort={sort}
+              onSort={toggle}
+              title="Package identity created_at (UTC date)"
+            />
+            <SortableTh label="Model" sortKey="model" sort={sort} onSort={toggle} />
+            <SortableTh
+              label="Model release"
+              sortKey="model_release"
+              sort={sort}
+              onSort={toggle}
+              title="Approximate public model release date"
+            />
+            <SortableTh
+              label="Scaffold"
+              sortKey="scaffold"
+              sort={sort}
+              onSort={toggle}
+            />
+            <SortableTh
+              label="Provider"
+              sortKey="provider"
+              sort={sort}
+              onSort={toggle}
+              title="LLM provider"
+            />
+            <SortableTh
+              label="Release"
+              sortKey="release"
+              sort={sort}
+              onSort={toggle}
+            />
+            <SortableTh label="Split" sortKey="split" sort={sort} onSort={toggle} />
+            <SortableTh label="RCA F1" sortKey="rca" sort={sort} onSort={toggle} />
+            <SortableTh label="Loc F1" sortKey="loc" sort={sort} onSort={toggle} />
+            <SortableTh
+              label="Detection"
+              sortKey="detection"
+              sort={sort}
+              onSort={toggle}
+            />
+            <SortableTh
+              label="Success"
+              sortKey="success"
+              sort={sort}
+              onSort={toggle}
+            />
+            <SortableTh
+              label="Avg tokens"
+              sortKey="avg_tokens"
+              sort={sort}
+              onSort={toggle}
+              title="Mean tokens per trial (in + out)"
+            />
+            <SortableTh
+              label="Avg steps"
+              sortKey="avg_steps"
+              sort={sort}
+              onSort={toggle}
+              title="Mean steps per trial"
+            />
             <th>Links</th>
           </tr>
         </thead>
         <tbody>
-          {rows.map((s) => {
+          {sorted.map((s) => {
             const link = primaryLink(s)
+            const release = modelReleaseDate(s.model)
             return (
               <tr key={s.id} className={selected.has(s.id) ? 'is-selected' : ''}>
                 <td>
@@ -72,16 +227,25 @@ export function LeaderboardTable({
                   </div>
                 </td>
                 <td className="num" title={s.created_at || undefined}>
-                  {formatSubmittedAt(s.created_at)}
+                  {formatDateUtc(s.created_at)}
                 </td>
                 <td>{dash(s.model)}</td>
+                <td className="num">{formatDateUtc(release)}</td>
                 <td>{dash(s.framework)}</td>
-                <td>{dash(s.llm_provider)}</td>
+                <td>
+                  <ProviderIcon llmProvider={s.llm_provider} model={s.model} />
+                </td>
                 <td>{s.benchmark_version}</td>
                 <td>{dash(s.split)}</td>
-                <td className="num">{formatScore(s.mean_rca_f1)}</td>
-                <td className="num">{formatScore(s.mean_localization_f1)}</td>
-                <td className="num">{formatScore(s.mean_detection_score)}</td>
+                <td className="num">
+                  <ScorePill value={s.mean_rca_f1} />
+                </td>
+                <td className="num">
+                  <ScorePill value={s.mean_localization_f1} />
+                </td>
+                <td className="num">
+                  <ScorePill value={s.mean_detection_score} />
+                </td>
                 <td className="num">{formatPct(s.success_rate)}</td>
                 <td className="num">{formatInt(s.mean_tokens)}</td>
                 <td className="num">{formatInt(s.mean_steps)}</td>
@@ -108,9 +272,9 @@ export function LeaderboardTable({
               </tr>
             )
           })}
-          {rows.length === 0 && (
+          {sorted.length === 0 && (
             <tr>
-              <td colSpan={16} className="empty-row">
+              <td colSpan={17} className="empty-row">
                 No submissions match the current filters.
               </td>
             </tr>

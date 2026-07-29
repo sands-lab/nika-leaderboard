@@ -3,6 +3,7 @@ import { Link, useSearchParams } from 'react-router-dom'
 import type { EChartsOption } from 'echarts'
 import { ChartPanel } from '../components/ChartPanel'
 import { EntryPicker } from '../components/EntryPicker'
+import { SortableTh } from '../components/SortableTh'
 import {
   aggregateByCase,
   cdfPoints,
@@ -13,9 +14,18 @@ import {
 } from '../lib/compare'
 import { formatScore, loadSubmissionDetails } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
+import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import type { SubmissionDetail } from '../lib/types'
 
 const COLORS = ['#0e7490', '#ea580c', '#1d4ed8', '#7c3aed', '#ca8a04', '#be123c']
+
+type PairSortKey =
+  | 'scenario'
+  | 'problem'
+  | 'a_rca'
+  | 'b_rca'
+  | 'delta'
+  | 'winner'
 
 export function ComparePage() {
   const { filtered, loading, error } = useLeaderboardData()
@@ -26,6 +36,10 @@ export function ComparePage() {
   const [pairB, setPairB] = useState('')
   const [detailError, setDetailError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
+  const { sort: pairSort, toggle: togglePairSort } = useTableSort<PairSortKey>({
+    key: 'delta',
+    dir: 'desc',
+  })
 
   useEffect(() => {
     if (loading || initialized) return
@@ -109,6 +123,24 @@ export function ComparePage() {
     return pairwiseCompare(a, b)
   }, [details, pairA, pairB])
 
+  const pairwiseRows = useMemo(() => {
+    if (!pairwise) return []
+    const accessors = {
+      scenario: (r: (typeof pairwise.rows)[number]) => r.scenario,
+      problem: (r: (typeof pairwise.rows)[number]) => r.problem,
+      a_rca: (r: (typeof pairwise.rows)[number]) => r.a_rca,
+      b_rca: (r: (typeof pairwise.rows)[number]) => r.b_rca,
+      delta: (r: (typeof pairwise.rows)[number]) => r.delta,
+      winner: (r: (typeof pairwise.rows)[number]) =>
+        r.winner === 'tie'
+          ? 'tie'
+          : r.winner === 'a'
+            ? pairwise.aName
+            : pairwise.bName,
+    }
+    return sortByAccessors(pairwise.rows, pairSort, accessors).slice(0, 40)
+  }, [pairwise, pairSort])
+
   const radarOption = useMemo((): EChartsOption => {
     const axes = details.map(radarAxes)
     const maxTokens = Math.max(...axes.map((a) => a.tokens), 1)
@@ -150,6 +182,14 @@ export function ComparePage() {
   }, [details])
 
   const scatterOption = useMemo((): EChartsOption => {
+    const xs = details.flatMap((d) =>
+      aggregateByCase(d.trials)
+        .filter((c) => c.mean_tokens != null)
+        .map((c) => c.mean_tokens!),
+    )
+    const xMin = xs.length ? Math.min(...xs) : 0
+    const xMax = xs.length ? Math.max(...xs) : 1
+    const xPad = Math.max((xMax - xMin) * 0.08, xMax * 0.02 || 1)
     return {
       tooltip: {
         formatter: (p: unknown) => {
@@ -158,14 +198,20 @@ export function ComparePage() {
         },
       },
       legend: { data: details.map((d) => d.name), bottom: 0 },
-      xAxis: { name: 'Mean tokens / case', type: 'value' },
-      yAxis: { name: 'Mean RCA F1', type: 'value', min: 0, max: 1 },
+      grid: { left: 56, right: 28, top: 28, bottom: 64, containLabel: true },
+      xAxis: {
+        name: 'Mean tokens / case',
+        type: 'value',
+        min: Math.max(0, xMin - xPad),
+        max: xMax + xPad,
+      },
+      yAxis: { name: 'Mean RCA F1', type: 'value', min: 0, max: 1.05 },
       series: details.map((d, i) => {
         const cases = aggregateByCase(d.trials)
         return {
           name: d.name,
           type: 'scatter',
-          symbolSize: 10,
+          symbolSize: 12,
           itemStyle: { color: COLORS[i % COLORS.length] },
           data: cases
             .filter((c) => c.mean_tokens != null)
@@ -213,14 +259,17 @@ export function ComparePage() {
     return {
       tooltip: { trigger: 'axis' },
       legend: { data: details.map((d) => d.name), bottom: 0 },
-      xAxis: { name: 'RCA F1', type: 'value', min: 0, max: 1 },
+      grid: { left: 56, right: 28, top: 28, bottom: 64, containLabel: true },
+      xAxis: { name: 'Mean RCA F1 (per case)', type: 'value', min: 0, max: 1 },
       yAxis: { name: 'CDF', type: 'value', min: 0, max: 1 },
       series: details.map((d, i) => ({
         name: d.name,
         type: 'line',
         showSymbol: false,
         itemStyle: { color: COLORS[i % COLORS.length] },
-        data: cdfPoints(d.trials.map((t) => t.rca_f1 || 0)),
+        data: cdfPoints(
+          aggregateByCase(d.trials).map((c) => c.mean_rca_f1 || 0),
+        ),
       })),
     }
   }, [details])
@@ -285,11 +334,11 @@ export function ComparePage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>Compare results</h1>
+          <h1>Compare Entries</h1>
           <p className="lede">Select entries to compare.</p>
         </div>
         <Link className="btn btn--ghost" to="/">
-          Back to table
+          Back to leaderboard
         </Link>
       </div>
 
@@ -299,12 +348,13 @@ export function ComparePage() {
         onSetSelected={syncUrl}
       />
 
-      <div className="chart-grid">
+      <div className="chart-grid chart-grid--stack">
         <ChartPanel
           title="Radar (higher is better; cost inverted)"
           option={radarOption}
           filename="nika-radar"
           empty={!details.length}
+          height={520}
           zoomable={false}
         />
         <ChartPanel
@@ -312,26 +362,29 @@ export function ComparePage() {
           option={scatterOption}
           filename="nika-scatter"
           empty={!details.length}
+          height={520}
         />
         <ChartPanel
           title="Parallel coordinates"
           option={parallelOption}
           filename="nika-parallel"
           empty={!details.length}
+          height={520}
           zoomable={false}
         />
         <ChartPanel
-          title="CDF of per-trial RCA F1"
+          title="CDF of per-case mean RCA F1"
           option={cdfOption}
           filename="nika-cdf"
           empty={!details.length}
+          height={520}
         />
         <ChartPanel
           title="Radial: mean RCA F1 by failure category"
           option={radialOption}
           filename="nika-radial"
           empty={!details.length}
-          height={420}
+          height={560}
           zoomable={false}
         />
       </div>
@@ -371,16 +424,46 @@ export function ComparePage() {
               <table className="data-table">
                 <thead>
                   <tr>
-                    <th>Scenario</th>
-                    <th>Problem</th>
-                    <th>{pairwise.aName}</th>
-                    <th>{pairwise.bName}</th>
-                    <th>Δ</th>
-                    <th>Winner</th>
+                    <SortableTh
+                      label="Scenario"
+                      sortKey="scenario"
+                      sort={pairSort}
+                      onSort={togglePairSort}
+                    />
+                    <SortableTh
+                      label="Problem"
+                      sortKey="problem"
+                      sort={pairSort}
+                      onSort={togglePairSort}
+                    />
+                    <SortableTh
+                      label={pairwise.aName}
+                      sortKey="a_rca"
+                      sort={pairSort}
+                      onSort={togglePairSort}
+                    />
+                    <SortableTh
+                      label={pairwise.bName}
+                      sortKey="b_rca"
+                      sort={pairSort}
+                      onSort={togglePairSort}
+                    />
+                    <SortableTh
+                      label="Δ"
+                      sortKey="delta"
+                      sort={pairSort}
+                      onSort={togglePairSort}
+                    />
+                    <SortableTh
+                      label="Winner"
+                      sortKey="winner"
+                      sort={pairSort}
+                      onSort={togglePairSort}
+                    />
                   </tr>
                 </thead>
                 <tbody>
-                  {pairwise.rows.slice(0, 40).map((r) => (
+                  {pairwiseRows.map((r) => (
                     <tr key={r.case_key}>
                       <td>{r.scenario}</td>
                       <td>{r.problem}</td>

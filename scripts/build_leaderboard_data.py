@@ -6,7 +6,6 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
-import random
 import re
 import sys
 from collections import defaultdict
@@ -45,6 +44,37 @@ CATEGORY_FALLBACKS: dict[str, str] = {
     "p4_table_entry_missing": "network_node_error",
     "p4_aggressive_detection_thresholds": "misconfiguration",
 }
+
+
+def infer_llm_provider(model: str | None, explicit: str | None) -> str | None:
+    """Prefer explicit run.llm_provider; otherwise infer from model id."""
+    if explicit and str(explicit).strip():
+        return str(explicit).strip().lower().replace(" ", "-").replace("_", "-")
+    if not model:
+        return None
+    key = str(model).strip().lower().replace("_", "-")
+    if (
+        key.startswith("gpt-")
+        or key.startswith("gpt")
+        or key.startswith("o1")
+        or key.startswith("o3")
+        or key.startswith("o4")
+        or "gpt-oss" in key
+    ):
+        return "openai"
+    if "claude" in key:
+        return "anthropic"
+    if "gemini" in key or "gemma" in key:
+        return "google"
+    if "deepseek" in key:
+        return "deepseek"
+    if "qwen" in key:
+        return "qwen"
+    if "llama" in key or key.startswith("meta-"):
+        return "meta"
+    if "mistral" in key or "mixtral" in key:
+        return "mistral"
+    return None
 
 
 def load_yaml(path: Path) -> Any:
@@ -163,40 +193,6 @@ def score_or_zero(value: Any) -> float:
     return v
 
 
-# Typical cross-category confusions used only for mockup synthetic predictions.
-CONFUSION_NEIGHBORS: dict[str, list[str]] = {
-    "misconfiguration": [
-        "network_node_error",
-        "network_under_attack",
-        "resource_contention",
-    ],
-    "network_node_error": [
-        "misconfiguration",
-        "link_failure",
-        "resource_contention",
-    ],
-    "link_failure": ["network_node_error", "end_host_failure"],
-    "end_host_failure": ["link_failure", "misconfiguration"],
-    "resource_contention": ["network_node_error", "misconfiguration"],
-    "network_under_attack": ["misconfiguration", "link_failure"],
-}
-
-
-def problem_category_index(
-    catalog_lookup: dict[str, dict[str, Any]],
-) -> dict[str, list[str]]:
-    """Map root_cause_category -> sorted unique problem names."""
-    by_cat: dict[str, set[str]] = defaultdict(set)
-    for key, meta in catalog_lookup.items():
-        if "__" not in key:
-            continue
-        problem = key.split("__", 1)[1]
-        cat = meta.get("root_cause_category")
-        if cat and problem:
-            by_cat[str(cat)].add(str(problem))
-    return {cat: sorted(names) for cat, names in by_cat.items()}
-
-
 def problem_to_category(
     catalog_lookup: dict[str, dict[str, Any]],
 ) -> dict[str, str]:
@@ -212,6 +208,7 @@ def problem_to_category(
 
 
 def normalize_name_list(value: Any) -> list[str] | None:
+    """Normalize packed root-cause name field. None stays None (missing pred)."""
     if value is None:
         return None
     if isinstance(value, str):
@@ -229,169 +226,35 @@ def normalize_name_list(value: Any) -> list[str] | None:
     return None
 
 
-def load_prediction_sidecar(
-    repo_root: Path, version: str, dirname: str
-) -> dict[str, list[str]]:
-    """Optional enrichment: enrichment/rca_predictions/{version}__{dirname}.json."""
-    path = (
-        repo_root
-        / "enrichment"
-        / "rca_predictions"
-        / f"{version}__{dirname}.json"
-    )
-    if not path.is_file():
-        return {}
-    doc = load_json(path)
-    trials = doc.get("trials") if isinstance(doc, dict) else None
-    if not isinstance(trials, dict):
-        return {}
-    out: dict[str, list[str]] = {}
-    for trial_id, names in trials.items():
-        normalized = normalize_name_list(names)
-        if normalized is not None:
-            out[str(trial_id)] = normalized
-    return out
-
-
-def synthesize_predicted_names(
-    *,
-    trial_id: str,
-    true_problem: str,
-    true_category: str | None,
-    rca_f1: float,
-    problems_by_cat: dict[str, list[str]],
-) -> list[str]:
-    """Deterministic mock predictions so confusion charts work for mockups."""
-    seed = int(hashlib.sha256(trial_id.encode()).hexdigest()[:16], 16)
-    rng = random.Random(seed)
-
-    if rca_f1 >= 0.999:
-        return [true_problem] if true_problem else []
-
-    neighbors = list(CONFUSION_NEIGHBORS.get(true_category or "", []))
-    other_cats = [c for c in problems_by_cat if c != true_category]
-    if not neighbors and other_cats:
-        neighbors = other_cats
-
-    def pick_from_category(cat: str, avoid: set[str]) -> str | None:
-        candidates = [p for p in problems_by_cat.get(cat, []) if p not in avoid]
-        if not candidates:
-            return None
-        return rng.choice(candidates)
-
-    if rca_f1 <= 0.001:
-        # Often empty / wrong-category; occasionally same-category wrong name.
-        roll = rng.random()
-        if roll < 0.18:
-            return []
-        if roll < 0.35 and true_category:
-            wrong = pick_from_category(true_category, {true_problem})
-            if wrong:
-                return [wrong]
-        if neighbors:
-            cat = rng.choice(neighbors)
-            wrong = pick_from_category(cat, {true_problem})
-            if wrong:
-                # Sometimes multi-label noise.
-                names = [wrong]
-                if rng.random() < 0.25 and len(neighbors) > 1:
-                    cat2 = rng.choice([c for c in neighbors if c != cat] or neighbors)
-                    extra = pick_from_category(cat2, {true_problem, wrong})
-                    if extra:
-                        names.append(extra)
-                return names
-        # Fallback any other problem.
-        pool = [
-            p
-            for names in problems_by_cat.values()
-            for p in names
-            if p != true_problem
-        ]
-        return [rng.choice(pool)] if pool else []
-
-    # Partial credit: true name plus a confusable extra, or true alone with noise.
-    names = [true_problem] if true_problem else []
-    if neighbors and rng.random() < 0.7:
-        cat = rng.choice(neighbors)
-        extra = pick_from_category(cat, set(names))
-        if extra:
-            names.append(extra)
-    return names
-
-
-def attach_rca_predictions(
-    trials: list[dict[str, Any]],
-    *,
-    catalog_lookup: dict[str, dict[str, Any]],
-    sidecar: dict[str, list[str]],
-    allow_synthetic: bool,
-) -> str:
-    """Attach predicted RCA names/categories. Returns prediction source label."""
-    name_to_cat = problem_to_category(catalog_lookup)
-    problems_by_cat = problem_category_index(catalog_lookup)
-    sources: set[str] = set()
-
-    for t in trials:
-        trial_id = str(t.get("trial_id") or "")
-        packed = normalize_name_list(t.pop("_packed_predicted_names", None))
-        predicted: list[str] | None = None
-        source = "none"
-
-        if packed is not None:
-            predicted = packed
-            source = "packed"
-        elif trial_id in sidecar:
-            predicted = sidecar[trial_id]
-            source = "enrichment"
-        elif allow_synthetic:
-            predicted = synthesize_predicted_names(
-                trial_id=trial_id,
-                true_problem=str(t.get("problem") or ""),
-                true_category=t.get("root_cause_category"),
-                rca_f1=float(t.get("rca_f1") or 0.0),
-                problems_by_cat=problems_by_cat,
-            )
-            source = "synthetic"
-
-        if predicted is None:
-            predicted = []
-            source = "none"
-
-        cats = sorted(
-            {
-                name_to_cat[name]
-                for name in predicted
-                if name in name_to_cat
-            }
-        )
-        t["predicted_root_cause_names"] = predicted
-        t["predicted_root_cause_categories"] = cats
-        t["rca_prediction_source"] = source
-        sources.add(source)
-
-    if "packed" in sources:
-        return "packed"
-    if "enrichment" in sources:
-        return "enrichment"
-    if "synthetic" in sources:
-        return "synthetic"
-    return "none"
-
-
 def aggregate_trials(
     trials: list[dict[str, Any]], catalog_lookup: dict[str, dict[str, Any]]
 ) -> list[dict[str, Any]]:
+    name_to_cat = problem_to_category(catalog_lookup)
     out: list[dict[str, Any]] = []
     for t in trials:
         scenario = t.get("scenario") or ""
         problem = t.get("problem") or ""
         meta = catalog_lookup.get(f"{scenario}__{problem}", {})
         metrics = t.get("metrics") or {}
-        packed_pred = (
-            t.get("predicted_root_cause_names")
-            or t.get("predicted_root_cause_name")
-            or (metrics.get("predicted_root_cause_names") if metrics else None)
+
+        # Packed TrialResult.predicted_root_cause_name (from submission.root_cause_name).
+        if "predicted_root_cause_name" in t:
+            predicted = normalize_name_list(t.get("predicted_root_cause_name"))
+        elif "predicted_root_cause_names" in t:
+            predicted = normalize_name_list(t.get("predicted_root_cause_names"))
+        else:
+            predicted = None
+
+        gt_names = normalize_name_list(t.get("gt_root_cause_name"))
+        if not gt_names:
+            gt_names = [problem] if problem else []
+
+        pred_cats = (
+            sorted({name_to_cat[n] for n in predicted if n in name_to_cat})
+            if predicted
+            else []
         )
+
         out.append(
             {
                 "trial_id": t.get("trial_id"),
@@ -402,6 +265,9 @@ def aggregate_trials(
                 "outcome": t.get("outcome"),
                 "topo_size": meta.get("topo_size"),
                 "root_cause_category": meta.get("root_cause_category"),
+                "gt_root_cause_name": gt_names,
+                "predicted_root_cause_name": predicted,
+                "predicted_root_cause_categories": pred_cats,
                 "detection_score": score_or_zero(metrics.get("detection_score")),
                 "localization_f1": score_or_zero(metrics.get("localization_f1")),
                 "rca_f1": score_or_zero(metrics.get("rca_f1")),
@@ -410,7 +276,6 @@ def aggregate_trials(
                 "steps": metrics.get("steps"),
                 "tool_calls": metrics.get("tool_calls"),
                 "tool_errors": metrics.get("tool_errors"),
-                "_packed_predicted_names": packed_pred,
             }
         )
     return out
@@ -427,6 +292,7 @@ def load_submission(
     *,
     repo_root: Path,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
+    del repo_root  # reserved for future catalog/sidecar hooks
     metadata = load_yaml(package_dir / "metadata.yaml")
     identity = load_yaml(package_dir / "results" / "identity.yaml")
     metrics = load_json(package_dir / "results" / "metrics.json")
@@ -441,14 +307,13 @@ def load_submission(
     dirname = package_dir.name
     pid = package_id(version, dirname)
 
-    sidecar = load_prediction_sidecar(repo_root, version, dirname)
-    allow_synthetic = "mockup" in dirname.lower()
-    prediction_source = attach_rca_predictions(
-        trials,
-        catalog_lookup=catalog_lookup,
-        sidecar=sidecar,
-        allow_synthetic=allow_synthetic,
-    )
+    rca_confusion = None
+    confusion_path = package_dir / "results" / "rca_confusion.json"
+    if confusion_path.is_file():
+        try:
+            rca_confusion = load_json(confusion_path)
+        except (OSError, json.JSONDecodeError) as exc:
+            print(f"Warning: could not load {confusion_path}: {exc}", file=sys.stderr)
 
     info = metadata.get("info") or {}
     agent = metadata.get("agent") or {}
@@ -481,7 +346,10 @@ def load_submission(
         "model": agent.get("model") or run.get("model"),
         "framework": agent.get("framework") or run.get("agent_type"),
         "agent_type": run.get("agent_type"),
-        "llm_provider": run.get("llm_provider"),
+        "llm_provider": infer_llm_provider(
+            agent.get("model") or run.get("model"),
+            run.get("llm_provider"),
+        ),
         "tools": agent.get("tools") or [],
         "skills": agent.get("skills") or [],
         "optimization_methods": agent.get("optimization_methods") or [],
@@ -511,13 +379,13 @@ def load_submission(
         "created_at": identity.get("created_at"),
         "run_id": run.get("run_id"),
         "official": run.get("official"),
-        "rca_prediction_source": prediction_source,
-        "has_rca_predictions": prediction_source != "none",
     }
 
     detail = {
         **summary,
         "trials": trials,
+        "rca_confusion": rca_confusion,
+        "name_to_category": problem_to_category(catalog_lookup),
     }
     return summary, detail
 

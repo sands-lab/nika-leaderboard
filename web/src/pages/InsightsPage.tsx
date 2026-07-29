@@ -1,18 +1,26 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import type { EChartsOption } from 'echarts'
+import type { EChartsType } from 'echarts'
+import { BubbleGainOverlays } from '../components/BubbleGainOverlays'
 import { ChartPanel } from '../components/ChartPanel'
-import { formatPct } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import {
   type BubbleAxisKey,
+  type BubbleEncodeKey,
   type BubblePoint,
   type PairAnnotation,
   BUBBLE_AXIS_OPTIONS,
+  BUBBLE_OPACITY_OPTIONS,
+  BUBBLE_SIZE_OPTIONS,
   axisPlotValue,
   axisRange,
   bubbleAxisOption,
+  encodeExtents,
+  encodeLabel,
+  encodeRawValue,
   familyColor,
   formatAxisDelta,
+  formatAxisTick,
   formatAxisValue,
   formatDeltaPp,
   inferModelFamily,
@@ -41,15 +49,15 @@ function toPoint(s: SubmissionSummary): BubblePoint {
   }
 }
 
-function sizeScale(cases: number, minC: number, maxC: number): number {
-  if (maxC <= minC) return 28
-  const t = (cases - minC) / (maxC - minC)
+function sizeScale(value: number, minV: number, maxV: number): number {
+  if (maxV <= minV) return 28
+  const t = (value - minV) / (maxV - minV)
   return 16 + t * 36
 }
 
-function rcaOpacity(rca: number, minR: number, maxR: number): number {
-  if (maxR <= minR) return 0.75
-  const t = (rca - minR) / (maxR - minR)
+function metricOpacity(value: number, minV: number, maxV: number): number {
+  if (maxV <= minV) return 0.75
+  const t = (value - minV) / (maxV - minV)
   return 0.28 + t * 0.72
 }
 
@@ -62,6 +70,12 @@ export function InsightsPage() {
   const [focusId, setFocusId] = useState<string | null>(null)
   const [xAxisKey, setXAxisKey] = useState<BubbleAxisKey>('detection')
   const [yAxisKey, setYAxisKey] = useState<BubbleAxisKey>('localization')
+  const [sizeKey, setSizeKey] = useState<BubbleEncodeKey>('cases')
+  const [opacityKey, setOpacityKey] = useState<BubbleEncodeKey>('rca')
+  const [chart, setChart] = useState<EChartsType | null>(null)
+  const onChartReady = useCallback((instance: EChartsType | null) => {
+    setChart(instance)
+  }, [])
 
   const swapAxes = () => {
     setXAxisKey(yAxisKey)
@@ -82,16 +96,14 @@ export function InsightsPage() {
     setFocusId((prev) => (prev && !ids.has(prev) ? null : prev))
   }, [points])
 
-  const extents = useMemo(() => {
-    const cases = points.map((p) => p.cases)
-    const rcas = points.map((p) => p.rca)
-    return {
-      minC: Math.min(...cases, 0),
-      maxC: Math.max(...cases, 1),
-      minR: Math.min(...rcas, 0),
-      maxR: Math.max(...rcas, 1),
-    }
-  }, [points])
+  const sizeExtents = useMemo(
+    () => encodeExtents(points, sizeKey),
+    [points, sizeKey],
+  )
+  const opacityExtents = useMemo(
+    () => encodeExtents(points, opacityKey),
+    [points, opacityKey],
+  )
 
   const onBubbleClick = (id: string) => {
     setFocusId(id)
@@ -128,6 +140,24 @@ export function InsightsPage() {
     setPairs((prev) => prev.map((p) => (p.id === id ? { ...p, label } : p)))
   }
 
+  const hidePairLabel = (id: string) => {
+    setPairs((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, labelHidden: true } : p)),
+    )
+  }
+
+  const showPairLabel = (id: string) => {
+    setPairs((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, labelHidden: false } : p)),
+    )
+  }
+
+  const setPairOffset = (id: string, labelOffset: { x: number; y: number }) => {
+    setPairs((prev) =>
+      prev.map((p) => (p.id === id ? { ...p, labelOffset } : p)),
+    )
+  }
+
   const bubbleOption = useMemo((): EChartsOption => {
     const xOpt = bubbleAxisOption(xAxisKey)
     const yOpt = bubbleAxisOption(yAxisKey)
@@ -139,20 +169,27 @@ export function InsightsPage() {
       return {
         name: family,
         type: 'scatter' as const,
-        data: subset.map((p) => ({
-          value: [
-            axisPlotValue(p, xAxisKey),
-            axisPlotValue(p, yAxisKey),
-            p.rca * 100,
-            p.cases,
-          ],
-          id: p.id,
-          name: p.label,
-          point: p,
-        })),
+        data: subset.map((p) => {
+          const sizeVal = encodeRawValue(p, sizeKey)
+          const opacityVal = encodeRawValue(p, opacityKey)
+          return {
+            value: [
+              axisPlotValue(p, xAxisKey),
+              axisPlotValue(p, yAxisKey),
+              opacityVal,
+              sizeVal,
+            ],
+            id: p.id,
+            name: p.label,
+            point: p,
+            sizeVal,
+            opacityVal,
+          }
+        }),
         symbolSize: (val: unknown) => {
+          if (sizeKey === 'fixed') return 28
           const v = val as number[]
-          return sizeScale(v[3] ?? 0, extents.minC, extents.maxC)
+          return sizeScale(v[3] ?? 0, sizeExtents.min, sizeExtents.max)
         },
         itemStyle: {
           color: familyColor(family),
@@ -177,48 +214,34 @@ export function InsightsPage() {
       }
     })
 
-    const arrowSeries = pairs
+    const arrowData = pairs
       .map((pair) => {
         const a = byId.get(pair.fromId)
         const b = byId.get(pair.toId)
         if (!a || !b) return null
         return {
-          name: pair.label,
-          type: 'line' as const,
-          data: [
-            [axisPlotValue(a, xAxisKey), axisPlotValue(a, yAxisKey)],
-            [axisPlotValue(b, xAxisKey), axisPlotValue(b, yAxisKey)],
+          coords: [
+            [
+              axisPlotValue(a, xAxisKey),
+              axisPlotValue(a, yAxisKey),
+            ],
+            [
+              axisPlotValue(b, xAxisKey),
+              axisPlotValue(b, yAxisKey),
+            ],
           ],
-          symbol: ['circle', 'arrow'],
-          symbolSize: [6, 14],
-          showSymbol: true,
-          lineStyle: { width: 2.5, color: pair.color, type: 'solid' as const },
-          itemStyle: { color: pair.color },
-          label: {
-            show: true,
-            formatter: () => {
-              const dx = formatAxisDelta(a, b, xAxisKey)
-              const dy = formatAxisDelta(a, b, yAxisKey)
-              const dRca = formatDeltaPp(a.rca, b.rca)
-              return `${pair.label}\n${xOpt.label} ${dx} · ${yOpt.label} ${dy} · RCA ${dRca}`
-            },
-            position: 'middle',
-            color: pair.color,
-            fontWeight: 600,
-            fontSize: 11,
-            backgroundColor: 'rgba(255,253,248,0.92)',
-            padding: [4, 6],
-            borderRadius: 4,
-          },
-          z: 20,
-          tooltip: { show: false },
-          silent: true,
+          color: pair.color,
         }
       })
-      .filter(Boolean)
+      .filter(Boolean) as Array<{
+      coords: number[][]
+      color: string
+    }>
 
     const xName = xOpt.asPercent ? `${xOpt.label} (%)` : xOpt.label
     const yName = yOpt.asPercent ? `${yOpt.label} (%)` : yOpt.label
+    const opacityAsPercent =
+      opacityKey !== 'fixed' && bubbleAxisOption(opacityKey as BubbleAxisKey).asPercent
 
     return {
       animationDuration: 400,
@@ -237,9 +260,16 @@ export function InsightsPage() {
             `Family: ${pt.family}`,
             `${xOpt.label}: ${formatAxisValue(pt, xAxisKey)}`,
             `${yOpt.label}: ${formatAxisValue(pt, yAxisKey)}`,
-            `RCA F1: ${formatPct(pt.rca)}`,
-            `Cases: ${pt.cases}`,
-            `Success: ${formatPct(pt.success_rate)}`,
+            `Size (${encodeLabel(sizeKey)}): ${
+              sizeKey === 'fixed'
+                ? 'fixed'
+                : formatAxisValue(pt, sizeKey as BubbleAxisKey)
+            }`,
+            `Opacity (${encodeLabel(opacityKey)}): ${
+              opacityKey === 'fixed'
+                ? 'fixed'
+                : formatAxisValue(pt, opacityKey as BubbleAxisKey)
+            }`,
             pendingFrom
               ? pendingFrom === pt.id
                 ? '<em>Click another point to draw comparison arrow</em>'
@@ -252,45 +282,63 @@ export function InsightsPage() {
         data: families,
         top: 0,
       },
-      visualMap: [
-        {
-          type: 'continuous',
-          dimension: 2,
-          min: extents.minR * 100,
-          max: Math.max(extents.maxR * 100, extents.minR * 100 + 1),
-          calculable: false,
-          orient: 'vertical',
-          right: 4,
-          top: 'middle',
-          text: ['RCA%', ''],
-          textGap: 8,
-          itemHeight: 120,
-          inRange: {
-            colorAlpha: [0.3, 1],
-          },
-          seriesIndex: families.map((_, i) => i),
-          formatter: (v: unknown) => `${Number(v).toFixed(0)}`,
-        },
-      ],
-      grid: { left: 64, right: 72, top: 48, bottom: 52 },
+      visualMap:
+        opacityKey === 'fixed'
+          ? []
+          : [
+              {
+                type: 'continuous',
+                dimension: 2,
+                min: opacityExtents.min,
+                max: Math.max(
+                  opacityExtents.max,
+                  opacityExtents.min + (opacityAsPercent ? 0.01 : 1),
+                ),
+                calculable: false,
+                orient: 'vertical',
+                right: 4,
+                top: 'middle',
+                text: [encodeLabel(opacityKey), ''],
+                textGap: 8,
+                itemHeight: 120,
+                inRange: {
+                  colorAlpha: [0.3, 1],
+                },
+                seriesIndex: families.map((_, i) => i),
+                formatter: (v: unknown) => {
+                  const n = Number(v)
+                  if (opacityAsPercent) return `${(n * 100).toFixed(0)}%`
+                  if (opacityKey === 'mean_tokens') return `${Math.round(n)}`
+                  if (opacityKey === 'mean_steps') return n.toFixed(1)
+                  return `${n.toFixed(0)}`
+                },
+              },
+            ],
+      grid: { left: 64, right: 88, top: 48, bottom: 52 },
       xAxis: {
         name: xName,
         nameLocation: 'middle',
         nameGap: 30,
-        min: xRange.min,
-        max: xRange.max,
+        min: xOpt.asPercent ? 0 : xRange.min,
+        max: xOpt.asPercent ? 100 : xRange.max,
+        interval: xOpt.asPercent ? 20 : undefined,
         scale: !xOpt.asPercent,
-        axisLabel: { formatter: '{value}' },
+        axisLabel: {
+          formatter: (v: number) => formatAxisTick(v, xOpt.asPercent),
+        },
         splitLine: { lineStyle: { type: 'dashed', opacity: 0.45 } },
       },
       yAxis: {
         name: yName,
         nameLocation: 'middle',
         nameGap: 44,
-        min: yRange.min,
-        max: yRange.max,
+        min: yOpt.asPercent ? 0 : yRange.min,
+        max: yOpt.asPercent ? 100 : yRange.max,
+        interval: yOpt.asPercent ? 20 : undefined,
         scale: !yOpt.asPercent,
-        axisLabel: { formatter: '{value}' },
+        axisLabel: {
+          formatter: (v: number) => formatAxisTick(v, yOpt.asPercent),
+        },
         splitLine: { lineStyle: { type: 'dashed', opacity: 0.45 } },
       },
       series: [
@@ -300,7 +348,14 @@ export function InsightsPage() {
             ...d,
             itemStyle: {
               color: familyColor(s.name),
-              opacity: rcaOpacity(d.point.rca, extents.minR, extents.maxR),
+              opacity:
+                opacityKey === 'fixed'
+                  ? 0.85
+                  : metricOpacity(
+                      d.opacityVal,
+                      opacityExtents.min,
+                      opacityExtents.max,
+                    ),
               borderColor:
                 d.id === pendingFrom || d.id === focusId ? '#083f32' : '#fff',
               borderWidth: d.id === pendingFrom || d.id === focusId ? 3 : 1.5,
@@ -309,18 +364,35 @@ export function InsightsPage() {
             },
           })),
         })),
-        ...(arrowSeries as EChartsOption['series'] as object[]),
+        {
+          type: 'lines' as const,
+          coordinateSystem: 'cartesian2d',
+          z: 20,
+          silent: true,
+          polyline: false,
+          symbol: ['circle', 'arrow'],
+          symbolSize: [7, 16],
+          lineStyle: { width: 2.5, curveness: 0 },
+          data: arrowData.map((d) => ({
+            coords: d.coords,
+            lineStyle: { width: 2.5, color: d.color, opacity: 0.95 },
+          })),
+          tooltip: { show: false },
+        },
       ],
     }
   }, [
     points,
     pairs,
     byId,
-    extents,
+    sizeExtents,
+    opacityExtents,
     pendingFrom,
     focusId,
     xAxisKey,
     yAxisKey,
+    sizeKey,
+    opacityKey,
   ])
 
   const focusPoint = focusId ? byId.get(focusId) : null
@@ -372,10 +444,10 @@ export function InsightsPage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>NIKA Performance</h1>
+          <h1>Performance Bubbles</h1>
           <p className="lede">
-            Pick X/Y metrics below. Size = cases, color = family, opacity = RCA.
-            Click two bubbles to compare.
+            Pick X/Y, size, and opacity encodings. Color = model family. Click
+            two bubbles to compare.
           </p>
         </div>
       </div>
@@ -411,6 +483,32 @@ export function InsightsPage() {
               onChange={(e) => setYAxisKey(e.target.value as BubbleAxisKey)}
             >
               {BUBBLE_AXIS_OPTIONS.map((o) => (
+                <option key={o.key} value={o.key}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Size
+            <select
+              value={sizeKey}
+              onChange={(e) => setSizeKey(e.target.value as BubbleEncodeKey)}
+            >
+              {BUBBLE_SIZE_OPTIONS.map((o) => (
+                <option key={o.key} value={o.key}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label>
+            Opacity
+            <select
+              value={opacityKey}
+              onChange={(e) => setOpacityKey(e.target.value as BubbleEncodeKey)}
+            >
+              {BUBBLE_OPACITY_OPTIONS.map((o) => (
                 <option key={o.key} value={o.key}>
                   {o.label}
                 </option>
@@ -475,12 +573,25 @@ export function InsightsPage() {
       <div className="insights-layout">
         <div className="insights-chart">
           <ChartPanel
-            title="NIKA Performance"
+            title="Performance Bubbles"
             option={bubbleOption}
             filename="nika-performance-bubbles"
             height={560}
             empty={!points.length}
             zoomable
+            zoomSlider={false}
+            onChartReady={onChartReady}
+            overlay={
+              <BubbleGainOverlays
+                chart={chart}
+                pairs={pairs}
+                byId={byId}
+                xAxisKey={xAxisKey}
+                yAxisKey={yAxisKey}
+                onClose={hidePairLabel}
+                onOffsetChange={setPairOffset}
+              />
+            }
             onEvents={{
               click: (params: unknown) => {
                 const p = params as {
@@ -540,13 +651,26 @@ export function InsightsPage() {
                           {formatDeltaPp(a.rca, b.rca)}
                         </p>
                       </div>
-                      <button
-                        type="button"
-                        className="btn btn--ghost"
-                        onClick={() => removePair(pair.id)}
-                      >
-                        Remove
-                      </button>
+                      <div className="insights-pair-card__actions">
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          onClick={() =>
+                            pair.labelHidden
+                              ? showPairLabel(pair.id)
+                              : hidePairLabel(pair.id)
+                          }
+                        >
+                          {pair.labelHidden ? 'Show tag' : 'Hide tag'}
+                        </button>
+                        <button
+                          type="button"
+                          className="btn btn--ghost"
+                          onClick={() => removePair(pair.id)}
+                        >
+                          Remove
+                        </button>
+                      </div>
                     </li>
                   )
                 })}
@@ -562,14 +686,17 @@ export function InsightsPage() {
                 {bubbleAxisOption(yAxisKey).label}
               </li>
               <li>
-                <strong>Size</strong> — submitted cases ({extents.minC}–
-                {extents.maxC})
+                <strong>Size</strong> — {encodeLabel(sizeKey)}
+                {sizeKey !== 'fixed'
+                  ? ` (${sizeExtents.min.toFixed(2)}–${sizeExtents.max.toFixed(2)})`
+                  : ''}
               </li>
               <li>
                 <strong>Color</strong> — model family
               </li>
               <li>
-                <strong>Opacity</strong> — RCA F1 (darker = higher)
+                <strong>Opacity</strong> — {encodeLabel(opacityKey)}
+                {opacityKey !== 'fixed' ? ' (darker = higher)' : ''}
               </li>
             </ul>
           </section>

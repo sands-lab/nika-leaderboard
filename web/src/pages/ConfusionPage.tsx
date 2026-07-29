@@ -4,10 +4,10 @@ import type { EChartsOption } from 'echarts'
 import { ChartPanel } from '../components/ChartPanel'
 import { EntryPicker } from '../components/EntryPicker'
 import {
-  buildCategoryConfusion,
-  categoryLabel,
+  type ConfusionLevel,
+  axisLabel,
+  buildConfusionMatrix,
   hasUsablePredictions,
-  predictionSourceNote,
   topConfusionPairs,
 } from '../lib/confusion'
 import { loadSubmissionDetails } from '../lib/data'
@@ -31,6 +31,7 @@ export function ConfusionPage() {
   const [details, setDetails] = useState<SubmissionDetail[]>([])
   const [selected, setSelected] = useState<string[]>([])
   const [valueMode, setValueMode] = useState<ValueMode>('rate')
+  const [level, setLevel] = useState<ConfusionLevel>('category')
   const [detailError, setDetailError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
 
@@ -95,64 +96,76 @@ export function ConfusionPage() {
     setParams(next, { replace: true })
   }
 
-  const matrix = useMemo(() => buildCategoryConfusion(details), [details])
+  const matrix = useMemo(
+    () => buildConfusionMatrix(details, level),
+    [details, level],
+  )
   const pairs = useMemo(
-    () => topConfusionPairs(matrix, 10, { offDiagonalOnly: true }),
-    [matrix],
+    () => topConfusionPairs(matrix, level === 'problem' ? 15 : 10, {
+      offDiagonalOnly: true,
+    }),
+    [matrix, level],
   )
   const usable = hasUsablePredictions(details)
-  const sourceNote = predictionSourceNote(details)
 
   const heatmapOption = useMemo((): EChartsOption => {
-    const labels = matrix.categories.map(categoryLabel)
+    const labels = matrix.labels.map((l) => axisLabel(l, level))
     const data: Array<[number, number, number]> = []
     let max = 0
-    for (let i = 0; i < matrix.categories.length; i++) {
-      for (let j = 0; j < matrix.categories.length; j++) {
+    for (let i = 0; i < matrix.labels.length; i++) {
+      for (let j = 0; j < matrix.labels.length; j++) {
         const v =
           valueMode === 'rate' ? matrix.rates[i][j] * 100 : matrix.counts[i][j]
-        data.push([j, i, Number(v.toFixed(valueMode === 'rate' ? 1 : 2))])
+        data.push([j, i, Number(v.toFixed(valueMode === 'rate' ? 1 : 0))])
         if (v > max) max = v
       }
     }
+    const isProblem = level === 'problem'
+    const n = matrix.labels.length
     return {
       tooltip: {
         position: 'top',
         formatter: (p: unknown) => {
           const item = p as { data: [number, number, number] }
-          const [pj, pi, val] = item.data
-          const trueCat = matrix.categories[pi]
-          const predCat = matrix.categories[pj]
+          const [pj, pi] = item.data
+          const trueL = matrix.labels[pi]
+          const predL = matrix.labels[pj]
           const count = matrix.counts[pi][pj]
           const rate = matrix.rates[pi][pj]
           return [
-            `<strong>${categoryLabel(trueCat)}</strong> → <strong>${categoryLabel(predCat)}</strong>`,
-            `Share of true row: ${(rate * 100).toFixed(1)}%`,
-            `Weighted count: ${count.toFixed(2)}`,
-            valueMode === 'rate'
-              ? `Cell: ${val}%`
-              : `Cell: ${val}`,
+            `<strong>${axisLabel(trueL, level)}</strong> → <strong>${axisLabel(predL, level)}</strong>`,
+            `% of this true class: ${(rate * 100).toFixed(1)}%`,
+            `Raw pair count: ${count}`,
           ].join('<br/>')
         },
       },
-      grid: { left: 88, right: 72, top: 40, bottom: 72 },
+      grid: {
+        left: isProblem ? 120 : 88,
+        right: 72,
+        top: 40,
+        bottom: isProblem ? 110 : 72,
+      },
       xAxis: {
         type: 'category',
         data: labels,
-        name: 'Predicted failure',
+        name: level === 'category' ? 'Predicted failure' : 'Predicted RCA name',
         nameLocation: 'middle',
-        nameGap: 36,
+        nameGap: isProblem ? 80 : 36,
         splitArea: { show: true },
-        axisLabel: { rotate: 28, fontSize: 11 },
+        axisLabel: {
+          rotate: isProblem ? 55 : 28,
+          fontSize: isProblem ? 9 : 11,
+          interval: 0,
+        },
       },
       yAxis: {
         type: 'category',
         data: labels,
-        name: 'True failure',
+        name: level === 'category' ? 'True failure' : 'True RCA name',
         nameLocation: 'middle',
-        nameGap: 64,
+        nameGap: isProblem ? 100 : 64,
         splitArea: { show: true },
-        axisLabel: { fontSize: 11 },
+        axisLabel: { fontSize: isProblem ? 9 : 11, interval: 0 },
       },
       visualMap: {
         min: 0,
@@ -161,7 +174,7 @@ export function ConfusionPage() {
         orient: 'vertical',
         right: 4,
         top: 'middle',
-        text: valueMode === 'rate' ? ['%', ''] : ['n', ''],
+        text: valueMode === 'rate' ? ['%', ''] : ['count', ''],
         inRange: { color: HEAT_COLORS },
         formatter: (v: unknown) =>
           valueMode === 'rate'
@@ -173,12 +186,12 @@ export function ConfusionPage() {
           type: 'heatmap',
           data,
           label: {
-            show: true,
-            fontSize: 10,
+            show: !isProblem || n <= 20,
+            fontSize: isProblem ? 8 : 10,
             formatter: (p: unknown) => {
               const v = (p as { data: [number, number, number] }).data[2]
               if (v <= 0) return ''
-              return valueMode === 'rate' ? `${v}` : `${v}`
+              return `${v}`
             },
           },
           emphasis: {
@@ -187,24 +200,22 @@ export function ConfusionPage() {
         },
       ],
     }
-  }, [matrix, valueMode])
+  }, [matrix, valueMode, level])
 
   const sankeyOption = useMemo((): EChartsOption => {
     const nodes = new Map<string, { name: string }>()
     const links: Array<{ source: string; target: string; value: number }> = []
 
     for (const pair of topConfusionPairs(matrix, 24, { offDiagonalOnly: true })) {
-      if (pair.count < 0.5) continue
-      const source = `T:${categoryLabel(pair.trueCategory)}`
-      const target = `P:${categoryLabel(pair.predictedCategory)}`
+      if (pair.count < 1) continue
+      const source = `T:${axisLabel(pair.trueLabel, level)}`
+      const target = `P:${axisLabel(pair.predictedLabel, level)}`
       nodes.set(source, { name: source })
       nodes.set(target, { name: target })
-      links.push({ source, target, value: Number(pair.count.toFixed(2)) })
+      links.push({ source, target, value: pair.count })
     }
 
-    if (!links.length) {
-      return {}
-    }
+    if (!links.length) return {}
 
     return {
       tooltip: {
@@ -227,16 +238,21 @@ export function ConfusionPage() {
           emphasis: { focus: 'adjacency' },
           nodeAlign: 'left',
           lineStyle: { color: 'gradient', curveness: 0.45, opacity: 0.35 },
-          label: { fontSize: 11, color: '#1c2421' },
+          label: { fontSize: level === 'problem' ? 10 : 11, color: '#1c2421' },
           data: [...nodes.values()],
           links,
         },
       ],
     }
-  }, [matrix])
+  }, [matrix, level])
 
   if (loading) return <p className="status">Loading confusion view…</p>
   if (error) return <p className="status status--error">{error}</p>
+
+  const heatHeight =
+    level === 'problem'
+      ? Math.min(900, Math.max(520, matrix.labels.length * 18 + 160))
+      : 480
 
   return (
     <div className="page">
@@ -244,8 +260,8 @@ export function ConfusionPage() {
         <div>
           <h1>RCA Confusion</h1>
           <p className="lede">
-            True failure category → predicted category. Shows which failures are
-            most often mistaken for others in RCA.
+            True RCA → predicted RCA. Cells are either raw true→pred pair counts,
+            or that count as a percent of the true class.
           </p>
         </div>
       </div>
@@ -260,14 +276,7 @@ export function ConfusionPage() {
             syncUrl(next)
           }}
           onSetSelected={syncUrl}
-          subtitle={(s) =>
-            [
-              s.model || '—',
-              s.has_rca_predictions
-                ? `preds: ${s.rca_prediction_source || 'yes'}`
-                : 'no preds',
-            ].join(' · ')
-          }
+          subtitle={(s) => s.model || '—'}
         />
 
         <div className="confusion-main">
@@ -278,44 +287,56 @@ export function ConfusionPage() {
           <section className="insights-controls">
             <div className="insights-controls__row">
               <label>
-                Cell value
+                Axis
+                <select
+                  value={level}
+                  onChange={(e) => setLevel(e.target.value as ConfusionLevel)}
+                >
+                  <option value="category">Failure category</option>
+                  <option value="problem">RCA problem name</option>
+                </select>
+              </label>
+              <label>
+                Cell shows
                 <select
                   value={valueMode}
                   onChange={(e) => setValueMode(e.target.value as ValueMode)}
                 >
-                  <option value="rate">Row share (%)</option>
-                  <option value="count">Weighted count</option>
+                  <option value="rate">% of true class</option>
+                  <option value="count">Raw pair counts</option>
                 </select>
               </label>
               <p className="muted insights-controls__status">
-                {matrix.trialCount} trials · {matrix.emptyPredictionCount} with
-                no prediction
+                {matrix.edgeCount} true→pred pairs · {matrix.trialCount} trials
+                with predictions · {matrix.missingPredictionCount} missing
               </p>
             </div>
-            {sourceNote && <p className="muted confusion-note">{sourceNote}</p>}
           </section>
 
           {!usable && details.length > 0 ? (
             <p className="status">
-              Selected packages have no predicted RCA names. Pack{' '}
-              <code>predicted_root_cause_names</code> into trials, or add an{' '}
-              <code>enrichment/rca_predictions/</code> sidecar.
+              Selected packages have no{' '}
+              <code>predicted_root_cause_name</code> in trial results.
             </p>
           ) : (
             <>
               <ChartPanel
-                title="Category confusion"
+                title={
+                  level === 'category'
+                    ? 'Category confusion'
+                    : 'Problem-name confusion'
+                }
                 option={heatmapOption}
-                filename="rca-category-confusion"
-                height={480}
-                empty={!matrix.categories.length}
+                filename={`rca-confusion-${level}`}
+                height={heatHeight}
+                empty={!matrix.labels.length}
                 zoomable={false}
               />
 
               <ChartPanel
                 title="Misclassification flows"
                 option={sankeyOption}
-                filename="rca-confusion-sankey"
+                filename={`rca-confusion-sankey-${level}`}
                 height={420}
                 empty={!Object.keys(sankeyOption).length}
                 zoomable={false}
@@ -328,15 +349,15 @@ export function ConfusionPage() {
                 ) : (
                   <ul className="confusion-pair-list">
                     {pairs.map((p) => (
-                      <li key={`${p.trueCategory}->${p.predictedCategory}`}>
+                      <li key={`${p.trueLabel}->${p.predictedLabel}`}>
                         <span className="confusion-pair-list__flow">
-                          <strong>{categoryLabel(p.trueCategory)}</strong>
+                          <strong>{axisLabel(p.trueLabel, level)}</strong>
                           <span aria-hidden="true"> → </span>
-                          <strong>{categoryLabel(p.predictedCategory)}</strong>
+                          <strong>{axisLabel(p.predictedLabel, level)}</strong>
                         </span>
                         <span className="muted">
-                          {p.count.toFixed(1)} trials ·{' '}
-                          {(p.rate * 100).toFixed(1)}% of true row
+                          {p.count} pairs · {(p.rate * 100).toFixed(1)}% of this
+                          true class
                         </span>
                       </li>
                     ))}

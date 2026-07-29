@@ -12,7 +12,7 @@
   "model": "gpt-5-mini",
   "framework": "react",
   "agent_type": "react",
-  "llm_provider": null,
+  "llm_provider": "openai",
   "tools": [],
   "skills": [],
   "optimization_methods": [],
@@ -27,33 +27,31 @@
   "case_count": 56,
   "n_trials": 3,
   "primary_metric": "rca_f1",
-  "mean_rca_f1": 0.2331363095238095,
-  "mean_localization_f1": 0.32596785714285703,
-  "mean_detection_score": 0.7261904761904762,
+  "mean_rca_f1": 0.22123154761904762,
+  "mean_localization_f1": 0.32140357142857134,
+  "mean_detection_score": 0.7142857142857143,
   "n_trials_expected": 168,
   "n_trials_present": 168,
   "n_success": 130,
   "n_agent_failed": 38,
   "success_rate": 0.77381,
   "token_totals": {
-    "in_tokens": 15580985,
-    "out_tokens": 1074498
+    "in_tokens": 14540912,
+    "out_tokens": 1028145
   },
   "steps_totals": {
-    "steps": 1521,
-    "tool_calls": 2653,
-    "tool_errors": 43
+    "steps": 1465,
+    "tool_calls": 2637,
+    "tool_errors": 39
   },
-  "mean_tokens": 99139.78,
-  "mean_steps": 9.054,
-  "total_tokens": 16655483,
+  "mean_tokens": 92672.958,
+  "mean_steps": 8.72,
+  "total_tokens": 15569057,
   "max_steps": null,
   "case_timeout_sec": 2400,
   "created_at": "2026-07-29T09:16:21+00:00",
   "run_id": "mockup-react-gpt-5-mini",
   "official": true,
-  "rca_prediction_source": "synthetic",
-  "has_rca_predictions": true,
   "trials": [
     {
       "trial_id": "dc_clos_bgp__bgp_acl_block__659f59f5__t01",
@@ -64,6 +62,11 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_acl_block"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -71,16 +74,7 @@
       "out_tokens": 7106,
       "steps": 3,
       "tool_calls": 13,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_spoofed_subnet",
-        "link_high_packet_corruption"
-      ],
-      "predicted_root_cause_categories": [
-        "network_under_attack",
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__bgp_acl_block__659f59f5__t02",
@@ -91,6 +85,11 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_acl_block"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -98,14 +97,7 @@
       "out_tokens": 5374,
       "steps": 2,
       "tool_calls": 18,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_spoofed_dns"
-      ],
-      "predicted_root_cause_categories": [
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__bgp_acl_block__659f59f5__t03",
@@ -116,21 +108,19 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_acl_block"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": 12504,
-      "out_tokens": 7106,
-      "steps": 3,
-      "tool_calls": 13,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "p4_table_entry_misconfig"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 15696,
+      "out_tokens": 5374,
+      "steps": 2,
+      "tool_calls": 18,
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__bgp_asn_misconfig__a9b85f70__t01",
@@ -141,6 +131,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_asn_misconfig"
+      ],
+      "predicted_root_cause_name": [
+        "bgp_asn_misconfig",
+        "host_crash"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.6667,
@@ -148,16 +149,7 @@
       "out_tokens": 6798,
       "steps": 4,
       "tool_calls": 27,
-      "tool_errors": 4,
-      "predicted_root_cause_names": [
-        "bgp_asn_misconfig",
-        "southbound_port_mismatch"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration",
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 4
     },
     {
       "trial_id": "dc_clos_bgp__bgp_asn_misconfig__a9b85f70__t02",
@@ -168,6 +160,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_asn_misconfig"
+      ],
+      "predicted_root_cause_name": [
+        "bgp_asn_misconfig"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -175,14 +176,7 @@
       "out_tokens": 7604,
       "steps": 4,
       "tool_calls": 12,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bgp_asn_misconfig"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__bgp_asn_misconfig__a9b85f70__t03",
@@ -193,6 +187,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_asn_misconfig"
+      ],
+      "predicted_root_cause_name": [
+        "bgp_asn_misconfig"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -200,14 +203,7 @@
       "out_tokens": 7604,
       "steps": 4,
       "tool_calls": 12,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bgp_asn_misconfig"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__bgp_blackhole_route_leak__5139222d__t01",
@@ -218,6 +214,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_blackhole_route_leak"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole",
+        "link_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.0,
@@ -225,10 +232,7 @@
       "out_tokens": 7205,
       "steps": 3,
       "tool_calls": 22,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__bgp_blackhole_route_leak__5139222d__t02",
@@ -239,6 +243,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_blackhole_route_leak"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -246,14 +255,7 @@
       "out_tokens": 9338,
       "steps": 20,
       "tool_calls": 24,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "sender_application_delay"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__bgp_blackhole_route_leak__5139222d__t03",
@@ -264,6 +266,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_blackhole_route_leak"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole",
+        "link_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.0,
@@ -271,16 +284,7 @@
       "out_tokens": 7205,
       "steps": 3,
       "tool_calls": 22,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "p4_header_definition_error",
-        "dhcp_spoofed_dns"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error",
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__bgp_missing_route_advertisement__4fafa2b4__t01",
@@ -291,6 +295,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_missing_route_advertisement"
+      ],
+      "predicted_root_cause_name": [
+        "bgp_asn_misconfig"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.0,
@@ -298,14 +311,7 @@
       "out_tokens": 7555,
       "steps": 4,
       "tool_calls": 24,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bgp_hijacking"
-      ],
-      "predicted_root_cause_categories": [
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__bgp_missing_route_advertisement__4fafa2b4__t02",
@@ -316,6 +322,11 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "bgp_missing_route_advertisement"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -323,14 +334,7 @@
       "out_tokens": 3706,
       "steps": 3,
       "tool_calls": 11,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "sdn_controller_crash"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__bgp_missing_route_advertisement__4fafa2b4__t03",
@@ -341,21 +345,19 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
-      "detection_score": 1.0,
-      "localization_f1": 0.6667,
+      "gt_root_cause_name": [
+        "bgp_missing_route_advertisement"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
+      "detection_score": 0.0,
+      "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": 34109,
-      "out_tokens": 7555,
-      "steps": 4,
-      "tool_calls": 24,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "southbound_port_block"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 11946,
+      "out_tokens": 3706,
+      "steps": 3,
+      "tool_calls": 11,
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__host_crash__45fc915a__t01",
@@ -366,6 +368,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_crash"
+      ],
+      "predicted_root_cause_name": [
+        "host_crash"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 1.0,
@@ -373,14 +384,7 @@
       "out_tokens": 5285,
       "steps": 3,
       "tool_calls": 20,
-      "tool_errors": 4,
-      "predicted_root_cause_names": [
-        "host_crash"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 4
     },
     {
       "trial_id": "dc_clos_bgp__host_crash__45fc915a__t02",
@@ -391,6 +395,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_crash"
+      ],
+      "predicted_root_cause_name": [
+        "host_crash"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -398,14 +411,7 @@
       "out_tokens": 3689,
       "steps": 3,
       "tool_calls": 20,
-      "tool_errors": 2,
-      "predicted_root_cause_names": [
-        "host_crash"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 2
     },
     {
       "trial_id": "dc_clos_bgp__host_crash__45fc915a__t03",
@@ -416,21 +422,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
-      "detection_score": 1.0,
-      "localization_f1": 0.6667,
-      "rca_f1": 1.0,
-      "in_tokens": 17995,
-      "out_tokens": 5285,
-      "steps": 3,
-      "tool_calls": 20,
-      "tool_errors": 4,
-      "predicted_root_cause_names": [
+      "gt_root_cause_name": [
+        "host_crash"
+      ],
+      "predicted_root_cause_name": [
         "host_crash"
       ],
       "predicted_root_cause_categories": [
         "end_host_failure"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 1.0,
+      "rca_f1": 1.0,
+      "in_tokens": 17933,
+      "out_tokens": 3689,
+      "steps": 3,
+      "tool_calls": 20,
+      "tool_errors": 2
     },
     {
       "trial_id": "dc_clos_bgp__host_ip_conflict__6e2a4c90__t01",
@@ -441,6 +449,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_ip_conflict"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_ip",
+        "host_incorrect_gateway",
+        "host_ip_conflict"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.5,
@@ -448,14 +467,7 @@
       "out_tokens": 7672,
       "steps": 19,
       "tool_calls": 24,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_ip_conflict"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__host_ip_conflict__6e2a4c90__t02",
@@ -466,6 +478,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_ip_conflict"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_ip",
+        "host_incorrect_gateway",
+        "host_ip_conflict"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.5,
@@ -473,16 +496,7 @@
       "out_tokens": 6381,
       "steps": 6,
       "tool_calls": 21,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_ip_conflict",
-        "ospf_neighbor_missing"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure",
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__host_ip_conflict__6e2a4c90__t03",
@@ -493,23 +507,25 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_ip_conflict"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_ip",
+        "host_incorrect_gateway",
+        "host_ip_conflict"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.5,
-      "in_tokens": 202598,
-      "out_tokens": 7672,
-      "steps": 19,
-      "tool_calls": 24,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_ip_conflict",
-        "mac_address_conflict"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure",
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 57939,
+      "out_tokens": 6381,
+      "steps": 6,
+      "tool_calls": 21,
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__host_static_blackhole__8fc09cca__t01",
@@ -520,6 +536,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "host_static_blackhole"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -527,14 +552,7 @@
       "out_tokens": 8138,
       "steps": 12,
       "tool_calls": 17,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_static_blackhole"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__host_static_blackhole__8fc09cca__t02",
@@ -545,6 +563,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "host_static_blackhole"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -552,14 +575,7 @@
       "out_tokens": 7847,
       "steps": 20,
       "tool_calls": 28,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "sender_resource_contention"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__host_static_blackhole__8fc09cca__t03",
@@ -570,6 +586,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "host_static_blackhole"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -577,14 +602,7 @@
       "out_tokens": 8138,
       "steps": 12,
       "tool_calls": 17,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_static_blackhole"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_bandwidth_throttling__32c5a1d7__t01",
@@ -595,6 +613,11 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "link_bandwidth_throttling"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -602,14 +625,7 @@
       "out_tokens": 5598,
       "steps": 5,
       "tool_calls": 19,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bgp_blackhole_route_leak"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_bandwidth_throttling__32c5a1d7__t02",
@@ -620,6 +636,11 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "link_bandwidth_throttling"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -627,14 +648,7 @@
       "out_tokens": 5080,
       "steps": 3,
       "tool_calls": 23,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "p4_header_definition_error"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_bandwidth_throttling__32c5a1d7__t03",
@@ -645,21 +659,19 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "link_bandwidth_throttling"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": 41286,
-      "out_tokens": 5598,
-      "steps": 5,
-      "tool_calls": 19,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bgp_acl_block"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 19688,
+      "out_tokens": 5080,
+      "steps": 3,
+      "tool_calls": 23,
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_detach__9a2b28e3__t01",
@@ -670,6 +682,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_detach"
+      ],
+      "predicted_root_cause_name": [
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.0,
@@ -677,16 +698,7 @@
       "out_tokens": 14607,
       "steps": 15,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_ip_conflict",
-        "p4_table_entry_missing"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure",
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_detach__9a2b28e3__t02",
@@ -697,6 +709,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_detach"
+      ],
+      "predicted_root_cause_name": [
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.0,
@@ -704,14 +725,7 @@
       "out_tokens": 4248,
       "steps": 12,
       "tool_calls": 15,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "flow_rule_shadowing"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_detach__9a2b28e3__t03",
@@ -722,21 +736,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_detach"
+      ],
+      "predicted_root_cause_name": [
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.0,
-      "in_tokens": 145926,
-      "out_tokens": 14607,
-      "steps": 15,
-      "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "sdn_controller_crash"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 85414,
+      "out_tokens": 4248,
+      "steps": 12,
+      "tool_calls": 15,
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_down__e2c3e8cb__t01",
@@ -747,6 +763,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_down"
+      ],
+      "predicted_root_cause_name": [
+        "link_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -754,14 +779,7 @@
       "out_tokens": 3702,
       "steps": 6,
       "tool_calls": 19,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_down__e2c3e8cb__t02",
@@ -772,6 +790,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_down"
+      ],
+      "predicted_root_cause_name": [
+        "link_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -779,14 +806,7 @@
       "out_tokens": 3810,
       "steps": 5,
       "tool_calls": 10,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_down__e2c3e8cb__t03",
@@ -797,21 +817,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
-      "detection_score": 1.0,
-      "localization_f1": 1.0,
-      "rca_f1": 1.0,
-      "in_tokens": 48175,
-      "out_tokens": 3702,
-      "steps": 6,
-      "tool_calls": 19,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
+      "gt_root_cause_name": [
+        "link_down"
+      ],
+      "predicted_root_cause_name": [
         "link_down"
       ],
       "predicted_root_cause_categories": [
         "link_failure"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 1.0,
+      "rca_f1": 1.0,
+      "in_tokens": 29557,
+      "out_tokens": 3810,
+      "steps": 5,
+      "tool_calls": 10,
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_flap__e7bb9ecc__t01",
@@ -822,6 +844,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_flap"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_gateway",
+        "link_flap"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.6667,
@@ -829,14 +862,7 @@
       "out_tokens": 7028,
       "steps": 16,
       "tool_calls": 23,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_flap"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_flap__e7bb9ecc__t02",
@@ -847,6 +873,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_flap"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -854,14 +885,7 @@
       "out_tokens": 7172,
       "steps": 20,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_missing_ip"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_flap__e7bb9ecc__t03",
@@ -872,6 +896,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_flap"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_gateway",
+        "link_flap"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.6667,
@@ -879,16 +914,7 @@
       "out_tokens": 7028,
       "steps": 16,
       "tool_calls": 23,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_flap",
-        "host_ip_conflict"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure",
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_fragmentation_disabled__858db54a__t01",
@@ -899,6 +925,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_fragmentation_disabled"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -906,14 +937,7 @@
       "out_tokens": 14382,
       "steps": 20,
       "tool_calls": 39,
-      "tool_errors": 2,
-      "predicted_root_cause_names": [
-        "host_incorrect_dns"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 2
     },
     {
       "trial_id": "dc_clos_bgp__link_fragmentation_disabled__858db54a__t02",
@@ -924,6 +948,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_fragmentation_disabled"
+      ],
+      "predicted_root_cause_name": [
+        "bgp_asn_misconfig"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -931,14 +964,7 @@
       "out_tokens": 8954,
       "steps": 5,
       "tool_calls": 27,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_incorrect_dns"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_fragmentation_disabled__858db54a__t03",
@@ -949,6 +975,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "link_fragmentation_disabled"
+      ],
+      "predicted_root_cause_name": [
+        "bgp_asn_misconfig"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -956,14 +991,7 @@
       "out_tokens": 8954,
       "steps": 5,
       "tool_calls": 27,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "southbound_port_block"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_high_packet_corruption__c60179e1__t01",
@@ -974,6 +1002,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "link_high_packet_corruption"
+      ],
+      "predicted_root_cause_name": [
+        "arp_acl_block"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -981,14 +1018,7 @@
       "out_tokens": 10057,
       "steps": 5,
       "tool_calls": 32,
-      "tool_errors": 3,
-      "predicted_root_cause_names": [
-        "sender_resource_contention"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 3
     },
     {
       "trial_id": "dc_clos_bgp__link_high_packet_corruption__c60179e1__t02",
@@ -999,6 +1029,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "link_high_packet_corruption"
+      ],
+      "predicted_root_cause_name": [
+        "link_high_packet_corruption"
+      ],
+      "predicted_root_cause_categories": [
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 1.0,
@@ -1006,14 +1045,7 @@
       "out_tokens": 5166,
       "steps": 13,
       "tool_calls": 16,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_high_packet_corruption"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_bgp__link_high_packet_corruption__c60179e1__t03",
@@ -1024,6 +1056,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "link_high_packet_corruption"
+      ],
+      "predicted_root_cause_name": [
+        "link_high_packet_corruption"
+      ],
+      "predicted_root_cause_categories": [
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 1.0,
@@ -1031,14 +1072,7 @@
       "out_tokens": 5166,
       "steps": 13,
       "tool_calls": 16,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_high_packet_corruption"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_service__bgp_hijacking__0ac4fe2e__t01",
@@ -1049,6 +1083,18 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "bgp_hijacking"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole",
+        "http_acl_block",
+        "flow_rule_shadowing"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration",
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.0,
@@ -1056,14 +1102,7 @@
       "out_tokens": 6452,
       "steps": 3,
       "tool_calls": 18,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "ospf_neighbor_missing"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_service__bgp_hijacking__0ac4fe2e__t02",
@@ -1074,6 +1113,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "bgp_hijacking"
+      ],
+      "predicted_root_cause_name": [
+        "icmp_acl_block"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1081,16 +1129,7 @@
       "out_tokens": 7315,
       "steps": 15,
       "tool_calls": 23,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bgp_blackhole_route_leak",
-        "link_detach"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure",
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "dc_clos_service__bgp_hijacking__0ac4fe2e__t03",
@@ -1101,21 +1140,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_under_attack",
-      "detection_score": 1.0,
-      "localization_f1": 0.6667,
-      "rca_f1": 0.0,
-      "in_tokens": 17169,
-      "out_tokens": 6452,
-      "steps": 3,
-      "tool_calls": 18,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_service_down"
+      "gt_root_cause_name": [
+        "bgp_hijacking"
+      ],
+      "predicted_root_cause_name": [
+        "icmp_acl_block"
       ],
       "predicted_root_cause_categories": [
-        "link_failure"
+        "misconfiguration"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 0.0,
+      "rca_f1": 0.0,
+      "in_tokens": 116826,
+      "out_tokens": 7315,
+      "steps": 15,
+      "tool_calls": 23,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__arp_acl_block__28ae99a9__t01",
@@ -1126,6 +1167,19 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "arp_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "host_missing_ip",
+        "dhcp_service_down",
+        "icmp_acl_block"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "link_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.2857,
       "rca_f1": 0.0,
@@ -1133,14 +1187,7 @@
       "out_tokens": 6444,
       "steps": 2,
       "tool_calls": 35,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_spoofed_dns"
-      ],
-      "predicted_root_cause_categories": [
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__arp_acl_block__28ae99a9__t02",
@@ -1151,6 +1198,16 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "arp_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "arp_acl_block",
+        "host_static_blackhole"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.6667,
@@ -1158,16 +1215,7 @@
       "out_tokens": 9390,
       "steps": 16,
       "tool_calls": 15,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "arp_acl_block",
-        "load_balancer_overload"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration",
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__arp_acl_block__28ae99a9__t03",
@@ -1178,6 +1226,16 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "arp_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "arp_acl_block",
+        "host_static_blackhole"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.6667,
@@ -1185,16 +1243,7 @@
       "out_tokens": 9390,
       "steps": 16,
       "tool_calls": 15,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "arp_acl_block",
-        "dhcp_spoofed_subnet"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration",
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__arp_cache_poisoning__4bd04228__t01",
@@ -1205,6 +1254,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "arp_cache_poisoning"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_gateway"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.0,
@@ -1212,10 +1270,7 @@
       "out_tokens": 5952,
       "steps": 15,
       "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__arp_cache_poisoning__4bd04228__t02",
@@ -1226,6 +1281,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "arp_cache_poisoning"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.0,
@@ -1233,14 +1297,7 @@
       "out_tokens": 7804,
       "steps": 14,
       "tool_calls": 13,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bgp_blackhole_route_leak"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__arp_cache_poisoning__4bd04228__t03",
@@ -1251,21 +1308,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_under_attack",
-      "detection_score": 1.0,
-      "localization_f1": 1.0,
-      "rca_f1": 0.0,
-      "in_tokens": 181928,
-      "out_tokens": 5952,
-      "steps": 15,
-      "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "icmp_acl_block"
+      "gt_root_cause_name": [
+        "arp_cache_poisoning"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole"
       ],
       "predicted_root_cause_categories": [
         "misconfiguration"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 1.0,
+      "rca_f1": 0.0,
+      "in_tokens": 91244,
+      "out_tokens": 7804,
+      "steps": 14,
+      "tool_calls": 13,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_missing_subnet__b97612b6__t01",
@@ -1276,6 +1335,17 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "dhcp_missing_subnet"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.4,
       "rca_f1": 0.0,
@@ -1283,14 +1353,7 @@
       "out_tokens": 13477,
       "steps": 15,
       "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bgp_asn_misconfig"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_missing_subnet__b97612b6__t02",
@@ -1301,6 +1364,15 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "dhcp_missing_subnet"
+      ],
+      "predicted_root_cause_name": [
+        "dhcp_missing_subnet"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 1.0,
@@ -1308,14 +1380,7 @@
       "out_tokens": 5342,
       "steps": 8,
       "tool_calls": 7,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_missing_subnet"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_missing_subnet__b97612b6__t03",
@@ -1326,6 +1391,15 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "dhcp_missing_subnet"
+      ],
+      "predicted_root_cause_name": [
+        "dhcp_missing_subnet"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 1.0,
@@ -1333,14 +1407,7 @@
       "out_tokens": 5342,
       "steps": 8,
       "tool_calls": 7,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_missing_subnet"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_service_down__b9be0ea1__t01",
@@ -1351,6 +1418,15 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "dhcp_service_down"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1358,14 +1434,7 @@
       "out_tokens": 9438,
       "steps": 15,
       "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "flow_rule_loop"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_service_down__b9be0ea1__t02",
@@ -1376,6 +1445,20 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "dhcp_service_down"
+      ],
+      "predicted_root_cause_name": [
+        "dns_record_error",
+        "ospf_area_misconfiguration",
+        "load_balancer_overload",
+        "receiver_resource_contention"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "misconfiguration",
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1383,16 +1466,7 @@
       "out_tokens": 7214,
       "steps": 5,
       "tool_calls": 11,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "southbound_port_mismatch",
-        "host_missing_ip"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure",
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_service_down__b9be0ea1__t03",
@@ -1403,17 +1477,28 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "dhcp_service_down"
+      ],
+      "predicted_root_cause_name": [
+        "dns_record_error",
+        "ospf_area_misconfiguration",
+        "load_balancer_overload",
+        "receiver_resource_contention"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "misconfiguration",
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": 179472,
-      "out_tokens": 9438,
-      "steps": 15,
-      "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 30441,
+      "out_tokens": 7214,
+      "steps": 5,
+      "tool_calls": 11,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_dns__9630e588__t01",
@@ -1424,6 +1509,15 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "dhcp_spoofed_dns"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1431,10 +1525,7 @@
       "out_tokens": 5607,
       "steps": 3,
       "tool_calls": 5,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_dns__9630e588__t02",
@@ -1445,6 +1536,15 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "dhcp_spoofed_dns"
+      ],
+      "predicted_root_cause_name": [
+        "p4_table_entry_missing"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1452,16 +1552,7 @@
       "out_tokens": 4565,
       "steps": 3,
       "tool_calls": 13,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_fragmentation_disabled",
-        "arp_acl_block"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure",
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_dns__9630e588__t03",
@@ -1472,21 +1563,23 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "dhcp_spoofed_dns"
+      ],
+      "predicted_root_cause_name": [
+        "p4_table_entry_missing"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": 23362,
-      "out_tokens": 5607,
+      "in_tokens": 19380,
+      "out_tokens": 4565,
       "steps": 3,
-      "tool_calls": 5,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_spoofed_gateway"
-      ],
-      "predicted_root_cause_categories": [
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_calls": 13,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_gateway__d453e7bc__t01",
@@ -1497,6 +1590,11 @@
       "outcome": "agent_failed",
       "topo_size": "l",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "dhcp_spoofed_gateway"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1504,14 +1602,7 @@
       "out_tokens": 2552,
       "steps": 20,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_flap"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_gateway__d453e7bc__t02",
@@ -1522,6 +1613,15 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "dhcp_spoofed_gateway"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_gateway"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.0,
@@ -1529,14 +1629,7 @@
       "out_tokens": 8173,
       "steps": 15,
       "tool_calls": 23,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bmv2_switch_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_gateway__d453e7bc__t03",
@@ -1547,6 +1640,15 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "dhcp_spoofed_gateway"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_gateway"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.0,
@@ -1554,14 +1656,7 @@
       "out_tokens": 8173,
       "steps": 15,
       "tool_calls": 23,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "ospf_neighbor_missing"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_subnet__7167b386__t01",
@@ -1572,21 +1667,19 @@
       "outcome": "agent_failed",
       "topo_size": "l",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "dhcp_spoofed_subnet"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "icmp_acl_block"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_subnet__7167b386__t02",
@@ -1597,21 +1690,19 @@
       "outcome": "agent_failed",
       "topo_size": "l",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "dhcp_spoofed_subnet"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "bgp_asn_misconfig"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dhcp_spoofed_subnet__7167b386__t03",
@@ -1622,21 +1713,19 @@
       "outcome": "agent_failed",
       "topo_size": "l",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "dhcp_spoofed_subnet"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "web_dos_attack"
-      ],
-      "predicted_root_cause_categories": [
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_lookup_latency__bd3b9394__t01",
@@ -1647,6 +1736,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "dns_lookup_latency"
+      ],
+      "predicted_root_cause_name": [
+        "dns_lookup_latency"
+      ],
+      "predicted_root_cause_categories": [
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 1.0,
@@ -1654,14 +1752,7 @@
       "out_tokens": 4667,
       "steps": 10,
       "tool_calls": 9,
-      "tool_errors": 1,
-      "predicted_root_cause_names": [
-        "dns_lookup_latency"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 1
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_lookup_latency__bd3b9394__t02",
@@ -1672,6 +1763,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "dns_lookup_latency"
+      ],
+      "predicted_root_cause_name": [
+        "dns_lookup_latency"
+      ],
+      "predicted_root_cause_categories": [
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -1679,14 +1779,7 @@
       "out_tokens": 4333,
       "steps": 11,
       "tool_calls": 13,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dns_lookup_latency"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_lookup_latency__bd3b9394__t03",
@@ -1697,21 +1790,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
-      "detection_score": 1.0,
-      "localization_f1": 0.0,
-      "rca_f1": 1.0,
-      "in_tokens": 112559,
-      "out_tokens": 4667,
-      "steps": 10,
-      "tool_calls": 9,
-      "tool_errors": 1,
-      "predicted_root_cause_names": [
+      "gt_root_cause_name": [
+        "dns_lookup_latency"
+      ],
+      "predicted_root_cause_name": [
         "dns_lookup_latency"
       ],
       "predicted_root_cause_categories": [
         "resource_contention"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 1.0,
+      "rca_f1": 1.0,
+      "in_tokens": 78300,
+      "out_tokens": 4333,
+      "steps": 11,
+      "tool_calls": 13,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_port_blocked__5c1f8a56__t01",
@@ -1722,6 +1817,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "dns_port_blocked"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1729,14 +1835,7 @@
       "out_tokens": 7129,
       "steps": 19,
       "tool_calls": 18,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "flow_rule_shadowing"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_port_blocked__5c1f8a56__t02",
@@ -1747,6 +1846,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "dns_port_blocked"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1754,14 +1858,7 @@
       "out_tokens": 2765,
       "steps": 20,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_spoofed_gateway"
-      ],
-      "predicted_root_cause_categories": [
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_port_blocked__5c1f8a56__t03",
@@ -1772,6 +1869,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "dns_port_blocked"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1779,10 +1887,7 @@
       "out_tokens": 7129,
       "steps": 19,
       "tool_calls": 18,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_record_error__4f65fcd4__t01",
@@ -1793,6 +1898,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "dns_record_error"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1800,14 +1914,7 @@
       "out_tokens": 11679,
       "steps": 13,
       "tool_calls": 12,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_service_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_record_error__4f65fcd4__t02",
@@ -1818,6 +1925,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "dns_record_error"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1825,14 +1937,7 @@
       "out_tokens": 2418,
       "steps": 20,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_static_blackhole"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_record_error__4f65fcd4__t03",
@@ -1843,6 +1948,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "dns_record_error"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1850,14 +1964,7 @@
       "out_tokens": 11679,
       "steps": 13,
       "tool_calls": 12,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "http_acl_block"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_service_down__5b3ed05b__t01",
@@ -1868,6 +1975,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "dns_service_down"
+      ],
+      "predicted_root_cause_name": [
+        "dhcp_service_down",
+        "frr_service_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure",
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1875,16 +1993,7 @@
       "out_tokens": 17439,
       "steps": 8,
       "tool_calls": 25,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "sdn_controller_crash",
-        "host_incorrect_gateway"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure",
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_service_down__5b3ed05b__t02",
@@ -1895,6 +2004,16 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "dns_service_down"
+      ],
+      "predicted_root_cause_name": [
+        "p4_table_entry_missing",
+        "flow_rule_shadowing"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1902,14 +2021,7 @@
       "out_tokens": 4581,
       "steps": 4,
       "tool_calls": 17,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "southbound_port_mismatch"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__dns_service_down__5b3ed05b__t03",
@@ -1920,23 +2032,24 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "dns_service_down"
+      ],
+      "predicted_root_cause_name": [
+        "p4_table_entry_missing",
+        "flow_rule_shadowing"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": 138325,
-      "out_tokens": 17439,
-      "steps": 8,
-      "tool_calls": 25,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "frr_service_down",
-        "host_incorrect_ip"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure",
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 28651,
+      "out_tokens": 4581,
+      "steps": 4,
+      "tool_calls": 17,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__frr_service_down__b9dd6fce__t01",
@@ -1947,6 +2060,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "frr_service_down"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -1954,14 +2072,7 @@
       "out_tokens": 5060,
       "steps": 20,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_detach"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__frr_service_down__b9dd6fce__t02",
@@ -1972,6 +2083,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "frr_service_down"
+      ],
+      "predicted_root_cause_name": [
+        "frr_service_down"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -1979,14 +2099,7 @@
       "out_tokens": 6194,
       "steps": 13,
       "tool_calls": 12,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "frr_service_down"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__frr_service_down__b9dd6fce__t03",
@@ -1997,6 +2110,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "frr_service_down"
+      ],
+      "predicted_root_cause_name": [
+        "frr_service_down"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -2004,14 +2126,7 @@
       "out_tokens": 6194,
       "steps": 13,
       "tool_calls": 12,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "frr_service_down"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__host_incorrect_dns__4dd10aa1__t01",
@@ -2022,6 +2137,16 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_incorrect_dns"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "icmp_acl_block"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2029,14 +2154,7 @@
       "out_tokens": 6727,
       "steps": 2,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_flap"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__host_incorrect_dns__4dd10aa1__t02",
@@ -2047,6 +2165,18 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_incorrect_dns"
+      ],
+      "predicted_root_cause_name": [
+        "flow_rule_shadowing",
+        "load_balancer_overload",
+        "sender_application_delay"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error",
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2054,14 +2184,7 @@
       "out_tokens": 6923,
       "steps": 13,
       "tool_calls": 23,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__host_incorrect_dns__4dd10aa1__t03",
@@ -2072,23 +2195,26 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_incorrect_dns"
+      ],
+      "predicted_root_cause_name": [
+        "flow_rule_shadowing",
+        "load_balancer_overload",
+        "sender_application_delay"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error",
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": 30639,
-      "out_tokens": 6727,
-      "steps": 2,
-      "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_down",
-        "ospf_acl_block"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure",
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 114429,
+      "out_tokens": 6923,
+      "steps": 13,
+      "tool_calls": 23,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__host_incorrect_gateway__3fc9ce65__t01",
@@ -2099,6 +2225,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_incorrect_gateway"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2106,10 +2241,7 @@
       "out_tokens": 14421,
       "steps": 13,
       "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__host_incorrect_gateway__3fc9ce65__t02",
@@ -2120,6 +2252,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_incorrect_gateway"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_gateway"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -2127,14 +2268,7 @@
       "out_tokens": 5619,
       "steps": 6,
       "tool_calls": 19,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_incorrect_gateway"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__host_incorrect_gateway__3fc9ce65__t03",
@@ -2145,6 +2279,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_incorrect_gateway"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_gateway"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -2152,14 +2295,7 @@
       "out_tokens": 5619,
       "steps": 6,
       "tool_calls": 19,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_incorrect_gateway"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__http_acl_block__c08d56e1__t01",
@@ -2170,6 +2306,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "http_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2177,16 +2322,7 @@
       "out_tokens": 11824,
       "steps": 18,
       "tool_calls": 27,
-      "tool_errors": 2,
-      "predicted_root_cause_names": [
-        "dhcp_spoofed_subnet",
-        "link_high_packet_corruption"
-      ],
-      "predicted_root_cause_categories": [
-        "network_under_attack",
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 2
     },
     {
       "trial_id": "ospf_enterprise_dhcp__http_acl_block__c08d56e1__t02",
@@ -2197,6 +2333,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "http_acl_block"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2204,14 +2345,7 @@
       "out_tokens": 3477,
       "steps": 20,
       "tool_calls": 21,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "p4_compilation_error_parser_state"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__http_acl_block__c08d56e1__t03",
@@ -2222,6 +2356,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "http_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2229,10 +2372,7 @@
       "out_tokens": 11824,
       "steps": 18,
       "tool_calls": 27,
-      "tool_errors": 2,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 2
     },
     {
       "trial_id": "ospf_enterprise_dhcp__icmp_acl_block__a94f1fe4__t01",
@@ -2243,6 +2383,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "icmp_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2250,14 +2399,7 @@
       "out_tokens": 9822,
       "steps": 11,
       "tool_calls": 10,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_high_packet_corruption"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__icmp_acl_block__a94f1fe4__t02",
@@ -2268,6 +2410,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "icmp_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.0,
@@ -2275,10 +2426,7 @@
       "out_tokens": 12349,
       "steps": 17,
       "tool_calls": 16,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__icmp_acl_block__a94f1fe4__t03",
@@ -2289,21 +2437,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
-      "detection_score": 1.0,
-      "localization_f1": 0.0,
-      "rca_f1": 0.0,
-      "in_tokens": 114884,
-      "out_tokens": 9822,
-      "steps": 11,
-      "tool_calls": 10,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "southbound_port_mismatch"
+      "gt_root_cause_name": [
+        "icmp_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole"
       ],
       "predicted_root_cause_categories": [
-        "network_node_error"
+        "misconfiguration"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 1.0,
+      "rca_f1": 0.0,
+      "in_tokens": 124514,
+      "out_tokens": 12349,
+      "steps": 17,
+      "tool_calls": 16,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__incast_traffic_network_limitation__fffe1e43__t01",
@@ -2314,6 +2464,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "incast_traffic_network_limitation"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2321,14 +2476,7 @@
       "out_tokens": 6503,
       "steps": 20,
       "tool_calls": 20,
-      "tool_errors": 1,
-      "predicted_root_cause_names": [
-        "p4_compilation_error_parser_state"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 1
     },
     {
       "trial_id": "ospf_enterprise_dhcp__incast_traffic_network_limitation__fffe1e43__t02",
@@ -2339,6 +2487,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "incast_traffic_network_limitation"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2346,14 +2505,7 @@
       "out_tokens": 4610,
       "steps": 3,
       "tool_calls": 15,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dns_lookup_latency"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__incast_traffic_network_limitation__fffe1e43__t03",
@@ -2364,6 +2516,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "incast_traffic_network_limitation"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2371,14 +2534,7 @@
       "out_tokens": 4610,
       "steps": 3,
       "tool_calls": 15,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "p4_header_definition_error"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__load_balancer_overload__222448aa__t01",
@@ -2389,6 +2545,16 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "load_balancer_overload"
+      ],
+      "predicted_root_cause_name": [
+        "icmp_acl_block",
+        "arp_acl_block"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.5,
       "rca_f1": 0.0,
@@ -2396,14 +2562,7 @@
       "out_tokens": 7342,
       "steps": 5,
       "tool_calls": 28,
-      "tool_errors": 2,
-      "predicted_root_cause_names": [
-        "link_high_packet_corruption"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 2
     },
     {
       "trial_id": "ospf_enterprise_dhcp__load_balancer_overload__222448aa__t02",
@@ -2414,6 +2573,15 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "load_balancer_overload"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.0,
@@ -2421,14 +2589,7 @@
       "out_tokens": 6310,
       "steps": 15,
       "tool_calls": 25,
-      "tool_errors": 1,
-      "predicted_root_cause_names": [
-        "link_high_packet_corruption"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 1
     },
     {
       "trial_id": "ospf_enterprise_dhcp__load_balancer_overload__222448aa__t03",
@@ -2439,17 +2600,23 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "load_balancer_overload"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
-      "localization_f1": 0.5,
+      "localization_f1": 0.6667,
       "rca_f1": 0.0,
-      "in_tokens": 31784,
-      "out_tokens": 7342,
-      "steps": 5,
-      "tool_calls": 28,
-      "tool_errors": 2,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 228940,
+      "out_tokens": 6310,
+      "steps": 15,
+      "tool_calls": 25,
+      "tool_errors": 1
     },
     {
       "trial_id": "ospf_enterprise_dhcp__mac_address_conflict__4b85b97e__t01",
@@ -2460,6 +2627,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "mac_address_conflict"
+      ],
+      "predicted_root_cause_name": [
+        "dhcp_service_down",
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.5,
       "rca_f1": 0.0,
@@ -2467,10 +2645,7 @@
       "out_tokens": 10071,
       "steps": 15,
       "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__mac_address_conflict__4b85b97e__t02",
@@ -2481,6 +2656,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "mac_address_conflict"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2488,14 +2672,7 @@
       "out_tokens": 19148,
       "steps": 17,
       "tool_calls": 18,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "web_dos_attack"
-      ],
-      "predicted_root_cause_categories": [
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__mac_address_conflict__4b85b97e__t03",
@@ -2506,21 +2683,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
-      "detection_score": 1.0,
-      "localization_f1": 0.5,
-      "rca_f1": 0.0,
-      "in_tokens": 194307,
-      "out_tokens": 10071,
-      "steps": 15,
-      "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "sender_application_delay"
+      "gt_root_cause_name": [
+        "mac_address_conflict"
+      ],
+      "predicted_root_cause_name": [
+        "host_static_blackhole"
       ],
       "predicted_root_cause_categories": [
-        "resource_contention"
+        "misconfiguration"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 0.0,
+      "rca_f1": 0.0,
+      "in_tokens": 150276,
+      "out_tokens": 19148,
+      "steps": 17,
+      "tool_calls": 18,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__ospf_acl_block__aa4816dc__t01",
@@ -2531,6 +2710,16 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "ospf_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "dhcp_missing_subnet",
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.4,
       "rca_f1": 0.0,
@@ -2538,14 +2727,7 @@
       "out_tokens": 19946,
       "steps": 20,
       "tool_calls": 19,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "load_balancer_overload"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__ospf_acl_block__aa4816dc__t02",
@@ -2556,6 +2738,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "ospf_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2563,16 +2754,7 @@
       "out_tokens": 3555,
       "steps": 3,
       "tool_calls": 11,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "receiver_resource_contention",
-        "frr_service_down"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error",
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__ospf_acl_block__aa4816dc__t03",
@@ -2583,21 +2765,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
-      "detection_score": 1.0,
-      "localization_f1": 0.4,
-      "rca_f1": 0.0,
-      "in_tokens": 230477,
-      "out_tokens": 19946,
-      "steps": 20,
-      "tool_calls": 19,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_spoofed_gateway"
+      "gt_root_cause_name": [
+        "ospf_acl_block"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
       ],
       "predicted_root_cause_categories": [
-        "network_under_attack"
+        "misconfiguration"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 0.0,
+      "rca_f1": 0.0,
+      "in_tokens": 20510,
+      "out_tokens": 3555,
+      "steps": 3,
+      "tool_calls": 11,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__ospf_area_misconfiguration__818ef2c7__t01",
@@ -2608,6 +2792,18 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "ospf_neighbor_missing",
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.5,
@@ -2615,16 +2811,7 @@
       "out_tokens": 8413,
       "steps": 14,
       "tool_calls": 13,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "ospf_area_misconfiguration",
-        "dns_lookup_latency"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration",
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__ospf_area_misconfiguration__818ef2c7__t02",
@@ -2635,6 +2822,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2642,10 +2834,7 @@
       "out_tokens": 2729,
       "steps": 20,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__ospf_area_misconfiguration__818ef2c7__t03",
@@ -2656,6 +2845,18 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "ospf_neighbor_missing",
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.5,
@@ -2663,16 +2864,7 @@
       "out_tokens": 8413,
       "steps": 14,
       "tool_calls": 13,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "ospf_area_misconfiguration",
-        "web_dos_attack"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration",
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__ospf_neighbor_missing__c942db33__t01",
@@ -2683,6 +2875,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "ospf_neighbor_missing"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 0.0,
@@ -2690,14 +2891,7 @@
       "out_tokens": 7384,
       "steps": 13,
       "tool_calls": 12,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "ospf_area_misconfiguration"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__ospf_neighbor_missing__c942db33__t02",
@@ -2708,6 +2902,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
+      "gt_root_cause_name": [
+        "ospf_neighbor_missing"
+      ],
+      "predicted_root_cause_name": [
+        "link_flap",
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.5,
       "rca_f1": 0.0,
@@ -2715,14 +2920,7 @@
       "out_tokens": 8914,
       "steps": 8,
       "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "ospf_area_misconfiguration"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__ospf_neighbor_missing__c942db33__t03",
@@ -2733,23 +2931,25 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "misconfiguration",
-      "detection_score": 1.0,
-      "localization_f1": 1.0,
-      "rca_f1": 0.0,
-      "in_tokens": 137042,
-      "out_tokens": 7384,
-      "steps": 13,
-      "tool_calls": 12,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "receiver_resource_contention",
-        "bgp_hijacking"
+      "gt_root_cause_name": [
+        "ospf_neighbor_missing"
+      ],
+      "predicted_root_cause_name": [
+        "link_flap",
+        "host_missing_ip"
       ],
       "predicted_root_cause_categories": [
-        "network_under_attack",
-        "resource_contention"
+        "end_host_failure",
+        "link_failure"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 0.5,
+      "rca_f1": 0.0,
+      "in_tokens": 79291,
+      "out_tokens": 8914,
+      "steps": 8,
+      "tool_calls": 14,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__receiver_resource_contention__704199f2__t01",
@@ -2760,6 +2960,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "receiver_resource_contention"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2767,10 +2972,7 @@
       "out_tokens": 2652,
       "steps": 20,
       "tool_calls": 23,
-      "tool_errors": 1,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 1
     },
     {
       "trial_id": "ospf_enterprise_dhcp__receiver_resource_contention__704199f2__t02",
@@ -2781,6 +2983,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "receiver_resource_contention"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2788,14 +2999,7 @@
       "out_tokens": 5278,
       "steps": 4,
       "tool_calls": 24,
-      "tool_errors": 1,
-      "predicted_root_cause_names": [
-        "ospf_area_misconfiguration"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 1
     },
     {
       "trial_id": "ospf_enterprise_dhcp__receiver_resource_contention__704199f2__t03",
@@ -2806,6 +3010,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "receiver_resource_contention"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2813,16 +3026,7 @@
       "out_tokens": 5278,
       "steps": 4,
       "tool_calls": 24,
-      "tool_errors": 1,
-      "predicted_root_cause_names": [
-        "flow_rule_shadowing",
-        "ospf_acl_block"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration",
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 1
     },
     {
       "trial_id": "ospf_enterprise_dhcp__sender_application_delay__e6bcc149__t01",
@@ -2833,6 +3037,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "sender_application_delay"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2840,14 +3053,7 @@
       "out_tokens": 6744,
       "steps": 10,
       "tool_calls": 9,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "southbound_port_block"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__sender_application_delay__e6bcc149__t02",
@@ -2858,6 +3064,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "sender_application_delay"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "load_balancer_overload"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration",
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2865,16 +3082,7 @@
       "out_tokens": 8235,
       "steps": 8,
       "tool_calls": 15,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "p4_aggressive_detection_thresholds",
-        "bgp_acl_block"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration",
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__sender_application_delay__e6bcc149__t03",
@@ -2885,21 +3093,25 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "sender_application_delay"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "load_balancer_overload"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration",
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": 106065,
-      "out_tokens": 6744,
-      "steps": 10,
-      "tool_calls": 9,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "ospf_neighbor_missing"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 84292,
+      "out_tokens": 8235,
+      "steps": 8,
+      "tool_calls": 15,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__sender_resource_contention__93912e95__t01",
@@ -2910,6 +3122,16 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "sender_resource_contention"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_missing_route_advertisement",
+        "icmp_acl_block"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 0.0,
@@ -2917,10 +3139,7 @@
       "out_tokens": 8920,
       "steps": 7,
       "tool_calls": 6,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__sender_resource_contention__93912e95__t02",
@@ -2931,6 +3150,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
+      "gt_root_cause_name": [
+        "sender_resource_contention"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2938,14 +3166,7 @@
       "out_tokens": 5614,
       "steps": 4,
       "tool_calls": 24,
-      "tool_errors": 1,
-      "predicted_root_cause_names": [
-        "p4_compilation_error_parser_state"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 1
     },
     {
       "trial_id": "ospf_enterprise_dhcp__sender_resource_contention__93912e95__t03",
@@ -2956,21 +3177,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "resource_contention",
-      "detection_score": 1.0,
-      "localization_f1": 0.6667,
-      "rca_f1": 0.0,
-      "in_tokens": 63219,
-      "out_tokens": 8920,
-      "steps": 7,
-      "tool_calls": 6,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "load_balancer_overload"
+      "gt_root_cause_name": [
+        "sender_resource_contention"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_ip"
       ],
       "predicted_root_cause_categories": [
-        "resource_contention"
+        "end_host_failure"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 0.0,
+      "rca_f1": 0.0,
+      "in_tokens": 43998,
+      "out_tokens": 5614,
+      "steps": 4,
+      "tool_calls": 24,
+      "tool_errors": 1
     },
     {
       "trial_id": "ospf_enterprise_dhcp__web_dos_attack__2e4551f3__t01",
@@ -2981,6 +3204,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "web_dos_attack"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_area_misconfiguration",
+        "link_bandwidth_throttling"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration",
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -2988,14 +3222,7 @@
       "out_tokens": 7640,
       "steps": 4,
       "tool_calls": 15,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "arp_cache_poisoning"
-      ],
-      "predicted_root_cause_categories": [
-        "network_under_attack"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__web_dos_attack__2e4551f3__t02",
@@ -3006,6 +3233,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_under_attack",
+      "gt_root_cause_name": [
+        "web_dos_attack"
+      ],
+      "predicted_root_cause_name": [
+        "sender_resource_contention",
+        "link_flap"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure",
+        "resource_contention"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -3013,10 +3251,7 @@
       "out_tokens": 8906,
       "steps": 9,
       "tool_calls": 19,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_dhcp__web_dos_attack__2e4551f3__t03",
@@ -3027,23 +3262,25 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_under_attack",
-      "detection_score": 1.0,
-      "localization_f1": 0.0,
-      "rca_f1": 0.0,
-      "in_tokens": 42960,
-      "out_tokens": 7640,
-      "steps": 4,
-      "tool_calls": 15,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "arp_acl_block",
-        "dns_service_down"
+      "gt_root_cause_name": [
+        "web_dos_attack"
+      ],
+      "predicted_root_cause_name": [
+        "sender_resource_contention",
+        "link_flap"
       ],
       "predicted_root_cause_categories": [
         "link_failure",
-        "misconfiguration"
+        "resource_contention"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 0.0,
+      "rca_f1": 0.0,
+      "in_tokens": 106762,
+      "out_tokens": 8906,
+      "steps": 9,
+      "tool_calls": 19,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_static__host_incorrect_ip__bdb2bbcb__t01",
@@ -3054,6 +3291,16 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_name": [
+        "ospf_neighbor_missing",
+        "ospf_area_misconfiguration"
+      ],
+      "predicted_root_cause_categories": [
+        "misconfiguration"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -3061,14 +3308,7 @@
       "out_tokens": 7797,
       "steps": 15,
       "tool_calls": 34,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bmv2_switch_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_static__host_incorrect_ip__bdb2bbcb__t02",
@@ -3079,6 +3319,11 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -3086,16 +3331,7 @@
       "out_tokens": 4918,
       "steps": 3,
       "tool_calls": 23,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_flap",
-        "bgp_asn_misconfig"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure",
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_static__host_incorrect_ip__bdb2bbcb__t03",
@@ -3106,21 +3342,19 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
-      "detection_score": 1.0,
+      "gt_root_cause_name": [
+        "host_incorrect_ip"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
+      "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": 256398,
-      "out_tokens": 7797,
-      "steps": 15,
-      "tool_calls": 34,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bgp_missing_route_advertisement"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 27779,
+      "out_tokens": 4918,
+      "steps": 3,
+      "tool_calls": 23,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_static__host_incorrect_netmask__356f7836__t01",
@@ -3131,6 +3365,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_incorrect_netmask"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_netmask"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -3138,14 +3381,7 @@
       "out_tokens": 3783,
       "steps": 12,
       "tool_calls": 11,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_incorrect_netmask"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_static__host_incorrect_netmask__356f7836__t02",
@@ -3156,6 +3392,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_incorrect_netmask"
+      ],
+      "predicted_root_cause_name": [
+        "host_incorrect_netmask"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -3163,14 +3408,7 @@
       "out_tokens": 2950,
       "steps": 4,
       "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_incorrect_netmask"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_static__host_incorrect_netmask__356f7836__t03",
@@ -3181,21 +3419,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
-      "detection_score": 1.0,
-      "localization_f1": 1.0,
-      "rca_f1": 1.0,
-      "in_tokens": 91859,
-      "out_tokens": 3783,
-      "steps": 12,
-      "tool_calls": 11,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
+      "gt_root_cause_name": [
+        "host_incorrect_netmask"
+      ],
+      "predicted_root_cause_name": [
         "host_incorrect_netmask"
       ],
       "predicted_root_cause_categories": [
         "end_host_failure"
       ],
-      "rca_prediction_source": "synthetic"
+      "detection_score": 1.0,
+      "localization_f1": 1.0,
+      "rca_f1": 1.0,
+      "in_tokens": 35002,
+      "out_tokens": 2950,
+      "steps": 4,
+      "tool_calls": 14,
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_static__host_missing_ip__827da760__t01",
@@ -3206,6 +3446,17 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_name": [
+        "host_missing_ip",
+        "frr_service_down"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.6667,
@@ -3213,14 +3464,7 @@
       "out_tokens": 14330,
       "steps": 16,
       "tool_calls": 27,
-      "tool_errors": 6,
-      "predicted_root_cause_names": [
-        "host_missing_ip"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 6
     },
     {
       "trial_id": "ospf_enterprise_static__host_missing_ip__827da760__t02",
@@ -3231,6 +3475,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_name": [
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -3238,14 +3491,7 @@
       "out_tokens": 3845,
       "steps": 3,
       "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_missing_ip"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "ospf_enterprise_static__host_missing_ip__827da760__t03",
@@ -3256,6 +3502,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_name": [
+        "host_missing_ip"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 1.0,
       "rca_f1": 1.0,
@@ -3263,14 +3518,7 @@
       "out_tokens": 3845,
       "steps": 3,
       "tool_calls": 14,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_missing_ip"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__bmv2_switch_down__ba03bb5f__t01",
@@ -3281,17 +3529,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "bmv2_switch_down"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__bmv2_switch_down__ba03bb5f__t02",
@@ -3302,21 +3552,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "bmv2_switch_down"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "link_fragmentation_disabled"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__bmv2_switch_down__ba03bb5f__t03",
@@ -3327,17 +3575,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "link_failure",
+      "gt_root_cause_name": [
+        "bmv2_switch_down"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_aggressive_detection_thresholds__a713bb63__t01",
@@ -3348,21 +3598,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_aggressive_detection_thresholds"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "load_balancer_overload"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_aggressive_detection_thresholds__a713bb63__t02",
@@ -3373,21 +3621,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_aggressive_detection_thresholds"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "p4_header_definition_error"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_aggressive_detection_thresholds__a713bb63__t03",
@@ -3398,21 +3644,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_aggressive_detection_thresholds"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "bgp_missing_route_advertisement"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_compilation_error_parser_state__c1894e0e__t01",
@@ -3423,21 +3667,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_compilation_error_parser_state"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "flow_rule_loop"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_compilation_error_parser_state__c1894e0e__t02",
@@ -3448,21 +3690,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_compilation_error_parser_state"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "dns_service_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_compilation_error_parser_state__c1894e0e__t03",
@@ -3473,23 +3713,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_compilation_error_parser_state"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "bgp_missing_route_advertisement",
-        "link_flap"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure",
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_header_definition_error__e3525e1d__t01",
@@ -3500,21 +3736,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_header_definition_error"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "bgp_missing_route_advertisement"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_header_definition_error__e3525e1d__t02",
@@ -3525,21 +3759,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_header_definition_error"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "link_high_packet_corruption"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_header_definition_error__e3525e1d__t03",
@@ -3550,17 +3782,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_header_definition_error"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_table_entry_misconfig__168009cf__t01",
@@ -3571,21 +3805,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_table_entry_misconfig"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "dhcp_service_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_table_entry_misconfig__168009cf__t02",
@@ -3596,21 +3828,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_table_entry_misconfig"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "link_detach"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_table_entry_misconfig__168009cf__t03",
@@ -3621,23 +3851,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_table_entry_misconfig"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "mac_address_conflict",
-        "bmv2_switch_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure",
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_table_entry_missing__8dd22c3a__t01",
@@ -3648,21 +3874,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_table_entry_missing"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "bmv2_switch_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_table_entry_missing__8dd22c3a__t02",
@@ -3673,21 +3897,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_table_entry_missing"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "p4_table_entry_misconfig"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_bloom_filter__p4_table_entry_missing__8dd22c3a__t03",
@@ -3698,23 +3920,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "p4_table_entry_missing"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "dns_service_down",
-        "icmp_acl_block"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure",
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_mpls__mpls_label_limit_exceeded__abad3b83__t01",
@@ -3725,21 +3943,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "mpls_label_limit_exceeded"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "http_acl_block"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_mpls__mpls_label_limit_exceeded__abad3b83__t02",
@@ -3750,23 +3966,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "mpls_label_limit_exceeded"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "link_high_packet_corruption",
-        "bgp_missing_route_advertisement"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration",
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "p4_mpls__mpls_label_limit_exceeded__abad3b83__t03",
@@ -3777,23 +3989,19 @@
       "outcome": "agent_failed",
       "topo_size": null,
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "mpls_label_limit_exceeded"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
-      "in_tokens": null,
-      "out_tokens": null,
-      "steps": null,
-      "tool_calls": null,
-      "tool_errors": null,
-      "predicted_root_cause_names": [
-        "dhcp_service_down",
-        "sender_application_delay"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure",
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 0,
+      "out_tokens": 0,
+      "steps": 0,
+      "tool_calls": 0,
+      "tool_errors": 0
     },
     {
       "trial_id": "rip_small_internet_vpn__host_vpn_membership_missing__45279441__t01",
@@ -3804,6 +4012,17 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_vpn_membership_missing"
+      ],
+      "predicted_root_cause_name": [
+        "host_vpn_membership_missing",
+        "frr_service_down"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure",
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.3333,
       "rca_f1": 0.6667,
@@ -3811,14 +4030,7 @@
       "out_tokens": 4203,
       "steps": 3,
       "tool_calls": 9,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_vpn_membership_missing"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "rip_small_internet_vpn__host_vpn_membership_missing__45279441__t02",
@@ -3829,6 +4041,15 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_vpn_membership_missing"
+      ],
+      "predicted_root_cause_name": [
+        "host_vpn_membership_missing"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.5714,
       "rca_f1": 1.0,
@@ -3836,14 +4057,7 @@
       "out_tokens": 10814,
       "steps": 5,
       "tool_calls": 16,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_vpn_membership_missing"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "rip_small_internet_vpn__host_vpn_membership_missing__45279441__t03",
@@ -3854,6 +4068,15 @@
       "outcome": "success",
       "topo_size": "l",
       "root_cause_category": "end_host_failure",
+      "gt_root_cause_name": [
+        "host_vpn_membership_missing"
+      ],
+      "predicted_root_cause_name": [
+        "host_vpn_membership_missing"
+      ],
+      "predicted_root_cause_categories": [
+        "end_host_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.5714,
       "rca_f1": 1.0,
@@ -3861,14 +4084,7 @@
       "out_tokens": 10814,
       "steps": 5,
       "tool_calls": 16,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "host_vpn_membership_missing"
-      ],
-      "predicted_root_cause_categories": [
-        "end_host_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__flow_rule_loop__e9891e91__t01",
@@ -3879,6 +4095,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "flow_rule_loop"
+      ],
+      "predicted_root_cause_name": [
+        "flow_rule_loop"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.6667,
       "rca_f1": 1.0,
@@ -3886,14 +4111,7 @@
       "out_tokens": 10473,
       "steps": 17,
       "tool_calls": 16,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "flow_rule_loop"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__flow_rule_loop__e9891e91__t02",
@@ -3904,6 +4122,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "flow_rule_loop"
+      ],
+      "predicted_root_cause_name": [
+        "bmv2_switch_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.8,
       "rca_f1": 0.0,
@@ -3911,14 +4138,7 @@
       "out_tokens": 9772,
       "steps": 13,
       "tool_calls": 23,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "southbound_port_block"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__flow_rule_loop__e9891e91__t03",
@@ -3929,21 +4149,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
-      "detection_score": 1.0,
-      "localization_f1": 0.6667,
-      "rca_f1": 1.0,
-      "in_tokens": 147046,
-      "out_tokens": 10473,
-      "steps": 17,
-      "tool_calls": 16,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
+      "gt_root_cause_name": [
         "flow_rule_loop"
       ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
+      "predicted_root_cause_name": [
+        "bmv2_switch_down"
       ],
-      "rca_prediction_source": "synthetic"
+      "predicted_root_cause_categories": [
+        "link_failure"
+      ],
+      "detection_score": 1.0,
+      "localization_f1": 0.8,
+      "rca_f1": 0.0,
+      "in_tokens": 92106,
+      "out_tokens": 9772,
+      "steps": 13,
+      "tool_calls": 23,
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__flow_rule_shadowing__50e88b4d__t01",
@@ -3954,6 +4176,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "flow_rule_shadowing"
+      ],
+      "predicted_root_cause_name": [
+        "southbound_port_mismatch"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.5,
       "rca_f1": 0.0,
@@ -3961,16 +4192,7 @@
       "out_tokens": 9068,
       "steps": 17,
       "tool_calls": 35,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_missing_subnet",
-        "receiver_resource_contention"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration",
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__flow_rule_shadowing__50e88b4d__t02",
@@ -3981,6 +4203,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "flow_rule_shadowing"
+      ],
+      "predicted_root_cause_name": [
+        "bmv2_switch_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.5,
       "rca_f1": 0.0,
@@ -3988,10 +4219,7 @@
       "out_tokens": 6288,
       "steps": 10,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__flow_rule_shadowing__50e88b4d__t03",
@@ -4002,23 +4230,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "flow_rule_shadowing"
+      ],
+      "predicted_root_cause_name": [
+        "bmv2_switch_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.5,
       "rca_f1": 0.0,
-      "in_tokens": 135362,
-      "out_tokens": 9068,
-      "steps": 17,
-      "tool_calls": 35,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_down",
-        "link_bandwidth_throttling"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure",
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "in_tokens": 73330,
+      "out_tokens": 6288,
+      "steps": 10,
+      "tool_calls": 20,
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__sdn_controller_crash__e2954a9a__t01",
@@ -4029,6 +4257,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "sdn_controller_crash"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -4036,14 +4269,7 @@
       "out_tokens": 1776,
       "steps": 20,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "link_high_packet_corruption"
-      ],
-      "predicted_root_cause_categories": [
-        "resource_contention"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__sdn_controller_crash__e2954a9a__t02",
@@ -4054,6 +4280,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "sdn_controller_crash"
+      ],
+      "predicted_root_cause_name": [
+        "bmv2_switch_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -4061,14 +4296,7 @@
       "out_tokens": 3490,
       "steps": 3,
       "tool_calls": 13,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "southbound_port_mismatch"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__sdn_controller_crash__e2954a9a__t03",
@@ -4079,6 +4307,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "sdn_controller_crash"
+      ],
+      "predicted_root_cause_name": [
+        "bmv2_switch_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -4086,14 +4323,7 @@
       "out_tokens": 3490,
       "steps": 3,
       "tool_calls": 13,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bgp_acl_block"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__southbound_port_block__02c651b7__t01",
@@ -4104,6 +4334,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "southbound_port_block"
+      ],
+      "predicted_root_cause_name": [
+        "southbound_port_block"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 1.0,
@@ -4111,14 +4350,7 @@
       "out_tokens": 7162,
       "steps": 16,
       "tool_calls": 31,
-      "tool_errors": 1,
-      "predicted_root_cause_names": [
-        "southbound_port_block"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 1
     },
     {
       "trial_id": "sdn_clos__southbound_port_block__02c651b7__t02",
@@ -4129,6 +4361,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "southbound_port_block"
+      ],
+      "predicted_root_cause_name": [
+        "bmv2_switch_down"
+      ],
+      "predicted_root_cause_categories": [
+        "link_failure"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -4136,14 +4377,7 @@
       "out_tokens": 5624,
       "steps": 7,
       "tool_calls": 15,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "bmv2_switch_down"
-      ],
-      "predicted_root_cause_categories": [
-        "link_failure"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__southbound_port_block__02c651b7__t03",
@@ -4154,21 +4388,23 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
-      "detection_score": 1.0,
-      "localization_f1": 0.0,
-      "rca_f1": 1.0,
-      "in_tokens": 146059,
-      "out_tokens": 7162,
-      "steps": 16,
-      "tool_calls": 31,
-      "tool_errors": 1,
-      "predicted_root_cause_names": [
+      "gt_root_cause_name": [
         "southbound_port_block"
       ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
+      "predicted_root_cause_name": [
+        "bmv2_switch_down"
       ],
-      "rca_prediction_source": "synthetic"
+      "predicted_root_cause_categories": [
+        "link_failure"
+      ],
+      "detection_score": 1.0,
+      "localization_f1": 0.0,
+      "rca_f1": 0.0,
+      "in_tokens": 59192,
+      "out_tokens": 5624,
+      "steps": 7,
+      "tool_calls": 15,
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__southbound_port_mismatch__80f470a9__t01",
@@ -4179,6 +4415,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "southbound_port_mismatch"
+      ],
+      "predicted_root_cause_name": [
+        "sdn_controller_crash"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -4186,14 +4431,7 @@
       "out_tokens": 8926,
       "steps": 17,
       "tool_calls": 27,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "p4_table_entry_missing"
-      ],
-      "predicted_root_cause_categories": [
-        "network_node_error"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__southbound_port_mismatch__80f470a9__t02",
@@ -4204,6 +4442,11 @@
       "outcome": "agent_failed",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "southbound_port_mismatch"
+      ],
+      "predicted_root_cause_name": null,
+      "predicted_root_cause_categories": [],
       "detection_score": 0.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -4211,10 +4454,7 @@
       "out_tokens": 931,
       "steps": 20,
       "tool_calls": 20,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [],
-      "predicted_root_cause_categories": [],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     },
     {
       "trial_id": "sdn_clos__southbound_port_mismatch__80f470a9__t03",
@@ -4225,6 +4465,15 @@
       "outcome": "success",
       "topo_size": "s",
       "root_cause_category": "network_node_error",
+      "gt_root_cause_name": [
+        "southbound_port_mismatch"
+      ],
+      "predicted_root_cause_name": [
+        "sdn_controller_crash"
+      ],
+      "predicted_root_cause_categories": [
+        "network_node_error"
+      ],
       "detection_score": 1.0,
       "localization_f1": 0.0,
       "rca_f1": 0.0,
@@ -4232,14 +4481,611 @@
       "out_tokens": 8926,
       "steps": 17,
       "tool_calls": 27,
-      "tool_errors": 0,
-      "predicted_root_cause_names": [
-        "dhcp_missing_subnet"
-      ],
-      "predicted_root_cause_categories": [
-        "misconfiguration"
-      ],
-      "rca_prediction_source": "synthetic"
+      "tool_errors": 0
     }
-  ]
+  ],
+  "rca_confusion": {
+    "labeling": "multi_label_edges",
+    "missing_prediction_trial_ids": [
+      "dc_clos_bgp__bgp_acl_block__659f59f5__t01",
+      "dc_clos_bgp__bgp_acl_block__659f59f5__t02",
+      "dc_clos_bgp__bgp_acl_block__659f59f5__t03",
+      "dc_clos_bgp__bgp_blackhole_route_leak__5139222d__t02",
+      "dc_clos_bgp__bgp_missing_route_advertisement__4fafa2b4__t02",
+      "dc_clos_bgp__bgp_missing_route_advertisement__4fafa2b4__t03",
+      "dc_clos_bgp__host_static_blackhole__8fc09cca__t02",
+      "dc_clos_bgp__link_bandwidth_throttling__32c5a1d7__t01",
+      "dc_clos_bgp__link_bandwidth_throttling__32c5a1d7__t02",
+      "dc_clos_bgp__link_bandwidth_throttling__32c5a1d7__t03",
+      "dc_clos_bgp__link_flap__e7bb9ecc__t02",
+      "dc_clos_bgp__link_fragmentation_disabled__858db54a__t01",
+      "ospf_enterprise_dhcp__dhcp_spoofed_gateway__d453e7bc__t01",
+      "ospf_enterprise_dhcp__dhcp_spoofed_subnet__7167b386__t01",
+      "ospf_enterprise_dhcp__dhcp_spoofed_subnet__7167b386__t02",
+      "ospf_enterprise_dhcp__dhcp_spoofed_subnet__7167b386__t03",
+      "ospf_enterprise_dhcp__dns_port_blocked__5c1f8a56__t02",
+      "ospf_enterprise_dhcp__dns_record_error__4f65fcd4__t02",
+      "ospf_enterprise_dhcp__frr_service_down__b9dd6fce__t01",
+      "ospf_enterprise_dhcp__http_acl_block__c08d56e1__t02",
+      "ospf_enterprise_dhcp__incast_traffic_network_limitation__fffe1e43__t01",
+      "ospf_enterprise_dhcp__ospf_area_misconfiguration__818ef2c7__t02",
+      "ospf_enterprise_dhcp__receiver_resource_contention__704199f2__t01",
+      "ospf_enterprise_static__host_incorrect_ip__bdb2bbcb__t02",
+      "ospf_enterprise_static__host_incorrect_ip__bdb2bbcb__t03",
+      "p4_bloom_filter__bmv2_switch_down__ba03bb5f__t01",
+      "p4_bloom_filter__bmv2_switch_down__ba03bb5f__t02",
+      "p4_bloom_filter__bmv2_switch_down__ba03bb5f__t03",
+      "p4_bloom_filter__p4_aggressive_detection_thresholds__a713bb63__t01",
+      "p4_bloom_filter__p4_aggressive_detection_thresholds__a713bb63__t02",
+      "p4_bloom_filter__p4_aggressive_detection_thresholds__a713bb63__t03",
+      "p4_bloom_filter__p4_compilation_error_parser_state__c1894e0e__t01",
+      "p4_bloom_filter__p4_compilation_error_parser_state__c1894e0e__t02",
+      "p4_bloom_filter__p4_compilation_error_parser_state__c1894e0e__t03",
+      "p4_bloom_filter__p4_header_definition_error__e3525e1d__t01",
+      "p4_bloom_filter__p4_header_definition_error__e3525e1d__t02",
+      "p4_bloom_filter__p4_header_definition_error__e3525e1d__t03",
+      "p4_bloom_filter__p4_table_entry_misconfig__168009cf__t01",
+      "p4_bloom_filter__p4_table_entry_misconfig__168009cf__t02",
+      "p4_bloom_filter__p4_table_entry_misconfig__168009cf__t03",
+      "p4_bloom_filter__p4_table_entry_missing__8dd22c3a__t01",
+      "p4_bloom_filter__p4_table_entry_missing__8dd22c3a__t02",
+      "p4_bloom_filter__p4_table_entry_missing__8dd22c3a__t03",
+      "p4_mpls__mpls_label_limit_exceeded__abad3b83__t01",
+      "p4_mpls__mpls_label_limit_exceeded__abad3b83__t02",
+      "p4_mpls__mpls_label_limit_exceeded__abad3b83__t03",
+      "sdn_clos__sdn_controller_crash__e2954a9a__t01",
+      "sdn_clos__southbound_port_mismatch__80f470a9__t02"
+    ],
+    "n_missing_prediction": 48,
+    "pairs": [
+      {
+        "count": 3,
+        "gt": "bgp_asn_misconfig",
+        "predicted": "bgp_asn_misconfig"
+      },
+      {
+        "count": 3,
+        "gt": "dhcp_service_down",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 3,
+        "gt": "dns_lookup_latency",
+        "predicted": "dns_lookup_latency"
+      },
+      {
+        "count": 3,
+        "gt": "host_crash",
+        "predicted": "host_crash"
+      },
+      {
+        "count": 3,
+        "gt": "host_incorrect_netmask",
+        "predicted": "host_incorrect_netmask"
+      },
+      {
+        "count": 3,
+        "gt": "host_ip_conflict",
+        "predicted": "host_incorrect_gateway"
+      },
+      {
+        "count": 3,
+        "gt": "host_ip_conflict",
+        "predicted": "host_incorrect_ip"
+      },
+      {
+        "count": 3,
+        "gt": "host_ip_conflict",
+        "predicted": "host_ip_conflict"
+      },
+      {
+        "count": 3,
+        "gt": "host_missing_ip",
+        "predicted": "host_missing_ip"
+      },
+      {
+        "count": 3,
+        "gt": "host_vpn_membership_missing",
+        "predicted": "host_vpn_membership_missing"
+      },
+      {
+        "count": 3,
+        "gt": "link_detach",
+        "predicted": "host_missing_ip"
+      },
+      {
+        "count": 3,
+        "gt": "link_down",
+        "predicted": "link_down"
+      },
+      {
+        "count": 3,
+        "gt": "ospf_acl_block",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 3,
+        "gt": "sender_application_delay",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 2,
+        "gt": "arp_acl_block",
+        "predicted": "arp_acl_block"
+      },
+      {
+        "count": 2,
+        "gt": "arp_acl_block",
+        "predicted": "host_static_blackhole"
+      },
+      {
+        "count": 2,
+        "gt": "arp_cache_poisoning",
+        "predicted": "host_static_blackhole"
+      },
+      {
+        "count": 2,
+        "gt": "bgp_blackhole_route_leak",
+        "predicted": "host_static_blackhole"
+      },
+      {
+        "count": 2,
+        "gt": "bgp_blackhole_route_leak",
+        "predicted": "link_down"
+      },
+      {
+        "count": 2,
+        "gt": "bgp_hijacking",
+        "predicted": "icmp_acl_block"
+      },
+      {
+        "count": 2,
+        "gt": "dhcp_missing_subnet",
+        "predicted": "dhcp_missing_subnet"
+      },
+      {
+        "count": 2,
+        "gt": "dhcp_service_down",
+        "predicted": "dns_record_error"
+      },
+      {
+        "count": 2,
+        "gt": "dhcp_service_down",
+        "predicted": "load_balancer_overload"
+      },
+      {
+        "count": 2,
+        "gt": "dhcp_service_down",
+        "predicted": "receiver_resource_contention"
+      },
+      {
+        "count": 2,
+        "gt": "dhcp_spoofed_dns",
+        "predicted": "p4_table_entry_missing"
+      },
+      {
+        "count": 2,
+        "gt": "dhcp_spoofed_gateway",
+        "predicted": "host_incorrect_gateway"
+      },
+      {
+        "count": 2,
+        "gt": "dns_port_blocked",
+        "predicted": "host_incorrect_ip"
+      },
+      {
+        "count": 2,
+        "gt": "dns_port_blocked",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 2,
+        "gt": "dns_record_error",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 2,
+        "gt": "dns_service_down",
+        "predicted": "flow_rule_shadowing"
+      },
+      {
+        "count": 2,
+        "gt": "dns_service_down",
+        "predicted": "p4_table_entry_missing"
+      },
+      {
+        "count": 2,
+        "gt": "flow_rule_loop",
+        "predicted": "bmv2_switch_down"
+      },
+      {
+        "count": 2,
+        "gt": "flow_rule_shadowing",
+        "predicted": "bmv2_switch_down"
+      },
+      {
+        "count": 2,
+        "gt": "frr_service_down",
+        "predicted": "frr_service_down"
+      },
+      {
+        "count": 2,
+        "gt": "host_incorrect_dns",
+        "predicted": "flow_rule_shadowing"
+      },
+      {
+        "count": 2,
+        "gt": "host_incorrect_dns",
+        "predicted": "load_balancer_overload"
+      },
+      {
+        "count": 2,
+        "gt": "host_incorrect_dns",
+        "predicted": "sender_application_delay"
+      },
+      {
+        "count": 2,
+        "gt": "host_incorrect_gateway",
+        "predicted": "host_incorrect_gateway"
+      },
+      {
+        "count": 2,
+        "gt": "host_static_blackhole",
+        "predicted": "host_static_blackhole"
+      },
+      {
+        "count": 2,
+        "gt": "http_acl_block",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 2,
+        "gt": "icmp_acl_block",
+        "predicted": "host_static_blackhole"
+      },
+      {
+        "count": 2,
+        "gt": "incast_traffic_network_limitation",
+        "predicted": "host_incorrect_ip"
+      },
+      {
+        "count": 2,
+        "gt": "incast_traffic_network_limitation",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 2,
+        "gt": "link_flap",
+        "predicted": "host_incorrect_gateway"
+      },
+      {
+        "count": 2,
+        "gt": "link_flap",
+        "predicted": "link_flap"
+      },
+      {
+        "count": 2,
+        "gt": "link_fragmentation_disabled",
+        "predicted": "bgp_asn_misconfig"
+      },
+      {
+        "count": 2,
+        "gt": "link_high_packet_corruption",
+        "predicted": "link_high_packet_corruption"
+      },
+      {
+        "count": 2,
+        "gt": "load_balancer_overload",
+        "predicted": "host_incorrect_ip"
+      },
+      {
+        "count": 2,
+        "gt": "mac_address_conflict",
+        "predicted": "host_static_blackhole"
+      },
+      {
+        "count": 2,
+        "gt": "ospf_area_misconfiguration",
+        "predicted": "host_missing_ip"
+      },
+      {
+        "count": 2,
+        "gt": "ospf_area_misconfiguration",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 2,
+        "gt": "ospf_area_misconfiguration",
+        "predicted": "ospf_neighbor_missing"
+      },
+      {
+        "count": 2,
+        "gt": "ospf_neighbor_missing",
+        "predicted": "host_missing_ip"
+      },
+      {
+        "count": 2,
+        "gt": "ospf_neighbor_missing",
+        "predicted": "link_flap"
+      },
+      {
+        "count": 2,
+        "gt": "receiver_resource_contention",
+        "predicted": "host_incorrect_ip"
+      },
+      {
+        "count": 2,
+        "gt": "sdn_controller_crash",
+        "predicted": "bmv2_switch_down"
+      },
+      {
+        "count": 2,
+        "gt": "sender_application_delay",
+        "predicted": "load_balancer_overload"
+      },
+      {
+        "count": 2,
+        "gt": "sender_resource_contention",
+        "predicted": "host_incorrect_ip"
+      },
+      {
+        "count": 2,
+        "gt": "southbound_port_block",
+        "predicted": "bmv2_switch_down"
+      },
+      {
+        "count": 2,
+        "gt": "southbound_port_mismatch",
+        "predicted": "sdn_controller_crash"
+      },
+      {
+        "count": 2,
+        "gt": "web_dos_attack",
+        "predicted": "link_flap"
+      },
+      {
+        "count": 2,
+        "gt": "web_dos_attack",
+        "predicted": "sender_resource_contention"
+      },
+      {
+        "count": 1,
+        "gt": "arp_acl_block",
+        "predicted": "dhcp_service_down"
+      },
+      {
+        "count": 1,
+        "gt": "arp_acl_block",
+        "predicted": "host_missing_ip"
+      },
+      {
+        "count": 1,
+        "gt": "arp_acl_block",
+        "predicted": "icmp_acl_block"
+      },
+      {
+        "count": 1,
+        "gt": "arp_cache_poisoning",
+        "predicted": "host_incorrect_gateway"
+      },
+      {
+        "count": 1,
+        "gt": "bgp_asn_misconfig",
+        "predicted": "host_crash"
+      },
+      {
+        "count": 1,
+        "gt": "bgp_hijacking",
+        "predicted": "flow_rule_shadowing"
+      },
+      {
+        "count": 1,
+        "gt": "bgp_hijacking",
+        "predicted": "host_static_blackhole"
+      },
+      {
+        "count": 1,
+        "gt": "bgp_hijacking",
+        "predicted": "http_acl_block"
+      },
+      {
+        "count": 1,
+        "gt": "bgp_missing_route_advertisement",
+        "predicted": "bgp_asn_misconfig"
+      },
+      {
+        "count": 1,
+        "gt": "dhcp_missing_subnet",
+        "predicted": "host_missing_ip"
+      },
+      {
+        "count": 1,
+        "gt": "dhcp_missing_subnet",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 1,
+        "gt": "dhcp_spoofed_dns",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 1,
+        "gt": "dns_service_down",
+        "predicted": "dhcp_service_down"
+      },
+      {
+        "count": 1,
+        "gt": "dns_service_down",
+        "predicted": "frr_service_down"
+      },
+      {
+        "count": 1,
+        "gt": "flow_rule_loop",
+        "predicted": "flow_rule_loop"
+      },
+      {
+        "count": 1,
+        "gt": "flow_rule_shadowing",
+        "predicted": "southbound_port_mismatch"
+      },
+      {
+        "count": 1,
+        "gt": "host_incorrect_dns",
+        "predicted": "icmp_acl_block"
+      },
+      {
+        "count": 1,
+        "gt": "host_incorrect_dns",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 1,
+        "gt": "host_incorrect_gateway",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 1,
+        "gt": "host_incorrect_ip",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 1,
+        "gt": "host_incorrect_ip",
+        "predicted": "ospf_neighbor_missing"
+      },
+      {
+        "count": 1,
+        "gt": "host_missing_ip",
+        "predicted": "frr_service_down"
+      },
+      {
+        "count": 1,
+        "gt": "host_vpn_membership_missing",
+        "predicted": "frr_service_down"
+      },
+      {
+        "count": 1,
+        "gt": "icmp_acl_block",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 1,
+        "gt": "link_high_packet_corruption",
+        "predicted": "arp_acl_block"
+      },
+      {
+        "count": 1,
+        "gt": "load_balancer_overload",
+        "predicted": "arp_acl_block"
+      },
+      {
+        "count": 1,
+        "gt": "load_balancer_overload",
+        "predicted": "icmp_acl_block"
+      },
+      {
+        "count": 1,
+        "gt": "mac_address_conflict",
+        "predicted": "dhcp_service_down"
+      },
+      {
+        "count": 1,
+        "gt": "mac_address_conflict",
+        "predicted": "host_missing_ip"
+      },
+      {
+        "count": 1,
+        "gt": "ospf_acl_block",
+        "predicted": "dhcp_missing_subnet"
+      },
+      {
+        "count": 1,
+        "gt": "ospf_neighbor_missing",
+        "predicted": "ospf_area_misconfiguration"
+      },
+      {
+        "count": 1,
+        "gt": "sender_resource_contention",
+        "predicted": "icmp_acl_block"
+      },
+      {
+        "count": 1,
+        "gt": "sender_resource_contention",
+        "predicted": "ospf_missing_route_advertisement"
+      },
+      {
+        "count": 1,
+        "gt": "southbound_port_block",
+        "predicted": "southbound_port_block"
+      },
+      {
+        "count": 1,
+        "gt": "web_dos_attack",
+        "predicted": "link_bandwidth_throttling"
+      },
+      {
+        "count": 1,
+        "gt": "web_dos_attack",
+        "predicted": "ospf_area_misconfiguration"
+      }
+    ]
+  },
+  "name_to_category": {
+    "arp_acl_block": "misconfiguration",
+    "arp_cache_poisoning": "network_under_attack",
+    "bgp_acl_block": "misconfiguration",
+    "bgp_asn_misconfig": "misconfiguration",
+    "bgp_blackhole_route_leak": "misconfiguration",
+    "bgp_hijacking": "network_under_attack",
+    "bgp_missing_route_advertisement": "misconfiguration",
+    "bmv2_switch_down": "link_failure",
+    "dhcp_missing_subnet": "misconfiguration",
+    "dhcp_service_down": "link_failure",
+    "dhcp_spoofed_dns": "network_under_attack",
+    "dhcp_spoofed_gateway": "network_under_attack",
+    "dhcp_spoofed_subnet": "network_under_attack",
+    "dns_lookup_latency": "resource_contention",
+    "dns_port_blocked": "misconfiguration",
+    "dns_record_error": "end_host_failure",
+    "dns_service_down": "link_failure",
+    "flow_rule_loop": "network_node_error",
+    "flow_rule_shadowing": "network_node_error",
+    "frr_service_down": "network_node_error",
+    "host_crash": "end_host_failure",
+    "host_incorrect_dns": "end_host_failure",
+    "host_incorrect_gateway": "end_host_failure",
+    "host_incorrect_ip": "end_host_failure",
+    "host_incorrect_netmask": "end_host_failure",
+    "host_ip_conflict": "end_host_failure",
+    "host_missing_ip": "end_host_failure",
+    "host_static_blackhole": "misconfiguration",
+    "host_vpn_membership_missing": "end_host_failure",
+    "http_acl_block": "misconfiguration",
+    "icmp_acl_block": "misconfiguration",
+    "incast_traffic_network_limitation": "resource_contention",
+    "link_bandwidth_throttling": "resource_contention",
+    "link_detach": "link_failure",
+    "link_down": "link_failure",
+    "link_flap": "link_failure",
+    "link_fragmentation_disabled": "link_failure",
+    "link_high_packet_corruption": "resource_contention",
+    "load_balancer_overload": "resource_contention",
+    "mac_address_conflict": "misconfiguration",
+    "mpls_label_limit_exceeded": "network_node_error",
+    "ospf_acl_block": "misconfiguration",
+    "ospf_area_misconfiguration": "misconfiguration",
+    "ospf_neighbor_missing": "misconfiguration",
+    "p4_aggressive_detection_thresholds": "network_node_error",
+    "p4_compilation_error_parser_state": "network_node_error",
+    "p4_header_definition_error": "network_node_error",
+    "p4_table_entry_misconfig": "network_node_error",
+    "p4_table_entry_missing": "network_node_error",
+    "receiver_resource_contention": "resource_contention",
+    "sdn_controller_crash": "network_node_error",
+    "sender_application_delay": "resource_contention",
+    "sender_resource_contention": "resource_contention",
+    "southbound_port_block": "network_node_error",
+    "southbound_port_mismatch": "network_node_error",
+    "web_dos_attack": "network_under_attack"
+  }
 }

@@ -6,7 +6,9 @@
     "framework": [
       "react"
     ],
-    "llm_provider": [],
+    "llm_provider": [
+      "openai"
+    ],
     "model": [
       "gpt-5",
       "gpt-5-mini",
