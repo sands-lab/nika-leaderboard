@@ -19,7 +19,7 @@ The `web/` app is a Vite + React + TypeScript + ECharts static site. It ranks va
 ### Prerequisites
 
 - Python 3.12+ and [uv](https://docs.astral.sh/uv/)
-- Node.js 20+ (18 may work for local Vite 5; CI uses 20) and npm
+- Node.js 20+ (CI uses 22) and npm
 
 ### Generate data
 
