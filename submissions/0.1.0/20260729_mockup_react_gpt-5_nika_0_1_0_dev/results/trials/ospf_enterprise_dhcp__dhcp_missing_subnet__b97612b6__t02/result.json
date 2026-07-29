@@ -1,0 +1,24 @@
+{
+  "case_key": "ospf_enterprise_dhcp__dhcp_missing_subnet__b97612b6",
+  "metrics": {
+    "detection_score": 1.0,
+    "in_tokens": 22777,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 9089,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 4,
+    "tool_calls": 12,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "problem": "dhcp_missing_subnet",
+  "scenario": "ospf_enterprise_dhcp",
+  "trial_id": "ospf_enterprise_dhcp__dhcp_missing_subnet__b97612b6__t02",
+  "trial_index": 2
+}

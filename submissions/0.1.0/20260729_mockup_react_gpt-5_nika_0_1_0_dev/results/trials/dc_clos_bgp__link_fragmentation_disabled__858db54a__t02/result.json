@@ -1,0 +1,24 @@
+{
+  "case_key": "dc_clos_bgp__link_fragmentation_disabled__858db54a",
+  "metrics": {
+    "detection_score": 1.0,
+    "in_tokens": 115026,
+    "localization_accuracy": 1.0,
+    "localization_f1": 1.0,
+    "localization_precision": 1.0,
+    "localization_recall": 1.0,
+    "out_tokens": 17960,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 10,
+    "tool_calls": 40,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "problem": "link_fragmentation_disabled",
+  "scenario": "dc_clos_bgp",
+  "trial_id": "dc_clos_bgp__link_fragmentation_disabled__858db54a__t02",
+  "trial_index": 2
+}

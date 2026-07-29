@@ -1,0 +1,24 @@
+{
+  "case_key": "rip_small_internet_vpn__host_vpn_membership_missing__45279441",
+  "metrics": {
+    "detection_score": 1.0,
+    "in_tokens": 21417,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 8263,
+    "rca_accuracy": 1.0,
+    "rca_f1": 0.6667,
+    "rca_precision": 0.5,
+    "rca_recall": 1.0,
+    "steps": 4,
+    "tool_calls": 13,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "problem": "host_vpn_membership_missing",
+  "scenario": "rip_small_internet_vpn",
+  "trial_id": "rip_small_internet_vpn__host_vpn_membership_missing__45279441__t02",
+  "trial_index": 2
+}

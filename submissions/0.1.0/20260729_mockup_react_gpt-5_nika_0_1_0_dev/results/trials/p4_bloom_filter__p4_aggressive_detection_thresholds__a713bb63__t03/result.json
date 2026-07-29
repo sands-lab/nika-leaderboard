@@ -1,0 +1,9 @@
+{
+  "case_key": "p4_bloom_filter__p4_aggressive_detection_thresholds__a713bb63",
+  "metrics": {},
+  "outcome": "agent_failed",
+  "problem": "p4_aggressive_detection_thresholds",
+  "scenario": "p4_bloom_filter",
+  "trial_id": "p4_bloom_filter__p4_aggressive_detection_thresholds__a713bb63__t03",
+  "trial_index": 3
+}
