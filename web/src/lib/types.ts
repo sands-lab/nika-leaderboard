@@ -159,7 +159,5 @@ export interface FilterState {
   optimization_method: string | 'all'
   tag: string | 'all'
   org: string | 'all'
-  os_model: 'all' | 'true' | 'false'
-  os_system: 'all' | 'true' | 'false'
   query: string
 }

@@ -29,7 +29,7 @@ import {
 } from '../lib/insights'
 import type { SubmissionSummary } from '../lib/types'
 
-const ARROW_COLORS = ['#0e7490', '#ea580c', '#1d4ed8', '#7c3aed', '#ca8a04', '#0b1220']
+const ARROW_COLORS = ['#00d4ff', '#f97316', '#3b82f6', '#8b5cf6', '#eab308', '#e2e8f0']
 
 function toPoint(s: SubmissionSummary): BubblePoint {
   return {
@@ -194,7 +194,7 @@ export function InsightsPage() {
         itemStyle: {
           color: familyColor(family),
           opacity: 0.85,
-          borderColor: '#fff',
+          borderColor: '#e2e8f0',
           borderWidth: 1.5,
         },
         label: {
@@ -205,11 +205,11 @@ export function InsightsPage() {
           },
           position: 'right' as const,
           fontSize: 11,
-          color: '#1c2421',
+          color: '#e2e8f0',
         },
         emphasis: {
           scale: 1.12,
-          itemStyle: { borderColor: '#083f32', borderWidth: 2 },
+          itemStyle: { borderColor: '#00d4ff', borderWidth: 2 },
         },
       }
     })
@@ -357,7 +357,7 @@ export function InsightsPage() {
                       opacityExtents.max,
                     ),
               borderColor:
-                d.id === pendingFrom || d.id === focusId ? '#083f32' : '#fff',
+                d.id === pendingFrom || d.id === focusId ? '#00d4ff' : '#e2e8f0',
               borderWidth: d.id === pendingFrom || d.id === focusId ? 3 : 1.5,
               borderType:
                 d.id === pendingFrom ? ('dashed' as const) : ('solid' as const),
@@ -530,12 +530,12 @@ export function InsightsPage() {
               value={draftColor}
               onChange={(e) => setDraftColor(e.target.value)}
             >
-              <option value="#0e7490">Cyan (gain)</option>
-              <option value="#ea580c">Orange (arch)</option>
-              <option value="#1d4ed8">Blue</option>
-              <option value="#7c3aed">Violet</option>
-              <option value="#ca8a04">Gold</option>
-              <option value="#0b1220">Ink (trade-off)</option>
+              <option value="#00d4ff">Cyan (gain)</option>
+              <option value="#f97316">Orange (arch)</option>
+              <option value="#3b82f6">Blue</option>
+              <option value="#8b5cf6">Violet</option>
+              <option value="#eab308">Gold</option>
+              <option value="#e2e8f0">Ink (trade-off)</option>
             </select>
           </label>
           <div className="insights-controls__status">

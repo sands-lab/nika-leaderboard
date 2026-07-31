@@ -17,12 +17,12 @@ import type { SubmissionDetail } from '../lib/types'
 type ValueMode = 'rate' | 'count'
 
 const HEAT_COLORS = [
-  '#f8fafc',
-  '#e0f2fe',
-  '#7dd3fc',
-  '#0ea5e9',
-  '#0369a1',
-  '#0c4a6e',
+  '#0d1525',
+  '#0f2940',
+  '#0a4a6e',
+  '#0284c7',
+  '#00d4ff',
+  '#67e8f9',
 ]
 
 export function ConfusionPage() {
@@ -238,7 +238,7 @@ export function ConfusionPage() {
           emphasis: { focus: 'adjacency' },
           nodeAlign: 'left',
           lineStyle: { color: 'gradient', curveness: 0.45, opacity: 0.35 },
-          label: { fontSize: level === 'problem' ? 10 : 11, color: '#1c2421' },
+          label: { fontSize: level === 'problem' ? 10 : 11, color: '#e2e8f0' },
           data: [...nodes.values()],
           links,
         },

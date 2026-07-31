@@ -14,7 +14,7 @@ export function downloadPng(chart: EChartsType | undefined, filename: string): v
   const url = chart.getDataURL({
     type: 'png',
     pixelRatio: 2,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#080d18',
   })
   triggerDownload(url, filename.endsWith('.png') ? filename : `${filename}.png`)
 }
@@ -30,13 +30,13 @@ function cloneSvgForExport(svg: SVGSVGElement): SVGSVGElement {
   if (!clone.getAttribute('viewBox')) {
     clone.setAttribute('viewBox', `0 0 ${width} ${height}`)
   }
-  // White background for print-friendly PDFs.
+  // Match the dark leaderboard surface for exports.
   const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
   bg.setAttribute('x', '0')
   bg.setAttribute('y', '0')
   bg.setAttribute('width', '100%')
   bg.setAttribute('height', '100%')
-  bg.setAttribute('fill', '#ffffff')
+  bg.setAttribute('fill', '#080d18')
   clone.insertBefore(bg, clone.firstChild)
   return clone
 }
@@ -87,7 +87,7 @@ export async function downloadPdf(
   const url = chart.getDataURL({
     type: 'png',
     pixelRatio: 2,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#080d18',
   })
   pdf.addImage(url, 'PNG', margin, margin, maxW, maxH)
   pdf.save(outName)

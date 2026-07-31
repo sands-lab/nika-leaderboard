@@ -37,7 +37,7 @@ const ANALYZE_ACCESSORS: Record<
   timeout: (s) => s.case_timeout_sec,
 }
 
-const COLORS = ['#0e7490', '#ea580c', '#1d4ed8', '#7c3aed', '#ca8a04', '#be123c']
+const COLORS = ['#00d4ff', '#f97316', '#3b82f6', '#8b5cf6', '#eab308', '#ec4899']
 
 function resolvedValue(s: SubmissionSummary, metric: ResolvedMetric): number {
   return metric === 'success' ? s.success_rate ?? 0 : s.mean_rca_f1 ?? 0
@@ -135,7 +135,7 @@ function scatterOption(args: {
             position: 'top',
             distance: 8,
             fontSize: 11,
-            color: '#334155',
+            color: '#e2e8f0',
           },
         })),
       },
@@ -312,7 +312,7 @@ export function AnalyzePage() {
             const vals = groups.get(v) || []
             return vals.reduce((a, b) => a + b, 0) / (vals.length || 1)
           }),
-          itemStyle: { color: '#0e7490' },
+          itemStyle: { color: '#00d4ff' },
         },
       ],
     }
@@ -339,7 +339,7 @@ export function AnalyzePage() {
         type: 'bar',
         data: systems.map((s) => byName.get(s)?.get(ver) ?? null),
         itemStyle: {
-          color: ['#0e7490', '#ea580c', '#1d4ed8'][i % 3],
+          color: ['#00d4ff', '#f97316', '#3b82f6'][i % 3],
         },
       })),
     }

@@ -179,7 +179,7 @@ export function MatrixPage() {
         itemHeight: 140,
         text: ['High', 'Low'],
         textGap: 8,
-        inRange: { color: ['#ecfeff', '#0e7490'] },
+        inRange: { color: ['#0d1525', '#00d4ff'] },
       },
       series: [
         {
@@ -301,7 +301,7 @@ export function MatrixPage() {
                       background:
                         v == null
                           ? undefined
-                          : `rgba(14, 116, 144, ${0.12 + v * 0.55})`,
+                          : `rgba(0, 212, 255, ${0.12 + v * 0.55})`,
                     }}
                   >
                     {v == null

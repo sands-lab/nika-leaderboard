@@ -15,7 +15,9 @@
   "llm_provider": "openai",
   "tools": [],
   "skills": [],
-  "optimization_methods": [],
+  "optimization_methods": [
+    "GEPA"
+  ],
   "tags": [
     "mockup",
     "legacy_csv_import"

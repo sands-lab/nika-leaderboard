@@ -1,6 +1,13 @@
 import { resolveProvider } from './providerMeta'
 import type { FilterState, SubmissionSummary } from './types'
 
+/** Example harness optimizations shown in the filter even before submissions use them. */
+export const HARNESS_OPTIMIZATION_EXAMPLES = [
+  'GEPA',
+  'skills',
+  'Multi-agent',
+] as const
+
 export const defaultFilters = (version: string | 'all' = 'all'): FilterState => ({
   version,
   split: 'all',
@@ -10,10 +17,14 @@ export const defaultFilters = (version: string | 'all' = 'all'): FilterState => 
   optimization_method: 'all',
   tag: 'all',
   org: 'all',
-  os_model: 'all',
-  os_system: 'all',
   query: '',
 })
+
+export function harnessOptimizationOptions(fromMeta: string[]): string[] {
+  return [...new Set([...HARNESS_OPTIMIZATION_EXAMPLES, ...fromMeta])].sort(
+    (a, b) => a.localeCompare(b),
+  )
+}
 
 export function applyFilters(
   rows: SubmissionSummary[],
@@ -43,10 +54,6 @@ export function applyFilters(
       return false
     }
     if (filters.org !== 'all' && (s.org || '') !== filters.org) return false
-    if (filters.os_model === 'true' && !s.os_model) return false
-    if (filters.os_model === 'false' && s.os_model) return false
-    if (filters.os_system === 'true' && !s.os_system) return false
-    if (filters.os_system === 'false' && s.os_system) return false
     if (q) {
       const hay = [
         s.name,

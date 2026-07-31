@@ -7,14 +7,20 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies & build
 node_modules
 dist
 dist-ssr
 *.local
 
-# Editor directories and files
-.vscode/*
-!.vscode/extensions.json
+# Playwright (generated)
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/e2e/screenshots/
+
+# Editor
 .idea
 .DS_Store
 *.suo

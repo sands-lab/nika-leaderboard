@@ -14,7 +14,11 @@
       "gpt-5-mini",
       "gpt-oss:20b"
     ],
-    "optimization_methods": [],
+    "optimization_methods": [
+      "GEPA",
+      "Multi-agent",
+      "skills"
+    ],
     "tags": [
       "legacy_csv_import",
       "mockup"

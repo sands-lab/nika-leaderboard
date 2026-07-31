@@ -10,14 +10,7 @@
 
 ## Repository Layout
 
-- `submissions/<release_version>/<YYYYMMDD>_<slug>/`: one immutable submission package per directory.
-- `.github/workflows/validate-submission.yml`: discovers changed package roots and validates them with NIKA on pull requests.
-- `.github/workflows/deploy-pages.yml`: builds aggregated JSON + the Vite UI and deploys GitHub Pages.
-- `catalog/<release_version>/cases.json`: vendored release enrich (topo size, failure category) for the UI.
-- `scripts/build_leaderboard_data.py` + root `pyproject.toml`: aggregate `submissions/` into `web/public/data/`.
-- `web/`: Vite + React + TypeScript + ECharts leaderboard UI (npm).
-- `README.md`: contributor entry point for submissions and local UI development.
-- Submission packages remain the integrity-bound archive. The Python/`web` tooling is for the static leaderboard site only; do not treat this repo as the NIKA benchmark runner.
+Submission packages remain the integrity-bound archive. The Python/`web` tooling is for the static leaderboard site only; do not treat this repo as the NIKA benchmark runner.
 
 Each submission package must have exactly the generated shape:
 
@@ -35,27 +28,7 @@ Do not add raw traces, per-case session artifacts, credentials, caches, or sourc
 
 ## Normal Workflow
 
-Create and validate packages from the NIKA repository, not by assembling them here by hand:
-
-```shell
-cd <NIKA_ROOT>
-uv sync
-uv run nika leaderboard template -o results/<run>/submission
-# Edit only the template metadata.yaml and README.md.
-uv run nika leaderboard pack \
-  --result_dir results/<run> \
-  --submission results/<run>/submission
-uv run nika leaderboard validate results/<run>/<YYYYMMDD>_<slug> \
-  --source-result-dir results/<run>
-```
-
-Then copy or submit the complete generated package at:
-
-```text
-submissions/<benchmark.version>/<package-directory-name>/
-```
-
-`nika leaderboard submit` normally performs that copy and opens the PR. Do not run it unless the user explicitly asks to push/open a PR, because it changes remote GitHub state.
+`nika leaderboard submit` normally performs that copy and opens the PR. Do not run it unless the user explicitly asks to push/open a PR, because it changes remote GitHub state. For the full submission workflow, invoke the `submit` skill.
 
 ## Editing Rules
 
@@ -66,22 +39,6 @@ submissions/<benchmark.version>/<package-directory-name>/
 - Add a new submission directory rather than overwriting or deleting an accepted historical entry unless the task explicitly calls for a correction and explains its provenance.
 - Keep unrelated submissions byte-for-byte unchanged. Avoid repository-wide formatting or key reordering of YAML/JSON.
 - Never commit secrets or local absolute filesystem paths. Validation scans package text for API keys, bearer tokens, private-key material, and machine-specific paths.
-
-## Validation
-
-From the NIKA checkout, validate every package touched by the change:
-
-```shell
-cd <NIKA_ROOT>
-uv run nika leaderboard validate \
-  <NIKA_LEADERBOARD_ROOT>/submissions/<release_version>/<package>
-```
-
-When the original run is available, also pass `--source-result-dir` so the source `run.json` hash is checked. Report clearly when the source run is unavailable; package-only validation is the same mode used by CI.
-
-Validation checks schema version 1, the frozen release manifest, exact trial coverage, recomputed aggregate metrics, package hashes, official-run identity, secrets, and absolute paths. A visual review or JSON/YAML parse alone is not sufficient.
-
-The PR workflow installs Python 3.12 and an editable checkout of `sands-lab/nika`, using repository variable `NIKA_REF` when set and otherwise `main`. If local validation and CI disagree, compare the local NIKA commit with that ref before changing submission data.
 
 ## Scope and Safety
 

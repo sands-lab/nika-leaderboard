@@ -1,4 +1,7 @@
-import { defaultFilters } from '../lib/metrics'
+import {
+  defaultFilters,
+  harnessOptimizationOptions,
+} from '../lib/metrics'
 import { providerDisplayName } from '../lib/providerMeta'
 import type { FilterState, MetaFilters } from '../lib/types'
 
@@ -53,6 +56,9 @@ export function FiltersBar({
   const set = <K extends keyof FilterState>(key: K, value: FilterState[K]) =>
     onChange({ ...filters, [key]: value })
   const cleared = isDefaultFilters(filters)
+  const harnessOptions = harnessOptimizationOptions(
+    metaFilters.optimization_methods,
+  )
 
   return (
     <div className="filters">
@@ -97,9 +103,9 @@ export function FiltersBar({
         onChange={(v) => set('model', v)}
       />
       <Select
-        label="Fine-tune"
+        label="Harness optimizations"
         value={filters.optimization_method}
-        options={metaFilters.optimization_methods}
+        options={harnessOptions}
         onChange={(v) => set('optimization_method', v)}
       />
       <Select
@@ -113,18 +119,6 @@ export function FiltersBar({
         value={filters.org}
         options={metaFilters.org}
         onChange={(v) => set('org', v)}
-      />
-      <Select
-        label="Open-source model"
-        value={filters.os_model}
-        options={['true', 'false']}
-        onChange={(v) => set('os_model', v as FilterState['os_model'])}
-      />
-      <Select
-        label="Open-source system"
-        value={filters.os_system}
-        options={['true', 'false']}
-        onChange={(v) => set('os_system', v as FilterState['os_system'])}
       />
       <div className="filter filter--action">
         <span className="filter__spacer" aria-hidden="true">

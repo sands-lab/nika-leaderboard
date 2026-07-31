@@ -3,6 +3,9 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "vite",
     "dev:local": "VITE_BASE_PATH=/ vite",
@@ -10,7 +13,10 @@
     "build:local": "VITE_BASE_PATH=/ tsc -b && VITE_BASE_PATH=/ vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "data": "cd .. && uv run python scripts/build_leaderboard_data.py"
+    "data": "cd .. && uv run python scripts/build_leaderboard_data.py",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:update": "playwright test --update-snapshots"
   },
   "dependencies": {
     "@tanstack/react-table": "^8.21.3",
@@ -24,6 +30,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.13.0",
+    "@playwright/test": "^1.62.1",
     "@types/node": "^26.1.2",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",

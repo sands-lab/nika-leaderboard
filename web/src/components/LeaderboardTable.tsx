@@ -33,8 +33,6 @@ type LbSortKey =
   | 'model_release'
   | 'scaffold'
   | 'provider'
-  | 'release'
-  | 'split'
   | 'rca'
   | 'loc'
   | 'detection'
@@ -51,8 +49,8 @@ function ScorePill({ value }: { value: number | null | undefined }) {
     <span
       className="score-pill"
       style={{
-        background: `rgba(14, 116, 144, ${0.1 + t * 0.32})`,
-        boxShadow: `inset 0 0 0 1px rgba(14, 116, 144, ${0.12 + t * 0.28})`,
+        background: `rgba(0, 212, 255, ${0.1 + t * 0.32})`,
+        boxShadow: `inset 0 0 0 1px rgba(0, 212, 255, ${0.12 + t * 0.28})`,
       }}
     >
       {formatScore(value)}
@@ -94,8 +92,6 @@ const ACCESSORS: Record<LbSortKey, (s: SubmissionSummary) => unknown> = {
   model_release: (s) => modelReleaseDate(s.model)?.getTime() ?? null,
   scaffold: (s) => s.framework,
   provider: (s) => resolveProvider(s.llm_provider, s.model),
-  release: (s) => s.benchmark_version,
-  split: (s) => s.split,
   rca: (s) => s.mean_rca_f1,
   loc: (s) => s.mean_localization_f1,
   detection: (s) => s.mean_detection_score,
@@ -142,20 +138,23 @@ export function LeaderboardTable({
               sort={sort}
               onSort={toggle}
               title="Package identity created_at (UTC date)"
+              className="col-secondary"
             />
-            <SortableTh label="Model" sortKey="model" sort={sort} onSort={toggle} />
+            <SortableTh label="Model" sortKey="model" sort={sort} onSort={toggle} className="col-narrow-hide" />
             <SortableTh
               label="Model release"
               sortKey="model_release"
               sort={sort}
               onSort={toggle}
               title="Approximate public model release date"
+              className="col-secondary"
             />
             <SortableTh
               label="Scaffold"
               sortKey="scaffold"
               sort={sort}
               onSort={toggle}
+              className="col-narrow-hide"
             />
             <SortableTh
               label="Provider"
@@ -163,27 +162,29 @@ export function LeaderboardTable({
               sort={sort}
               onSort={toggle}
               title="LLM provider"
+              className="col-secondary"
             />
+            <SortableTh label="RCA F1" sortKey="rca" sort={sort} onSort={toggle} />
             <SortableTh
-              label="Release"
-              sortKey="release"
+              label="Loc F1"
+              sortKey="loc"
               sort={sort}
               onSort={toggle}
+              className="col-secondary"
             />
-            <SortableTh label="Split" sortKey="split" sort={sort} onSort={toggle} />
-            <SortableTh label="RCA F1" sortKey="rca" sort={sort} onSort={toggle} />
-            <SortableTh label="Loc F1" sortKey="loc" sort={sort} onSort={toggle} />
             <SortableTh
               label="Detection"
               sortKey="detection"
               sort={sort}
               onSort={toggle}
+              className="col-secondary"
             />
             <SortableTh
               label="Success"
               sortKey="success"
               sort={sort}
               onSort={toggle}
+              className="col-secondary"
             />
             <SortableTh
               label="Avg tokens"
@@ -191,6 +192,7 @@ export function LeaderboardTable({
               sort={sort}
               onSort={toggle}
               title="Mean tokens per trial (in + out)"
+              className="col-secondary"
             />
             <SortableTh
               label="Avg steps"
@@ -198,8 +200,9 @@ export function LeaderboardTable({
               sort={sort}
               onSort={toggle}
               title="Mean steps per trial"
+              className="col-secondary"
             />
-            <th>Links</th>
+            <th className="col-secondary">Links</th>
           </tr>
         </thead>
         <tbody>
@@ -217,7 +220,7 @@ export function LeaderboardTable({
                   />
                 </td>
                 <td>{s.rank}</td>
-                <td>
+                <td className="system-td">
                   <div className="system-cell">
                     <strong>{s.name}</strong>
                     <span className="muted">
@@ -226,30 +229,37 @@ export function LeaderboardTable({
                     </span>
                   </div>
                 </td>
-                <td className="num" title={s.created_at || undefined}>
+                <td
+                  className="num col-secondary"
+                  title={s.created_at || undefined}
+                >
                   {formatDateUtc(s.created_at)}
                 </td>
-                <td>{dash(s.model)}</td>
-                <td className="num">{formatDateUtc(release)}</td>
-                <td>{dash(s.framework)}</td>
-                <td>
+                <td className="col-narrow-hide">{dash(s.model)}</td>
+                <td className="num col-secondary">{formatDateUtc(release)}</td>
+                <td className="col-narrow-hide">{dash(s.framework)}</td>
+                <td className="col-secondary">
                   <ProviderIcon llmProvider={s.llm_provider} model={s.model} />
                 </td>
-                <td>{s.benchmark_version}</td>
-                <td>{dash(s.split)}</td>
                 <td className="num">
                   <ScorePill value={s.mean_rca_f1} />
                 </td>
-                <td className="num">
+                <td className="num col-secondary">
                   <ScorePill value={s.mean_localization_f1} />
                 </td>
-                <td className="num">
+                <td className="num col-secondary">
                   <ScorePill value={s.mean_detection_score} />
                 </td>
-                <td className="num">{formatPct(s.success_rate)}</td>
-                <td className="num">{formatInt(s.mean_tokens)}</td>
-                <td className="num">{formatInt(s.mean_steps)}</td>
-                <td>
+                <td className="num col-secondary">
+                  {formatPct(s.success_rate)}
+                </td>
+                <td className="num col-secondary">
+                  {formatInt(s.mean_tokens)}
+                </td>
+                <td className="num col-secondary">
+                  {formatInt(s.mean_steps)}
+                </td>
+                <td className="col-secondary">
                   <div className="links">
                     {s.github && (
                       <a href={s.github} target="_blank" rel="noreferrer">
@@ -274,7 +284,7 @@ export function LeaderboardTable({
           })}
           {sorted.length === 0 && (
             <tr>
-              <td colSpan={17} className="empty-row">
+              <td colSpan={15} className="empty-row">
                 No submissions match the current filters.
               </td>
             </tr>
@@ -286,13 +296,13 @@ export function LeaderboardTable({
           <span>{selected.size} selected</span>
           <Link
             className="btn"
-            to={`/compare?ids=${encodeURIComponent([...selected].join(','))}`}
+            to={`/analytics/compare?ids=${encodeURIComponent([...selected].join(','))}`}
           >
             Compare selected
           </Link>
           <Link
             className="btn btn--ghost"
-            to={`/matrix?ids=${encodeURIComponent([...selected].join(','))}`}
+            to={`/analytics/matrix?ids=${encodeURIComponent([...selected].join(','))}`}
           >
             Open matrix
           </Link>

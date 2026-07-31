@@ -182,3 +182,31 @@ export function radarAxes(detail: SubmissionDetail) {
     steps,
   }
 }
+
+export interface CostScorePoint {
+  id: string
+  name: string
+  /** Cost proxy (e.g. total tokens). */
+  cost: number
+  /** Quality score (e.g. mean RCA F1). */
+  score: number
+}
+
+/**
+ * Pareto frontier for minimize-cost / maximize-score.
+ * Walk cost ascending; keep points that strictly improve best score so far.
+ */
+export function paretoFront(points: CostScorePoint[]): CostScorePoint[] {
+  const sorted = [...points].sort(
+    (a, b) => a.cost - b.cost || b.score - a.score,
+  )
+  const front: CostScorePoint[] = []
+  let bestScore = -Infinity
+  for (const p of sorted) {
+    if (p.score > bestScore) {
+      front.push(p)
+      bestScore = p.score
+    }
+  }
+  return front
+}

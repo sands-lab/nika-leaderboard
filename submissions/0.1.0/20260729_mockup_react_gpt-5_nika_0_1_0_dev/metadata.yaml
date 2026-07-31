@@ -12,7 +12,8 @@ agent:
   framework: react
   tools: []
   skills: []
-  optimization_methods: []
+  optimization_methods:
+  - GEPA
   tags:
   - mockup
   - legacy_csv_import

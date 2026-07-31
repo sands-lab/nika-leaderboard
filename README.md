@@ -43,7 +43,19 @@ npm run data   # optional if data already generated
 npm run dev
 ```
 
-Open the printed local URL (base path `/`).
+Open the printed local URL (base path `/`). Requires **Node.js 20+** (CI uses 22).
+
+### Viewport / UI checks (Playwright)
+
+Smoke-tests every page on mobile, tablet, and desktop viewports and writes full-page PNGs under `web/e2e/screenshots/` (gitignored):
+
+```shell
+cd web
+npx playwright install chromium   # first time only
+npm run test:e2e
+```
+
+Optional: `npm run test:e2e:ui` for the Playwright UI runner. Install the Cursor/VS Code extension **Playwright Test for VSCode** (`ms-playwright.playwright`) for one-click runs from the Testing sidebar.
 
 ### Production build
 
@@ -60,8 +72,13 @@ Artifacts land in `web/dist/`. The `deploy-pages.yml` workflow publishes that fo
 catalog/<version>/cases.json   # release enrich (size, failure category)
 scripts/build_leaderboard_data.py
 pyproject.toml                 # Python build deps (PyYAML via uv)
-web/                           # Vite React UI
 submissions/                   # immutable validated packages
+web/                           # Vite React UI
+  e2e/                         # Playwright viewport smoke tests
+  playwright.config.ts
+  public/data/                 # generated leaderboard JSON (from scripts/)
+  src/
+.vscode/extensions.json        # recommended Cursor/VS Code extensions
 ```
 
 Do not hand-edit integrity-bound files inside submission packages (`files.json`, metrics, trials). Change staging metadata in NIKA and re-`pack` instead.

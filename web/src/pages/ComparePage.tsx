@@ -9,6 +9,7 @@ import {
   cdfPoints,
   groupMean,
   pairwiseCompare,
+  paretoFront,
   radarAxes,
   shortFailureCategory,
 } from '../lib/compare'
@@ -17,7 +18,7 @@ import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import type { SubmissionDetail } from '../lib/types'
 
-const COLORS = ['#0e7490', '#ea580c', '#1d4ed8', '#7c3aed', '#ca8a04', '#be123c']
+const COLORS = ['#00d4ff', '#f97316', '#3b82f6', '#8b5cf6', '#eab308', '#ec4899']
 
 type PairSortKey =
   | 'scenario'
@@ -221,37 +222,188 @@ export function ComparePage() {
     }
   }, [details])
 
-  const parallelOption = useMemo((): EChartsOption => {
-    const maxTokens = Math.max(...details.map((d) => d.mean_tokens ?? 0), 1)
-    const maxSteps = Math.max(...details.map((d) => d.mean_steps ?? 0), 1)
+  const paretoOption = useMemo((): EChartsOption => {
+    const points = details
+      .map((d, i) => ({
+        id: d.id,
+        name: d.name,
+        cost: d.total_tokens ?? 0,
+        score: d.mean_rca_f1 ?? 0,
+        meanTokens: d.mean_tokens,
+        color: COLORS[i % COLORS.length],
+      }))
+      .filter((p) => p.cost > 0)
+    const front = paretoFront(points)
+    const frontIds = new Set(front.map((p) => p.id))
+    const xs = points.map((p) => p.cost)
+    const xMin = xs.length ? Math.min(...xs) : 0
+    const xMax = xs.length ? Math.max(...xs) : 1
+    const xPad = Math.max((xMax - xMin) * 0.08, xMax * 0.02 || 1)
+
     return {
-      parallelAxis: [
-        { dim: 0, name: 'Detection', min: 0, max: 1 },
-        { dim: 1, name: 'Loc F1', min: 0, max: 1 },
-        { dim: 2, name: 'RCA F1', min: 0, max: 1 },
-        { dim: 3, name: 'Success', min: 0, max: 1 },
-        { dim: 4, name: 'Avg tokens (norm)', min: 0, max: 1 },
-        { dim: 5, name: 'Avg steps (norm)', min: 0, max: 1 },
-      ],
-      series: {
-        type: 'parallel',
-        lineStyle: { width: 2 },
-        data: details.map((d, i) => {
-          return {
-            value: [
-              d.mean_detection_score ?? 0,
-              d.mean_localization_f1 ?? 0,
-              d.mean_rca_f1 ?? 0,
-              d.success_rate ?? 0,
-              (d.mean_tokens ?? 0) / maxTokens,
-              (d.mean_steps ?? 0) / maxSteps,
-            ],
-            name: d.name,
-            lineStyle: { color: COLORS[i % COLORS.length] },
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: unknown) => {
+          const p = params as {
+            seriesType?: string
+            seriesName?: string
+            data?: {
+              name?: string
+              value?: number[]
+              meanTokens?: number | null
+              onFrontier?: boolean
+            }
           }
-        }),
+          if (p.seriesType === 'line') {
+            return 'Pareto frontier (best RCA F1 at each cost)'
+          }
+          const d = p.data
+          if (!d?.value) return p.seriesName || ''
+          return [
+            `<strong>${d.name}</strong>`,
+            `RCA F1: ${d.value[1].toFixed(3)}`,
+            `Total tokens: ${Math.round(d.value[0]).toLocaleString()}`,
+            d.meanTokens != null
+              ? `Avg tokens/trial: ${Math.round(d.meanTokens).toLocaleString()}`
+              : null,
+            d.onFrontier ? '<em>On Pareto frontier</em>' : null,
+          ]
+            .filter(Boolean)
+            .join('<br/>')
+        },
       },
-      legend: { data: details.map((d) => d.name), bottom: 0 },
+      legend: {
+        data: [...details.map((d) => d.name), 'Pareto frontier'],
+        bottom: 0,
+        type: 'scroll',
+      },
+      grid: { left: 56, right: 36, top: 36, bottom: 72, containLabel: true },
+      xAxis: {
+        name: 'Total tokens',
+        type: 'value',
+        min: Math.max(0, xMin - xPad),
+        max: xMax + xPad,
+        nameLocation: 'middle',
+        nameGap: 28,
+      },
+      yAxis: {
+        name: 'Mean RCA F1',
+        type: 'value',
+        min: 0,
+        max: 1.05,
+        nameLocation: 'middle',
+        nameGap: 40,
+      },
+      series: [
+        ...points.map((p) => ({
+          name: p.name,
+          type: 'scatter' as const,
+          symbolSize: frontIds.has(p.id) ? 18 : 14,
+          itemStyle: {
+            color: p.color,
+            borderColor: frontIds.has(p.id) ? '#080d18' : '#e2e8f0',
+            borderWidth: frontIds.has(p.id) ? 2 : 1,
+          },
+          data: [
+            {
+              name: p.name,
+              value: [p.cost, p.score],
+              meanTokens: p.meanTokens,
+              onFrontier: frontIds.has(p.id),
+            },
+          ],
+          label: {
+            show: points.length <= 12,
+            formatter: p.name,
+            position: 'right' as const,
+            fontSize: 11,
+            color: '#e2e8f0',
+          },
+        })),
+        {
+          name: 'Pareto frontier',
+          type: 'line' as const,
+          showSymbol: false,
+          silent: true,
+          data: front.map((p) => [p.cost, p.score]),
+          lineStyle: {
+            type: 'dashed',
+            width: 2,
+            color: '#8b9cb6',
+            opacity: 0.9,
+          },
+          z: 1,
+        },
+      ] as EChartsOption['series'],
+    }
+  }, [details])
+
+  const tokenBarOption = useMemo((): EChartsOption => {
+    const colorById = new Map(
+      details.map((d, i) => [d.id, COLORS[i % COLORS.length]]),
+    )
+    const rows = [...details].sort(
+      (a, b) => (b.total_tokens ?? 0) - (a.total_tokens ?? 0),
+    )
+    return {
+      tooltip: {
+        trigger: 'axis',
+        formatter: (params: unknown) => {
+          const list = params as Array<{
+            name: string
+            value: number
+            dataIndex: number
+          }>
+          const p = list[0]
+          if (!p) return ''
+          const d = rows[p.dataIndex]
+          return [
+            `<strong>${p.name}</strong>`,
+            `Total tokens: ${Math.round(p.value).toLocaleString()}`,
+            d?.mean_tokens != null
+              ? `Avg / trial: ${Math.round(d.mean_tokens).toLocaleString()}`
+              : null,
+            d?.mean_rca_f1 != null
+              ? `RCA F1: ${d.mean_rca_f1.toFixed(3)}`
+              : null,
+          ]
+            .filter(Boolean)
+            .join('<br/>')
+        },
+      },
+      grid: { left: 48, right: 28, top: 28, bottom: 96, containLabel: true },
+      xAxis: {
+        type: 'category',
+        data: rows.map((d) => d.name),
+        axisLabel: { rotate: 28, fontSize: 11, interval: 0 },
+      },
+      yAxis: {
+        type: 'value',
+        name: 'Total tokens',
+        nameLocation: 'middle',
+        nameGap: 52,
+      },
+      series: [
+        {
+          type: 'bar',
+          barMaxWidth: 48,
+          data: rows.map((d) => ({
+            value: d.total_tokens ?? 0,
+            itemStyle: { color: colorById.get(d.id) || COLORS[0] },
+          })),
+          label: {
+            show: rows.length <= 10,
+            position: 'top',
+            formatter: (p: unknown) => {
+              const v = (p as { value: number }).value
+              if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`
+              if (v >= 1_000) return `${Math.round(v / 1_000)}k`
+              return `${Math.round(v)}`
+            },
+            fontSize: 10,
+          },
+        },
+      ],
     }
   }, [details])
 
@@ -308,7 +460,7 @@ export function ComparePage() {
         axisLabel: {
           interval: 0,
           fontSize: 11,
-          color: '#1c2421',
+          color: '#e2e8f0',
           margin: 10,
         },
       },
@@ -365,11 +517,20 @@ export function ComparePage() {
           height={520}
         />
         <ChartPanel
-          title="Parallel coordinates"
-          option={parallelOption}
-          filename="nika-parallel"
-          empty={!details.length}
+          title="RCA F1 vs cost frontier"
+          option={paretoOption}
+          filename="nika-pareto-frontier"
+          empty={!details.length || details.every((d) => !(d.total_tokens && d.total_tokens > 0))}
+          emptyMessage="No token totals available for the selected entries."
           height={520}
+        />
+        <ChartPanel
+          title="Total tokens per entry"
+          option={tokenBarOption}
+          filename="nika-total-tokens"
+          empty={!details.length || details.every((d) => !(d.total_tokens && d.total_tokens > 0))}
+          emptyMessage="No token totals available for the selected entries."
+          height={480}
           zoomable={false}
         />
         <ChartPanel

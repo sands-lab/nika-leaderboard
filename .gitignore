@@ -4,16 +4,22 @@ __pycache__/
 *.py[cod]
 .python-version
 
-# Node / web
+# Node / web (paths from repo root; web/.gitignore covers the same when cwd is web/)
 web/node_modules/
 web/dist/
 web/.vite/
+web/test-results/
+web/playwright-report/
+web/blob-report/
+web/playwright/.cache/
+web/e2e/screenshots/
 
 # OS / editors
 .DS_Store
 *.swp
 .idea/
-.vscode/
+.vscode/*
+!.vscode/extensions.json
 
 # Local secrets / env
 .env

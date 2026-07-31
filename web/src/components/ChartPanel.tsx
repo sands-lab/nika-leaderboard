@@ -6,6 +6,8 @@ import { downloadPdf, downloadPng } from '../lib/export'
 
 interface ChartPanelProps {
   title: string
+  /** Short caption under the title explaining what the chart shows. */
+  description?: string
   option: EChartsOption
   filename: string
   height?: number
@@ -19,6 +21,95 @@ interface ChartPanelProps {
   /** Overlay rendered above the chart canvas (same size box). */
   overlay?: ReactNode
   onChartReady?: (chart: EChartsType | null) => void
+}
+
+const CHART_MUTED = '#8b9cb6'
+const CHART_LINE = 'rgba(255, 255, 255, 0.1)'
+
+function withDarkTheme(option: EChartsOption): EChartsOption {
+  const existingText =
+    typeof option.textStyle === 'object' && !Array.isArray(option.textStyle)
+      ? option.textStyle
+      : {}
+  const existingLegend =
+    option.legend && typeof option.legend === 'object' && !Array.isArray(option.legend)
+      ? option.legend
+      : null
+
+  return {
+    ...option,
+    backgroundColor: option.backgroundColor ?? 'transparent',
+    textStyle: {
+      color: CHART_MUTED,
+      ...existingText,
+    },
+    legend: existingLegend
+      ? {
+          ...existingLegend,
+          textStyle: {
+            color: CHART_MUTED,
+            ...(typeof existingLegend.textStyle === 'object'
+              ? existingLegend.textStyle
+              : {}),
+          },
+        }
+      : option.legend,
+  }
+}
+
+function patchAxis(axis: unknown): unknown {
+  if (!axis) return axis
+  if (Array.isArray(axis)) return axis.map((item) => patchAxis(item))
+  if (typeof axis !== 'object') return axis
+  const a = axis as Record<string, unknown>
+  const axisLine =
+    typeof a.axisLine === 'object' && a.axisLine ? (a.axisLine as Record<string, unknown>) : {}
+  const axisLabel =
+    typeof a.axisLabel === 'object' && a.axisLabel ? (a.axisLabel as Record<string, unknown>) : {}
+  const splitLine =
+    typeof a.splitLine === 'object' && a.splitLine ? (a.splitLine as Record<string, unknown>) : {}
+  const nameTextStyle =
+    typeof a.nameTextStyle === 'object' && a.nameTextStyle
+      ? (a.nameTextStyle as Record<string, unknown>)
+      : {}
+  const axisLineStyle =
+    typeof axisLine.lineStyle === 'object' && axisLine.lineStyle
+      ? (axisLine.lineStyle as Record<string, unknown>)
+      : {}
+  const splitLineStyle =
+    typeof splitLine.lineStyle === 'object' && splitLine.lineStyle
+      ? (splitLine.lineStyle as Record<string, unknown>)
+      : {}
+
+  return {
+    ...a,
+    axisLine: {
+      ...axisLine,
+      lineStyle: { color: CHART_LINE, ...axisLineStyle },
+    },
+    axisLabel: {
+      color: CHART_MUTED,
+      ...axisLabel,
+    },
+    splitLine: {
+      ...splitLine,
+      lineStyle: { color: CHART_LINE, ...splitLineStyle },
+    },
+    nameTextStyle: {
+      color: CHART_MUTED,
+      ...nameTextStyle,
+    },
+  }
+}
+
+function withDarkAxes(option: EChartsOption): EChartsOption {
+  return {
+    ...option,
+    xAxis: patchAxis(option.xAxis) as EChartsOption['xAxis'],
+    yAxis: patchAxis(option.yAxis) as EChartsOption['yAxis'],
+    radiusAxis: patchAxis(option.radiusAxis) as EChartsOption['radiusAxis'],
+    angleAxis: patchAxis(option.angleAxis) as EChartsOption['angleAxis'],
+  }
 }
 
 function withInteractions(
@@ -83,6 +174,12 @@ function withInteractions(
       ...existingToolbox,
       right: 12,
       top: 0,
+      iconStyle: {
+        borderColor: CHART_MUTED,
+        ...(typeof existingToolbox.iconStyle === 'object'
+          ? existingToolbox.iconStyle
+          : {}),
+      },
       feature: {
         ...existingFeature,
         dataZoom: { yAxisIndex: 'none', title: { zoom: 'Zoom', back: 'Reset zoom' } },
@@ -116,7 +213,7 @@ function ChartCanvas({
   onChartReady?: (chart: EChartsType | null) => void
 }) {
   const merged = useMemo(
-    () => withInteractions(option, zoomable, zoomSlider),
+    () => withInteractions(withDarkAxes(withDarkTheme(option)), zoomable, zoomSlider),
     [option, zoomable, zoomSlider],
   )
 
@@ -143,6 +240,7 @@ function ChartCanvas({
 
 export function ChartPanel({
   title,
+  description,
   option,
   filename,
   height = 360,
@@ -231,7 +329,12 @@ export function ChartPanel({
     <>
       <section className="chart-panel">
         <header className="chart-panel__header">
-          <h3>{title}</h3>
+          <div className="chart-panel__heading">
+            <h3>{title}</h3>
+            {description && (
+              <p className="chart-panel__description muted">{description}</p>
+            )}
+          </div>
           {actions}
         </header>
         {empty ? (

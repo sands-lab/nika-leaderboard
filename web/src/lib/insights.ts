@@ -16,15 +16,15 @@ export function inferModelFamily(model: string | null | undefined): string {
 }
 
 export const FAMILY_COLORS: Record<string, string> = {
-  GPT: '#2563eb',
+  GPT: '#3b82f6',
   'GPT-OSS': '#60a5fa',
-  Qwen: '#dc2626',
-  Claude: '#ea580c',
-  Gemini: '#0e7490',
-  Llama: '#7c3aed',
-  DeepSeek: '#1d4ed8',
-  Mistral: '#ca8a04',
-  Other: '#64748b',
+  Qwen: '#ef4444',
+  Claude: '#f97316',
+  Gemini: '#00d4ff',
+  Llama: '#8b5cf6',
+  DeepSeek: '#14b8a6',
+  Mistral: '#eab308',
+  Other: '#8b9cb6',
 }
 
 export function familyColor(family: string): string {
