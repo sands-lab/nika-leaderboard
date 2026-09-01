@@ -21,6 +21,9 @@ export interface SubmissionSummary {
   logo: string | null
   github: string | null
   email: string | null
+  /** Hub tree URL for paired trajectories when identity.trajectories_relpath is set. */
+  trajectories_url: string | null
+  trajectories_relpath?: string | null
   model: string | null
   framework: string | null
   agent_type: string | null
@@ -29,8 +32,6 @@ export interface SubmissionSummary {
   skills: string[]
   optimization_methods: string[]
   tags: string[]
-  os_model: boolean
-  os_system: boolean
   benchmark_version: string
   split: string | null
   case_count: number | null

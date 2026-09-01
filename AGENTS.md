@@ -2,11 +2,12 @@
 
 ## Repository Purpose
 
-- This repository is the official, append-only archive for NIKA leaderboard submissions and hosts the static leaderboard web UI. It stores compact, validated result packages; it does not contain the benchmark runner.
+- This repository is the official, append-only archive for NIKA leaderboard **scores** and hosts the static leaderboard web UI. It stores compact, validated result packages; it does not contain the benchmark runner.
+- Raw agent trajectories (`messages.jsonl`, `nika.jsonl`, session logs, ground truth dumps) belong on Hugging Face: [`Zhihao98/nika-trajectories`](https://huggingface.co/datasets/Zhihao98/nika-trajectories). Do not add trajectory dumps to `submissions/`.
 - `<NIKA_ROOT>` denotes the root of a local checkout of the NIKA source repository: `https://github.com/sands-lab/nika`.
 - The NIKA source repository is the source of truth for the `nika leaderboard` CLI, schemas, packing, validation, release manifests, and tests.
 - `<NIKA_LEADERBOARD_ROOT>` denotes the root of this repository.
-- Read `<NIKA_ROOT>/docs/leaderboard-submission.md` before changing submission data. For implementation details, inspect `<NIKA_ROOT>/src/nika/workflows/leaderboard/` and `<NIKA_ROOT>/tests/leaderboard/`. If a local checkout is unavailable, consult the corresponding files at `https://github.com/sands-lab/nika`.
+- Read `<NIKA_ROOT>/docs/benchmarks/leaderboard-submission.md` before changing submission data. For implementation details, inspect `<NIKA_ROOT>/src/nika/workflows/leaderboard/` and `<NIKA_ROOT>/tests/leaderboard/`. If a local checkout is unavailable, consult the corresponding files at `https://github.com/sands-lab/nika`.
 
 ## Repository Layout
 
@@ -17,10 +18,10 @@ Each submission package must have exactly the generated shape:
 ```text
 README.md
 metadata.yaml
-files.json
 results/
-  identity.yaml
+  identity.yaml          # may include trajectories_relpath
   metrics.json
+  rca_confusion.json
   trials/<trial_id>/result.json
 ```
 
@@ -28,12 +29,11 @@ Do not add raw traces, per-case session artifacts, credentials, caches, or sourc
 
 ## Normal Workflow
 
-`nika leaderboard submit` normally performs that copy and opens the PR. Do not run it unless the user explicitly asks to push/open a PR, because it changes remote GitHub state. For the full submission workflow, invoke the `submit` skill.
+`nika leaderboard submit` normally copies the scores package here and opens the GitHub PR (and a paired HF trajectories PR). Do not run it unless the user explicitly asks to push/open a PR, because it changes remote GitHub/HF state.
 
 ## Editing Rules
 
-- Treat `files.json`, `results/identity.yaml`, `results/metrics.json`, and every trial `result.json` as generated, integrity-bound data. Do not hand-edit them.
-- `files.json` hashes `metadata.yaml`, the package `README.md`, identity, metrics, and all trial results. Editing any of those files after packing invalidates the package. Change the staging metadata/README and rerun `pack` instead.
+- Treat `results/identity.yaml`, `results/metrics.json`, `results/rca_confusion.json`, and every trial `result.json` as generated, integrity-bound data. Do not hand-edit them.
 - Do not fabricate scores, trial coverage, benchmark identities, release versions, or hashes. Packages must originate from a completed official release run (`run.official: true`).
 - Submission paths must remain `submissions/<release_version>/<YYYYMMDD>_<slug>/`; the slug is derived from `metadata.info.name` as lowercase ASCII words joined with underscores.
 - Add a new submission directory rather than overwriting or deleting an accepted historical entry unless the task explicitly calls for a correction and explains its provenance.

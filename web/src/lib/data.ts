@@ -96,7 +96,7 @@ export function formatSubmittedAt(value: string | null | undefined): string {
 }
 
 export function primaryLink(s: SubmissionSummary): string | null {
-  return s.github || s.site || s.report || null
+  return s.github || s.trajectories_url || s.site || s.report || null
 }
 
 export function dash(value: string | null | undefined): string {

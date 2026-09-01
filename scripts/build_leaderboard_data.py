@@ -4,7 +4,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
 import json
 import re
 import sys
@@ -94,11 +93,24 @@ def write_json(path: Path, data: Any) -> None:
         f.write("\n")
 
 
-def case_key(scenario: str, problem: str, inject: dict[str, Any] | None) -> str:
-    """Match NIKA packing: scenario__problem__<8hex of inject fingerprint>."""
-    payload = json.dumps(inject or {}, sort_keys=True, separators=(",", ":"))
-    digest = hashlib.sha256(payload.encode()).hexdigest()[:8]
-    return f"{scenario}__{problem}__{digest}"
+def case_key(
+    scenario: str,
+    problem: str,
+    inject: dict[str, Any] | None,
+    *,
+    topo_size: str | None = None,
+) -> str:
+    """Match NIKA packing: scenario__problem__[topo]__[inject fields]."""
+    parts = [scenario, problem]
+    if topo_size:
+        parts.append(str(topo_size))
+    for key, value in sorted((inject or {}).items()):
+        if isinstance(value, dict):
+            for nested_key, nested_value in sorted(value.items()):
+                parts.append(f"{key}-{nested_key}-{nested_value}")
+        else:
+            parts.append(f"{key}-{value}")
+    return "__".join(parts)
 
 
 def discover_problem_categories(nika_root: Path) -> dict[str, str]:
@@ -158,7 +170,9 @@ def build_release_catalog(
                 "root_cause_category": categories.get(problem),
                 "split": split,
                 "inject": inject,
-                "case_key_guess": case_key(scenario, problem, inject),
+                "case_key_guess": case_key(
+                    scenario, problem, inject, topo_size=topo_size
+                ),
             }
             cases.append(entry)
             by_key[f"{scenario}__{problem}"] = entry
@@ -237,15 +251,18 @@ def aggregate_trials(
         meta = catalog_lookup.get(f"{scenario}__{problem}", {})
         metrics = t.get("metrics") or {}
 
-        # Packed TrialResult.predicted_root_cause_name (from submission.root_cause_name).
-        if "predicted_root_cause_name" in t:
+        if "predicted_fault_types" in t:
+            predicted = normalize_name_list(t.get("predicted_fault_types"))
+        elif "predicted_root_cause_name" in t:
             predicted = normalize_name_list(t.get("predicted_root_cause_name"))
         elif "predicted_root_cause_names" in t:
             predicted = normalize_name_list(t.get("predicted_root_cause_names"))
         else:
             predicted = None
 
-        gt_names = normalize_name_list(t.get("gt_root_cause_name"))
+        gt_names = normalize_name_list(t.get("gt_fault_types"))
+        if not gt_names:
+            gt_names = normalize_name_list(t.get("gt_root_cause_name"))
         if not gt_names:
             gt_names = [problem] if problem else []
 
@@ -332,6 +349,14 @@ def load_submission(
     mean_tokens = ((in_tokens + out_tokens) / denom) if denom else None
     mean_steps = (steps / denom) if denom else None
 
+    traj_rel = identity.get("trajectories_relpath")
+    trajectories_url = None
+    if isinstance(traj_rel, str) and traj_rel.strip():
+        trajectories_url = (
+            "https://huggingface.co/datasets/Zhihao98/nika-trajectories/"
+            f"tree/main/{traj_rel.strip().strip('/')}"
+        )
+
     summary = {
         "id": pid,
         "dirname": dirname,
@@ -343,6 +368,8 @@ def load_submission(
         "logo": info.get("logo"),
         "github": info.get("github"),
         "email": info.get("email"),
+        "trajectories_url": trajectories_url,
+        "trajectories_relpath": traj_rel if isinstance(traj_rel, str) else None,
         "model": agent.get("model") or run.get("model"),
         "framework": agent.get("framework") or run.get("agent_type"),
         "agent_type": run.get("agent_type"),
@@ -354,8 +381,6 @@ def load_submission(
         "skills": agent.get("skills") or [],
         "optimization_methods": agent.get("optimization_methods") or [],
         "tags": agent.get("tags") or [],
-        "os_model": bool(agent.get("os_model")),
-        "os_system": bool(agent.get("os_system")),
         "benchmark_version": bench.get("version") or version,
         "split": bench.get("split"),
         "case_count": bench.get("case_count"),
@@ -394,6 +419,25 @@ def unique_sorted(values: set[Any]) -> list[Any]:
     return sorted(v for v in values if v is not None and v != "")
 
 
+def _version_sort_key(version: str) -> tuple[int | str, ...]:
+    parts: list[int | str] = []
+    for part in version.split("."):
+        try:
+            parts.append(int(part))
+        except ValueError:
+            parts.append(part)
+    return tuple(parts)
+
+
+def _reset_dir(path: Path) -> None:
+    if path.exists():
+        for child in path.iterdir():
+            if child.is_file():
+                child.unlink()
+    else:
+        path.mkdir(parents=True, exist_ok=True)
+
+
 def build_leaderboard(
     repo_root: Path,
     catalogs: dict[str, dict[str, Any]],
@@ -401,7 +445,7 @@ def build_leaderboard(
 ) -> None:
     submissions_root = repo_root / "submissions"
     summaries: list[dict[str, Any]] = []
-    versions: set[str] = set()
+    versions: set[str] = set(catalogs)
 
     frameworks: set[str] = set()
     providers: set[str] = set()
@@ -410,6 +454,11 @@ def build_leaderboard(
     tags: set[str] = set()
     orgs: set[str] = set()
     splits: set[str] = set()
+
+    submissions_out = out_dir / "submissions"
+    catalog_out = out_dir / "catalog"
+    _reset_dir(submissions_out)
+    _reset_dir(catalog_out)
 
     for version_dir in sorted(submissions_root.iterdir()):
         if not version_dir.is_dir() or version_dir.name.startswith("."):
@@ -429,7 +478,7 @@ def build_leaderboard(
             )
             summaries.append(summary)
             safe_id = summary["id"].replace("/", "__")
-            write_json(out_dir / "submissions" / f"{safe_id}.json", detail)
+            write_json(submissions_out / f"{safe_id}.json", detail)
 
             frameworks.add(summary.get("framework"))
             providers.add(summary.get("llm_provider"))
@@ -452,7 +501,7 @@ def build_leaderboard(
     # Copy catalogs into public data
     for version, catalog in catalogs.items():
         write_json(
-            out_dir / "catalog" / f"{version}.json",
+            catalog_out / f"{version}.json",
             {
                 "version": version,
                 "by_scenario_problem": catalog.get("by_scenario_problem") or {},
@@ -475,7 +524,7 @@ def build_leaderboard(
     write_json(
         out_dir / "meta.json",
         {
-            "versions": sorted(versions),
+            "versions": sorted(versions, key=_version_sort_key),
             "filters": {
                 "framework": unique_sorted(frameworks),
                 "llm_provider": unique_sorted(providers),
@@ -534,11 +583,23 @@ def main(argv: list[str] | None = None) -> int:
         for p in catalog_dir.iterdir():
             if p.is_dir() and (p / "cases.json").exists():
                 versions.add(p.name)
+    # Refresh only known versions, plus the newest NIKA release for bootstrap.
+    # Do not reintroduce retired release catalogs (e.g. deleted 0.1.0).
+    if not args.skip_catalog_refresh and args.nika_root.is_dir():
+        releases = args.nika_root.resolve() / "benchmark" / "releases"
+        if releases.is_dir():
+            nika_versions = [
+                p.name
+                for p in releases.iterdir()
+                if p.is_dir() and (p / "RELEASE.yaml").is_file()
+            ]
+            if nika_versions:
+                versions.add(max(nika_versions, key=_version_sort_key))
 
     if not versions:
-        versions.add("0.1.0")
+        versions.add("0.2.0")
 
-    for version in sorted(versions):
+    for version in sorted(versions, key=_version_sort_key):
         catalog_path = catalog_dir / version / "cases.json"
         if not args.skip_catalog_refresh and args.nika_root.is_dir():
             try:

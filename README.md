@@ -2,19 +2,24 @@
 
 Official submission archive and static leaderboard UI for [NIKA](https://github.com/sands-lab/nika).
 
-Pack, validate, and open a PR with the NIKA CLI. Full instructions, package layout, metadata schema, and PR checklist:
+Pack, validate, and open PRs with the NIKA CLI:
 
-**[docs/leaderboard-submission.md](https://github.com/sands-lab/nika/blob/main/docs/leaderboard-submission.md)**
+- **Scores** land here under `submissions/<release_version>/{YYYYMMDD}_{slug}/` (GitHub PR)
+- **Trajectories** go to the Hugging Face dataset [`Zhihao98/nika-trajectories`](https://huggingface.co/datasets/Zhihao98/nika-trajectories) (Hub PR)
+
+Full instructions, package layout, metadata schema, and PR checklist:
+
+**[docs/leaderboard-submission.md](https://github.com/sands-lab/nika/blob/main/docs/benchmarks/leaderboard-submission.md)**
 
 ```shell
 nika leaderboard submit path/to/YYYYMMDD_slug
 ```
 
-Submissions land under `submissions/<release_version>/{YYYYMMDD}_{slug}/`. CI re-runs `nika leaderboard validate` on PRs that touch `submissions/`.
+Do **not** commit raw traces, `messages.jsonl`, pcaps, or full session trees into this repository. CI re-runs `nika leaderboard validate` on PRs that touch `submissions/`.
 
 ## Leaderboard web UI
 
-The `web/` app is a Vite + React + TypeScript + ECharts static site. It ranks validated packages, filters by scaffold/provider/model/tags, compares selected entries (pairwise + charts), and shows scenario / failure / size matrices.
+The `web/` app is a Vite + React + TypeScript + ECharts static site. It ranks validated packages, filters by scaffold/provider/model/tags, compares selected entries (pairwise + charts), and shows scenario / failure / size matrices. When a package identity includes `trajectories_relpath`, the UI links to the paired HF trajectories folder.
 
 ### Prerequisites
 

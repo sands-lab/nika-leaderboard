@@ -266,6 +266,15 @@ export function LeaderboardTable({
                         GitHub
                       </a>
                     )}
+                    {s.trajectories_url && (
+                      <a
+                        href={s.trajectories_url}
+                        target="_blank"
+                        rel="noreferrer"
+                      >
+                        Trajectories
+                      </a>
+                    )}
                     {s.site && (
                       <a href={s.site} target="_blank" rel="noreferrer">
                         Site
@@ -276,7 +285,9 @@ export function LeaderboardTable({
                         Report
                       </a>
                     )}
-                    {!link && <span className="muted">—</span>}
+                    {!link && !s.trajectories_url && (
+                      <span className="muted">—</span>
+                    )}
                   </div>
                 </td>
               </tr>
