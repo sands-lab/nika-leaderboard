@@ -1,0 +1,2830 @@
+{
+  "version": "0.2.0",
+  "cases": [
+    {
+      "scenario": "enterprise_branch",
+      "problem": "arp_acl_block",
+      "topo_size": "s",
+      "root_cause_category": "misconfiguration",
+      "split": "dev",
+      "inject": {
+        "host_name": "br1_corp_pc"
+      },
+      "case_key_guess": "enterprise_branch__arp_acl_block__s__host_name-br1_corp_pc"
+    },
+    {
+      "scenario": "k8s_lab",
+      "problem": "arp_cache_poisoning",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "client"
+      },
+      "case_key_guess": "k8s_lab__arp_cache_poisoning__host_name-client"
+    },
+    {
+      "scenario": "isp_nobel-eu",
+      "problem": "bgp_acl_block",
+      "topo_size": "m",
+      "root_cause_category": "misconfiguration",
+      "split": "dev",
+      "inject": {
+        "host_name": "amsterdam"
+      },
+      "case_key_guess": "isp_nobel-eu__bgp_acl_block__m__host_name-amsterdam"
+    },
+    {
+      "scenario": "isp_cost266",
+      "problem": "bgp_asn_misconfig",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "amsterdam"
+      },
+      "case_key_guess": "isp_cost266__bgp_asn_misconfig__l__host_name-amsterdam"
+    },
+    {
+      "scenario": "isp_abilene_ebgp_rtbh",
+      "problem": "bgp_blackhole_community_leak",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "kscyng",
+        "peer_host": "pc_kscyng",
+        "probe_dst_ip": "198.51.100.1",
+        "symptom_host": "iplsng"
+      },
+      "case_key_guess": "isp_abilene_ebgp_rtbh__bgp_blackhole_community_leak__s__host_name-kscyng__peer_host-pc_kscyng__probe_dst_ip-198.51.100.1__symptom_host-iplsng"
+    },
+    {
+      "scenario": "isp_janos-us",
+      "problem": "bgp_hijacking",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "albany",
+        "peer_host": "pc_albany",
+        "probe_dst_ip": "198.18.0.1",
+        "symptom_host": "atlanta",
+        "target_network": "198.18.0.0/24"
+      },
+      "case_key_guess": "isp_janos-us__bgp_hijacking__m__host_name-albany__peer_host-pc_albany__probe_dst_ip-198.18.0.1__symptom_host-atlanta__target_network-198.18.0.0/24"
+    },
+    {
+      "scenario": "isp_geant",
+      "problem": "bgp_max_prefix_exceeded",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "flood_count": "120",
+        "neighbor_ip": "10.0.0.35",
+        "peer_name": "nl1_nl",
+        "receiver_name": "de1_de"
+      },
+      "case_key_guess": "isp_geant__bgp_max_prefix_exceeded__m__flood_count-120__neighbor_ip-10.0.0.35__peer_name-nl1_nl__receiver_name-de1_de"
+    },
+    {
+      "scenario": "isp_pioro40",
+      "problem": "bgp_missing_route_advertisement",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "n7",
+        "peer_host": "pc_n7",
+        "prefix": "203.0.113.0/24",
+        "probe_dst_ip": "203.0.113.1",
+        "symptom_host": "n0"
+      },
+      "case_key_guess": "isp_pioro40__bgp_missing_route_advertisement__l__host_name-n7__peer_host-pc_n7__prefix-203.0.113.0/24__probe_dst_ip-203.0.113.1__symptom_host-n0"
+    },
+    {
+      "scenario": "isp_abilene_ebgp_rpki",
+      "problem": "bgp_rpki_invalid_route_leak",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "kscyng"
+      },
+      "case_key_guess": "isp_abilene_ebgp_rpki__bgp_rpki_invalid_route_leak__s__host_name-kscyng"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "bmv2_switch_down",
+      "topo_size": "l",
+      "root_cause_category": "link_failure",
+      "split": "dev",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_fabric__bmv2_switch_down__l__host_name-leaf_1"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "device_forwarding_packet_corruption",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "forwarding_device": "leaf_2",
+        "intf_name": "eth0",
+        "observer_device": "client_1_1",
+        "probe_dst_ip": "10.0.2.11",
+        "seed": "42"
+      },
+      "case_key_guess": "sdn_l3_clos__device_forwarding_packet_corruption__s__forwarding_device-leaf_2__intf_name-eth0__observer_device-client_1_1__probe_dst_ip-10.0.2.11__seed-42"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dhcp_missing_subnet",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "dhcp_server",
+        "host_name_2": "pc_1_1_1_1",
+        "subnet": "10.1.1.0"
+      },
+      "case_key_guess": "campus_lan__dhcp_missing_subnet__m__host_name-dhcp_server__host_name_2-pc_1_1_1_1__subnet-10.1.1.0"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dhcp_service_down",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "dhcp_server",
+        "host_name_2": "pc_1_1_1_1"
+      },
+      "case_key_guess": "campus_lan__dhcp_service_down__l__host_name-dhcp_server__host_name_2-pc_1_1_1_1"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dhcp_spoofed_dns",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "dhcp_server",
+        "host_name_2": "pc_1_1_1_1"
+      },
+      "case_key_guess": "campus_lan__dhcp_spoofed_dns__s__host_name-dhcp_server__host_name_2-pc_1_1_1_1"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dhcp_spoofed_gateway",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "dhcp_server",
+        "host_name_2": "pc_1_1_1_1"
+      },
+      "case_key_guess": "campus_lan__dhcp_spoofed_gateway__l__host_name-dhcp_server__host_name_2-pc_1_1_1_1"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dhcp_spoofed_subnet",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "dhcp_server",
+        "host_name_2": "pc_1_1_1_1",
+        "subnet": "10.1.1.0"
+      },
+      "case_key_guess": "campus_lan__dhcp_spoofed_subnet__m__host_name-dhcp_server__host_name_2-pc_1_1_1_1__subnet-10.1.1.0"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "dns_lookup_latency",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "delay_ms": "1000",
+        "host_name": "dns_pod0",
+        "intf_name": "eth0"
+      },
+      "case_key_guess": "dc_clos__dns_lookup_latency__s__delay_ms-1000__host_name-dns_pod0__intf_name-eth0"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "dns_port_blocked",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "dns_pod0"
+      },
+      "case_key_guess": "dc_clos__dns_port_blocked__m__host_name-dns_pod0"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "dns_record_error",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "dns_pod0",
+        "target_domain": "pod0",
+        "target_website": "web0"
+      },
+      "case_key_guess": "dc_clos__dns_record_error__l__host_name-dns_pod0__target_domain-pod0__target_website-web0"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "dns_service_down",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "dns_pod0"
+      },
+      "case_key_guess": "dc_clos__dns_service_down__s__host_name-dns_pod0"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "flow_rule_loop",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "leaf_1",
+        "host_name_2": "spine_2",
+        "port_name": "eth5",
+        "port_name_2": "eth5"
+      },
+      "case_key_guess": "sdn_l3_clos__flow_rule_loop__m__host_name-leaf_1__host_name_2-spine_2__port_name-eth5__port_name_2-eth5"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "flow_rule_shadowing",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "spine_1"
+      },
+      "case_key_guess": "sdn_l3_clos__flow_rule_shadowing__l__host_name-spine_1"
+    },
+    {
+      "scenario": "k8s_lab",
+      "problem": "frr_service_down",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "leaf_1_1"
+      },
+      "case_key_guess": "k8s_lab__frr_service_down__host_name-leaf_1_1"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "host_incorrect_dns",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "client_0"
+      },
+      "case_key_guess": "dc_clos__host_incorrect_dns__s__host_name-client_0"
+    },
+    {
+      "scenario": "k8s_lab",
+      "problem": "host_incorrect_gateway",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "client"
+      },
+      "case_key_guess": "k8s_lab__host_incorrect_gateway__host_name-client"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "host_incorrect_ip",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "client"
+      },
+      "case_key_guess": "llmd_lab__host_incorrect_ip__host_name-client"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "host_incorrect_netmask",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "br1_corp_pc",
+        "netmask_prefix": "8"
+      },
+      "case_key_guess": "enterprise_branch__host_incorrect_netmask__m__host_name-br1_corp_pc__netmask_prefix-8"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "host_ip_conflict",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "service_4_2",
+        "host_name_2": "service_2_1"
+      },
+      "case_key_guess": "p4_dc_gateway__host_ip_conflict__l__host_name-service_4_2__host_name_2-service_2_1"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "host_missing_ip",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "client_3_1",
+        "intf_name": "eth0"
+      },
+      "case_key_guess": "p4_dc_fabric__host_missing_ip__s__host_name-client_3_1__intf_name-eth0"
+    },
+    {
+      "scenario": "isp_geant_ebgp_rpki",
+      "problem": "host_static_blackhole",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "at1_at"
+      },
+      "case_key_guess": "isp_geant_ebgp_rpki__host_static_blackhole__m__host_name-at1_at"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "http_acl_block",
+      "topo_size": null,
+      "root_cause_category": "misconfiguration",
+      "split": "dev",
+      "inject": {
+        "host_name": "client"
+      },
+      "case_key_guess": "llmd_lab__http_acl_block__host_name-client"
+    },
+    {
+      "scenario": "isp_janos-us-ca",
+      "problem": "icmp_acl_block",
+      "topo_size": "l",
+      "root_cause_category": "misconfiguration",
+      "split": "dev",
+      "inject": {
+        "host_name": "pc_atlanta"
+      },
+      "case_key_guess": "isp_janos-us-ca__icmp_acl_block__l__host_name-pc_atlanta"
+    },
+    {
+      "scenario": "isp_abilene",
+      "problem": "icmp_frag_needed_filter_misconfiguration",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "atlam5"
+      },
+      "case_key_guess": "isp_abilene__icmp_frag_needed_filter_misconfiguration__s__host_name-atlam5"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "incast_traffic_network_limitation",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "burst": "64kb",
+        "delay_ms": "400",
+        "host_name": "service_1_1",
+        "limit": "64kb",
+        "observer_device": "client_1",
+        "probe_dst_ip": "10.0.1.11",
+        "rate": "128kbit"
+      },
+      "case_key_guess": "p4_dc_gateway__incast_traffic_network_limitation__m__burst-64kb__delay_ms-400__host_name-service_1_1__limit-64kb__observer_device-client_1__probe_dst_ip-10.0.1.11__rate-128kbit"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "int_insufficient_mtu_headroom",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "bmv2_port": "2",
+        "host_name": "gateway_1",
+        "int_mtu": "1480",
+        "intf_name": "eth1"
+      },
+      "case_key_guess": "p4_dc_gateway__int_insufficient_mtu_headroom__s__bmv2_port-2__host_name-gateway_1__int_mtu-1480__intf_name-eth1"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "k8s_clusterip_routing_broken",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "control_node": "controller",
+        "node_name": "controller"
+      },
+      "case_key_guess": "llmd_lab__k8s_clusterip_routing_broken__control_node-controller__node_name-controller"
+    },
+    {
+      "scenario": "k8s_lab",
+      "problem": "k8s_coredns_isolated",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "control_node": "controller",
+        "symptom_host": "worker1"
+      },
+      "case_key_guess": "k8s_lab__k8s_coredns_isolated__control_node-controller__symptom_host-worker1"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "k8s_networkpolicy_deny",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "control_node": "controller",
+        "control_url": "http://200.0.0.8/",
+        "namespace": "llm-d",
+        "pod_selector": "gateway.networking.k8s.io/gateway-name=llm-d-gateway",
+        "symptom_host": "client",
+        "symptom_url": "http://llmd/v1/models"
+      },
+      "case_key_guess": "llmd_lab__k8s_networkpolicy_deny__control_node-controller__control_url-http://200.0.0.8/__namespace-llm-d__pod_selector-gateway.networking.k8s.io/gateway-name=llm-d-gateway__symptom_host-client__symptom_url-http://llmd/v1/models"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "k8s_worker_apiserver_partition",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "control_node": "controller",
+        "node_name": "worker1"
+      },
+      "case_key_guess": "llmd_lab__k8s_worker_apiserver_partition__control_node-controller__node_name-worker1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "lb_connection_state_exhaustion",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "attacker_device": "client_8",
+        "backend_dip": "10.0.1.11",
+        "capacity": "256",
+        "client_host": "client_1",
+        "host_name": "gateway_1",
+        "seed": "42",
+        "syn_timeout_sec": "10",
+        "vip_url": "http://20.0.0.1:80/"
+      },
+      "case_key_guess": "p4_dc_gateway__lb_connection_state_exhaustion__l__attacker_device-client_8__backend_dip-10.0.1.11__capacity-256__client_host-client_1__host_name-gateway_1__seed-42__syn_timeout_sec-10__vip_url-http://20.0.0.1:80/"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "lb_pending_connection_update_race",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "gateway_1",
+        "learning_delay_ms": "5",
+        "seed": "42"
+      },
+      "case_key_guess": "p4_dc_gateway__lb_pending_connection_update_race__m__host_name-gateway_1__learning_delay_ms-5__seed-42"
+    },
+    {
+      "scenario": "min3clos",
+      "problem": "link_capacity_bottleneck",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "burst": "64kb",
+        "host_name": "client1",
+        "intf_name": "eth1",
+        "limit": "500kb",
+        "rate": "30kbit"
+      },
+      "case_key_guess": "min3clos__link_capacity_bottleneck__burst-64kb__host_name-client1__intf_name-eth1__limit-500kb__rate-30kbit"
+    },
+    {
+      "scenario": "isp_ta2",
+      "problem": "link_detach",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "n10",
+        "intf_name": "eth0",
+        "peer_host": "pc_n2",
+        "probe_dst_ip": "10.254.0.46",
+        "symptom_host": "pc_n10"
+      },
+      "case_key_guess": "isp_ta2__link_detach__l__host_name-n10__intf_name-eth0__peer_host-pc_n2__probe_dst_ip-10.254.0.46__symptom_host-pc_n10"
+    },
+    {
+      "scenario": "isp_dfn-bwin",
+      "problem": "link_down",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "berlin",
+        "intf_name": "eth0",
+        "peer_host": "pc_frankfurt",
+        "probe_dst_ip": "10.254.0.6",
+        "symptom_host": "pc_berlin"
+      },
+      "case_key_guess": "isp_dfn-bwin__link_down__s__host_name-berlin__intf_name-eth0__peer_host-pc_frankfurt__probe_dst_ip-10.254.0.6__symptom_host-pc_berlin"
+    },
+    {
+      "scenario": "isp_nobel-germany",
+      "problem": "link_flap",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "down_time": "1",
+        "host_name": "berlin",
+        "intf_name": "eth0",
+        "peer_host": "pc_hamburg",
+        "probe_dst_ip": "10.254.0.26",
+        "symptom_host": "pc_berlin",
+        "up_time": "1"
+      },
+      "case_key_guess": "isp_nobel-germany__link_flap__m__down_time-1__host_name-berlin__intf_name-eth0__peer_host-pc_hamburg__probe_dst_ip-10.254.0.26__symptom_host-pc_berlin__up_time-1"
+    },
+    {
+      "scenario": "isp_india35",
+      "problem": "link_packet_corruption",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "corruption_percentage": "10",
+        "host_name": "n_0",
+        "intf_name": "eth0",
+        "peer_host": "pc_n_24",
+        "probe_dst_ip": "10.254.0.70",
+        "symptom_host": "pc_n_0"
+      },
+      "case_key_guess": "isp_india35__link_packet_corruption__l__corruption_percentage-10__host_name-n_0__intf_name-eth0__peer_host-pc_n_24__probe_dst_ip-10.254.0.70__symptom_host-pc_n_0"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "load_balancer_overload",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "backend_cpu_host": "backend_web_0",
+        "backend_probe_host": "load_balancer",
+        "backend_url": "http://20.200.0.2/small",
+        "client_host": "pc_1_1_1_1",
+        "concurrency": "160",
+        "control_url": "http://web0.local/small",
+        "cpu_quota": "0.2",
+        "duration_sec": "300",
+        "host_name": "load_balancer",
+        "load_client_hosts": "pc_2_1_1_1",
+        "load_workers": "2",
+        "probe_concurrency": "4",
+        "probe_requests": "60",
+        "vip_url": "http://web99.local/small",
+        "warmup_sec": "5"
+      },
+      "case_key_guess": "campus_lan__load_balancer_overload__s__backend_cpu_host-backend_web_0__backend_probe_host-load_balancer__backend_url-http://20.200.0.2/small__client_host-pc_1_1_1_1__concurrency-160__control_url-http://web0.local/small__cpu_quota-0.2__duration_sec-300__host_name-load_balancer__load_client_hosts-pc_2_1_1_1__load_workers-2__probe_concurrency-4__probe_requests-60__vip_url-http://web99.local/small__warmup_sec-5"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "mac_address_conflict",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "web_2",
+        "host_name_2": "client_3_2"
+      },
+      "case_key_guess": "p4_dc_fabric__mac_address_conflict__m__host_name-web_2__host_name_2-client_3_2"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "mtu_mismatch",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "br1_edge",
+        "intf_name": "eth2",
+        "mtu": "500"
+      },
+      "case_key_guess": "enterprise_branch__mtu_mismatch__l__host_name-br1_edge__intf_name-eth2__mtu-500"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "nat_mapping_removed_without_drain",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "br1_edge",
+        "nat_ip_a": "198.18.1.10",
+        "nat_ip_b": "198.18.1.11",
+        "source_prefix": "10.1.40.0/24",
+        "wan_interface": "eth2"
+      },
+      "case_key_guess": "enterprise_branch__nat_mapping_removed_without_drain__s__host_name-br1_edge__nat_ip_a-198.18.1.10__nat_ip_b-198.18.1.11__source_prefix-10.1.40.0/24__wan_interface-eth2"
+    },
+    {
+      "scenario": "isp_ta1",
+      "problem": "ospf_acl_block",
+      "topo_size": "m",
+      "root_cause_category": "misconfiguration",
+      "split": "dev",
+      "inject": {
+        "host_name": "n1"
+      },
+      "case_key_guess": "isp_ta1__ospf_acl_block__m__host_name-n1"
+    },
+    {
+      "scenario": "isp_germany50",
+      "problem": "ospf_area_misconfiguration",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "aachen"
+      },
+      "case_key_guess": "isp_germany50__ospf_area_misconfiguration__l__host_name-aachen"
+    },
+    {
+      "scenario": "isp_dfn-bwin_ebgp_rtbh",
+      "problem": "ospf_neighbor_missing",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "berlin"
+      },
+      "case_key_guess": "isp_dfn-bwin_ebgp_rtbh__ospf_neighbor_missing__s__host_name-berlin"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "p4_action_selector_member_misconfig",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_fabric__p4_action_selector_member_misconfig__m__host_name-leaf_1"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "p4_ecmp_group_member_missing",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_fabric__p4_ecmp_group_member_missing__l__host_name-leaf_1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4_ecn_threshold_misconfiguration",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "bmv2_port": "2",
+        "host_name": "gateway_1",
+        "intf_name": "eth1",
+        "threshold": "1024"
+      },
+      "case_key_guess": "p4_dc_gateway__p4_ecn_threshold_misconfiguration__s__bmv2_port-2__host_name-gateway_1__intf_name-eth1__threshold-1024"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "p4_table_entry_misconfig",
+      "topo_size": "m",
+      "root_cause_category": "network_node_error",
+      "split": "dev",
+      "inject": {
+        "host_name": "leaf_1",
+        "observer_device": "client_1_1",
+        "probe_dst_ip": "10.0.2.11"
+      },
+      "case_key_guess": "p4_dc_fabric__p4_table_entry_misconfig__m__host_name-leaf_1__observer_device-client_1_1__probe_dst_ip-10.0.2.11"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4_table_entry_missing",
+      "topo_size": "l",
+      "root_cause_category": "network_node_error",
+      "split": "dev",
+      "inject": {
+        "host_name": "gateway_1"
+      },
+      "case_key_guess": "p4_dc_gateway__p4_table_entry_missing__l__host_name-gateway_1"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "p4_table_resource_exhaustion",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_fabric__p4_table_resource_exhaustion__s__host_name-leaf_1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4_tcam_entry_corruption",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "control_source": "client_2",
+        "host_name": "gateway_3",
+        "target_ip": "10.0.4.11"
+      },
+      "case_key_guess": "p4_dc_gateway__p4_tcam_entry_corruption__m__control_source-client_2__host_name-gateway_3__target_ip-10.0.4.11"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "p4runtime_partial_write",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_fabric__p4runtime_partial_write__l__host_name-leaf_1"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "p4runtime_pipeline_mismatch",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_fabric__p4runtime_pipeline_mismatch__s__host_name-leaf_1"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "receiver_resource_contention",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "duration": "600",
+        "host_name": "client"
+      },
+      "case_key_guess": "llmd_lab__receiver_resource_contention__duration-600__host_name-client"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "sdn_controller_crash",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "onos"
+      },
+      "case_key_guess": "sdn_l3_clos__sdn_controller_crash__m__host_name-onos"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "sender_resource_contention",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "client_host": "client_2_1",
+        "cpu_quota": "0.05",
+        "dst_ip": "10.0.1.11",
+        "duration": "600",
+        "host_name": "web_1",
+        "large_url": "http://10.0.1.11/large.bin",
+        "small_url": "http://10.0.1.11/small.bin",
+        "stress_cpus": "16"
+      },
+      "case_key_guess": "sdn_l3_clos__sender_resource_contention__l__client_host-client_2_1__cpu_quota-0.05__dst_ip-10.0.1.11__duration-600__host_name-web_1__large_url-http://10.0.1.11/large.bin__small_url-http://10.0.1.11/small.bin__stress_cpus-16"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "silent_egress_packet_loss",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "bmv2_port": "2",
+        "host_name": "gateway_1",
+        "intf_name": "eth1",
+        "loss_basis_points": "200",
+        "seed": "42"
+      },
+      "case_key_guess": "p4_dc_gateway__silent_egress_packet_loss__s__bmv2_port-2__host_name-gateway_1__intf_name-eth1__loss_basis_points-200__seed-42"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "snat_port_pool_exhaustion",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "br1_edge",
+        "port_end": "40063",
+        "port_start": "40000",
+        "public_ip": "198.18.1.10",
+        "source_prefix": "10.1.40.0/24"
+      },
+      "case_key_guess": "enterprise_branch__snat_port_pool_exhaustion__m__host_name-br1_edge__port_end-40063__port_start-40000__public_ip-198.18.1.10__source_prefix-10.1.40.0/24"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "southbound_port_block",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "onos",
+        "southbound_port": "6653"
+      },
+      "case_key_guess": "sdn_l3_clos__southbound_port_block__l__host_name-onos__southbound_port-6653"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "southbound_port_mismatch",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "onos",
+        "mismatched_port": "6633",
+        "original_port": "6653"
+      },
+      "case_key_guess": "sdn_l3_clos__southbound_port_mismatch__s__host_name-onos__mismatched_port-6633__original_port-6653"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "tcp_receive_window_limited",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "br1_corp_pc2",
+        "large_url": "http://10.0.20.2/large.bin",
+        "sender_host": "hq_srv",
+        "sender_ip": "10.0.20.2",
+        "small_url": "http://10.0.20.2/small.bin"
+      },
+      "case_key_guess": "enterprise_branch__tcp_receive_window_limited__l__host_name-br1_corp_pc2__large_url-http://10.0.20.2/large.bin__sender_host-hq_srv__sender_ip-10.0.20.2__small_url-http://10.0.20.2/small.bin"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "tcp_syn_flood_attack",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "attacker_device": "client_1",
+        "duration": "60",
+        "flows": "40",
+        "rate_pps": "100",
+        "seed": "42",
+        "target_ip": "10.0.1.12",
+        "target_port": "80"
+      },
+      "case_key_guess": "p4_dc_gateway__tcp_syn_flood_attack__m__attacker_device-client_1__duration-60__flows-40__rate_pps-100__seed-42__target_ip-10.0.1.12__target_port-80"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "vrf_dscp_remarking",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "corp_prefix": "10.0.10.0/24",
+        "direction": "lan_to_overlay",
+        "dst_host": "br1_corp_pc",
+        "host_name": "hq_edge",
+        "intf_name": "wg_br1",
+        "src_host": "hq_corp_pc"
+      },
+      "case_key_guess": "enterprise_branch__vrf_dscp_remarking__s__corp_prefix-10.0.10.0/24__direction-lan_to_overlay__dst_host-br1_corp_pc__host_name-hq_edge__intf_name-wg_br1__src_host-hq_corp_pc"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "web_dos_attack",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "attacker_device": "client_0",
+        "host_name": "webserver0_pod0",
+        "observer_device": "dns_pod0",
+        "probe_url": "http://10.0.1.2/small.bin"
+      },
+      "case_key_guess": "dc_clos__web_dos_attack__m__attacker_device-client_0__host_name-webserver0_pod0__observer_device-dns_pod0__probe_url-http://10.0.1.2/small.bin"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "wireguard_allowed_ips_misconfiguration",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "br1_edge",
+        "intf_name": "wg_hq",
+        "target_prefix": "10.0.20.0/24"
+      },
+      "case_key_guess": "enterprise_branch__wireguard_allowed_ips_misconfiguration__l__host_name-br1_edge__intf_name-wg_hq__target_prefix-10.0.20.0/24"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "wireguard_peer_key_misconfiguration",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {
+        "host_name": "br1_edge",
+        "intf_name": "wg_hq"
+      },
+      "case_key_guess": "enterprise_branch__wireguard_peer_key_misconfiguration__s__host_name-br1_edge__intf_name-wg_hq"
+    },
+    {
+      "scenario": "min3clos",
+      "problem": "healthy",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {},
+      "case_key_guess": "min3clos__healthy"
+    },
+    {
+      "scenario": "isp_di-yuan",
+      "problem": "healthy",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {},
+      "case_key_guess": "isp_di-yuan__healthy__s"
+    },
+    {
+      "scenario": "isp_pdh",
+      "problem": "healthy",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {},
+      "case_key_guess": "isp_pdh__healthy__s"
+    },
+    {
+      "scenario": "isp_dfn-bwin",
+      "problem": "healthy",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {},
+      "case_key_guess": "isp_dfn-bwin__healthy__s"
+    },
+    {
+      "scenario": "isp_pdh",
+      "problem": "healthy",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {},
+      "case_key_guess": "isp_pdh__healthy__s"
+    },
+    {
+      "scenario": "isp_dfn-gwin",
+      "problem": "healthy",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {},
+      "case_key_guess": "isp_dfn-gwin__healthy__s"
+    },
+    {
+      "scenario": "isp_di-yuan",
+      "problem": "healthy",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {},
+      "case_key_guess": "isp_di-yuan__healthy__s"
+    },
+    {
+      "scenario": "isp_pdh",
+      "problem": "healthy",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {},
+      "case_key_guess": "isp_pdh__healthy__s"
+    },
+    {
+      "scenario": "isp_di-yuan",
+      "problem": "healthy",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev",
+      "inject": {},
+      "case_key_guess": "isp_di-yuan__healthy__s"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "arp_acl_block",
+      "topo_size": "m",
+      "root_cause_category": "misconfiguration",
+      "split": "test",
+      "inject": {
+        "host_name": "client_0"
+      },
+      "case_key_guess": "dc_clos__arp_acl_block__m__host_name-client_0"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "arp_cache_poisoning",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "client_10_1"
+      },
+      "case_key_guess": "sdn_l3_clos__arp_cache_poisoning__l__host_name-client_10_1"
+    },
+    {
+      "scenario": "isp_pdh",
+      "problem": "bgp_acl_block",
+      "topo_size": "s",
+      "root_cause_category": "misconfiguration",
+      "split": "test",
+      "inject": {
+        "host_name": "n1"
+      },
+      "case_key_guess": "isp_pdh__bgp_acl_block__s__host_name-n1"
+    },
+    {
+      "scenario": "k8s_lab",
+      "problem": "bgp_asn_misconfig",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "leaf_1_1"
+      },
+      "case_key_guess": "k8s_lab__bgp_asn_misconfig__host_name-leaf_1_1"
+    },
+    {
+      "scenario": "isp_dfn-bwin_ebgp_rtbh",
+      "problem": "bgp_blackhole_community_leak",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "frankfurt",
+        "peer_host": "pc_frankfurt",
+        "probe_dst_ip": "198.51.100.1",
+        "symptom_host": "hamburg"
+      },
+      "case_key_guess": "isp_dfn-bwin_ebgp_rtbh__bgp_blackhole_community_leak__s__host_name-frankfurt__peer_host-pc_frankfurt__probe_dst_ip-198.51.100.1__symptom_host-hamburg"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "bgp_hijacking",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "br1_edge"
+      },
+      "case_key_guess": "enterprise_branch__bgp_hijacking__l__host_name-br1_edge"
+    },
+    {
+      "scenario": "isp_abilene",
+      "problem": "bgp_max_prefix_exceeded",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "flood_count": "120",
+        "neighbor_ip": "10.0.0.21",
+        "peer_name": "losang",
+        "receiver_name": "hstnng"
+      },
+      "case_key_guess": "isp_abilene__bgp_max_prefix_exceeded__s__flood_count-120__neighbor_ip-10.0.0.21__peer_name-losang__receiver_name-hstnng"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "bgp_missing_route_advertisement",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "br1_edge"
+      },
+      "case_key_guess": "enterprise_branch__bgp_missing_route_advertisement__m__host_name-br1_edge"
+    },
+    {
+      "scenario": "isp_geant_ebgp_rpki",
+      "problem": "bgp_rpki_invalid_route_leak",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "es1_es"
+      },
+      "case_key_guess": "isp_geant_ebgp_rpki__bgp_rpki_invalid_route_leak__m__host_name-es1_es"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "bmv2_switch_down",
+      "topo_size": "s",
+      "root_cause_category": "link_failure",
+      "split": "test",
+      "inject": {
+        "host_name": "gateway_1"
+      },
+      "case_key_guess": "p4_dc_gateway__bmv2_switch_down__s__host_name-gateway_1"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "device_forwarding_packet_corruption",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "forwarding_device": "router_core_2",
+        "intf_name": "eth5",
+        "observer_device": "pc_1_1_1_1",
+        "probe_dst_ip": "10.200.0.3",
+        "seed": "42"
+      },
+      "case_key_guess": "campus_lan__device_forwarding_packet_corruption__l__forwarding_device-router_core_2__intf_name-eth5__observer_device-pc_1_1_1_1__probe_dst_ip-10.200.0.3__seed-42"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dhcp_missing_subnet",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "dhcp_server",
+        "host_name_2": "pc_1_1_1_1",
+        "subnet": "10.1.1.0"
+      },
+      "case_key_guess": "campus_lan__dhcp_missing_subnet__l__host_name-dhcp_server__host_name_2-pc_1_1_1_1__subnet-10.1.1.0"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dhcp_service_down",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "dhcp_server",
+        "host_name_2": "pc_1_1_1_1"
+      },
+      "case_key_guess": "campus_lan__dhcp_service_down__m__host_name-dhcp_server__host_name_2-pc_1_1_1_1"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dhcp_spoofed_dns",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "dhcp_server",
+        "host_name_2": "pc_1_1_1_1"
+      },
+      "case_key_guess": "campus_lan__dhcp_spoofed_dns__l__host_name-dhcp_server__host_name_2-pc_1_1_1_1"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dhcp_spoofed_gateway",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "dhcp_server",
+        "host_name_2": "pc_1_1_1_1"
+      },
+      "case_key_guess": "campus_lan__dhcp_spoofed_gateway__s__host_name-dhcp_server__host_name_2-pc_1_1_1_1"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dhcp_spoofed_subnet",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "dhcp_server",
+        "host_name_2": "pc_1_1_1_1",
+        "subnet": "10.1.1.0"
+      },
+      "case_key_guess": "campus_lan__dhcp_spoofed_subnet__s__host_name-dhcp_server__host_name_2-pc_1_1_1_1__subnet-10.1.1.0"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dns_lookup_latency",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "delay_ms": "1000",
+        "host_name": "dns_server",
+        "intf_name": "eth0"
+      },
+      "case_key_guess": "campus_lan__dns_lookup_latency__m__delay_ms-1000__host_name-dns_server__intf_name-eth0"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dns_port_blocked",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "dns_server"
+      },
+      "case_key_guess": "campus_lan__dns_port_blocked__l__host_name-dns_server"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dns_record_error",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "dns_server",
+        "target_domain": "local",
+        "target_website": "web1"
+      },
+      "case_key_guess": "campus_lan__dns_record_error__m__host_name-dns_server__target_domain-local__target_website-web1"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "dns_service_down",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "dns_server"
+      },
+      "case_key_guess": "campus_lan__dns_service_down__m__host_name-dns_server"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "flow_rule_loop",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "leaf_1",
+        "host_name_2": "spine_1",
+        "port_name": "eth2",
+        "port_name_2": "eth2"
+      },
+      "case_key_guess": "sdn_l3_clos__flow_rule_loop__s__host_name-leaf_1__host_name_2-spine_1__port_name-eth2__port_name_2-eth2"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "flow_rule_shadowing",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "spine_1"
+      },
+      "case_key_guess": "sdn_l3_clos__flow_rule_shadowing__s__host_name-spine_1"
+    },
+    {
+      "scenario": "isp_germany50",
+      "problem": "frr_service_down",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "aachen"
+      },
+      "case_key_guess": "isp_germany50__frr_service_down__l__host_name-aachen"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "host_incorrect_dns",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "pc_1_1_1_1"
+      },
+      "case_key_guess": "campus_lan__host_incorrect_dns__m__host_name-pc_1_1_1_1"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "host_incorrect_gateway",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "client_0"
+      },
+      "case_key_guess": "dc_clos__host_incorrect_gateway__l__host_name-client_0"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "host_incorrect_ip",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "client_1"
+      },
+      "case_key_guess": "p4_dc_gateway__host_incorrect_ip__s__host_name-client_1"
+    },
+    {
+      "scenario": "k8s_lab",
+      "problem": "host_incorrect_netmask",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "client",
+        "netmask_prefix": "8"
+      },
+      "case_key_guess": "k8s_lab__host_incorrect_netmask__host_name-client__netmask_prefix-8"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "host_ip_conflict",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "client",
+        "host_name_2": "web"
+      },
+      "case_key_guess": "llmd_lab__host_ip_conflict__host_name-client__host_name_2-web"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "host_missing_ip",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "client",
+        "intf_name": "eth0"
+      },
+      "case_key_guess": "llmd_lab__host_missing_ip__host_name-client__intf_name-eth0"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "host_static_blackhole",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "br1_edge"
+      },
+      "case_key_guess": "enterprise_branch__host_static_blackhole__l__host_name-br1_edge"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "http_acl_block",
+      "topo_size": "m",
+      "root_cause_category": "misconfiguration",
+      "split": "test",
+      "inject": {
+        "host_name": "client_1"
+      },
+      "case_key_guess": "p4_dc_gateway__http_acl_block__m__host_name-client_1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "icmp_acl_block",
+      "topo_size": "s",
+      "root_cause_category": "misconfiguration",
+      "split": "test",
+      "inject": {
+        "host_name": "client_1"
+      },
+      "case_key_guess": "p4_dc_gateway__icmp_acl_block__s__host_name-client_1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "icmp_frag_needed_filter_misconfiguration",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "gateway_1"
+      },
+      "case_key_guess": "p4_dc_gateway__icmp_frag_needed_filter_misconfiguration__m__host_name-gateway_1"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "incast_traffic_network_limitation",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "burst": "128kb",
+        "delay_ms": "300",
+        "host_name": "web_2",
+        "limit": "128kb",
+        "observer_device": "client_1_1",
+        "probe_dst_ip": "10.0.2.11",
+        "rate": "256kbit"
+      },
+      "case_key_guess": "p4_dc_fabric__incast_traffic_network_limitation__l__burst-128kb__delay_ms-300__host_name-web_2__limit-128kb__observer_device-client_1_1__probe_dst_ip-10.0.2.11__rate-256kbit"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "int_insufficient_mtu_headroom",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "bmv2_port": "2",
+        "host_name": "gateway_1",
+        "int_mtu": "1480",
+        "intf_name": "eth1"
+      },
+      "case_key_guess": "p4_dc_gateway__int_insufficient_mtu_headroom__m__bmv2_port-2__host_name-gateway_1__int_mtu-1480__intf_name-eth1"
+    },
+    {
+      "scenario": "k8s_lab",
+      "problem": "k8s_clusterip_routing_broken",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "control_node": "controller",
+        "node_name": "controller"
+      },
+      "case_key_guess": "k8s_lab__k8s_clusterip_routing_broken__control_node-controller__node_name-controller"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "k8s_coredns_isolated",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "control_node": "controller",
+        "symptom_host": "worker1"
+      },
+      "case_key_guess": "llmd_lab__k8s_coredns_isolated__control_node-controller__symptom_host-worker1"
+    },
+    {
+      "scenario": "k8s_lab",
+      "problem": "k8s_networkpolicy_deny",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "control_node": "controller",
+        "control_url": "http://datacenter.com/weather?location=London",
+        "namespace": "word-ns",
+        "pod_selector": "app=word",
+        "symptom_host": "client",
+        "symptom_url": "http://datacenter.com/word"
+      },
+      "case_key_guess": "k8s_lab__k8s_networkpolicy_deny__control_node-controller__control_url-http://datacenter.com/weather?location=London__namespace-word-ns__pod_selector-app=word__symptom_host-client__symptom_url-http://datacenter.com/word"
+    },
+    {
+      "scenario": "k8s_lab",
+      "problem": "k8s_worker_apiserver_partition",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "control_node": "controller",
+        "node_name": "worker1"
+      },
+      "case_key_guess": "k8s_lab__k8s_worker_apiserver_partition__control_node-controller__node_name-worker1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "lb_connection_state_exhaustion",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "attacker_device": "client_2",
+        "backend_dip": "10.0.1.11",
+        "capacity": "256",
+        "client_host": "client_1",
+        "host_name": "gateway_1",
+        "seed": "42",
+        "syn_timeout_sec": "10",
+        "vip_url": "http://20.0.0.1:80/"
+      },
+      "case_key_guess": "p4_dc_gateway__lb_connection_state_exhaustion__s__attacker_device-client_2__backend_dip-10.0.1.11__capacity-256__client_host-client_1__host_name-gateway_1__seed-42__syn_timeout_sec-10__vip_url-http://20.0.0.1:80/"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "lb_pending_connection_update_race",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "gateway_1",
+        "learning_delay_ms": "5",
+        "seed": "42"
+      },
+      "case_key_guess": "p4_dc_gateway__lb_pending_connection_update_race__l__host_name-gateway_1__learning_delay_ms-5__seed-42"
+    },
+    {
+      "scenario": "isp_di-yuan",
+      "problem": "link_capacity_bottleneck",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "burst": "64kb",
+        "host_name": "n_10",
+        "intf_name": "eth0",
+        "limit": "500kb",
+        "peer_host": "pc_n_9",
+        "probe_dst_ip": "10.254.0.42",
+        "rate": "30kbit",
+        "symptom_host": "pc_n_10"
+      },
+      "case_key_guess": "isp_di-yuan__link_capacity_bottleneck__s__burst-64kb__host_name-n_10__intf_name-eth0__limit-500kb__peer_host-pc_n_9__probe_dst_ip-10.254.0.42__rate-30kbit__symptom_host-pc_n_10"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "link_detach",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "client_0",
+        "intf_name": "eth0"
+      },
+      "case_key_guess": "dc_clos__link_detach__m__host_name-client_0__intf_name-eth0"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "link_down",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "br1_corp_pc",
+        "intf_name": "eth0"
+      },
+      "case_key_guess": "enterprise_branch__link_down__l__host_name-br1_corp_pc__intf_name-eth0"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "link_flap",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "down_time": "1",
+        "host_name": "client_1_1",
+        "intf_name": "eth0",
+        "observer_device": "client_1_1",
+        "probe_dst_ip": "10.0.2.11",
+        "up_time": "1"
+      },
+      "case_key_guess": "sdn_l3_clos__link_flap__s__down_time-1__host_name-client_1_1__intf_name-eth0__observer_device-client_1_1__probe_dst_ip-10.0.2.11__up_time-1"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "link_packet_corruption",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "corruption_percentage": "10",
+        "host_name": "br1_edge",
+        "intf_name": "eth3",
+        "observer_device": "br1_corp_pc",
+        "probe_dst_ip": "10.0.20.2"
+      },
+      "case_key_guess": "enterprise_branch__link_packet_corruption__m__corruption_percentage-10__host_name-br1_edge__intf_name-eth3__observer_device-br1_corp_pc__probe_dst_ip-10.0.20.2"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "load_balancer_overload",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "backend_cpu_host": "backend_web_0",
+        "backend_probe_host": "load_balancer",
+        "backend_url": "http://20.200.0.2/small",
+        "client_host": "pc_1_1_1_1",
+        "concurrency": "160",
+        "control_url": "http://web0.local/small",
+        "cpu_quota": "0.2",
+        "duration_sec": "300",
+        "host_name": "load_balancer",
+        "load_client_hosts": "pc_2_1_1_1",
+        "load_workers": "2",
+        "probe_concurrency": "4",
+        "probe_requests": "60",
+        "vip_url": "http://web99.local/small",
+        "warmup_sec": "5"
+      },
+      "case_key_guess": "campus_lan__load_balancer_overload__l__backend_cpu_host-backend_web_0__backend_probe_host-load_balancer__backend_url-http://20.200.0.2/small__client_host-pc_1_1_1_1__concurrency-160__control_url-http://web0.local/small__cpu_quota-0.2__duration_sec-300__host_name-load_balancer__load_client_hosts-pc_2_1_1_1__load_workers-2__probe_concurrency-4__probe_requests-60__vip_url-http://web99.local/small__warmup_sec-5"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "mac_address_conflict",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "service_1_2",
+        "host_name_2": "client_1"
+      },
+      "case_key_guess": "p4_dc_gateway__mac_address_conflict__s__host_name-service_1_2__host_name_2-client_1"
+    },
+    {
+      "scenario": "isp_geant_ebgp_rpki",
+      "problem": "mtu_mismatch",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "at1_at",
+        "intf_name": "eth0",
+        "mtu": "500"
+      },
+      "case_key_guess": "isp_geant_ebgp_rpki__mtu_mismatch__m__host_name-at1_at__intf_name-eth0__mtu-500"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "nat_mapping_removed_without_drain",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "br1_edge",
+        "nat_ip_a": "198.18.1.10",
+        "nat_ip_b": "198.18.1.11",
+        "source_prefix": "10.1.40.0/24",
+        "wan_interface": "eth3"
+      },
+      "case_key_guess": "enterprise_branch__nat_mapping_removed_without_drain__l__host_name-br1_edge__nat_ip_a-198.18.1.10__nat_ip_b-198.18.1.11__source_prefix-10.1.40.0/24__wan_interface-eth3"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "ospf_acl_block",
+      "topo_size": "s",
+      "root_cause_category": "misconfiguration",
+      "split": "test",
+      "inject": {
+        "host_name": "router_core_1"
+      },
+      "case_key_guess": "campus_lan__ospf_acl_block__s__host_name-router_core_1"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "ospf_area_misconfiguration",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "router_core_1"
+      },
+      "case_key_guess": "campus_lan__ospf_area_misconfiguration__m__host_name-router_core_1"
+    },
+    {
+      "scenario": "campus_lan",
+      "problem": "ospf_neighbor_missing",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "router_core_1"
+      },
+      "case_key_guess": "campus_lan__ospf_neighbor_missing__l__host_name-router_core_1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4_action_selector_member_misconfig",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_gateway__p4_action_selector_member_misconfig__s__host_name-leaf_1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4_ecmp_group_member_missing",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_gateway__p4_ecmp_group_member_missing__m__host_name-leaf_1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4_ecn_threshold_misconfiguration",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "bmv2_port": "10",
+        "host_name": "spine_1",
+        "intf_name": "eth9",
+        "threshold": "1024"
+      },
+      "case_key_guess": "p4_dc_gateway__p4_ecn_threshold_misconfiguration__l__bmv2_port-10__host_name-spine_1__intf_name-eth9__threshold-1024"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4_table_entry_misconfig",
+      "topo_size": "s",
+      "root_cause_category": "network_node_error",
+      "split": "test",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_gateway__p4_table_entry_misconfig__s__host_name-leaf_1"
+    },
+    {
+      "scenario": "p4_dc_fabric",
+      "problem": "p4_table_entry_missing",
+      "topo_size": "m",
+      "root_cause_category": "network_node_error",
+      "split": "test",
+      "inject": {
+        "host_name": "leaf_1",
+        "observer_device": "client_1_1",
+        "probe_dst_ip": "10.0.2.11"
+      },
+      "case_key_guess": "p4_dc_fabric__p4_table_entry_missing__m__host_name-leaf_1__observer_device-client_1_1__probe_dst_ip-10.0.2.11"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4_table_resource_exhaustion",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_gateway__p4_table_resource_exhaustion__l__host_name-leaf_1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4_tcam_entry_corruption",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "control_source": "client_2",
+        "host_name": "spine_1",
+        "target_ip": "10.0.1.12"
+      },
+      "case_key_guess": "p4_dc_gateway__p4_tcam_entry_corruption__s__control_source-client_2__host_name-spine_1__target_ip-10.0.1.12"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4runtime_partial_write",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "leaf_1"
+      },
+      "case_key_guess": "p4_dc_gateway__p4runtime_partial_write__m__host_name-leaf_1"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "p4runtime_pipeline_mismatch",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "gateway_1"
+      },
+      "case_key_guess": "p4_dc_gateway__p4runtime_pipeline_mismatch__l__host_name-gateway_1"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "receiver_resource_contention",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "duration": "600",
+        "host_name": "client_0"
+      },
+      "case_key_guess": "dc_clos__receiver_resource_contention__s__duration-600__host_name-client_0"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "sdn_controller_crash",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "onos"
+      },
+      "case_key_guess": "sdn_l3_clos__sdn_controller_crash__l__host_name-onos"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "sender_resource_contention",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "client_host": "client",
+        "cpu_quota": "0.05",
+        "dst_ip": "200.0.0.8",
+        "duration": "600",
+        "host_name": "web",
+        "large_url": "http://200.0.0.8/large.bin",
+        "small_url": "http://200.0.0.8/small.bin",
+        "stress_cpus": "16"
+      },
+      "case_key_guess": "llmd_lab__sender_resource_contention__client_host-client__cpu_quota-0.05__dst_ip-200.0.0.8__duration-600__host_name-web__large_url-http://200.0.0.8/large.bin__small_url-http://200.0.0.8/small.bin__stress_cpus-16"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "silent_egress_packet_loss",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "bmv2_port": "2",
+        "host_name": "gateway_1",
+        "intf_name": "eth1",
+        "loss_basis_points": "200",
+        "seed": "42"
+      },
+      "case_key_guess": "p4_dc_gateway__silent_egress_packet_loss__m__bmv2_port-2__host_name-gateway_1__intf_name-eth1__loss_basis_points-200__seed-42"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "snat_port_pool_exhaustion",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "br1_edge",
+        "port_end": "40063",
+        "port_start": "40000",
+        "public_ip": "198.18.1.10",
+        "source_prefix": "10.1.40.0/24"
+      },
+      "case_key_guess": "enterprise_branch__snat_port_pool_exhaustion__s__host_name-br1_edge__port_end-40063__port_start-40000__public_ip-198.18.1.10__source_prefix-10.1.40.0/24"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "southbound_port_block",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "onos",
+        "southbound_port": "6653"
+      },
+      "case_key_guess": "sdn_l3_clos__southbound_port_block__m__host_name-onos__southbound_port-6653"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "southbound_port_mismatch",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "onos",
+        "mismatched_port": "6633",
+        "original_port": "6653"
+      },
+      "case_key_guess": "sdn_l3_clos__southbound_port_mismatch__l__host_name-onos__mismatched_port-6633__original_port-6653"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "tcp_receive_window_limited",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "br1_corp_pc",
+        "large_url": "http://10.0.20.2/large.bin",
+        "sender_host": "hq_srv",
+        "sender_ip": "10.0.20.2",
+        "small_url": "http://10.0.20.2/small.bin"
+      },
+      "case_key_guess": "enterprise_branch__tcp_receive_window_limited__s__host_name-br1_corp_pc__large_url-http://10.0.20.2/large.bin__sender_host-hq_srv__sender_ip-10.0.20.2__small_url-http://10.0.20.2/small.bin"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "tcp_syn_flood_attack",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "attacker_device": "client_1",
+        "duration": "60",
+        "flows": "40",
+        "rate_pps": "100",
+        "seed": "42",
+        "target_ip": "10.0.4.12",
+        "target_port": "80"
+      },
+      "case_key_guess": "p4_dc_gateway__tcp_syn_flood_attack__l__attacker_device-client_1__duration-60__flows-40__rate_pps-100__seed-42__target_ip-10.0.4.12__target_port-80"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "vrf_dscp_remarking",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "corp_prefix": "10.0.10.0/24",
+        "direction": "lan_to_overlay",
+        "dst_host": "br1_corp_pc",
+        "host_name": "hq_edge",
+        "intf_name": "wg_br1",
+        "src_host": "hq_corp_pc"
+      },
+      "case_key_guess": "enterprise_branch__vrf_dscp_remarking__m__corp_prefix-10.0.10.0/24__direction-lan_to_overlay__dst_host-br1_corp_pc__host_name-hq_edge__intf_name-wg_br1__src_host-hq_corp_pc"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "web_dos_attack",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "attacker_device": "client_4_1",
+        "host_name": "web_2",
+        "observer_device": "client_1_1",
+        "probe_url": "http://10.0.2.11/"
+      },
+      "case_key_guess": "sdn_l3_clos__web_dos_attack__s__attacker_device-client_4_1__host_name-web_2__observer_device-client_1_1__probe_url-http://10.0.2.11/"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "wireguard_allowed_ips_misconfiguration",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "br1_edge",
+        "intf_name": "wg_hq",
+        "target_prefix": "10.0.20.0/24"
+      },
+      "case_key_guess": "enterprise_branch__wireguard_allowed_ips_misconfiguration__s__host_name-br1_edge__intf_name-wg_hq__target_prefix-10.0.20.0/24"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "wireguard_peer_key_misconfiguration",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "br1_edge",
+        "intf_name": "wg_hq"
+      },
+      "case_key_guess": "enterprise_branch__wireguard_peer_key_misconfiguration__l__host_name-br1_edge__intf_name-wg_hq"
+    },
+    {
+      "scenario": "min3clos",
+      "problem": "bgp_missing_route_advertisement",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {
+        "host_name": "leaf1"
+      },
+      "case_key_guess": "min3clos__bgp_missing_route_advertisement__host_name-leaf1"
+    },
+    {
+      "scenario": "llmd_lab",
+      "problem": "healthy",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {},
+      "case_key_guess": "llmd_lab__healthy"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "healthy",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {},
+      "case_key_guess": "dc_clos__healthy__m"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "healthy",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {},
+      "case_key_guess": "dc_clos__healthy__l"
+    },
+    {
+      "scenario": "k8s_lab",
+      "problem": "healthy",
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {},
+      "case_key_guess": "k8s_lab__healthy"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "healthy",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {},
+      "case_key_guess": "sdn_l3_clos__healthy__m"
+    },
+    {
+      "scenario": "p4_dc_gateway",
+      "problem": "healthy",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {},
+      "case_key_guess": "p4_dc_gateway__healthy__m"
+    },
+    {
+      "scenario": "sdn_l3_clos",
+      "problem": "healthy",
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {},
+      "case_key_guess": "sdn_l3_clos__healthy__l"
+    },
+    {
+      "scenario": "enterprise_branch",
+      "problem": "healthy",
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {},
+      "case_key_guess": "enterprise_branch__healthy__m"
+    },
+    {
+      "scenario": "dc_clos",
+      "problem": "healthy",
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test",
+      "inject": {},
+      "case_key_guess": "dc_clos__healthy__s"
+    }
+  ],
+  "by_scenario_problem": {
+    "enterprise_branch__arp_acl_block": {
+      "topo_size": "s",
+      "root_cause_category": "misconfiguration",
+      "split": "dev"
+    },
+    "k8s_lab__arp_cache_poisoning": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_nobel-eu__bgp_acl_block": {
+      "topo_size": "m",
+      "root_cause_category": "misconfiguration",
+      "split": "dev"
+    },
+    "isp_cost266__bgp_asn_misconfig": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_abilene_ebgp_rtbh__bgp_blackhole_community_leak": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_janos-us__bgp_hijacking": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_geant__bgp_max_prefix_exceeded": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_pioro40__bgp_missing_route_advertisement": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_abilene_ebgp_rpki__bgp_rpki_invalid_route_leak": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_fabric__bmv2_switch_down": {
+      "topo_size": "l",
+      "root_cause_category": "link_failure",
+      "split": "dev"
+    },
+    "sdn_l3_clos__device_forwarding_packet_corruption": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "campus_lan__dhcp_missing_subnet": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__dhcp_service_down": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__dhcp_spoofed_dns": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__dhcp_spoofed_gateway": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__dhcp_spoofed_subnet": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "dc_clos__dns_lookup_latency": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "dc_clos__dns_port_blocked": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "dc_clos__dns_record_error": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "dc_clos__dns_service_down": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "sdn_l3_clos__flow_rule_loop": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "sdn_l3_clos__flow_rule_shadowing": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "k8s_lab__frr_service_down": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "dc_clos__host_incorrect_dns": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "k8s_lab__host_incorrect_gateway": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "llmd_lab__host_incorrect_ip": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "enterprise_branch__host_incorrect_netmask": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_gateway__host_ip_conflict": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_fabric__host_missing_ip": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_geant_ebgp_rpki__host_static_blackhole": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "llmd_lab__http_acl_block": {
+      "topo_size": null,
+      "root_cause_category": "misconfiguration",
+      "split": "dev"
+    },
+    "isp_janos-us-ca__icmp_acl_block": {
+      "topo_size": "l",
+      "root_cause_category": "misconfiguration",
+      "split": "dev"
+    },
+    "isp_abilene__icmp_frag_needed_filter_misconfiguration": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_gateway__incast_traffic_network_limitation": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_gateway__int_insufficient_mtu_headroom": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "llmd_lab__k8s_clusterip_routing_broken": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "k8s_lab__k8s_coredns_isolated": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "llmd_lab__k8s_networkpolicy_deny": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "llmd_lab__k8s_worker_apiserver_partition": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_gateway__lb_connection_state_exhaustion": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__lb_pending_connection_update_race": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "min3clos__link_capacity_bottleneck": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_ta2__link_detach": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_dfn-bwin__link_down": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_nobel-germany__link_flap": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_india35__link_packet_corruption": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "campus_lan__load_balancer_overload": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_fabric__mac_address_conflict": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "enterprise_branch__mtu_mismatch": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "enterprise_branch__nat_mapping_removed_without_drain": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "isp_ta1__ospf_acl_block": {
+      "topo_size": "m",
+      "root_cause_category": "misconfiguration",
+      "split": "dev"
+    },
+    "isp_germany50__ospf_area_misconfiguration": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_dfn-bwin_ebgp_rtbh__ospf_neighbor_missing": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_fabric__p4_action_selector_member_misconfig": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_fabric__p4_ecmp_group_member_missing": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_gateway__p4_ecn_threshold_misconfiguration": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_fabric__p4_table_entry_misconfig": {
+      "topo_size": "m",
+      "root_cause_category": "network_node_error",
+      "split": "dev"
+    },
+    "p4_dc_gateway__p4_table_entry_missing": {
+      "topo_size": "l",
+      "root_cause_category": "network_node_error",
+      "split": "dev"
+    },
+    "p4_dc_fabric__p4_table_resource_exhaustion": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_gateway__p4_tcam_entry_corruption": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_fabric__p4runtime_partial_write": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_fabric__p4runtime_pipeline_mismatch": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "llmd_lab__receiver_resource_contention": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "sdn_l3_clos__sdn_controller_crash": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "sdn_l3_clos__sender_resource_contention": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "p4_dc_gateway__silent_egress_packet_loss": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "enterprise_branch__snat_port_pool_exhaustion": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "sdn_l3_clos__southbound_port_block": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "sdn_l3_clos__southbound_port_mismatch": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "enterprise_branch__tcp_receive_window_limited": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__tcp_syn_flood_attack": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "enterprise_branch__vrf_dscp_remarking": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "dc_clos__web_dos_attack": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "enterprise_branch__wireguard_allowed_ips_misconfiguration": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "enterprise_branch__wireguard_peer_key_misconfiguration": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "min3clos__healthy": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_di-yuan__healthy": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_pdh__healthy": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_dfn-bwin__healthy": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "isp_dfn-gwin__healthy": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "dev"
+    },
+    "dc_clos__arp_acl_block": {
+      "topo_size": "m",
+      "root_cause_category": "misconfiguration",
+      "split": "test"
+    },
+    "sdn_l3_clos__arp_cache_poisoning": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "isp_pdh__bgp_acl_block": {
+      "topo_size": "s",
+      "root_cause_category": "misconfiguration",
+      "split": "test"
+    },
+    "k8s_lab__bgp_asn_misconfig": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "isp_dfn-bwin_ebgp_rtbh__bgp_blackhole_community_leak": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "enterprise_branch__bgp_hijacking": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "isp_abilene__bgp_max_prefix_exceeded": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "enterprise_branch__bgp_missing_route_advertisement": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "isp_geant_ebgp_rpki__bgp_rpki_invalid_route_leak": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__bmv2_switch_down": {
+      "topo_size": "s",
+      "root_cause_category": "link_failure",
+      "split": "test"
+    },
+    "campus_lan__device_forwarding_packet_corruption": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__dns_lookup_latency": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__dns_port_blocked": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__dns_record_error": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__dns_service_down": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "isp_germany50__frr_service_down": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__host_incorrect_dns": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "dc_clos__host_incorrect_gateway": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__host_incorrect_ip": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "k8s_lab__host_incorrect_netmask": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "llmd_lab__host_ip_conflict": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "llmd_lab__host_missing_ip": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "enterprise_branch__host_static_blackhole": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__http_acl_block": {
+      "topo_size": "m",
+      "root_cause_category": "misconfiguration",
+      "split": "test"
+    },
+    "p4_dc_gateway__icmp_acl_block": {
+      "topo_size": "s",
+      "root_cause_category": "misconfiguration",
+      "split": "test"
+    },
+    "p4_dc_gateway__icmp_frag_needed_filter_misconfiguration": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_fabric__incast_traffic_network_limitation": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "k8s_lab__k8s_clusterip_routing_broken": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "llmd_lab__k8s_coredns_isolated": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "k8s_lab__k8s_networkpolicy_deny": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "k8s_lab__k8s_worker_apiserver_partition": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "isp_di-yuan__link_capacity_bottleneck": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "dc_clos__link_detach": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "enterprise_branch__link_down": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "sdn_l3_clos__link_flap": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "enterprise_branch__link_packet_corruption": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__mac_address_conflict": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "isp_geant_ebgp_rpki__mtu_mismatch": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__ospf_acl_block": {
+      "topo_size": "s",
+      "root_cause_category": "misconfiguration",
+      "split": "test"
+    },
+    "campus_lan__ospf_area_misconfiguration": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "campus_lan__ospf_neighbor_missing": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__p4_action_selector_member_misconfig": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__p4_ecmp_group_member_missing": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__p4_table_entry_misconfig": {
+      "topo_size": "s",
+      "root_cause_category": "network_node_error",
+      "split": "test"
+    },
+    "p4_dc_fabric__p4_table_entry_missing": {
+      "topo_size": "m",
+      "root_cause_category": "network_node_error",
+      "split": "test"
+    },
+    "p4_dc_gateway__p4_table_resource_exhaustion": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__p4runtime_partial_write": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__p4runtime_pipeline_mismatch": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "dc_clos__receiver_resource_contention": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "llmd_lab__sender_resource_contention": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "sdn_l3_clos__web_dos_attack": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "min3clos__bgp_missing_route_advertisement": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "llmd_lab__healthy": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "dc_clos__healthy": {
+      "topo_size": "s",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "k8s_lab__healthy": {
+      "topo_size": null,
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "sdn_l3_clos__healthy": {
+      "topo_size": "l",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "p4_dc_gateway__healthy": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    },
+    "enterprise_branch__healthy": {
+      "topo_size": "m",
+      "root_cause_category": null,
+      "split": "test"
+    }
+  },
+  "categories": [
+    "link_failure",
+    "misconfiguration",
+    "network_node_error"
+  ],
+  "problems": [
+    "arp_acl_block",
+    "bgp_acl_block",
+    "bmv2_switch_down",
+    "http_acl_block",
+    "icmp_acl_block",
+    "mpls_label_limit_exceeded",
+    "ospf_acl_block",
+    "p4_aggressive_detection_thresholds",
+    "p4_compilation_error_parser_state",
+    "p4_header_definition_error",
+    "p4_table_entry_misconfig",
+    "p4_table_entry_missing"
+  ]
+}

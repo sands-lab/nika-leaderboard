@@ -37,8 +37,11 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
         if (cancelled) return
         setSubmissions(index.submissions)
         setMeta(metaFile)
+        // Prefer the latest release when versions are present (sorted ascending).
         const initialVersion =
-          metaFile.versions.length === 1 ? metaFile.versions[0] : 'all'
+          metaFile.versions.length > 0
+            ? metaFile.versions[metaFile.versions.length - 1]
+            : 'all'
         setFilters(defaultFilters(initialVersion))
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e))

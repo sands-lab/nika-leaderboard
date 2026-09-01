@@ -1,34 +1,15 @@
 {
   "versions": [
-    "0.1.0"
+    "0.2.0"
   ],
   "filters": {
-    "framework": [
-      "react"
-    ],
-    "llm_provider": [
-      "openai"
-    ],
-    "model": [
-      "gpt-5",
-      "gpt-5-mini",
-      "gpt-oss:20b"
-    ],
-    "optimization_methods": [
-      "GEPA",
-      "Multi-agent",
-      "skills"
-    ],
-    "tags": [
-      "legacy_csv_import",
-      "mockup"
-    ],
-    "org": [
-      "Local mockup"
-    ],
-    "split": [
-      "dev"
-    ]
+    "framework": [],
+    "llm_provider": [],
+    "model": [],
+    "optimization_methods": [],
+    "tags": [],
+    "org": [],
+    "split": []
   },
   "primary_metric": "mean_rca_f1"
 }
