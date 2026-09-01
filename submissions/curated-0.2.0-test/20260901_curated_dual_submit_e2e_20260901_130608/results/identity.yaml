@@ -1,0 +1,22 @@
+created_at: '2026-09-01T13:06:08+00:00'
+benchmark:
+  id: nika-bench
+  version: curated-0.2.0-test
+  ref: nika-bench@curated-0.2.0-test
+  split: dev
+  case_count: 3
+  n_trials: 1
+  scoring_id: rule-based
+  leaderboard_primary: rca_f1
+run:
+  run_id: 27d63c8e036cc5e4
+  official: true
+  agent_type: mock
+  model: mock-v1
+  llm_provider: null
+  max_steps: 10
+  case_timeout_sec: 1200
+  nika_git_commit: 26a0b4edba8beb4e6a84f249069833b8eba36801
+  source_result_dir: curated-dual-submit
+trajectories_relpath: trajectories/curated-0.2.0-test/20260901_curated_dual_submit_e2e_20260901_130608
+scores_package: null
