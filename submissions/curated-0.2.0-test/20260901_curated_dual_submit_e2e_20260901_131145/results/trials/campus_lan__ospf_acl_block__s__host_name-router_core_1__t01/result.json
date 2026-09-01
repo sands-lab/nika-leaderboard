@@ -1,0 +1,33 @@
+{
+  "case_key": "campus_lan__ospf_acl_block__s__host_name-router_core_1",
+  "gt_fault_types": [
+    "ospf_acl_block"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 1.0,
+    "fault_type_precision": 1.0,
+    "fault_type_recall": 1.0,
+    "in_tokens": 0,
+    "localization_accuracy": 1.0,
+    "localization_f1": 1.0,
+    "localization_precision": 1.0,
+    "localization_recall": 1.0,
+    "out_tokens": 0,
+    "rca_accuracy": 1.0,
+    "rca_f1": 1.0,
+    "rca_precision": 1.0,
+    "rca_recall": 1.0,
+    "steps": 1,
+    "tool_calls": 5,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "ospf_acl_block"
+  ],
+  "problem": "ospf_acl_block",
+  "scenario": "campus_lan",
+  "trial_id": "campus_lan__ospf_acl_block__s__host_name-router_core_1__t01",
+  "trial_index": 1
+}
