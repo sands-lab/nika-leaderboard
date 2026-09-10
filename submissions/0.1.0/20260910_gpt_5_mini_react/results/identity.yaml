@@ -1,0 +1,21 @@
+created_at: "2026-09-10T12:00:00+00:00"
+benchmark:
+  id: nika-bench
+  version: "0.1.0"
+  ref: null
+  split: test
+  case_count: 150
+  n_trials: 2
+  scoring_id: rule-based
+  leaderboard_primary: rca_f1
+run:
+  run_id: "preview-gpt_5_mini_react"
+  official: false
+  agent_type: "ReACT"
+  model: "GPT-5-mini"
+  llm_provider: null
+  max_steps: null
+  case_timeout_sec: null
+  nika_git_commit: null
+  source_result_dir: null
+trajectories_relpath: null

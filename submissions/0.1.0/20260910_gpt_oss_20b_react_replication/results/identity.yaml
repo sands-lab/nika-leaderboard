@@ -1,0 +1,21 @@
+created_at: "2026-09-10T12:00:00+00:00"
+benchmark:
+  id: nika-bench
+  version: "0.1.0"
+  ref: null
+  split: test
+  case_count: 150
+  n_trials: 1
+  scoring_id: rule-based
+  leaderboard_primary: rca_f1
+run:
+  run_id: "preview-gpt_oss_20b_react_replication"
+  official: false
+  agent_type: "ReACT"
+  model: "GPT-OSS-20B"
+  llm_provider: null
+  max_steps: null
+  case_timeout_sec: null
+  nika_git_commit: null
+  source_result_dir: null
+trajectories_relpath: null

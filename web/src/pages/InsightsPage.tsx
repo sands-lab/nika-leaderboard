@@ -105,6 +105,11 @@ export function InsightsPage() {
     [points, opacityKey],
   )
 
+  const clearSelection = () => {
+    setFocusId(null)
+    setPendingFrom(null)
+  }
+
   const onBubbleClick = (id: string) => {
     setFocusId(id)
     if (!pendingFrom) {
@@ -112,7 +117,7 @@ export function InsightsPage() {
       return
     }
     if (pendingFrom === id) {
-      setPendingFrom(null)
+      clearSelection()
       return
     }
     const pairId = makePairId(pendingFrom, id)
@@ -314,7 +319,7 @@ export function InsightsPage() {
                 },
               },
             ],
-      grid: { left: 64, right: 88, top: 48, bottom: 52 },
+      grid: { left: 64, right: 140, top: 48, bottom: 52 },
       xAxis: {
         name: xName,
         nameLocation: 'middle',
@@ -394,48 +399,6 @@ export function InsightsPage() {
     sizeKey,
     opacityKey,
   ])
-
-  const focusPoint = focusId ? byId.get(focusId) : null
-  const focusPeers = useMemo(() => {
-    if (!focusPoint) return []
-    return points
-      .filter((p) => p.id !== focusPoint.id)
-      .sort((a, b) => b.rca - a.rca)
-  }, [focusPoint, points])
-
-  const rcaBarOption = useMemo((): EChartsOption => {
-    const selected = focusPoint
-      ? [focusPoint, ...focusPeers.slice(0, 4)]
-      : points.slice().sort((a, b) => b.rca - a.rca).slice(0, 6)
-    return {
-      tooltip: { trigger: 'axis' },
-      grid: { left: 48, right: 16, top: 24, bottom: 64 },
-      xAxis: {
-        type: 'category',
-        data: selected.map((p) => p.label),
-        axisLabel: { rotate: 28, fontSize: 10 },
-      },
-      yAxis: { type: 'value', min: 0, max: 1, name: 'RCA F1' },
-      series: [
-        {
-          type: 'bar',
-          data: selected.map((p) => ({
-            value: p.rca,
-            itemStyle: { color: familyColor(p.family) },
-          })),
-          barMaxWidth: 42,
-          label: {
-            show: true,
-            position: 'top' as const,
-            formatter: (p: unknown) => {
-              const v = (p as { value: number }).value
-              return v.toFixed(2)
-            },
-          },
-        },
-      ],
-    }
-  }, [focusPoint, focusPeers, points])
 
   if (loading) return <p className="status">Loading insights…</p>
   if (error) return <p className="status status--error">{error}</p>
@@ -547,7 +510,7 @@ export function InsightsPage() {
                 <button
                   type="button"
                   className="btn btn--ghost"
-                  onClick={() => setPendingFrom(null)}
+                  onClick={clearSelection}
                 >
                   Cancel
                 </button>
@@ -600,6 +563,11 @@ export function InsightsPage() {
                 }
                 if (p.seriesType === 'scatter' && p.data?.id) {
                   onBubbleClick(p.data.id)
+                  return
+                }
+                // Blank chart area (or non-bubble chrome) clears selection.
+                if (!p.seriesType) {
+                  clearSelection()
                 }
               },
             }}
@@ -607,15 +575,6 @@ export function InsightsPage() {
         </div>
 
         <aside className="insights-side">
-          <ChartPanel
-            title={focusPoint ? `RCA near ${focusPoint.label}` : 'RCA F1 overview'}
-            option={rcaBarOption}
-            filename="nika-performance-rca"
-            height={280}
-            empty={!points.length}
-            zoomable={false}
-          />
-
           <section className="pairwise insights-pairs">
             <h2>Pair comparisons</h2>
             {pairs.length === 0 ? (

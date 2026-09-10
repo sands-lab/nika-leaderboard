@@ -338,8 +338,13 @@ def load_submission(
     run = identity.get("run") or {}
 
     n_expected = int(metrics.get("n_trials_expected") or 0) or len(trials)
-    n_success = int(metrics.get("n_success") or 0)
-    success_rate = (n_success / n_expected) if n_expected else 0.0
+    raw_n_success = metrics.get("n_success")
+    if raw_n_success is None:
+        n_success = None
+        success_rate = None
+    else:
+        n_success = int(raw_n_success)
+        success_rate = (n_success / n_expected) if n_expected else 0.0
     token_totals = metrics.get("token_totals") or {}
     steps_totals = metrics.get("steps_totals") or {}
     in_tokens = float(token_totals.get("in_tokens") or 0)
@@ -393,7 +398,9 @@ def load_submission(
         "n_trials_present": metrics.get("n_trials_present"),
         "n_success": n_success,
         "n_agent_failed": metrics.get("n_agent_failed"),
-        "success_rate": round(success_rate, 6),
+        "success_rate": (
+            round(success_rate, 6) if success_rate is not None else None
+        ),
         "token_totals": token_totals,
         "steps_totals": steps_totals,
         "mean_tokens": round(mean_tokens, 3) if mean_tokens is not None else None,

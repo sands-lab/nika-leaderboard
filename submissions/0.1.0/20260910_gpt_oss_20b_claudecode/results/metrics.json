@@ -1,0 +1,19 @@
+{
+  "primary_metric": "rca_f1",
+  "mean_rca_f1": 0.007,
+  "mean_localization_f1": 0.05,
+  "mean_detection_score": 0.1,
+  "n_trials_expected": 150,
+  "n_trials_present": null,
+  "n_success": 24,
+  "n_agent_failed": 126,
+  "token_totals": {
+    "in_tokens": null,
+    "out_tokens": null
+  },
+  "steps_totals": {
+    "steps": null,
+    "tool_calls": null,
+    "tool_errors": null
+  }
+}

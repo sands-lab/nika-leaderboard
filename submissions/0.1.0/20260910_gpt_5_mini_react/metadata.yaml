@@ -1,0 +1,17 @@
+info:
+  name: "GPT-5-mini ReACT"
+  authors: ""
+  org: null
+  site: null
+  report: "https://arxiv.org/abs/2512.16381"
+  logo: null
+  email: null
+  github: null
+agent:
+  model: "GPT-5-mini"
+  framework: "ReACT"
+  tools: []
+  skills: []
+  optimization_methods: []
+  tags: []
+  extra: {}

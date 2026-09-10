@@ -42,9 +42,9 @@ export interface SubmissionSummary {
   mean_detection_score: number | null
   n_trials_expected: number
   n_trials_present: number | null
-  n_success: number
+  n_success: number | null
   n_agent_failed: number | null
-  success_rate: number
+  success_rate: number | null
   token_totals: TokenTotals
   steps_totals: StepsTotals
   /** Mean (in+out) tokens per expected trial. */

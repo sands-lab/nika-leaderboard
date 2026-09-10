@@ -1,0 +1,17 @@
+info:
+  name: "GPT-OSS-20B ReACT"
+  authors: ""
+  org: null
+  site: null
+  report: "https://arxiv.org/abs/2512.16381"
+  logo: null
+  email: null
+  github: null
+agent:
+  model: "GPT-OSS-20B"
+  framework: "ReACT"
+  tools: []
+  skills: []
+  optimization_methods: []
+  tags: []
+  extra: {}

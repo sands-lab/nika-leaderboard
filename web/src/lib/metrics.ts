@@ -1,12 +1,14 @@
 import { resolveProvider } from './providerMeta'
 import type { FilterState, SubmissionSummary } from './types'
 
-/** Example harness optimizations shown in the filter even before submissions use them. */
-export const HARNESS_OPTIMIZATION_EXAMPLES = [
-  'GEPA',
-  'skills',
-  'Multi-agent',
-] as const
+/**
+ * Pre-benchmark adaptation / training methods (not scaffold extras like skills).
+ * Shown in the Adaptation column; empty → "None".
+ */
+export const ADAPTATION_METHOD_EXAMPLES = ['GEPA', 'SFT', 'RL', 'GRPO'] as const
+
+/** Values that belong on scaffold tags, not Adaptation. */
+const SCAFFOLD_EXTRA_METHODS = new Set(['skills', 'multi-agent', 'multiagent'])
 
 export const defaultFilters = (version: string | 'all' = 'all'): FilterState => ({
   version,
@@ -20,10 +22,50 @@ export const defaultFilters = (version: string | 'all' = 'all'): FilterState => 
   query: '',
 })
 
-export function harnessOptimizationOptions(fromMeta: string[]): string[] {
-  return [...new Set([...HARNESS_OPTIMIZATION_EXAMPLES, ...fromMeta])].sort(
-    (a, b) => a.localeCompare(b),
+/** Filter options for Adaptation (includes None + known methods from data). */
+export function adaptationFilterOptions(fromMeta: string[]): string[] {
+  const fromData = fromMeta.filter(
+    (m) => !SCAFFOLD_EXTRA_METHODS.has(m.trim().toLowerCase()),
   )
+  return [
+    'None',
+    ...new Set([...ADAPTATION_METHOD_EXAMPLES, ...fromData]),
+  ].sort((a, b) => {
+    if (a === 'None') return -1
+    if (b === 'None') return 1
+    return a.localeCompare(b)
+  })
+}
+
+/** Pre-benchmark adaptations only (excludes skills / multi-agent extras). */
+export function adaptationMethods(s: SubmissionSummary): string[] {
+  return (s.optimization_methods || []).filter(
+    (m) => !SCAFFOLD_EXTRA_METHODS.has(String(m).trim().toLowerCase()),
+  )
+}
+
+export function formatAdaptation(s: SubmissionSummary): string {
+  const methods = adaptationMethods(s)
+  return methods.length > 0 ? methods.join(', ') : 'None'
+}
+
+/** Scaffold annotation tags (skills list, plus misfiled scaffold extras). */
+export function scaffoldTags(s: SubmissionSummary): string[] {
+  const tags: string[] = []
+  const seen = new Set<string>()
+  const push = (raw: string) => {
+    const label = String(raw).trim()
+    if (!label) return
+    const key = label.toLowerCase()
+    if (seen.has(key)) return
+    seen.add(key)
+    tags.push(label)
+  }
+  for (const skill of s.skills || []) push(skill)
+  for (const m of s.optimization_methods || []) {
+    if (SCAFFOLD_EXTRA_METHODS.has(String(m).trim().toLowerCase())) push(m)
+  }
+  return tags
 }
 
 export function applyFilters(
@@ -44,11 +86,13 @@ export function applyFilters(
       if (provider !== filters.llm_provider) return false
     }
     if (filters.model !== 'all' && s.model !== filters.model) return false
-    if (
-      filters.optimization_method !== 'all' &&
-      !(s.optimization_methods || []).includes(filters.optimization_method)
-    ) {
-      return false
+    if (filters.optimization_method !== 'all') {
+      const methods = adaptationMethods(s)
+      if (filters.optimization_method === 'None') {
+        if (methods.length > 0) return false
+      } else if (!methods.includes(filters.optimization_method)) {
+        return false
+      }
     }
     if (filters.tag !== 'all' && !(s.tags || []).includes(filters.tag)) {
       return false
@@ -63,6 +107,8 @@ export function applyFilters(
         s.framework,
         s.llm_provider,
         resolveProvider(s.llm_provider, s.model),
+        formatAdaptation(s),
+        ...scaffoldTags(s),
         ...(s.tags || []),
       ]
         .filter(Boolean)
@@ -87,16 +133,18 @@ export function withRanks(rows: SubmissionSummary[]): SubmissionSummary[] {
 export function exportCsv(rows: SubmissionSummary[], filename: string): void {
   const headers = [
     'rank',
-    'name',
-    'created_at',
     'model',
+    'created_at',
     'framework',
+    'adaptation',
+    'skills',
     'llm_provider',
+    'name',
     'benchmark_version',
     'split',
-    'mean_rca_f1',
-    'mean_localization_f1',
     'mean_detection_score',
+    'mean_localization_f1',
+    'mean_rca_f1',
     'success_rate',
     'n_success',
     'n_trials_expected',
@@ -110,7 +158,10 @@ export function exportCsv(rows: SubmissionSummary[], filename: string): void {
   for (const s of rows) {
     const record = s as unknown as Record<string, unknown>
     const vals = headers.map((h) => {
-      const v = record[h]
+      let v: unknown
+      if (h === 'adaptation') v = formatAdaptation(s)
+      else if (h === 'skills') v = scaffoldTags(s).join('; ')
+      else v = record[h]
       const str = v == null ? '' : String(v)
       return `"${str.replace(/"/g, '""')}"`
     })

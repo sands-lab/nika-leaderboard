@@ -1,6 +1,6 @@
 import {
+  adaptationFilterOptions,
   defaultFilters,
-  harnessOptimizationOptions,
 } from '../lib/metrics'
 import { providerDisplayName } from '../lib/providerMeta'
 import type { FilterState, MetaFilters } from '../lib/types'
@@ -56,7 +56,7 @@ export function FiltersBar({
   const set = <K extends keyof FilterState>(key: K, value: FilterState[K]) =>
     onChange({ ...filters, [key]: value })
   const cleared = isDefaultFilters(filters)
-  const harnessOptions = harnessOptimizationOptions(
+  const adaptationOptions = adaptationFilterOptions(
     metaFilters.optimization_methods,
   )
 
@@ -103,9 +103,9 @@ export function FiltersBar({
         onChange={(v) => set('model', v)}
       />
       <Select
-        label="Harness optimizations"
+        label="Adaptation"
         value={filters.optimization_method}
-        options={harnessOptions}
+        options={adaptationOptions}
         onChange={(v) => set('optimization_method', v)}
       />
       <Select

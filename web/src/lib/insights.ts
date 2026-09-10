@@ -32,10 +32,13 @@ export function familyColor(family: string): string {
 }
 
 export function shortLabel(name: string, model: string | null, framework: string | null): string {
+  // Prefer the submission display name so Skills / GEPA / replication stay visible.
+  const trimmed = name.trim()
+  if (trimmed) return trimmed
   const fw = framework || ''
   const m = model || ''
   if (m && fw) return `${m}/${fw}`
-  return name
+  return m || fw || name
 }
 
 export interface BubblePoint {

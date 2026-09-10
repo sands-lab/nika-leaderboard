@@ -719,10 +719,6 @@ code {
   background: rgba(0, 212, 255, 0.05);
 }
 
-.data-table tr.is-selected {
-  background: var(--brand-soft);
-}
-
 .data-table .num {
   font-family: var(--mono);
   font-size: 0.84rem;
@@ -784,20 +780,65 @@ code {
   border: 0;
 }
 
-.system-cell {
-  display: flex;
-  flex-direction: column;
-  gap: 0.12rem;
-  white-space: normal;
-  min-width: 13rem;
-  align-items: center;
-  text-align: center;
+.model-th,
+.model-td {
+  text-align: left;
 }
 
-.system-cell strong {
-  font-weight: 600;
-  letter-spacing: -0.01em;
+.model-th .sortable-th__btn {
+  justify-content: flex-start;
+}
+
+.model-name {
+  font-weight: 700;
+  letter-spacing: -0.015em;
   color: #fff;
+  white-space: nowrap;
+}
+
+.scaffold-cell {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  white-space: normal;
+  max-width: 12rem;
+}
+
+.scaffold-cell__name {
+  font-weight: 500;
+}
+
+.scaffold-cell__tags {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  align-items: center;
+}
+
+.scaffold-tag {
+  display: inline-block;
+  padding: 0.08rem 0.38rem;
+  border-radius: 4px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  color: var(--brand);
+  background: rgba(0, 212, 255, 0.1);
+  border: 1px solid rgba(0, 212, 255, 0.22);
+  text-transform: lowercase;
+}
+
+.adaptation-td {
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.adaptation-td--none {
+  color: var(--muted);
+  font-weight: 400;
 }
 
 .links {
@@ -885,18 +926,6 @@ code {
   text-align: center;
   color: var(--muted);
   padding: 2rem !important;
-}
-
-.selection-bar {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.8rem 1rem;
-  border-top: 1px solid var(--line);
-  background: linear-gradient(180deg, var(--panel), var(--bg-surface));
-  position: sticky;
-  bottom: 0;
-  font-size: 0.9rem;
 }
 
 .picker,
@@ -1192,7 +1221,7 @@ code {
 
 .insights-layout {
   display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.85fr);
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 300px);
   gap: 1rem;
   align-items: start;
 }
@@ -1521,25 +1550,16 @@ code {
   .sortable-th__btn {
     padding: 0.55rem 0.5rem;
   }
-
-  .selection-bar {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
 }
 
 @media (max-width: 640px) {
-  .system-cell {
-    min-width: 0;
-    max-width: none;
-    align-items: flex-start;
-    text-align: left;
+  .model-name {
     white-space: normal;
   }
 
-  .data-table td.system-td {
-    white-space: normal;
-    text-align: left;
+  .scaffold-cell {
+    max-width: none;
+    justify-content: flex-start;
   }
 
   .data-table {

@@ -1,0 +1,17 @@
+info:
+  name: "Qwen3.5-27B ReACT+GEPA (d+s)"
+  authors: ""
+  org: null
+  site: null
+  report: null
+  logo: null
+  email: null
+  github: null
+agent:
+  model: "Qwen3.5-27B"
+  framework: "ReACT"
+  tools: []
+  skills: []
+  optimization_methods: ["GEPA"]
+  tags: ["slides"]
+  extra: {"gepa_variant": "d+s"}

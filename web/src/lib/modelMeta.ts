@@ -18,8 +18,10 @@ const MODEL_RELEASE_DATES: Record<string, string> = {
   'claude-3-5-sonnet': '2024-10-22',
   'claude-3-7-sonnet': '2025-02-24',
   'qwen3-235b': '2025-04-29',
-  'qwen3.5-27b': '2025-09-01',
-  'qwen3.6-27b': '2025-11-01',
+  // Qwen3.5-27B dense: https://github.com/QwenLM/Qwen3.5 (2026-02-24)
+  'qwen3.5-27b': '2026-02-24',
+  // Qwen3.6-27B: https://qwen.ai/blog?id=qwen3.6-27b (2026-04-22)
+  'qwen3.6-27b': '2026-04-22',
   'deepseek-r1': '2025-01-20',
   'deepseek-v3': '2024-12-26',
 }

@@ -1,5 +1,4 @@
 import { useMemo } from 'react'
-import { Link } from 'react-router-dom'
 import { SortableTh } from './SortableTh'
 import type { SubmissionSummary } from '../lib/types'
 import {
@@ -10,6 +9,11 @@ import {
   formatScore,
   primaryLink,
 } from '../lib/data'
+import {
+  adaptationMethods,
+  formatAdaptation,
+  scaffoldTags,
+} from '../lib/metrics'
 import { modelReleaseDate } from '../lib/modelMeta'
 import {
   providerDisplayName,
@@ -20,18 +24,14 @@ import { sortByAccessors, useTableSort } from '../lib/tableSort'
 
 interface LeaderboardTableProps {
   rows: SubmissionSummary[]
-  selected: Set<string>
-  onToggle: (id: string) => void
-  onToggleAll: (ids: string[], checked: boolean) => void
 }
 
 type LbSortKey =
   | 'rank'
-  | 'name'
-  | 'submitted'
   | 'model'
   | 'model_release'
   | 'scaffold'
+  | 'adaptation'
   | 'provider'
   | 'rca'
   | 'loc'
@@ -39,6 +39,7 @@ type LbSortKey =
   | 'success'
   | 'avg_tokens'
   | 'avg_steps'
+  | 'submitted'
 
 function ScorePill({ value }: { value: number | null | undefined }) {
   if (value == null || Number.isNaN(value)) {
@@ -84,13 +85,30 @@ function ProviderIcon({
   )
 }
 
+function ScaffoldCell({ s }: { s: SubmissionSummary }) {
+  const tags = scaffoldTags(s)
+  return (
+    <div className="scaffold-cell">
+      <span className="scaffold-cell__name">{dash(s.framework)}</span>
+      {tags.length > 0 && (
+        <span className="scaffold-cell__tags">
+          {tags.map((tag) => (
+            <span key={tag} className="scaffold-tag">
+              {tag}
+            </span>
+          ))}
+        </span>
+      )}
+    </div>
+  )
+}
+
 const ACCESSORS: Record<LbSortKey, (s: SubmissionSummary) => unknown> = {
   rank: (s) => s.rank ?? 0,
-  name: (s) => s.name,
-  submitted: (s) => s.created_at,
   model: (s) => s.model,
   model_release: (s) => modelReleaseDate(s.model)?.getTime() ?? null,
   scaffold: (s) => s.framework,
+  adaptation: (s) => formatAdaptation(s),
   provider: (s) => resolveProvider(s.llm_provider, s.model),
   rca: (s) => s.mean_rca_f1,
   loc: (s) => s.mean_localization_f1,
@@ -98,14 +116,10 @@ const ACCESSORS: Record<LbSortKey, (s: SubmissionSummary) => unknown> = {
   success: (s) => s.success_rate,
   avg_tokens: (s) => s.mean_tokens,
   avg_steps: (s) => s.mean_steps,
+  submitted: (s) => s.created_at,
 }
 
-export function LeaderboardTable({
-  rows,
-  selected,
-  onToggle,
-  onToggleAll,
-}: LeaderboardTableProps) {
+export function LeaderboardTable({ rows }: LeaderboardTableProps) {
   const { sort, toggle } = useTableSort<LbSortKey>({
     key: 'rank',
     dir: 'asc',
@@ -114,33 +128,20 @@ export function LeaderboardTable({
     () => sortByAccessors(rows, sort, ACCESSORS),
     [rows, sort],
   )
-  const allIds = sorted.map((r) => r.id)
-  const allSelected = allIds.length > 0 && allIds.every((id) => selected.has(id))
 
   return (
     <div className="table-wrap">
       <table className="data-table">
         <thead>
           <tr>
-            <th>
-              <input
-                type="checkbox"
-                checked={allSelected}
-                onChange={(e) => onToggleAll(allIds, e.target.checked)}
-                aria-label="Select all"
-              />
-            </th>
             <SortableTh label="Rank" sortKey="rank" sort={sort} onSort={toggle} />
-            <SortableTh label="System" sortKey="name" sort={sort} onSort={toggle} />
             <SortableTh
-              label="Submitted"
-              sortKey="submitted"
+              label="Model"
+              sortKey="model"
               sort={sort}
               onSort={toggle}
-              title="Package identity created_at (UTC date)"
-              className="col-secondary"
+              className="model-th"
             />
-            <SortableTh label="Model" sortKey="model" sort={sort} onSort={toggle} className="col-narrow-hide" />
             <SortableTh
               label="Model release"
               sortKey="model_release"
@@ -157,19 +158,19 @@ export function LeaderboardTable({
               className="col-narrow-hide"
             />
             <SortableTh
+              label="Adaptation"
+              sortKey="adaptation"
+              sort={sort}
+              onSort={toggle}
+              title="Pre-benchmark optimization / training (e.g. None, GEPA, SFT, RL)"
+              className="col-narrow-hide"
+            />
+            <SortableTh
               label="Provider"
               sortKey="provider"
               sort={sort}
               onSort={toggle}
               title="LLM provider"
-              className="col-secondary"
-            />
-            <SortableTh label="RCA F1" sortKey="rca" sort={sort} onSort={toggle} />
-            <SortableTh
-              label="Loc F1"
-              sortKey="loc"
-              sort={sort}
-              onSort={toggle}
               className="col-secondary"
             />
             <SortableTh
@@ -179,6 +180,14 @@ export function LeaderboardTable({
               onSort={toggle}
               className="col-secondary"
             />
+            <SortableTh
+              label="Loc F1"
+              sortKey="loc"
+              sort={sort}
+              onSort={toggle}
+              className="col-secondary"
+            />
+            <SortableTh label="RCA F1" sortKey="rca" sort={sort} onSort={toggle} />
             <SortableTh
               label="Success"
               sortKey="success"
@@ -202,6 +211,14 @@ export function LeaderboardTable({
               title="Mean steps per trial"
               className="col-secondary"
             />
+            <SortableTh
+              label="Submitted"
+              sortKey="submitted"
+              sort={sort}
+              onSort={toggle}
+              title="Package identity created_at (UTC date)"
+              className="col-secondary"
+            />
             <th className="col-secondary">Links</th>
           </tr>
         </thead>
@@ -209,46 +226,35 @@ export function LeaderboardTable({
           {sorted.map((s) => {
             const link = primaryLink(s)
             const release = modelReleaseDate(s.model)
+            const adapted = adaptationMethods(s)
             return (
-              <tr key={s.id} className={selected.has(s.id) ? 'is-selected' : ''}>
-                <td>
-                  <input
-                    type="checkbox"
-                    checked={selected.has(s.id)}
-                    onChange={() => onToggle(s.id)}
-                    aria-label={`Select ${s.name}`}
-                  />
-                </td>
+              <tr key={s.id}>
                 <td>{s.rank}</td>
-                <td className="system-td">
-                  <div className="system-cell">
-                    <strong>{s.name}</strong>
-                    <span className="muted">
-                      {s.authors}
-                      {s.org ? ` · ${s.org}` : ''}
-                    </span>
-                  </div>
+                <td className="model-td">
+                  <strong className="model-name" title={s.name}>
+                    {dash(s.model)}
+                  </strong>
+                </td>
+                <td className="num col-secondary">{formatDateUtc(release)}</td>
+                <td className="col-narrow-hide">
+                  <ScaffoldCell s={s} />
                 </td>
                 <td
-                  className="num col-secondary"
-                  title={s.created_at || undefined}
+                  className={`col-narrow-hide adaptation-td${adapted.length === 0 ? ' adaptation-td--none' : ''}`}
                 >
-                  {formatDateUtc(s.created_at)}
+                  {formatAdaptation(s)}
                 </td>
-                <td className="col-narrow-hide">{dash(s.model)}</td>
-                <td className="num col-secondary">{formatDateUtc(release)}</td>
-                <td className="col-narrow-hide">{dash(s.framework)}</td>
                 <td className="col-secondary">
                   <ProviderIcon llmProvider={s.llm_provider} model={s.model} />
                 </td>
-                <td className="num">
-                  <ScorePill value={s.mean_rca_f1} />
+                <td className="num col-secondary">
+                  <ScorePill value={s.mean_detection_score} />
                 </td>
                 <td className="num col-secondary">
                   <ScorePill value={s.mean_localization_f1} />
                 </td>
-                <td className="num col-secondary">
-                  <ScorePill value={s.mean_detection_score} />
+                <td className="num">
+                  <ScorePill value={s.mean_rca_f1} />
                 </td>
                 <td className="num col-secondary">
                   {formatPct(s.success_rate)}
@@ -258,6 +264,12 @@ export function LeaderboardTable({
                 </td>
                 <td className="num col-secondary">
                   {formatInt(s.mean_steps)}
+                </td>
+                <td
+                  className="num col-secondary"
+                  title={s.created_at || undefined}
+                >
+                  {formatDateUtc(s.created_at)}
                 </td>
                 <td className="col-secondary">
                   <div className="links">
@@ -281,8 +293,13 @@ export function LeaderboardTable({
                       </a>
                     )}
                     {s.report && (
-                      <a href={s.report} target="_blank" rel="noreferrer">
-                        Report
+                      <a
+                        href={s.report}
+                        target="_blank"
+                        rel="noreferrer"
+                        title={s.report}
+                      >
+                        arXiv
                       </a>
                     )}
                     {!link && !s.trajectories_url && (
@@ -295,30 +312,13 @@ export function LeaderboardTable({
           })}
           {sorted.length === 0 && (
             <tr>
-              <td colSpan={15} className="empty-row">
+              <td colSpan={14} className="empty-row">
                 No submissions match the current filters.
               </td>
             </tr>
           )}
         </tbody>
       </table>
-      {selected.size > 0 && (
-        <div className="selection-bar">
-          <span>{selected.size} selected</span>
-          <Link
-            className="btn"
-            to={`/analytics/compare?ids=${encodeURIComponent([...selected].join(','))}`}
-          >
-            Compare selected
-          </Link>
-          <Link
-            className="btn btn--ghost"
-            to={`/analytics/matrix?ids=${encodeURIComponent([...selected].join(','))}`}
-          >
-            Open matrix
-          </Link>
-        </div>
-      )}
     </div>
   )
 }

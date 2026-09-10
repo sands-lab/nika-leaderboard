@@ -1,0 +1,17 @@
+info:
+  name: "Qwen3.5-27B ClaudeCode"
+  authors: ""
+  org: null
+  site: null
+  report: null
+  logo: null
+  email: null
+  github: null
+agent:
+  model: "Qwen3.5-27B"
+  framework: "ClaudeCode"
+  tools: []
+  skills: []
+  optimization_methods: []
+  tags: ["slides"]
+  extra: {}

@@ -1,4 +1,5 @@
 import { formatScore } from '../lib/data'
+import { formatAdaptation, scaffoldTags } from '../lib/metrics'
 import type { SubmissionSummary } from '../lib/types'
 
 interface TopPodiumProps {
@@ -12,7 +13,13 @@ function PodiumCard({
   entry: SubmissionSummary
   place: 1 | 2 | 3
 }) {
-  const meta = [entry.model, entry.framework].filter(Boolean).join(' · ')
+  const tags = scaffoldTags(entry)
+  const adaptation = formatAdaptation(entry)
+  const metaParts = [
+    entry.framework,
+    tags.length ? tags.join(', ') : null,
+    adaptation !== 'None' ? adaptation : null,
+  ].filter(Boolean)
   return (
     <article
       className={`podium-card podium-card--${place}`}
@@ -24,8 +31,12 @@ function PodiumCard({
       </div>
       <div className="podium-card__body">
         <p className="podium-card__eyebrow">Top {place}</p>
-        <h2 className="podium-card__title">{entry.name}</h2>
-        {meta && <p className="podium-card__meta">{meta}</p>}
+        <h2 className="podium-card__title" title={entry.name}>
+          {entry.model || entry.name}
+        </h2>
+        {metaParts.length > 0 && (
+          <p className="podium-card__meta">{metaParts.join(' · ')}</p>
+        )}
         <p className="podium-card__score">
           <span className="podium-card__score-value">
             {formatScore(entry.mean_rca_f1)}
