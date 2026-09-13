@@ -66,10 +66,14 @@ Optional: `npm run test:e2e:ui` for the Playwright UI runner. Install the Cursor
 
 ```shell
 cd web
-VITE_BASE_PATH=/nika-leaderboard/ npm run build
+VITE_BASE_PATH=/nika/leaderboard/ npm run build
 ```
 
-Artifacts land in `web/dist/`. The `deploy-pages.yml` workflow publishes that folder to GitHub Pages on pushes to `main`/`master`. Enable **Settings → Pages → Source: GitHub Actions** on the repository.
+Artifacts land in `web/dist/`. The live site is **`https://sands-lab.github.io/nika/leaderboard/`**, published under the [`sands-lab/nika`](https://github.com/sands-lab/nika) `gh-pages` branch (`leaderboard/`). On pushes to `main`/`master`, `deploy-pages.yml` builds with that base path, copies `index.html` to `404.html` for SPA deep links, syncs `web/dist` into `nika` `gh-pages/leaderboard/`, and deploys a redirect from the legacy `…/nika-leaderboard/` URL.
+
+Cross-repo publish needs a repo secret **`NIKA_PAGES_TOKEN`**: a fine-grained or classic PAT with `contents: write` on `sands-lab/nika`.
+
+The marketing site deploy (`nika-website` → `nika` `gh-pages`) must use `keep_files: true` so it does not wipe `leaderboard/` on each website publish.
 
 ### Layout
 
