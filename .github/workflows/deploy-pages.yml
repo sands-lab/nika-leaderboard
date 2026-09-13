@@ -63,6 +63,8 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v7
+
       - name: Download dist artifact
         uses: actions/download-artifact@v4
         with:
@@ -78,6 +80,7 @@ jobs:
           target-folder: leaderboard
           token: ${{ secrets.NIKA_PAGES_TOKEN }}
           clean: true
+          force: false
           commit-message: Deploy NIKA leaderboard site
 
   redirect-legacy:
