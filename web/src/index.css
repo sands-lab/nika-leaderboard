@@ -635,6 +635,17 @@ code {
   border: 1px solid var(--line);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
+  /* A clipped right edge reads as a rendering bug. Two-layer scroll shadow: the
+     `local` layer scrolls with the content and covers the shadow once the last
+     column is reached, so the fade only shows while there is more to scroll. */
+  background-image:
+    linear-gradient(to left, var(--panel), rgba(0, 0, 0, 0) 40px),
+    linear-gradient(to left, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0) 40px);
+  background-repeat: no-repeat;
+  background-attachment: local, scroll;
+  background-position: right center, right center;
+  background-size: 40px 100%, 40px 100%;
+  scrollbar-width: thin;
 }
 
 .data-table {
