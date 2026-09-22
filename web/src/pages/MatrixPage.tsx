@@ -264,6 +264,11 @@ export function MatrixPage() {
         filename="nika-matrix"
         height={Math.min(760, 120 + matrix.length * 22)}
         empty={!details.length || !matrix.length}
+        emptyMessage={
+          !details.length
+            ? 'Select entries to plot.'
+            : 'The selected packages carry no per-trial results, so there is nothing to break down by case.'
+        }
         zoomSlider={false}
       />
 
