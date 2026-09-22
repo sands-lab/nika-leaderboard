@@ -15,11 +15,19 @@ function PodiumCard({
 }) {
   const tags = scaffoldTags(entry)
   const adaptation = formatAdaptation(entry)
+  const title = entry.name || entry.model || ''
+  // Submission names are usually "<model> <scaffold>", so spelling the model and
+  // scaffold out underneath just repeats the title. Keep only what it omits.
+  const said = title.toLowerCase()
   const metaParts = [
+    entry.model,
     entry.framework,
-    tags.length ? tags.join(', ') : null,
+    ...tags,
     adaptation !== 'None' ? adaptation : null,
-  ].filter(Boolean)
+  ].filter(
+    (part): part is string =>
+      Boolean(part) && !said.includes(String(part).toLowerCase()),
+  )
   return (
     <article
       className={`podium-card podium-card--${place}`}
@@ -31,8 +39,8 @@ function PodiumCard({
       </div>
       <div className="podium-card__body">
         <p className="podium-card__eyebrow">Top {place}</p>
-        <h2 className="podium-card__title" title={entry.name}>
-          {entry.model || entry.name}
+        <h2 className="podium-card__title" title={title}>
+          {title}
         </h2>
         {metaParts.length > 0 && (
           <p className="podium-card__meta">{metaParts.join(' · ')}</p>
