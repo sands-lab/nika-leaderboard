@@ -75,6 +75,16 @@ export function formatInt(value: number | null | undefined): string {
   return Math.round(value).toLocaleString()
 }
 
+/**
+ * Token and step counts, where a package that did no accounting reports 0.
+ * A real run cannot spend zero tokens or take zero steps, so 0 here means
+ * "not reported" and must not be shown as a measured value.
+ */
+export function formatCount(value: number | null | undefined): string {
+  if (value == null || Number.isNaN(value) || value <= 0) return '—'
+  return Math.round(value).toLocaleString()
+}
+
 /** Format as UTC calendar date `YYYY-MM-DD` (no time). */
 export function formatDateUtc(value: string | Date | null | undefined): string {
   if (value == null || value === '') return '—'

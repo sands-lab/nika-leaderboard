@@ -4,7 +4,7 @@ import type { SubmissionSummary } from '../lib/types'
 import {
   dash,
   formatDateUtc,
-  formatInt,
+  formatCount,
   formatPct,
   formatScore,
   primaryLink,
@@ -260,10 +260,10 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                   {formatPct(s.success_rate)}
                 </td>
                 <td className="num col-secondary">
-                  {formatInt(s.mean_tokens)}
+                  {formatCount(s.mean_tokens)}
                 </td>
                 <td className="num col-secondary">
-                  {formatInt(s.mean_steps)}
+                  {formatCount(s.mean_steps)}
                 </td>
                 <td
                   className="num col-secondary"

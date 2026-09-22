@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import type { EChartsOption } from 'echarts'
 import { ChartPanel } from '../components/ChartPanel'
 import { SortableTh } from '../components/SortableTh'
-import { formatPct, formatScore } from '../lib/data'
+import { formatCount, formatPct, formatScore } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { modelReleaseDate } from '../lib/modelMeta'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
@@ -496,12 +496,10 @@ export function AnalyzePage() {
                 <td className="num">{formatScore(s.mean_rca_f1)}</td>
                 <td className="num">{formatPct(s.success_rate)}</td>
                 <td className="num">
-                  {s.mean_tokens == null ? '—' : Math.round(s.mean_tokens).toLocaleString()}
+                  {formatCount(s.mean_tokens)}
                 </td>
                 <td className="num">
-                  {s.total_tokens == null
-                    ? '—'
-                    : s.total_tokens.toLocaleString()}
+                  {formatCount(s.total_tokens)}
                 </td>
                 <td className="num">{s.max_steps ?? '—'}</td>
                 <td className="num">{s.case_timeout_sec ?? '—'}</td>
