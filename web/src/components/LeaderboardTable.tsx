@@ -162,15 +162,36 @@ function CostCell({
   }
   const inTok = s.token_totals?.in_tokens ?? 0
   const outTok = s.token_totals?.out_tokens ?? 0
+  // "Trial" is one attempt at one case, not a pass over the benchmark, so spell
+  // the run out: a reader who assumes the latter thinks the figure is 100x low.
+  const shape =
+    s.case_count && s.n_trials
+      ? `${NUM.format(s.n_trials_expected)} trials = ${NUM.format(
+          s.case_count,
+        )} cases x ${s.n_trials}`
+      : `${NUM.format(s.n_trials_expected)} trials`
+  const perPass =
+    s.case_count && s.n_trials_expected
+      ? cost.total / (s.n_trials_expected / s.case_count)
+      : null
   const tip = [
+    `One trial = one case attempted once`,
+    `${shape}`,
+    '',
     `${formatCount(s.mean_tokens)} tokens / trial`,
     `${NUM.format(inTok)} in + ${NUM.format(outTok)} out over the run`,
     `${s.model ?? 'model'} at ${formatUsd(cost.price.input)} in / ${formatUsd(
       cost.price.output,
     )} out per 1M tokens`,
     cost.edited ? 'price edited in this browser' : BASIS_LABEL[cost.price.basis],
-    `run total ${formatUsd(cost.total)}`,
-  ].join('\n')
+    '',
+    perPass != null
+      ? `${formatUsd(perPass)} for one pass over all ${NUM.format(s.case_count!)} cases`
+      : null,
+    `${formatUsd(cost.total)} for the whole run`,
+  ]
+    .filter((l) => l !== null)
+    .join('\n')
   return <span title={tip}>{formatUsd(cost.perTrial)}</span>
 }
 
@@ -258,7 +279,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sortKey="cost"
               sort={sort}
               onSort={toggle}
-              title="Token spend per trial at the model's reference price; hover a cell for the tokens and rate behind it"
+              title="USD per trial, where one trial is a single case attempted once. Hover a cell for the tokens, the rate, and what the whole run cost."
               className="col-secondary"
             />
             <SortableTh
