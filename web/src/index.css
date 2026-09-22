@@ -1619,3 +1619,9 @@ code {
   font-size: 12px;
 }
 
+.section-title__note {
+  font-size: 0.8rem;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}

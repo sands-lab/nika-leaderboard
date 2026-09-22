@@ -308,6 +308,8 @@ export function AnalyzePage() {
       series: [
         {
           type: 'bar',
+          // One release would otherwise render as a bar half the screen wide.
+          barMaxWidth: 96,
           data: labels.map((v) => {
             const vals = groups.get(v) || []
             return vals.reduce((a, b) => a + b, 0) / (vals.length || 1)
@@ -404,25 +406,32 @@ export function AnalyzePage() {
           empty={!scoped.length}
           height={520}
         />
-        <ChartPanel
-          title={`${yName} vs case timeout`}
-          option={vsCostLimit}
-          filename="nika-resolved-vs-timeout"
-          empty={!hasTimeout}
-          emptyMessage="No case_timeout_sec on current submissions."
-          height={520}
-        />
-        <ChartPanel
-          title={`${yName} vs step limit`}
-          option={vsStepLimit}
-          filename="nika-resolved-vs-step-limit"
-          empty={!hasStepLimit}
-          emptyMessage="No max_steps set on current submissions."
-          height={520}
-        />
+        {hasTimeout && (
+          <ChartPanel
+            title={`${yName} vs case timeout`}
+            option={vsCostLimit}
+            filename="nika-resolved-vs-timeout"
+            height={520}
+          />
+        )}
+        {hasStepLimit && (
+          <ChartPanel
+            title={`${yName} vs step limit`}
+            option={vsStepLimit}
+            filename="nika-resolved-vs-step-limit"
+            height={520}
+          />
+        )}
       </div>
 
-      <h2 className="section-title">Across releases</h2>
+      <h2 className="section-title">
+        Across releases
+        {versions.length <= 1 && (
+          <span className="muted section-title__note">
+            {' '}only {versions[0] ?? 'one'} has entries so far
+          </span>
+        )}
+      </h2>
       <div className="chart-grid chart-grid--stack">
         <ChartPanel
           title="Average RCA F1 by release"
@@ -431,13 +440,15 @@ export function AnalyzePage() {
           empty={!scoped.length}
           height={480}
         />
-        <ChartPanel
-          title="System family across releases"
-          option={systemAcrossVersions}
-          filename="nika-system-versions"
-          empty={!scoped.length}
-          height={480}
-        />
+        {versions.length > 1 && (
+          <ChartPanel
+            title="Same system across releases"
+            option={systemAcrossVersions}
+            filename="nika-system-versions"
+            empty={!scoped.length}
+            height={480}
+          />
+        )}
       </div>
 
       <div className="table-wrap">
