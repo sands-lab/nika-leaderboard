@@ -61,6 +61,11 @@ function metricOpacity(value: number, minV: number, maxV: number): number {
   return 0.28 + t * 0.72
 }
 
+/** Case counts are integers; scores are not. Format each in its own terms. */
+function formatExtent(value: number): string {
+  return Number.isInteger(value) ? String(value) : value.toFixed(2)
+}
+
 export function InsightsPage() {
   const { filtered, loading, error } = useLeaderboardData()
   const [pendingFrom, setPendingFrom] = useState<string | null>(null)
@@ -212,6 +217,9 @@ export function InsightsPage() {
           fontSize: 11,
           color: '#e2e8f0',
         },
+        // Crowded corners stack labels into unreadable mush; drop the ones that
+        // would collide and let hover reveal them instead.
+        labelLayout: { hideOverlap: true },
         emphasis: {
           scale: 1.12,
           itemStyle: { borderColor: '#00d4ff', borderWidth: 2 },
@@ -646,9 +654,10 @@ export function InsightsPage() {
               </li>
               <li>
                 <strong>Size</strong> — {encodeLabel(sizeKey)}
-                {sizeKey !== 'fixed'
-                  ? ` (${sizeExtents.min.toFixed(2)}–${sizeExtents.max.toFixed(2)})`
-                  : ''}
+                {sizeKey !== 'fixed' &&
+                  (sizeExtents.max - sizeExtents.min < 1e-9
+                    ? ` — every entry is ${formatExtent(sizeExtents.min)}, so size encodes nothing here`
+                    : ` (${formatExtent(sizeExtents.min)}–${formatExtent(sizeExtents.max)})`)}
               </li>
               <li>
                 <strong>Color</strong> — model family
