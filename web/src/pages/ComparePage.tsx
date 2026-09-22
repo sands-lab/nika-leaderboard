@@ -7,6 +7,8 @@ import { SortableTh } from '../components/SortableTh'
 import {
   aggregateByCase,
   cdfPoints,
+  costBaseline,
+  invertedMinMax,
   groupMean,
   pairwiseCompare,
   paretoFront,
@@ -17,6 +19,8 @@ import { formatScore, loadSubmissionDetails } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import type { SubmissionDetail } from '../lib/types'
+
+const NUM = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
 
 const COLORS = ['#00d4ff', '#f97316', '#3b82f6', '#8b5cf6', '#eab308', '#ec4899']
 
@@ -29,7 +33,7 @@ type PairSortKey =
   | 'winner'
 
 export function ComparePage() {
-  const { filtered, loading, error } = useLeaderboardData()
+  const { submissions, filtered, loading, error } = useLeaderboardData()
   const [params, setParams] = useSearchParams()
   const [details, setDetails] = useState<SubmissionDetail[]>([])
   const [selected, setSelected] = useState<string[]>([])
@@ -142,20 +146,56 @@ export function ComparePage() {
     return sortByAccessors(pairwise.rows, pairSort, accessors).slice(0, 40)
   }, [pairwise, pairSort])
 
+  const baseline = useMemo(
+    () => costBaseline(submissions, details.map((d) => d.benchmark_version)),
+    [submissions, details],
+  )
+
   const radarOption = useMemo((): EChartsOption => {
     const axes = details.map(radarAxes)
-    const maxTokens = Math.max(...axes.map((a) => a.tokens), 1)
-    const maxSteps = Math.max(...axes.map((a) => a.steps), 1)
     const indicators = [
       { name: 'Detection', max: 1 },
       { name: 'Localization', max: 1 },
       { name: 'RCA F1', max: 1 },
       { name: 'Success', max: 1 },
-      { name: 'Token eff.', max: 1 },
-      { name: 'Step eff.', max: 1 },
+      { name: 'Token efficiency', max: 1 },
+      { name: 'Step efficiency', max: 1 },
     ]
     return {
-      tooltip: {},
+      tooltip: {
+        trigger: 'item',
+        formatter: (params: unknown) => {
+          const p = params as { name?: string; value?: (number | null)[] }
+          const i = details.findIndex((d) => d.name === p.name)
+          if (i < 0 || !p.value) return p.name || ''
+          const a = axes[i]
+          // Cost axes carry the normalized score plus the raw count behind it.
+          const raw = [
+            null,
+            null,
+            null,
+            null,
+            a.tokens > 0 ? `${NUM.format(a.tokens)} / trial` : 'not reported',
+            a.steps > 0 ? `${a.steps.toFixed(1)} / trial` : 'not reported',
+          ]
+          const lines = indicators.map((ind, k) => {
+            const v = p.value![k]
+            const suffix = raw[k] ? ` <span style="opacity:.7">(${raw[k]})</span>` : ''
+            const shown = v == null ? '—' : v.toFixed(3)
+            return `${ind.name}: <strong>${shown}</strong>${suffix}`
+          })
+          // Each hover card states how the efficiency scores are derived.
+          const { tokens: tr, steps: sr, versions } = baseline
+          const scale =
+            tr || sr
+              ? `<div style="margin-top:6px;opacity:.65;font-size:11px">` +
+                `efficiency = (max − this) ÷ (max − min)<br/>` +
+                `min / max over release ${versions.join(' + ')}` +
+                `</div>`
+              : ''
+          return `<strong>${p.name}</strong><br/>${lines.join('<br/>')}${scale}`
+        },
+      },
       legend: { data: details.map((d) => d.name), bottom: 0 },
       radar: { indicator: indicators },
       series: [
@@ -170,8 +210,8 @@ export function ComparePage() {
                 a.localization,
                 a.rca,
                 a.success,
-                1 - a.tokens / maxTokens,
-                1 - a.steps / maxSteps,
+                invertedMinMax(a.tokens, baseline.tokens),
+                invertedMinMax(a.steps, baseline.steps),
               ],
               lineStyle: { color: COLORS[i % COLORS.length] },
               itemStyle: { color: COLORS[i % COLORS.length] },
@@ -180,7 +220,7 @@ export function ComparePage() {
         },
       ],
     }
-  }, [details])
+  }, [details, baseline])
 
   const scatterOption = useMemo((): EChartsOption => {
     const xs = details.flatMap((d) =>
@@ -502,7 +542,7 @@ export function ComparePage() {
 
       <div className="chart-grid chart-grid--stack">
         <ChartPanel
-          title="Radar (higher is better; cost inverted)"
+          title="Radar (further from centre is better)"
           option={radarOption}
           filename="nika-radar"
           empty={!details.length}

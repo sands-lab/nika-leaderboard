@@ -1,4 +1,4 @@
-import type { SubmissionDetail, TrialRow } from './types'
+import type { SubmissionDetail, SubmissionSummary, TrialRow } from './types'
 
 export interface CaseAggregate {
   case_key: string
@@ -172,7 +172,7 @@ export function shortFailureCategory(category: string): string {
 export function radarAxes(detail: SubmissionDetail) {
   const tokens = detail.mean_tokens ?? 0
   const steps = detail.mean_steps ?? 0
-  // Invert cost so higher is better; normalize later across selection.
+  // Raw cost; turned into an efficiency ratio against a release-wide baseline.
   return {
     detection: detail.mean_detection_score ?? 0,
     localization: detail.mean_localization_f1 ?? 0,
@@ -181,6 +181,66 @@ export function radarAxes(detail: SubmissionDetail) {
     tokens,
     steps,
   }
+}
+
+/** Observed range of a lower-is-better metric, used to normalize a radar axis. */
+export interface CostRange {
+  min: number
+  max: number
+}
+
+export interface CostBaseline {
+  tokens: CostRange | null
+  steps: CostRange | null
+  /** Releases the range was taken over, for labelling. */
+  versions: string[]
+}
+
+/**
+ * Range of mean tokens / steps per trial across whole releases rather than the
+ * current selection, so ticking another entry does not move everyone else's
+ * cost axes.
+ */
+export function costBaseline(
+  all: SubmissionSummary[],
+  versions: Iterable<string>,
+): CostBaseline {
+  const wanted = new Set(versions)
+  const scope = wanted.size
+    ? all.filter((s) => wanted.has(s.benchmark_version))
+    : all
+  const range = (pick: (s: SubmissionSummary) => number | null): CostRange | null => {
+    const vals = scope
+      .map(pick)
+      .filter((v): v is number => v != null && Number.isFinite(v) && v > 0)
+    return vals.length ? { min: Math.min(...vals), max: Math.max(...vals) } : null
+  }
+  return {
+    tokens: range((s) => s.mean_tokens),
+    steps: range((s) => s.mean_steps),
+    versions: [...wanted].sort(),
+  }
+}
+
+/**
+ * Min-max normalization with the sign flipped, the usual treatment for a
+ * lower-is-better axis on a radar chart: cheapest in the release scores 1.0,
+ * most expensive 0.0, so every axis reads "further from the centre is better".
+ * A release where every entry costs the same collapses to 1.0.
+ *
+ * Returns null when the package reports no cost, so the radar draws a gap
+ * rather than pinning the entry to the centre alongside the most expensive run.
+ */
+export function invertedMinMax(
+  value: number | null | undefined,
+  range: CostRange | null,
+): number | null {
+  if (range == null || value == null || !Number.isFinite(value) || value <= 0) {
+    return null
+  }
+  const span = range.max - range.min
+  if (span <= 0) return 1
+  return Math.min(1, Math.max(0, 1 - (value - range.min) / span))
 }
 
 export interface CostScorePoint {
