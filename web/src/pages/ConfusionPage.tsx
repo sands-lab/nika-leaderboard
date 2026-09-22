@@ -161,6 +161,9 @@ export function ConfusionPage() {
       yAxis: {
         type: 'category',
         data: labels,
+        // Confusion-matrix convention: first true class at the top, so the
+        // correct-prediction diagonal runs top-left -> bottom-right.
+        inverse: true,
         name: level === 'category' ? 'True failure' : 'True RCA name',
         nameLocation: 'middle',
         nameGap: isProblem ? 100 : 64,
@@ -325,6 +328,11 @@ export function ConfusionPage() {
                   level === 'category'
                     ? 'Category confusion'
                     : 'Problem-name confusion'
+                }
+                description={
+                  `Rows = true, columns = predicted; the diagonal is correct. Cells are ${
+                    valueMode === 'rate' ? '% of their own row' : 'raw pair counts'
+                  }.`
                 }
                 option={heatmapOption}
                 filename={`rca-confusion-${level}`}
