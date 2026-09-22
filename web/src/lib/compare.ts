@@ -9,7 +9,9 @@ export interface CaseAggregate {
   mean_rca_f1: number
   success_rate: number
   n_trials: number
+  /** Mean tokens per *trial* of this case, not the case's total spend. */
   mean_tokens: number | null
+  /** Mean steps per *trial* of this case, not the case's total. */
   mean_steps: number | null
 }
 

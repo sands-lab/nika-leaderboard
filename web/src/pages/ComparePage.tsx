@@ -281,13 +281,13 @@ export function ComparePage() {
       tooltip: {
         formatter: (p: unknown) => {
           const item = p as { seriesName: string; value: number[] }
-          return `${item.seriesName}<br/>tokens: ${Math.round(item.value[0])}<br/>RCA F1: ${item.value[1].toFixed(3)}`
+          return `${item.seriesName}<br/>tokens / trial: ${Math.round(item.value[0])}<br/>mean RCA F1: ${item.value[1].toFixed(3)}`
         },
       },
       legend: { data: details.map((d) => d.name), bottom: 0 },
       grid: { left: 56, right: 28, top: 28, bottom: 64, containLabel: true },
       xAxis: {
-        name: 'Mean tokens / case',
+        name: 'Mean tokens / trial',
         type: 'value',
         axisLabel: { formatter: (v: number) => compactCount(v) },
         min: Math.max(0, xMin - xPad),
@@ -632,7 +632,7 @@ export function ComparePage() {
           zoomable={false}
         />
         <ChartPanel
-          title="Scatter: tokens vs RCA F1 (per case)"
+          title="Tokens vs RCA F1, one dot per case"
           option={scatterOption}
           filename="nika-scatter"
           empty={!details.length}
