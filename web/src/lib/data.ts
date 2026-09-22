@@ -5,6 +5,7 @@ import type {
   SubmissionDetail,
   SubmissionSummary,
 } from './types'
+import type { PricingFile } from './pricing'
 
 const detailCache = new Map<string, Promise<SubmissionDetail>>()
 
@@ -28,6 +29,11 @@ export function loadIndex(): Promise<LeaderboardIndex> {
 
 export function loadMeta(): Promise<MetaFile> {
   return fetchJson('meta.json')
+}
+
+/** Reference token prices; null when the deployment ships none. */
+export function loadPricing(): Promise<PricingFile | null> {
+  return fetchJson<PricingFile>('pricing.json').catch(() => null)
 }
 
 export function loadCatalog(version: string): Promise<CatalogFile> {

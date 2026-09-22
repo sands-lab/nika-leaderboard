@@ -15,12 +15,25 @@ import {
   radarAxes,
   shortFailureCategory,
 } from '../lib/compare'
-import { formatScore, loadSubmissionDetails } from '../lib/data'
+import { formatScore, loadPricing, loadSubmissionDetails } from '../lib/data'
+import {
+  BASIS_LABEL,
+  formatUsd,
+  loadOverrides,
+  priceFor,
+  saveOverrides,
+  submissionCost,
+  type PriceOverrides,
+  type PricingFile,
+} from '../lib/pricing'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import type { SubmissionDetail } from '../lib/types'
 
 const NUM = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
+
+/** Muted grey for in-chart figure notes. */
+const CHART_NOTE = '#8b9cb6'
 
 const COLORS = ['#00d4ff', '#f97316', '#3b82f6', '#8b5cf6', '#eab308', '#ec4899']
 
@@ -32,6 +45,28 @@ type PairSortKey =
   | 'delta'
   | 'winner'
 
+/** Round down / up to the nearest 1-2-5 x 10^k, for clean log-axis bounds. */
+function niceLog(value: number, dir: 'floor' | 'ceil'): number {
+  if (!(value > 0)) return dir === 'floor' ? 1 : 10
+  const exp = Math.floor(Math.log10(value))
+  const decade = Math.pow(10, exp)
+  const mantissa = value / decade
+  const steps = [1, 2, 5, 10]
+  if (dir === 'floor') {
+    const m = [...steps].reverse().find((x) => x <= mantissa) ?? 1
+    return m * decade
+  }
+  const m = steps.find((x) => x >= mantissa) ?? 10
+  return m * decade
+}
+
+/** 68,928 -> "69k", 1,200,000 -> "1.2M". */
+function compactCount(value: number): string {
+  if (value >= 1e6) return `${(value / 1e6).toFixed(value >= 1e7 ? 0 : 1)}M`
+  if (value >= 1e3) return `${Math.round(value / 1e3)}k`
+  return String(Math.round(value))
+}
+
 export function ComparePage() {
   const { submissions, filtered, loading, error } = useLeaderboardData()
   const [params, setParams] = useSearchParams()
@@ -41,6 +76,9 @@ export function ComparePage() {
   const [pairB, setPairB] = useState('')
   const [detailError, setDetailError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
+  const [pricing, setPricing] = useState<PricingFile | null>(null)
+  const [overrides, setOverrides] = useState<PriceOverrides>(() => loadOverrides())
+  const [pricesOpen, setPricesOpen] = useState(false)
   const { sort: pairSort, toggle: togglePairSort } = useTableSort<PairSortKey>({
     key: 'delta',
     dir: 'desc',
@@ -105,6 +143,36 @@ export function ComparePage() {
       cancelled = true
     }
   }, [selected])
+
+  useEffect(() => {
+    let cancelled = false
+    void loadPricing().then((f) => {
+      if (!cancelled) setPricing(f)
+    })
+    return () => {
+      cancelled = true
+    }
+  }, [])
+
+  const setPrice = (model: string, field: 'input' | 'output', value: number) => {
+    setOverrides((prev) => {
+      const current = priceFor(model, pricing, prev)
+      const next: PriceOverrides = {
+        ...prev,
+        [model]: {
+          input: field === 'input' ? value : (current?.input ?? 0),
+          output: field === 'output' ? value : (current?.output ?? 0),
+        },
+      }
+      saveOverrides(next)
+      return next
+    })
+  }
+
+  const resetPrices = () => {
+    setOverrides({})
+    saveOverrides({})
+  }
 
   const syncUrl = (ids: string[]) => {
     setSelected(ids)
@@ -243,6 +311,7 @@ export function ComparePage() {
       xAxis: {
         name: 'Mean tokens / case',
         type: 'value',
+        axisLabel: { formatter: (v: number) => compactCount(v) },
         min: Math.max(0, xMin - xPad),
         max: xMax + xPad,
       },
@@ -262,69 +331,112 @@ export function ComparePage() {
     }
   }, [details])
 
+  /** Monetary cost per trial, from token counts x the model's reference price. */
+  const costPoints = useMemo(
+    () =>
+      details
+        .map((d, i) => {
+          const cost = submissionCost(d, pricing, overrides)
+          return cost?.perTrial != null
+            ? {
+                id: d.id,
+                name: d.name,
+                model: d.model,
+                cost: cost.perTrial,
+                totalCost: cost.total,
+                score: d.mean_rca_f1 ?? 0,
+                meanTokens: d.mean_tokens,
+                price: cost.price,
+                edited: cost.edited,
+                color: COLORS[i % COLORS.length],
+              }
+            : null
+        })
+        .filter((p): p is NonNullable<typeof p> => p != null && p.cost > 0),
+    [details, pricing, overrides],
+  )
+
+  const priceRows = useMemo(() => {
+    const models = [...new Set(details.map((d) => d.model).filter(Boolean))] as string[]
+    return models.sort().map((model) => ({
+      model,
+      price: priceFor(model, pricing, overrides),
+      edited: Boolean(overrides[model]),
+    }))
+  }, [details, pricing, overrides])
+
   const paretoOption = useMemo((): EChartsOption => {
-    const points = details
-      .map((d, i) => ({
-        id: d.id,
-        name: d.name,
-        cost: d.total_tokens ?? 0,
-        score: d.mean_rca_f1 ?? 0,
-        meanTokens: d.mean_tokens,
-        color: COLORS[i % COLORS.length],
-      }))
-      .filter((p) => p.cost > 0)
+    const points = costPoints
+    const dropped = details.length - points.length
     const front = paretoFront(points)
     const frontIds = new Set(front.map((p) => p.id))
     const xs = points.map((p) => p.cost)
-    const xMin = xs.length ? Math.min(...xs) : 0
-    const xMax = xs.length ? Math.max(...xs) : 1
-    const xPad = Math.max((xMax - xMin) * 0.08, xMax * 0.02 || 1)
+    const xMin = niceLog((xs.length ? Math.min(...xs) : 0.001) / 1.6, 'floor')
+    const xMax = niceLog((xs.length ? Math.max(...xs) : 1) * 1.6, 'ceil')
 
     return {
+      title: dropped
+        ? {
+            subtext: `${dropped} of ${details.length} selected entries have no token totals or no price and are not plotted`,
+            left: 8,
+            top: 2,
+            subtextStyle: { color: CHART_NOTE, fontSize: 11 },
+          }
+        : undefined,
       tooltip: {
         trigger: 'item',
         formatter: (params: unknown) => {
           const p = params as {
             seriesType?: string
-            seriesName?: string
-            data?: {
-              name?: string
-              value?: number[]
-              meanTokens?: number | null
-              onFrontier?: boolean
-            }
+            data?: (typeof points)[number] & { value?: number[]; onFrontier?: boolean }
           }
           if (p.seriesType === 'line') {
-            return 'Pareto frontier (best RCA F1 at each cost)'
+            return 'Pareto frontier — best RCA F1 reachable at each cost'
           }
           const d = p.data
-          if (!d?.value) return p.seriesName || ''
+          if (!d?.value) return ''
           return [
             `<strong>${d.name}</strong>`,
             `RCA F1: ${d.value[1].toFixed(3)}`,
-            `Total tokens: ${Math.round(d.value[0]).toLocaleString()}`,
+            `Cost / trial: ${formatUsd(d.cost)}`,
+            `Run total: ${formatUsd(d.totalCost)}`,
             d.meanTokens != null
-              ? `Avg tokens/trial: ${Math.round(d.meanTokens).toLocaleString()}`
+              ? `Tokens / trial: ${NUM.format(d.meanTokens)}`
               : null,
-            d.onFrontier ? '<em>On Pareto frontier</em>' : null,
+            `<div style="margin-top:6px;opacity:.65;font-size:11px">` +
+              `cost = (in × $in + out × $out) ÷ 1M<br/>` +
+              `${d.model ?? 'model'} at ${formatUsd(d.price.input)} in / ${formatUsd(d.price.output)} out per 1M · ` +
+              `${d.edited ? 'your edited price' : BASIS_LABEL[d.price.basis]}<br/>` +
+              `${
+                d.onFrontier
+                  ? 'Pareto-optimal: nothing here is both cheaper and better'
+                  : 'Dominated: another entry scores at least as high for less'
+              }</div>`,
           ]
             .filter(Boolean)
             .join('<br/>')
         },
       },
       legend: {
-        data: [...details.map((d) => d.name), 'Pareto frontier'],
+        data: [...points.map((p) => p.name), 'Pareto frontier'],
         bottom: 0,
         type: 'scroll',
       },
-      grid: { left: 56, right: 36, top: 36, bottom: 72, containLabel: true },
+      grid: {
+        left: 56,
+        right: 36,
+        top: dropped ? 48 : 36,
+        bottom: 72,
+        containLabel: true,
+      },
       xAxis: {
-        name: 'Total tokens',
-        type: 'value',
-        min: Math.max(0, xMin - xPad),
-        max: xMax + xPad,
+        name: 'Cost / trial, USD (log)',
+        type: 'log',
+        min: xMin,
+        max: xMax,
         nameLocation: 'middle',
-        nameGap: 28,
+        nameGap: 30,
+        axisLabel: { formatter: (v: number) => formatUsd(v) },
       },
       yAxis: {
         name: 'Mean RCA F1',
@@ -335,48 +447,40 @@ export function ComparePage() {
         nameGap: 40,
       },
       series: [
-        ...points.map((p) => ({
-          name: p.name,
-          type: 'scatter' as const,
-          symbolSize: frontIds.has(p.id) ? 18 : 14,
-          itemStyle: {
-            color: p.color,
-            borderColor: frontIds.has(p.id) ? '#080d18' : '#e2e8f0',
-            borderWidth: frontIds.has(p.id) ? 2 : 1,
-          },
-          data: [
-            {
-              name: p.name,
-              value: [p.cost, p.score],
-              meanTokens: p.meanTokens,
-              onFrontier: frontIds.has(p.id),
+        ...points.map((p) => {
+          const onFront = frontIds.has(p.id)
+          return {
+            name: p.name,
+            type: 'scatter' as const,
+            symbolSize: onFront ? 16 : 11,
+            itemStyle: {
+              color: onFront ? p.color : 'transparent',
+              borderColor: p.color,
+              borderWidth: 2,
+              opacity: onFront ? 1 : 0.75,
             },
-          ],
-          label: {
-            show: points.length <= 12,
-            formatter: p.name,
-            position: 'right' as const,
-            fontSize: 11,
-            color: '#e2e8f0',
-          },
-        })),
+            data: [{ ...p, value: [p.cost, p.score], onFrontier: onFront }],
+            label: {
+              show: points.length <= 12,
+              formatter: p.name,
+              position: 'right' as const,
+              fontSize: 11,
+              color: onFront ? '#e2e8f0' : CHART_NOTE,
+            },
+          }
+        }),
         {
           name: 'Pareto frontier',
           type: 'line' as const,
           showSymbol: false,
           silent: true,
           data: front.map((p) => [p.cost, p.score]),
-          lineStyle: {
-            type: 'dashed',
-            width: 2,
-            color: '#8b9cb6',
-            opacity: 0.9,
-          },
+          lineStyle: { type: 'dashed', width: 2, color: '#8b9cb6', opacity: 0.9 },
           z: 1,
         },
       ] as EChartsOption['series'],
     }
-  }, [details])
+  }, [costPoints, details.length])
 
   const tokenBarOption = useMemo((): EChartsOption => {
     const colorById = new Map(
@@ -557,13 +661,97 @@ export function ComparePage() {
           height={520}
         />
         <ChartPanel
-          title="RCA F1 vs cost frontier"
+          title="Cost–performance Pareto frontier (upper left is better)"
           option={paretoOption}
           filename="nika-pareto-frontier"
-          empty={!details.length || details.every((d) => !(d.total_tokens && d.total_tokens > 0))}
-          emptyMessage="No token totals available for the selected entries."
+          empty={!costPoints.length}
+          emptyMessage="No entry here has both token accounting and a model price."
           height={520}
         />
+        <section className="pricing-panel">
+          <button
+            type="button"
+            className="btn btn--ghost pricing-panel__toggle"
+            onClick={() => setPricesOpen((v) => !v)}
+            aria-expanded={pricesOpen}
+          >
+            {pricesOpen ? 'Hide' : 'Edit'} token prices
+            {Object.keys(overrides).length > 0 && ' (edited)'}
+          </button>
+          {pricesOpen && (
+            <div className="pricing-panel__body">
+              <p className="muted">
+                USD per million tokens, used for the cost axis above. Edits stay in
+                this browser and are not submitted anywhere.
+                {pricing?.as_of &&
+                  ` Defaults were collected on ${pricing.as_of}; prices move, so re-check before citing.`}
+              </p>
+              <table className="pricing-table">
+                <thead>
+                  <tr>
+                    <th>Model</th>
+                    <th>Input $/1M</th>
+                    <th>Output $/1M</th>
+                    <th>Basis</th>
+                    <th>Quoted</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {priceRows.map((row) => (
+                    <tr key={row.model}>
+                      <td>{row.model}</td>
+                      <td>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.001"
+                          value={row.price?.input ?? ''}
+                          onChange={(e) =>
+                            setPrice(row.model, 'input', Number(e.target.value))
+                          }
+                        />
+                      </td>
+                      <td>
+                        <input
+                          type="number"
+                          min="0"
+                          step="0.001"
+                          value={row.price?.output ?? ''}
+                          onChange={(e) =>
+                            setPrice(row.model, 'output', Number(e.target.value))
+                          }
+                        />
+                      </td>
+                      <td className="muted">
+                        {row.edited
+                          ? 'edited here'
+                          : row.price
+                            ? BASIS_LABEL[row.price.basis]
+                            : 'no price on file'}
+                        {row.price?.source && !row.edited && (
+                          <>
+                            {' · '}
+                            <a href={row.price.source} target="_blank" rel="noreferrer">
+                              {row.price.provider || 'source'}
+                            </a>
+                          </>
+                        )}
+                      </td>
+                      <td className="muted">
+                        {row.edited ? '—' : (row.price?.retrieved ?? '—')}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              {Object.keys(overrides).length > 0 && (
+                <button type="button" className="btn btn--ghost" onClick={resetPrices}>
+                  Reset to defaults
+                </button>
+              )}
+            </div>
+          )}
+        </section>
         <ChartPanel
           title="Total tokens per entry"
           option={tokenBarOption}

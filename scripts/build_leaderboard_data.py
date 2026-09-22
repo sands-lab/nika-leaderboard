@@ -628,6 +628,15 @@ def main(argv: list[str] | None = None) -> int:
             catalogs[version] = {"by_scenario_problem": {}, "cases": []}
 
     build_leaderboard(repo_root, catalogs, out_dir)
+
+    pricing_path = catalog_dir / "pricing.json"
+    if pricing_path.exists():
+        write_json(out_dir / "pricing.json", load_json(pricing_path))
+        print("Copied catalog/pricing.json", file=sys.stderr)
+    else:
+        print("Warning: no catalog/pricing.json; cost axis falls back to tokens",
+              file=sys.stderr)
+
     print(f"Wrote leaderboard data to {out_dir}", file=sys.stderr)
     return 0
 

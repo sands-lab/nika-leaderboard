@@ -1566,3 +1566,56 @@ code {
     font-size: 0.84rem;
   }
 }
+
+/* Token price editor under the cost-performance chart */
+.pricing-panel {
+  margin-top: -8px;
+}
+
+.pricing-panel__body {
+  margin-top: 10px;
+  padding: 14px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.pricing-panel__body > .muted {
+  margin: 0 0 10px;
+  font-size: 12px;
+}
+
+.pricing-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.pricing-table th,
+.pricing-table td {
+  padding: 6px 10px 6px 0;
+  text-align: left;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.pricing-table th {
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #8b9cb6;
+}
+
+.pricing-table input {
+  width: 8ch;
+  padding: 4px 6px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.25);
+  color: inherit;
+  font: inherit;
+}
+
+.pricing-table td.muted {
+  font-size: 12px;
+}
+
