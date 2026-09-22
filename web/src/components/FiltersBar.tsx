@@ -9,6 +9,8 @@ interface FiltersBarProps {
   filters: FilterState
   metaFilters: MetaFilters
   versions: string[]
+  /** Releases that actually have submissions; the rest are flagged as empty. */
+  versionsWithData?: Set<string>
   onChange: (next: FilterState) => void
 }
 
@@ -51,6 +53,7 @@ export function FiltersBar({
   filters,
   metaFilters,
   versions,
+  versionsWithData,
   onChange,
 }: FiltersBarProps) {
   const set = <K extends keyof FilterState>(key: K, value: FilterState[K]) =>
@@ -75,6 +78,9 @@ export function FiltersBar({
         label="Release"
         value={filters.version}
         options={versions}
+        formatOption={(v) =>
+          versionsWithData && !versionsWithData.has(v) ? `${v} (no entries)` : v
+        }
         onChange={(v) => set('version', v)}
       />
       <Select
