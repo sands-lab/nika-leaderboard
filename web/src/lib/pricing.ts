@@ -80,10 +80,16 @@ export function priceFor(
 }
 
 export interface SubmissionCost {
-  /** USD for the whole run. */
+  /** USD for everything the package submitted, across all repeats. */
   total: number
-  /** USD per expected trial. */
-  perTrial: number | null
+  /**
+   * USD for one complete pass over the benchmark's cases. This is the figure
+   * people mean by "what does it cost to run this benchmark"; `n_trials` is how
+   * many times the submission repeated that pass.
+   */
+  perRun: number | null
+  /** USD for a single case attempted once. */
+  perCase: number | null
   price: ModelPrice
   /** True once the viewer has edited this model's price. */
   edited: boolean
@@ -105,10 +111,12 @@ export function submissionCost(
   const outTok = s.token_totals?.out_tokens ?? 0
   if (!(inTok > 0 || outTok > 0)) return null
   const total = (inTok * price.input + outTok * price.output) / 1_000_000
-  const trials = s.n_trials_expected || 0
+  const attempts = s.n_trials_expected || 0
+  const repeats = s.n_trials || (s.case_count ? attempts / s.case_count : 0)
   return {
     total,
-    perTrial: trials > 0 ? total / trials : null,
+    perRun: repeats > 0 ? total / repeats : null,
+    perCase: attempts > 0 ? total / attempts : null,
     price,
     edited: Boolean(overrides[s.model ?? '']),
   }

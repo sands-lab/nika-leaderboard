@@ -250,7 +250,7 @@ export function AnalyzePage() {
       }))
     return scatterOption({
       points,
-      xName: 'Avg tokens / trial',
+      xName: 'Avg tokens / case',
       yName,
       yMax,
       yAsPercent,
@@ -400,7 +400,7 @@ export function AnalyzePage() {
           height={520}
         />
         <ChartPanel
-          title={`${yName} vs avg tokens / trial`}
+          title={`${yName} vs avg tokens / case`}
           option={vsAvgCost}
           filename="nika-resolved-vs-avg-cost"
           empty={!scoped.length}

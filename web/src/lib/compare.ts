@@ -9,9 +9,9 @@ export interface CaseAggregate {
   mean_rca_f1: number
   success_rate: number
   n_trials: number
-  /** Mean tokens per *trial* of this case, not the case's total spend. */
+  /** Mean tokens per attempt of this case, averaged over its repeats. */
   mean_tokens: number | null
-  /** Mean steps per *trial* of this case, not the case's total. */
+  /** Mean steps per attempt of this case, averaged over its repeats. */
   mean_steps: number | null
 }
 
@@ -199,7 +199,7 @@ export interface CostBaseline {
 }
 
 /**
- * Range of mean tokens / steps per trial across whole releases rather than the
+ * Range of mean tokens / steps per case across whole releases rather than the
  * current selection, so ticking another entry does not move everyone else's
  * cost axes.
  */

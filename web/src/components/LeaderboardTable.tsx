@@ -128,7 +128,7 @@ function buildAccessors(
     loc: (s) => s.mean_localization_f1,
     detection: (s) => s.mean_detection_score,
     success: (s) => s.success_rate,
-    cost: (s) => submissionCost(s, pricing, overrides)?.perTrial ?? null,
+    cost: (s) => submissionCost(s, pricing, overrides)?.perRun ?? null,
     avg_steps: (s) => s.mean_steps,
     submitted: (s) => s.created_at,
   }
@@ -145,7 +145,7 @@ function CostCell({
   overrides: PriceOverrides
 }) {
   const cost = submissionCost(s, pricing, overrides)
-  if (!cost?.perTrial) {
+  if (!cost?.perRun) {
     return (
       <span
         className="num"
@@ -162,37 +162,26 @@ function CostCell({
   }
   const inTok = s.token_totals?.in_tokens ?? 0
   const outTok = s.token_totals?.out_tokens ?? 0
-  // "Trial" is one attempt at one case, not a pass over the benchmark, so spell
-  // the run out: a reader who assumes the latter thinks the figure is 100x low.
-  const shape =
-    s.case_count && s.n_trials
-      ? `${NUM.format(s.n_trials_expected)} trials = ${NUM.format(
-          s.case_count,
-        )} cases x ${s.n_trials}`
-      : `${NUM.format(s.n_trials_expected)} trials`
-  const perPass =
-    s.case_count && s.n_trials_expected
-      ? cost.total / (s.n_trials_expected / s.case_count)
-      : null
   const tip = [
-    `One trial = one case attempted once`,
-    `${shape}`,
+    s.case_count
+      ? `One run = all ${NUM.format(s.case_count)} cases once`
+      : 'One run = every case once',
     '',
-    `${formatCount(s.mean_tokens)} tokens / trial`,
-    `${NUM.format(inTok)} in + ${NUM.format(outTok)} out over the run`,
+    `${formatCount(s.mean_tokens)} tokens per case`,
+    cost.perCase != null ? `${formatUsd(cost.perCase)} per case` : null,
     `${s.model ?? 'model'} at ${formatUsd(cost.price.input)} in / ${formatUsd(
       cost.price.output,
     )} out per 1M tokens`,
     cost.edited ? 'price edited in this browser' : BASIS_LABEL[cost.price.basis],
     '',
-    perPass != null
-      ? `${formatUsd(perPass)} for one pass over all ${NUM.format(s.case_count!)} cases`
-      : null,
-    `${formatUsd(cost.total)} for the whole run`,
+    `This submission repeated the run ${s.n_trials ?? '?'}x:`,
+    `${NUM.format(inTok)} in + ${NUM.format(outTok)} out, ${formatUsd(
+      cost.total,
+    )} in total`,
   ]
     .filter((l) => l !== null)
     .join('\n')
-  return <span title={tip}>{formatUsd(cost.perTrial)}</span>
+  return <span title={tip}>{formatUsd(cost.perRun)}</span>
 }
 
 export function LeaderboardTable({ rows }: LeaderboardTableProps) {
@@ -275,19 +264,19 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               className="col-secondary"
             />
             <SortableTh
-              label="Cost / trial"
+              label="Cost / run"
               sortKey="cost"
               sort={sort}
               onSort={toggle}
-              title="USD per trial, where one trial is a single case attempted once. Hover a cell for the tokens, the rate, and what the whole run cost."
+              title="USD to run the whole benchmark once at the model's reference price. Hover a cell for the per-case figures and what this submission spent in total."
               className="col-secondary"
             />
             <SortableTh
-              label="Avg steps"
+              label="Steps / case"
               sortKey="avg_steps"
               sort={sort}
               onSort={toggle}
-              title="Mean steps per trial"
+              title="Mean steps per case"
               className="col-secondary"
             />
             <SortableTh

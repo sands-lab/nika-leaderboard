@@ -310,7 +310,7 @@ export function ConfusionPage() {
                 </select>
               </label>
               <p className="muted insights-controls__status">
-                {matrix.edgeCount} true→pred pairs · {matrix.trialCount} trials
+                {matrix.edgeCount} true→pred pairs · {matrix.trialCount} case attempts
                 with predictions · {matrix.missingPredictionCount} missing
               </p>
             </div>
@@ -319,7 +319,7 @@ export function ConfusionPage() {
           {!usable && details.length > 0 ? (
             <p className="status">
               Selected packages have no{' '}
-              <code>predicted_root_cause_name</code> in trial results.
+              <code>predicted_root_cause_name</code> in their results.
             </p>
           ) : (
             <>

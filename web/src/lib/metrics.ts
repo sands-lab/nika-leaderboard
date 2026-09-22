@@ -156,7 +156,8 @@ export function exportCsv(
     'n_success',
     'n_trials_expected',
     'mean_tokens',
-    'cost_per_trial_usd',
+    'cost_per_run_usd',
+    'cost_per_case_usd',
     'cost_total_usd',
     'mean_steps',
     'github',
@@ -170,7 +171,8 @@ export function exportCsv(
       let v: unknown
       const cost = submissionCost(s, pricing, overrides)
       if (h === 'adaptation') v = formatAdaptation(s)
-      else if (h === 'cost_per_trial_usd') v = cost?.perTrial ?? ''
+      else if (h === 'cost_per_run_usd') v = cost?.perRun ?? ''
+      else if (h === 'cost_per_case_usd') v = cost?.perCase ?? ''
       else if (h === 'cost_total_usd') v = cost?.total ?? ''
       else if (h === 'skills') v = scaffoldTags(s).join('; ')
       else v = record[h]

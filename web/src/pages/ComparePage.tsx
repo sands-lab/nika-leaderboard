@@ -221,8 +221,8 @@ export function ComparePage() {
             null,
             null,
             null,
-            a.tokens > 0 ? `${NUM.format(a.tokens)} / trial` : 'not reported',
-            a.steps > 0 ? `${a.steps.toFixed(1)} / trial` : 'not reported',
+            a.tokens > 0 ? `${NUM.format(a.tokens)} / case` : 'not reported',
+            a.steps > 0 ? `${a.steps.toFixed(1)} / case` : 'not reported',
           ]
           const lines = indicators.map((ind, k) => {
             const v = p.value![k]
@@ -281,13 +281,13 @@ export function ComparePage() {
       tooltip: {
         formatter: (p: unknown) => {
           const item = p as { seriesName: string; value: number[] }
-          return `${item.seriesName}<br/>tokens / trial: ${Math.round(item.value[0])}<br/>mean RCA F1: ${item.value[1].toFixed(3)}`
+          return `${item.seriesName}<br/>tokens / case: ${Math.round(item.value[0])}<br/>mean RCA F1: ${item.value[1].toFixed(3)}`
         },
       },
       legend: { data: details.map((d) => d.name), bottom: 0 },
       grid: { left: 56, right: 28, top: 28, bottom: 64, containLabel: true },
       xAxis: {
-        name: 'Mean tokens / trial',
+        name: 'Mean tokens / case',
         type: 'value',
         axisLabel: { formatter: (v: number) => compactCount(v) },
         min: Math.max(0, xMin - xPad),
@@ -309,18 +309,18 @@ export function ComparePage() {
     }
   }, [details])
 
-  /** Monetary cost per trial, from token counts x the model's reference price. */
+  /** Cost of one full benchmark run, from token counts x the reference price. */
   const costPoints = useMemo(
     () =>
       details
         .map((d, i) => {
           const cost = submissionCost(d, pricing, overrides)
-          return cost?.perTrial != null
+          return cost?.perRun != null
             ? {
                 id: d.id,
                 name: d.name,
                 model: d.model,
-                cost: cost.perTrial,
+                cost: cost.perRun,
                 totalCost: cost.total,
                 score: d.mean_rca_f1 ?? 0,
                 meanTokens: d.mean_tokens,
@@ -376,10 +376,10 @@ export function ComparePage() {
           return [
             `<strong>${d.name}</strong>`,
             `RCA F1: ${d.value[1].toFixed(3)}`,
-            `Cost / trial: ${formatUsd(d.cost)}`,
-            `Run total: ${formatUsd(d.totalCost)}`,
+            `Cost / run: ${formatUsd(d.cost)}`,
+            `Submission total: ${formatUsd(d.totalCost)}`,
             d.meanTokens != null
-              ? `Tokens / trial: ${NUM.format(d.meanTokens)}`
+              ? `Tokens / case: ${NUM.format(d.meanTokens)}`
               : null,
             `<div style="margin-top:6px;opacity:.65;font-size:11px">` +
               `cost = (in × $in + out × $out) ÷ 1M<br/>` +
@@ -408,7 +408,7 @@ export function ComparePage() {
         containLabel: true,
       },
       xAxis: {
-        name: 'Cost / trial, USD (log)',
+        name: 'Cost per benchmark run, USD (log)',
         type: 'log',
         min: xMin,
         max: xMax,
@@ -483,7 +483,7 @@ export function ComparePage() {
             `<strong>${p.name}</strong>`,
             `Total tokens: ${Math.round(p.value).toLocaleString()}`,
             d?.mean_tokens != null
-              ? `Avg / trial: ${Math.round(d.mean_tokens).toLocaleString()}`
+              ? `Avg / case: ${Math.round(d.mean_tokens).toLocaleString()}`
               : null,
             d?.mean_rca_f1 != null
               ? `RCA F1: ${d.mean_rca_f1.toFixed(3)}`
