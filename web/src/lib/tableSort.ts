@@ -49,10 +49,14 @@ export function sortByAccessors<T, K extends string>(
 /**
  * Clickable column sorting. Clicking a new column uses `defaultDir`
  * (desc for scores); clicking the active column toggles asc/desc.
+ *
+ * `dirByKey` overrides that per column, so a lower-is-better column such as
+ * cost still puts its best row first on the first click.
  */
 export function useTableSort<K extends string>(
   initial: SortState<K>,
   defaultDir: SortDir = 'desc',
+  dirByKey: Partial<Record<K, SortDir>> = {},
 ) {
   const [sort, setSort] = useState<SortState<K>>(initial)
 
@@ -60,7 +64,7 @@ export function useTableSort<K extends string>(
     setSort((prev) =>
       prev.key === key
         ? { key, dir: prev.dir === 'asc' ? 'desc' : 'asc' }
-        : { key, dir: defaultDir },
+        : { key, dir: dirByKey[key] ?? defaultDir },
     )
   }
 

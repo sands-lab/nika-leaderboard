@@ -15,16 +15,12 @@ import {
   radarAxes,
   shortFailureCategory,
 } from '../lib/compare'
-import { formatScore, loadPricing, loadSubmissionDetails } from '../lib/data'
+import { formatScore, loadSubmissionDetails } from '../lib/data'
 import {
   BASIS_LABEL,
   formatUsd,
-  loadOverrides,
   priceFor,
-  saveOverrides,
   submissionCost,
-  type PriceOverrides,
-  type PricingFile,
 } from '../lib/pricing'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
@@ -68,7 +64,8 @@ function compactCount(value: number): string {
 }
 
 export function ComparePage() {
-  const { submissions, filtered, loading, error } = useLeaderboardData()
+  const { submissions, filtered, pricing, overrides, setOverrides, loading, error } =
+    useLeaderboardData()
   const [params, setParams] = useSearchParams()
   const [details, setDetails] = useState<SubmissionDetail[]>([])
   const [selected, setSelected] = useState<string[]>([])
@@ -76,8 +73,6 @@ export function ComparePage() {
   const [pairB, setPairB] = useState('')
   const [detailError, setDetailError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
-  const [pricing, setPricing] = useState<PricingFile | null>(null)
-  const [overrides, setOverrides] = useState<PriceOverrides>(() => loadOverrides())
   const [pricesOpen, setPricesOpen] = useState(false)
   const { sort: pairSort, toggle: togglePairSort } = useTableSort<PairSortKey>({
     key: 'delta',
@@ -144,35 +139,18 @@ export function ComparePage() {
     }
   }, [selected])
 
-  useEffect(() => {
-    let cancelled = false
-    void loadPricing().then((f) => {
-      if (!cancelled) setPricing(f)
-    })
-    return () => {
-      cancelled = true
-    }
-  }, [])
-
   const setPrice = (model: string, field: 'input' | 'output', value: number) => {
-    setOverrides((prev) => {
-      const current = priceFor(model, pricing, prev)
-      const next: PriceOverrides = {
-        ...prev,
-        [model]: {
-          input: field === 'input' ? value : (current?.input ?? 0),
-          output: field === 'output' ? value : (current?.output ?? 0),
-        },
-      }
-      saveOverrides(next)
-      return next
+    const current = priceFor(model, pricing, overrides)
+    setOverrides({
+      ...overrides,
+      [model]: {
+        input: field === 'input' ? value : (current?.input ?? 0),
+        output: field === 'output' ? value : (current?.output ?? 0),
+      },
     })
   }
 
-  const resetPrices = () => {
-    setOverrides({})
-    saveOverrides({})
-  }
+  const resetPrices = () => setOverrides({})
 
   const syncUrl = (ids: string[]) => {
     setSelected(ids)

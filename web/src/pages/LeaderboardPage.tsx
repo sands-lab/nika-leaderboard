@@ -6,7 +6,8 @@ import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { exportCsv, withRanks } from '../lib/metrics'
 
 export function LeaderboardPage() {
-  const { filtered, filters, loading, error } = useLeaderboardData()
+  const { filtered, filters, pricing, overrides, loading, error } =
+    useLeaderboardData()
 
   const ranked = useMemo(() => withRanks(filtered), [filtered])
 
@@ -33,7 +34,9 @@ export function LeaderboardPage() {
         <button
           type="button"
           className="btn btn--ghost"
-          onClick={() => exportCsv(ranked, 'nika-leaderboard.csv')}
+          onClick={() =>
+            exportCsv(ranked, 'nika-leaderboard.csv', pricing, overrides)
+          }
         >
           Export CSV
         </button>

@@ -1,4 +1,6 @@
 import { resolveProvider } from './providerMeta'
+import { submissionCost } from './pricing'
+import type { PriceOverrides, PricingFile } from './pricing'
 import type { FilterState, SubmissionSummary } from './types'
 
 /**
@@ -130,7 +132,12 @@ export function withRanks(rows: SubmissionSummary[]): SubmissionSummary[] {
   return sorted.map((s, i) => ({ ...s, rank: i + 1 }))
 }
 
-export function exportCsv(rows: SubmissionSummary[], filename: string): void {
+export function exportCsv(
+  rows: SubmissionSummary[],
+  filename: string,
+  pricing: PricingFile | null = null,
+  overrides: PriceOverrides = {},
+): void {
   const headers = [
     'rank',
     'model',
@@ -149,6 +156,8 @@ export function exportCsv(rows: SubmissionSummary[], filename: string): void {
     'n_success',
     'n_trials_expected',
     'mean_tokens',
+    'cost_per_trial_usd',
+    'cost_total_usd',
     'mean_steps',
     'github',
     'site',
@@ -159,7 +168,10 @@ export function exportCsv(rows: SubmissionSummary[], filename: string): void {
     const record = s as unknown as Record<string, unknown>
     const vals = headers.map((h) => {
       let v: unknown
+      const cost = submissionCost(s, pricing, overrides)
       if (h === 'adaptation') v = formatAdaptation(s)
+      else if (h === 'cost_per_trial_usd') v = cost?.perTrial ?? ''
+      else if (h === 'cost_total_usd') v = cost?.total ?? ''
       else if (h === 'skills') v = scaffoldTags(s).join('; ')
       else v = record[h]
       const str = v == null ? '' : String(v)

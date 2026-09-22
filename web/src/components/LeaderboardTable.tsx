@@ -21,6 +21,16 @@ import {
   resolveProvider,
 } from '../lib/providerMeta'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
+import { useLeaderboardData } from '../lib/LeaderboardDataContext'
+import {
+  BASIS_LABEL,
+  formatUsd,
+  submissionCost,
+  type PriceOverrides,
+  type PricingFile,
+} from '../lib/pricing'
+
+const NUM = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
 
 interface LeaderboardTableProps {
   rows: SubmissionSummary[]
@@ -37,7 +47,7 @@ type LbSortKey =
   | 'loc'
   | 'detection'
   | 'success'
-  | 'avg_tokens'
+  | 'cost'
   | 'avg_steps'
   | 'submitted'
 
@@ -103,30 +113,78 @@ function ScaffoldCell({ s }: { s: SubmissionSummary }) {
   )
 }
 
-const ACCESSORS: Record<LbSortKey, (s: SubmissionSummary) => unknown> = {
-  rank: (s) => s.rank ?? 0,
-  model: (s) => s.model,
-  model_release: (s) => modelReleaseDate(s.model)?.getTime() ?? null,
-  scaffold: (s) => s.framework,
-  adaptation: (s) => formatAdaptation(s),
-  provider: (s) => resolveProvider(s.llm_provider, s.model),
-  rca: (s) => s.mean_rca_f1,
-  loc: (s) => s.mean_localization_f1,
-  detection: (s) => s.mean_detection_score,
-  success: (s) => s.success_rate,
-  avg_tokens: (s) => s.mean_tokens,
-  avg_steps: (s) => s.mean_steps,
-  submitted: (s) => s.created_at,
+function buildAccessors(
+  pricing: PricingFile | null,
+  overrides: PriceOverrides,
+): Record<LbSortKey, (s: SubmissionSummary) => unknown> {
+  return {
+    rank: (s) => s.rank ?? 0,
+    model: (s) => s.model,
+    model_release: (s) => modelReleaseDate(s.model)?.getTime() ?? null,
+    scaffold: (s) => s.framework,
+    adaptation: (s) => formatAdaptation(s),
+    provider: (s) => resolveProvider(s.llm_provider, s.model),
+    rca: (s) => s.mean_rca_f1,
+    loc: (s) => s.mean_localization_f1,
+    detection: (s) => s.mean_detection_score,
+    success: (s) => s.success_rate,
+    cost: (s) => submissionCost(s, pricing, overrides)?.perTrial ?? null,
+    avg_steps: (s) => s.mean_steps,
+    submitted: (s) => s.created_at,
+  }
+}
+
+/** The cost cell: dollars on screen, the tokens and unit price behind it. */
+function CostCell({
+  s,
+  pricing,
+  overrides,
+}: {
+  s: SubmissionSummary
+  pricing: PricingFile | null
+  overrides: PriceOverrides
+}) {
+  const cost = submissionCost(s, pricing, overrides)
+  if (!cost?.perTrial) {
+    return (
+      <span
+        className="num"
+        title={
+          (s.token_totals?.in_tokens ?? 0) > 0 ||
+          (s.token_totals?.out_tokens ?? 0) > 0
+            ? `No price on file for ${s.model ?? 'this model'}`
+            : 'This package reports no token accounting'
+        }
+      >
+        —
+      </span>
+    )
+  }
+  const inTok = s.token_totals?.in_tokens ?? 0
+  const outTok = s.token_totals?.out_tokens ?? 0
+  const tip = [
+    `${formatCount(s.mean_tokens)} tokens / trial`,
+    `${NUM.format(inTok)} in + ${NUM.format(outTok)} out over the run`,
+    `${s.model ?? 'model'} at ${formatUsd(cost.price.input)} in / ${formatUsd(
+      cost.price.output,
+    )} out per 1M tokens`,
+    cost.edited ? 'price edited in this browser' : BASIS_LABEL[cost.price.basis],
+    `run total ${formatUsd(cost.total)}`,
+  ].join('\n')
+  return <span title={tip}>{formatUsd(cost.perTrial)}</span>
 }
 
 export function LeaderboardTable({ rows }: LeaderboardTableProps) {
-  const { sort, toggle } = useTableSort<LbSortKey>({
-    key: 'rank',
-    dir: 'asc',
-  })
+  const { pricing, overrides } = useLeaderboardData()
+  const { sort, toggle } = useTableSort<LbSortKey>(
+    { key: 'rank', dir: 'asc' },
+    'desc',
+    // Cheaper and fewer are better, so these lead with their best row.
+    { cost: 'asc', avg_steps: 'asc', rank: 'asc' },
+  )
   const sorted = useMemo(
-    () => sortByAccessors(rows, sort, ACCESSORS),
-    [rows, sort],
+    () => sortByAccessors(rows, sort, buildAccessors(pricing, overrides)),
+    [rows, sort, pricing, overrides],
   )
 
   return (
@@ -196,11 +254,11 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               className="col-secondary"
             />
             <SortableTh
-              label="Avg tokens"
-              sortKey="avg_tokens"
+              label="Cost / trial"
+              sortKey="cost"
               sort={sort}
               onSort={toggle}
-              title="Mean tokens per trial (in + out)"
+              title="Token spend per trial at the model's reference price; hover a cell for the tokens and rate behind it"
               className="col-secondary"
             />
             <SortableTh
@@ -260,7 +318,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                   {formatPct(s.success_rate)}
                 </td>
                 <td className="num col-secondary">
-                  {formatCount(s.mean_tokens)}
+                  <CostCell s={s} pricing={pricing} overrides={overrides} />
                 </td>
                 <td className="num col-secondary">
                   {formatCount(s.mean_steps)}

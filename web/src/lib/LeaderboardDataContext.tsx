@@ -6,8 +6,10 @@ import {
   useState,
   type ReactNode,
 } from 'react'
-import { loadIndex, loadMeta } from './data'
+import { loadIndex, loadMeta, loadPricing } from './data'
 import { applyFilters, defaultFilters } from './metrics'
+import { loadOverrides, saveOverrides } from './pricing'
+import type { PriceOverrides, PricingFile } from './pricing'
 import type { FilterState, MetaFile, SubmissionSummary } from './types'
 
 interface LeaderboardDataValue {
@@ -16,6 +18,10 @@ interface LeaderboardDataValue {
   filters: FilterState
   setFilters: (next: FilterState) => void
   filtered: SubmissionSummary[]
+  /** Reference token prices, shared so every page costs runs identically. */
+  pricing: PricingFile | null
+  overrides: PriceOverrides
+  setOverrides: (next: PriceOverrides) => void
   loading: boolean
   error: string | null
 }
@@ -26,6 +32,10 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
   const [submissions, setSubmissions] = useState<SubmissionSummary[]>([])
   const [meta, setMeta] = useState<MetaFile | null>(null)
   const [filters, setFilters] = useState<FilterState>(defaultFilters())
+  const [pricing, setPricing] = useState<PricingFile | null>(null)
+  const [overrides, setOverridesState] = useState<PriceOverrides>(() =>
+    loadOverrides(),
+  )
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -33,10 +43,15 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
     let cancelled = false
     ;(async () => {
       try {
-        const [index, metaFile] = await Promise.all([loadIndex(), loadMeta()])
+        const [index, metaFile, priceFile] = await Promise.all([
+          loadIndex(),
+          loadMeta(),
+          loadPricing(),
+        ])
         if (cancelled) return
         setSubmissions(index.submissions)
         setMeta(metaFile)
+        setPricing(priceFile)
         // Prefer the latest release that has submissions; else latest known version.
         const versionsWithData = [
           ...new Set(
@@ -63,6 +78,11 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
+  const setOverrides = (next: PriceOverrides) => {
+    saveOverrides(next)
+    setOverridesState(next)
+  }
+
   const filtered = useMemo(
     () => applyFilters(submissions, filters),
     [submissions, filters],
@@ -75,10 +95,13 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
       filters,
       setFilters,
       filtered,
+      pricing,
+      overrides,
+      setOverrides,
       loading,
       error,
     }),
-    [submissions, meta, filters, filtered, loading, error],
+    [submissions, meta, filters, filtered, pricing, overrides, loading, error],
   )
 
   return (
