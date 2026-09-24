@@ -63,7 +63,16 @@ jobs:
     needs: build
     runs-on: ubuntu-latest
     steps:
+      # The deploy action needs a git repo in the workspace to build its
+      # worktree from, but not this repository's credentials. checkout's
+      # default persists the Actions token as an AUTHORIZATION header scoped
+      # to .git/worktrees/*, which is exactly where the deploy runs; that
+      # header wins over the PAT in the remote URL, so every push to the other
+      # repository authenticated as github-actions[bot] and was refused, no
+      # matter which token NIKA_PAGES_TOKEN held.
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
       - name: Download dist artifact
         uses: actions/download-artifact@v4
