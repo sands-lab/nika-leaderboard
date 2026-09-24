@@ -1,13 +1,17 @@
 import { expect, test } from '@playwright/test'
 import path from 'node:path'
 
+// Routes live after the hash. Addressing them by path instead would still
+// load the app - the dev server serves index.html for anything - but every
+// case would land on the leaderboard, and five of the six would silently stop
+// testing the page they name.
 const pages = [
-  { name: 'leaderboard', path: '/' },
-  { name: 'insights', path: '/analytics/insights' },
-  { name: 'compare', path: '/analytics/compare' },
-  { name: 'matrix', path: '/analytics/matrix' },
-  { name: 'confusion', path: '/analytics/confusion' },
-  { name: 'analyze', path: '/analytics/analyze' },
+  { name: 'leaderboard', path: '/#/' },
+  { name: 'insights', path: '/#/analytics/insights' },
+  { name: 'compare', path: '/#/analytics/compare' },
+  { name: 'matrix', path: '/#/analytics/matrix' },
+  { name: 'confusion', path: '/#/analytics/confusion' },
+  { name: 'analyze', path: '/#/analytics/analyze' },
 ] as const
 
 test.describe('viewport smoke', () => {

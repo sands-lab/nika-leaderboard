@@ -1,4 +1,4 @@
-import { BrowserRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
+import { HashRouter, Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import { Layout } from './components/Layout'
 import { LeaderboardDataProvider } from './lib/LeaderboardDataContext'
 import { AnalyzePage } from './pages/AnalyzePage'
@@ -14,9 +14,19 @@ function RedirectPreserve({ to }: { to: string }) {
   return <Navigate to={`${to}${location.search}${location.hash}`} replace />
 }
 
+/**
+ * A hash router, because the site is served from a subfolder of another
+ * repository's Pages site. GitHub Pages only falls back to the 404.html at the
+ * site root, so a path like /nika/leaderboard/analytics/insights never reached
+ * this app and returned GitHub's own error page — every deep link and every
+ * reload away from the index was dead. Routes live after the hash, which the
+ * server never sees, so they resolve without any fallback.
+ *
+ * No basename: the subfolder is in the path, the route is in the hash.
+ */
 export default function App() {
   return (
-    <BrowserRouter basename={import.meta.env.BASE_URL.replace(/\/$/, '') || '/'}>
+    <HashRouter>
       <LeaderboardDataProvider>
         <Routes>
           <Route element={<Layout />}>
@@ -53,6 +63,6 @@ export default function App() {
           </Route>
         </Routes>
       </LeaderboardDataProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }

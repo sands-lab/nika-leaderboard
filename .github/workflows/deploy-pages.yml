@@ -45,6 +45,9 @@ jobs:
         run: |
           npm ci
           npm run build
+          # Kept as a fallback for older path-style links and for any
+          # hosting whose root is this site; the app itself routes on the
+          # hash, so it no longer depends on this file.
           cp dist/index.html dist/404.html
 
       - name: Upload dist artifact
