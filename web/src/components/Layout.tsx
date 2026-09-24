@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { SiteFooter } from './SiteFooter'
 
 export function Layout() {
   return (
@@ -14,6 +15,14 @@ export function Layout() {
             <span className="brand__sub">Leaderboard</span>
           </div>
         </div>
+        <a
+          className="topbar__link"
+          href="https://github.com/sands-lab/nika/blob/main/docs/benchmarks/leaderboard-submission.md"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Submit
+        </a>
         <a
           className="topbar__link"
           href="https://github.com/sands-lab/nika"
@@ -33,6 +42,8 @@ export function Layout() {
       <main className="main">
         <Outlet />
       </main>
+
+      <SiteFooter />
     </div>
   )
 }
