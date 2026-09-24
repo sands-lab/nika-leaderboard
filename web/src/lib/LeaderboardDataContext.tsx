@@ -1,13 +1,22 @@
 import {
   createContext,
+  useCallback,
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from 'react'
+import { useSearchParams } from 'react-router-dom'
 import { loadIndex, loadMeta, loadPricing } from './data'
-import { applyFilters, defaultFilters } from './metrics'
+import {
+  applyFilters,
+  defaultFilters,
+  FILTER_PARAM_KEYS,
+  filtersFromParams,
+  filtersToParams,
+} from './metrics'
 import { loadOverrides, saveOverrides } from './pricing'
 import type { PriceOverrides, PricingFile } from './pricing'
 import type { FilterState, MetaFile, SubmissionSummary } from './types'
@@ -31,7 +40,12 @@ const LeaderboardDataContext = createContext<LeaderboardDataValue | null>(null)
 export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
   const [submissions, setSubmissions] = useState<SubmissionSummary[]>([])
   const [meta, setMeta] = useState<MetaFile | null>(null)
-  const [filters, setFilters] = useState<FilterState>(defaultFilters())
+  const [params, setParams] = useSearchParams()
+  // The load effect wants the URL as it was on arrival, not as it drifts.
+  const initialParams = useRef(params)
+  const [filters, setFiltersState] = useState<FilterState>(() =>
+    filtersFromParams(params, defaultFilters()),
+  )
   const [pricing, setPricing] = useState<PricingFile | null>(null)
   const [overrides, setOverridesState] = useState<PriceOverrides>(() =>
     loadOverrides(),
@@ -66,7 +80,10 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
             : metaFile.versions.length > 0
               ? metaFile.versions[metaFile.versions.length - 1]
               : 'all'
-        setFilters(defaultFilters(initialVersion))
+        // A release pinned in the URL wins over the newest-with-data default.
+        setFiltersState(
+          filtersFromParams(initialParams.current, defaultFilters(initialVersion)),
+        )
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e))
       } finally {
@@ -78,10 +95,27 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
     }
   }, [])
 
-  const setOverrides = (next: PriceOverrides) => {
+  /** Filters live in the query string so a filtered view can be linked. */
+  const setFilters = useCallback(
+    (next: FilterState) => {
+      setFiltersState(next)
+      setParams(
+        (prev) => {
+          const merged = new URLSearchParams(prev)
+          for (const key of FILTER_PARAM_KEYS) merged.delete(key)
+          for (const [k, v] of filtersToParams(next)) merged.set(k, v)
+          return merged
+        },
+        { replace: true },
+      )
+    },
+    [setParams],
+  )
+
+  const setOverrides = useCallback((next: PriceOverrides) => {
     saveOverrides(next)
     setOverridesState(next)
-  }
+  }, [])
 
   const filtered = useMemo(
     () => applyFilters(submissions, filters),
@@ -101,7 +135,18 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
       loading,
       error,
     }),
-    [submissions, meta, filters, filtered, pricing, overrides, loading, error],
+    [
+      submissions,
+      meta,
+      filters,
+      setFilters,
+      filtered,
+      pricing,
+      overrides,
+      setOverrides,
+      loading,
+      error,
+    ],
   )
 
   return (

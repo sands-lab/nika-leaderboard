@@ -9,6 +9,50 @@ import type { FilterState, SubmissionSummary } from './types'
  */
 export const ADAPTATION_METHOD_EXAMPLES = ['GEPA', 'SFT', 'RL', 'GRPO'] as const
 
+/** Query-string name for each filter, so a filtered view can be linked. */
+const FILTER_PARAMS: Record<keyof FilterState, string> = {
+  version: 'release',
+  split: 'split',
+  framework: 'scaffold',
+  llm_provider: 'provider',
+  model: 'model',
+  optimization_method: 'adaptation',
+  tag: 'tag',
+  org: 'org',
+  query: 'q',
+}
+
+/** Every query-string key the filters own, for clearing before a rewrite. */
+export const FILTER_PARAM_KEYS = Object.values(FILTER_PARAMS)
+
+/** Filters as a query string, omitting anything left at its default. */
+export function filtersToParams(filters: FilterState): URLSearchParams {
+  const params = new URLSearchParams()
+  for (const [key, param] of Object.entries(FILTER_PARAMS) as Array<
+    [keyof FilterState, string]
+  >) {
+    const value = filters[key]
+    const isDefault = key === 'query' ? value === '' : value === 'all'
+    if (!isDefault) params.set(param, String(value))
+  }
+  return params
+}
+
+/** Filters read back from a query string, falling back to `base`. */
+export function filtersFromParams(
+  params: URLSearchParams,
+  base: FilterState,
+): FilterState {
+  const next = { ...base }
+  for (const [key, param] of Object.entries(FILTER_PARAMS) as Array<
+    [keyof FilterState, string]
+  >) {
+    const raw = params.get(param)
+    if (raw != null) next[key] = raw
+  }
+  return next
+}
+
 /** Values that belong on scaffold tags, not Adaptation. */
 const SCAFFOLD_EXTRA_METHODS = new Set(['skills', 'multi-agent', 'multiagent'])
 
