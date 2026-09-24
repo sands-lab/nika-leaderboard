@@ -20,13 +20,20 @@ function Select({
   options,
   onChange,
   formatOption,
+  alwaysShow = false,
 }: {
   label: string
   value: string
   options: string[]
   onChange: (v: string) => void
   formatOption?: (v: string) => string
+  /** For a facet that states scope rather than narrows, e.g. the release. */
+  alwaysShow?: boolean
 }) {
+  // With one value or none, picking it is the same as "All", so the control
+  // only implies there is something to narrow by. Kept if already set.
+  if (!alwaysShow && options.length <= 1 && value === 'all') return null
+
   return (
     <label className="filter">
       <span>{label}</span>
@@ -82,6 +89,7 @@ export function FiltersBar({
           versionsWithData && !versionsWithData.has(v) ? `${v} (no entries)` : v
         }
         onChange={(v) => set('version', v)}
+        alwaysShow
       />
       <Select
         label="Split"

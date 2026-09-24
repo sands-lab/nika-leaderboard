@@ -39,11 +39,8 @@ export function FilterShell() {
 
   return (
     <div className="analytics-filters">
-      <div className="analytics-filters__bar">
-        <p className="muted analytics-filters__count">
-          {filtered.length} / {submissions.length} submissions match filters
-        </p>
-        {narrow && (
+      {narrow && (
+        <div className="analytics-filters__bar">
           <button
             type="button"
             className="btn btn--ghost analytics-filters__toggle"
@@ -52,8 +49,8 @@ export function FilterShell() {
           >
             {open ? 'Hide filters' : 'Show filters'}
           </button>
-        )}
-      </div>
+        </div>
+      )}
       {(open || !narrow) && (
         <FiltersBar
           filters={filters}
@@ -63,6 +60,10 @@ export function FilterShell() {
           onChange={setFilters}
         />
       )}
+      {/* The count is what the controls above produced, so it reads after them. */}
+      <p className="muted analytics-filters__count">
+        {filtered.length} / {submissions.length} submissions match filters
+      </p>
     </div>
   )
 }

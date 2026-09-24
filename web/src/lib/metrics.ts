@@ -3,12 +3,6 @@ import { submissionCost } from './pricing'
 import type { PriceOverrides, PricingFile } from './pricing'
 import type { FilterState, SubmissionSummary } from './types'
 
-/**
- * Pre-benchmark adaptation / training methods (not scaffold extras like skills).
- * Shown in the Adaptation column; empty → "None".
- */
-export const ADAPTATION_METHOD_EXAMPLES = ['GEPA', 'SFT', 'RL', 'GRPO'] as const
-
 /** Query-string name for each filter, so a filtered view can be linked. */
 const FILTER_PARAMS: Record<keyof FilterState, string> = {
   version: 'release',
@@ -68,15 +62,16 @@ export const defaultFilters = (version: string | 'all' = 'all'): FilterState => 
   query: '',
 })
 
-/** Filter options for Adaptation (includes None + known methods from data). */
+/**
+ * Filter options for Adaptation: only methods some submission actually used,
+ * plus None. Offering a method nobody ran would be a filter that can only ever
+ * return an empty table.
+ */
 export function adaptationFilterOptions(fromMeta: string[]): string[] {
   const fromData = fromMeta.filter(
     (m) => !SCAFFOLD_EXTRA_METHODS.has(m.trim().toLowerCase()),
   )
-  return [
-    'None',
-    ...new Set([...ADAPTATION_METHOD_EXAMPLES, ...fromData]),
-  ].sort((a, b) => {
+  return ['None', ...new Set(fromData)].sort((a, b) => {
     if (a === 'None') return -1
     if (b === 'None') return 1
     return a.localeCompare(b)
