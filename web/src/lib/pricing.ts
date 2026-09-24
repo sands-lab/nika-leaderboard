@@ -84,8 +84,9 @@ export interface SubmissionCost {
   total: number
   /**
    * USD for one complete pass over the benchmark's cases. This is the figure
-   * people mean by "what does it cost to run this benchmark"; `n_trials` is how
-   * many times the submission repeated that pass.
+   * people mean by "what does it cost to run this benchmark". It is scaled up
+   * from the cost of a single attempt, so a package that did not finish every
+   * designed trial is still quoted as a full pass rather than a cheap one.
    */
   perRun: number | null
   /** USD for a single case attempted once. */
@@ -111,12 +112,17 @@ export function submissionCost(
   const outTok = s.token_totals?.out_tokens ?? 0
   if (!(inTok > 0 || outTok > 0)) return null
   const total = (inTok * price.input + outTok * price.output) / 1_000_000
-  const attempts = s.n_trials_expected || 0
-  const repeats = s.n_trials || (s.case_count ? attempts / s.case_count : 0)
+  // The token totals cover the trials the package actually reported, which can
+  // be fewer than the design called for. Dividing by the designed count would
+  // quote a truncated run as a cheap complete one, so the unit cost comes from
+  // the trials that were paid for and a full pass is scaled up from it.
+  const attempts = s.n_trials_present ?? s.n_trials_expected ?? 0
+  const cases = s.case_count ?? 0
+  const perCase = attempts > 0 ? total / attempts : null
   return {
     total,
-    perRun: repeats > 0 ? total / repeats : null,
-    perCase: attempts > 0 ? total / attempts : null,
+    perRun: perCase != null && cases > 0 ? perCase * cases : null,
+    perCase,
     price,
     edited: Boolean(overrides[s.model ?? '']),
   }
