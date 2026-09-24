@@ -32,6 +32,33 @@ import {
 
 const NUM = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
 
+/**
+ * Whether the package came from an official release run. The archive requires
+ * `run.official: true`, so an unofficial entry is the notable case and is
+ * marked as plainly as a verified one.
+ */
+function VerifiedMark({ official }: { official: boolean | null }) {
+  // Icon only: a word here widens the busiest column enough to push the table
+  // off screen. The label lives in the tooltip and the column header.
+  return official ? (
+    <span
+      className="verified-mark verified-mark--yes"
+      title="Verified: packaged from an official release run"
+      aria-label="verified"
+    >
+      ✓
+    </span>
+  ) : (
+    <span
+      className="verified-mark verified-mark--no"
+      title="Not from an official release run; scores are self-reported"
+      aria-label="unverified"
+    >
+      ?
+    </span>
+  )
+}
+
 interface LeaderboardTableProps {
   rows: SubmissionSummary[]
 }
@@ -202,21 +229,28 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
       <table className="data-table">
         <thead>
           <tr>
-            <SortableTh label="Rank" sortKey="rank" sort={sort} onSort={toggle} />
+            <SortableTh
+              label="Rank"
+              sortKey="rank"
+              sort={sort}
+              onSort={toggle}
+              title="Ranked by mean RCA F1"
+            />
             <SortableTh
               label="Model"
               sortKey="model"
               sort={sort}
               onSort={toggle}
+              title="✓ = packaged from an official release run; ? = self-reported"
               className="model-th"
             />
             <SortableTh
-              label="Model release"
+              label="Released"
               sortKey="model_release"
               sort={sort}
               onSort={toggle}
               title="Approximate public model release date"
-              className="col-secondary"
+              className="col-secondary col-tertiary"
             />
             <SortableTh
               label="Scaffold"
@@ -239,7 +273,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sort={sort}
               onSort={toggle}
               title="LLM provider"
-              className="col-secondary"
+              className="col-secondary col-tertiary"
             />
             <SortableTh
               label="Detection"
@@ -255,7 +289,13 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               onSort={toggle}
               className="col-secondary"
             />
-            <SortableTh label="RCA F1" sortKey="rca" sort={sort} onSort={toggle} />
+            <SortableTh
+              label="RCA F1"
+              sortKey="rca"
+              sort={sort}
+              onSort={toggle}
+              title="Mean RCA F1 — the metric the leaderboard ranks by"
+            />
             <SortableTh
               label="Success"
               sortKey="success"
@@ -285,7 +325,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sort={sort}
               onSort={toggle}
               title="Package identity created_at (UTC date)"
-              className="col-secondary"
+              className="col-secondary col-tertiary"
             />
             <th className="col-secondary">Links</th>
           </tr>
@@ -302,8 +342,11 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                   <strong className="model-name" title={s.name}>
                     {dash(s.model)}
                   </strong>
+                  <VerifiedMark official={s.official} />
                 </td>
-                <td className="num col-secondary">{formatDateUtc(release)}</td>
+                <td className="num col-secondary col-tertiary">
+                  {formatDateUtc(release)}
+                </td>
                 <td className="col-narrow-hide">
                   <ScaffoldCell s={s} />
                 </td>
@@ -312,7 +355,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                 >
                   {formatAdaptation(s)}
                 </td>
-                <td className="col-secondary">
+                <td className="col-secondary col-tertiary">
                   <ProviderIcon llmProvider={s.llm_provider} model={s.model} />
                 </td>
                 <td className="num col-secondary">
@@ -334,7 +377,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                   {formatCount(s.mean_steps)}
                 </td>
                 <td
-                  className="num col-secondary"
+                  className="num col-secondary col-tertiary"
                   title={s.created_at || undefined}
                 >
                   {formatDateUtc(s.created_at)}

@@ -620,7 +620,8 @@ code {
 
 .data-table th,
 .data-table td {
-  padding: 0.72rem 0.75rem;
+  /* 14 columns: every 0.15rem of side padding is ~65px of table width. */
+  padding: 0.72rem 0.6rem;
   border-bottom: 1px solid var(--line);
   text-align: center;
   white-space: nowrap;
@@ -628,6 +629,8 @@ code {
 }
 
 .data-table th {
+  /* Two-word headers set the column width if they cannot wrap. */
+  white-space: normal;
   position: sticky;
   top: 0;
   background: var(--bg-surface);
@@ -804,6 +807,13 @@ code {
   background: rgba(0, 212, 255, 0.1);
   border: 1px solid rgba(0, 212, 255, 0.22);
   text-transform: lowercase;
+}
+.scaffold-tag--adapt {
+  /* GEPA, SFT, RL are acronyms; the lowercasing that suits skill names is wrong here. */
+  text-transform: none;
+  color: #a78bfa;
+  background: rgba(139, 92, 246, 0.14);
+  box-shadow: inset 0 0 0 1px rgba(139, 92, 246, 0.3);
 }
 
 .adaptation-td {
@@ -1325,7 +1335,14 @@ code {
   color: var(--warn);
 }
 
-/* Hide secondary columns before the table needs horizontal scroll */
+/* Metadata columns go first: they describe the entry, not its result. */
+@media (max-width: 1400px) {
+  .data-table .col-tertiary {
+    display: none;
+  }
+}
+
+/* Then the secondary result columns, before the table needs horizontal scroll */
 @media (max-width: 1100px) {
   .data-table .col-secondary {
     display: none;
@@ -1547,4 +1564,30 @@ code {
   font-weight: 400;
   text-transform: none;
   letter-spacing: 0;
+}
+
+/* Provenance mark beside the model name */
+.verified-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 1.05em;
+  height: 1.05em;
+  margin-left: 0.35rem;
+  border-radius: 50%;
+  font-size: 0.66rem;
+  font-weight: 700;
+  line-height: 1;
+  vertical-align: 1px;
+}
+
+.verified-mark--yes {
+  color: #34d399;
+  background: rgba(52, 211, 153, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(52, 211, 153, 0.3);
+}
+
+.verified-mark--no {
+  color: var(--muted);
+  background: rgba(139, 156, 182, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(139, 156, 182, 0.22);
 }
