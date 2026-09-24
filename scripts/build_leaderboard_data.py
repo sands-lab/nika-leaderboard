@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+from datetime import datetime, timezone
 import re
 import sys
 from collections import defaultdict
@@ -436,6 +437,15 @@ def _version_sort_key(version: str) -> tuple[int | str, ...]:
     return tuple(parts)
 
 
+def _read_citation(repo_root: Path) -> str | None:
+    """BibTeX for the benchmark, if the archive ships one."""
+    path = repo_root / "catalog" / "citation.bib"
+    if not path.is_file():
+        return None
+    text = path.read_text(encoding="utf-8").strip()
+    return text or None
+
+
 def _reset_dir(path: Path) -> None:
     if path.exists():
         for child in path.iterdir():
@@ -542,6 +552,15 @@ def build_leaderboard(
                 "split": unique_sorted(splits),
             },
             "primary_metric": "mean_rca_f1",
+            # So the page can say how fresh its numbers are.
+            "generated_at": datetime.now(timezone.utc)
+            .replace(microsecond=0)
+            .isoformat(),
+            **(
+                {"citation": citation_text}
+                if (citation_text := _read_citation(repo_root))
+                else {}
+            ),
         },
     )
 

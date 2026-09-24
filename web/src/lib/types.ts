@@ -126,6 +126,10 @@ export interface MetaFile {
   versions: string[]
   filters: MetaFilters
   primary_metric: string
+  /** ISO timestamp of the build that produced this data. */
+  generated_at?: string
+  /** BibTeX from catalog/citation.bib, when the archive ships one. */
+  citation?: string
 }
 
 export interface CatalogCase {
