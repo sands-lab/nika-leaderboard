@@ -172,7 +172,9 @@ function CostCell({
   overrides: PriceOverrides
 }) {
   const cost = submissionCost(s, pricing, overrides)
-  if (!cost?.perRun) {
+  // A zero cost is a real figure, not a missing one: only a null means the
+  // package has no token totals or the model has no price.
+  if (cost?.perRun == null) {
     return (
       <span
         className="num"

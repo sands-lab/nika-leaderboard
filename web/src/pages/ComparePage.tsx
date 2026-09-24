@@ -142,8 +142,14 @@ export function ComparePage() {
     }
   }, [selected])
 
-  const setPrice = (model: string, field: 'input' | 'output', value: number) => {
+  const setPrice = (model: string, field: 'input' | 'output', raw: string) => {
     const current = priceFor(model, pricing, overrides)
+    // An emptied or unparseable field means "go back to the published price",
+    // not "this model is free". Storing a zero would drop the entry from the
+    // log-scaled cost chart and read on the table as if no price were on file.
+    const parsed = Number(raw)
+    const usable = raw.trim() !== '' && Number.isFinite(parsed) && parsed >= 0
+    const value = usable ? parsed : (pricing?.models?.[model]?.[field] ?? 0)
     setOverrides({
       ...overrides,
       [model]: {
@@ -701,7 +707,7 @@ export function ComparePage() {
                           step="0.001"
                           value={row.price?.input ?? ''}
                           onChange={(e) =>
-                            setPrice(row.model, 'input', Number(e.target.value))
+                            setPrice(row.model, 'input', e.target.value)
                           }
                         />
                       </td>
@@ -712,7 +718,7 @@ export function ComparePage() {
                           step="0.001"
                           value={row.price?.output ?? ''}
                           onChange={(e) =>
-                            setPrice(row.model, 'output', Number(e.target.value))
+                            setPrice(row.model, 'output', e.target.value)
                           }
                         />
                       </td>
