@@ -1,3 +1,4 @@
+import { CHART_MUTED, SERIES_COLORS } from './chartTheme'
 /** Infer a display family for bubble coloring from model name. */
 export function inferModelFamily(model: string | null | undefined): string {
   const m = (model || '').toLowerCase()
@@ -15,16 +16,25 @@ export function inferModelFamily(model: string | null | undefined): string {
   return 'Other'
 }
 
+/**
+ * Model families take the shared categorical slots in a fixed order, so a
+ * family keeps its colour however the selection changes. The old map paired
+ * GPT with GPT-OSS as two blues a validator scored ΔE 10.2 apart in normal
+ * vision — measurably hard to tell apart, and 1.3 for deuteranopes.
+ *
+ * Bubble charts compare all pairs at once, where only the first three slots
+ * clear the separation floor; beyond that the per-bubble labels carry identity.
+ */
 export const FAMILY_COLORS: Record<string, string> = {
-  GPT: '#3b82f6',
-  'GPT-OSS': '#60a5fa',
-  Qwen: '#ef4444',
-  Claude: '#f97316',
-  Gemini: '#00d4ff',
-  Llama: '#8b5cf6',
-  DeepSeek: '#14b8a6',
-  Mistral: '#eab308',
-  Other: '#8b9cb6',
+  GPT: SERIES_COLORS[0],
+  Qwen: SERIES_COLORS[1],
+  'GPT-OSS': SERIES_COLORS[2],
+  Claude: SERIES_COLORS[3],
+  Gemini: SERIES_COLORS[4],
+  Llama: SERIES_COLORS[5],
+  DeepSeek: SERIES_COLORS[0],
+  Mistral: SERIES_COLORS[1],
+  Other: CHART_MUTED,
 }
 
 export function familyColor(family: string): string {

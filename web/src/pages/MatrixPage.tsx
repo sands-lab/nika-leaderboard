@@ -10,6 +10,7 @@ import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { compareSortValues, useTableSort } from '../lib/tableSort'
 import type { CaseAggregate } from '../lib/compare'
 import type { SubmissionDetail } from '../lib/types'
+import { HEAT_RAMP } from '../lib/chartTheme'
 
 type AggregateMode = 'problem' | 'category' | 'scenario' | 'size'
 type MetricMode = 'success' | 'rca'
@@ -179,7 +180,7 @@ export function MatrixPage() {
         itemHeight: 140,
         text: ['High', 'Low'],
         textGap: 8,
-        inRange: { color: ['#0d1525', '#00d4ff'] },
+        inRange: { color: [...HEAT_RAMP] },
       },
       series: [
         {

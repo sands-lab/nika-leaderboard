@@ -13,17 +13,10 @@ import {
 import { loadSubmissionDetails } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import type { SubmissionDetail } from '../lib/types'
+import { CHART_TEXT, HEAT_RAMP } from '../lib/chartTheme'
 
 type ValueMode = 'rate' | 'count'
 
-const HEAT_COLORS = [
-  '#0d1525',
-  '#0f2940',
-  '#0a4a6e',
-  '#0284c7',
-  '#00d4ff',
-  '#67e8f9',
-]
 
 export function ConfusionPage() {
   const { filtered, loading, error } = useLeaderboardData()
@@ -178,7 +171,7 @@ export function ConfusionPage() {
         right: 4,
         top: 'middle',
         text: valueMode === 'rate' ? ['%', ''] : ['count', ''],
-        inRange: { color: HEAT_COLORS },
+        inRange: { color: [...HEAT_RAMP] },
         formatter: (v: unknown) =>
           valueMode === 'rate'
             ? `${Number(v).toFixed(0)}%`
@@ -241,7 +234,7 @@ export function ConfusionPage() {
           emphasis: { focus: 'adjacency' },
           nodeAlign: 'left',
           lineStyle: { color: 'gradient', curveness: 0.45, opacity: 0.35 },
-          label: { fontSize: level === 'problem' ? 10 : 11, color: '#e2e8f0' },
+          label: { fontSize: level === 'problem' ? 10 : 11, color: CHART_TEXT },
           data: [...nodes.values()],
           links,
         },

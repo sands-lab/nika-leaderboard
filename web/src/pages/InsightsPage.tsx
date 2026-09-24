@@ -28,8 +28,9 @@ import {
   shortLabel,
 } from '../lib/insights'
 import type { SubmissionSummary } from '../lib/types'
+import { CHART_FOCUS, CHART_TEXT, SERIES_COLORS } from '../lib/chartTheme'
 
-const ARROW_COLORS = ['#00d4ff', '#f97316', '#3b82f6', '#8b5cf6', '#eab308', '#e2e8f0']
+const ARROW_COLORS = [...SERIES_COLORS, CHART_TEXT]
 
 function toPoint(s: SubmissionSummary): BubblePoint {
   return {
@@ -59,11 +60,6 @@ function metricOpacity(value: number, minV: number, maxV: number): number {
   if (maxV <= minV) return 0.75
   const t = (value - minV) / (maxV - minV)
   return 0.28 + t * 0.72
-}
-
-/** Case counts are integers; scores are not. Format each in its own terms. */
-function formatExtent(value: number): string {
-  return Number.isInteger(value) ? String(value) : value.toFixed(2)
 }
 
 export function InsightsPage() {
@@ -105,6 +101,20 @@ export function InsightsPage() {
     () => encodeExtents(points, sizeKey),
     [points, sizeKey],
   )
+  /**
+   * Which size metrics are the same for every entry. Saying so on the option
+   * itself costs no layout, unlike a note under the control, which made the
+   * Size field taller than its neighbours and skewed the whole row.
+   */
+  const flatSizeKeys = useMemo(() => {
+    const flat = new Set<BubbleEncodeKey>()
+    for (const o of BUBBLE_SIZE_OPTIONS) {
+      if (o.key === 'fixed') continue
+      const e = encodeExtents(points, o.key)
+      if (e.max - e.min < 1e-9) flat.add(o.key)
+    }
+    return flat
+  }, [points])
   const opacityExtents = useMemo(
     () => encodeExtents(points, opacityKey),
     [points, opacityKey],
@@ -204,7 +214,7 @@ export function InsightsPage() {
         itemStyle: {
           color: familyColor(family),
           opacity: 0.85,
-          borderColor: '#e2e8f0',
+          borderColor: CHART_TEXT,
           borderWidth: 1.5,
         },
         label: {
@@ -215,14 +225,14 @@ export function InsightsPage() {
           },
           position: 'right' as const,
           fontSize: 11,
-          color: '#e2e8f0',
+          color: CHART_TEXT,
         },
         // Crowded corners stack labels into unreadable mush; drop the ones that
         // would collide and let hover reveal them instead.
         labelLayout: { hideOverlap: true },
         emphasis: {
           scale: 1.12,
-          itemStyle: { borderColor: '#00d4ff', borderWidth: 2 },
+          itemStyle: { borderColor: CHART_FOCUS, borderWidth: 2 },
         },
       }
     })
@@ -370,7 +380,7 @@ export function InsightsPage() {
                       opacityExtents.max,
                     ),
               borderColor:
-                d.id === pendingFrom || d.id === focusId ? '#00d4ff' : '#e2e8f0',
+                d.id === pendingFrom || d.id === focusId ? CHART_FOCUS : CHART_TEXT,
               borderWidth: d.id === pendingFrom || d.id === focusId ? 3 : 1.5,
               borderType:
                 d.id === pendingFrom ? ('dashed' as const) : ('solid' as const),
@@ -469,6 +479,7 @@ export function InsightsPage() {
               {BUBBLE_SIZE_OPTIONS.map((o) => (
                 <option key={o.key} value={o.key}>
                   {o.label}
+                  {flatSizeKeys.has(o.key) ? ' (same for all)' : ''}
                 </option>
               ))}
             </select>
@@ -501,12 +512,12 @@ export function InsightsPage() {
               value={draftColor}
               onChange={(e) => setDraftColor(e.target.value)}
             >
-              <option value="#00d4ff">Cyan (gain)</option>
-              <option value="#f97316">Orange (arch)</option>
-              <option value="#3b82f6">Blue</option>
-              <option value="#8b5cf6">Violet</option>
-              <option value="#eab308">Gold</option>
-              <option value="#e2e8f0">Ink (trade-off)</option>
+              <option value={SERIES_COLORS[0]}>Blue (gain)</option>
+              <option value={SERIES_COLORS[1]}>Orange (arch)</option>
+              <option value={SERIES_COLORS[2]}>Aqua</option>
+              <option value={SERIES_COLORS[5]}>Violet</option>
+              <option value={SERIES_COLORS[3]}>Yellow</option>
+              <option value={CHART_TEXT}>Ink (trade-off)</option>
             </select>
           </label>
           <div className="insights-controls__status">
@@ -645,29 +656,6 @@ export function InsightsPage() {
             )}
           </section>
 
-          <section className="insights-legend-card">
-            <h2>Encodings</h2>
-            <ul>
-              <li>
-                <strong>X / Y</strong> — {bubbleAxisOption(xAxisKey).label} /{' '}
-                {bubbleAxisOption(yAxisKey).label}
-              </li>
-              <li>
-                <strong>Size</strong> — {encodeLabel(sizeKey)}
-                {sizeKey !== 'fixed' &&
-                  (sizeExtents.max - sizeExtents.min < 1e-9
-                    ? ` — every entry is ${formatExtent(sizeExtents.min)}, so size encodes nothing here`
-                    : ` (${formatExtent(sizeExtents.min)}–${formatExtent(sizeExtents.max)})`)}
-              </li>
-              <li>
-                <strong>Color</strong> — model family
-              </li>
-              <li>
-                <strong>Opacity</strong> — {encodeLabel(opacityKey)}
-                {opacityKey !== 'fixed' ? ' (darker = higher)' : ''}
-              </li>
-            </ul>
-          </section>
         </aside>
       </div>
     </div>

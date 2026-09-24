@@ -15,6 +15,11 @@ import {
   radarAxes,
   shortFailureCategory,
 } from '../lib/compare'
+import {
+  CHART_MUTED,
+  CHART_TEXT,
+  seriesColor,
+} from '../lib/chartTheme'
 import { formatScore, loadSubmissionDetails } from '../lib/data'
 import {
   BASIS_LABEL,
@@ -29,9 +34,7 @@ import type { SubmissionDetail } from '../lib/types'
 const NUM = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
 
 /** Muted grey for in-chart figure notes. */
-const CHART_NOTE = '#8b9cb6'
 
-const COLORS = ['#00d4ff', '#f97316', '#3b82f6', '#8b5cf6', '#eab308', '#ec4899']
 
 type PairSortKey =
   | 'scenario'
@@ -200,10 +203,10 @@ export function ComparePage() {
   const radarOption = useMemo((): EChartsOption => {
     const axes = details.map(radarAxes)
     const indicators = [
-      { name: 'Detection', max: 1 },
-      { name: 'Localization', max: 1 },
+      { name: 'Detection score', max: 1 },
+      { name: 'Localization F1', max: 1 },
       { name: 'RCA F1', max: 1 },
-      { name: 'Success', max: 1 },
+      { name: 'Success rate', max: 1 },
       { name: 'Token efficiency', max: 1 },
       { name: 'Step efficiency', max: 1 },
     ]
@@ -242,8 +245,21 @@ export function ComparePage() {
           return `<strong>${p.name}</strong><br/>${lines.join('<br/>')}${scale}`
         },
       },
-      legend: { data: details.map((d) => d.name), bottom: 0 },
-      radar: { indicator: indicators },
+      // A radar is square, so on a wide panel the side margins are dead space.
+      // The legend moves into it and the plot takes the freed height.
+      legend: {
+        data: details.map((d) => d.name),
+        type: 'scroll',
+        orient: 'vertical',
+        right: 8,
+        top: 'middle',
+        itemGap: 10,
+      },
+      radar: {
+        indicator: indicators,
+        center: ['40%', '52%'],
+        radius: '80%',
+      },
       series: [
         {
           type: 'radar',
@@ -259,8 +275,8 @@ export function ComparePage() {
                 invertedMinMax(a.tokens, baseline.tokens),
                 invertedMinMax(a.steps, baseline.steps),
               ],
-              lineStyle: { color: COLORS[i % COLORS.length] },
-              itemStyle: { color: COLORS[i % COLORS.length] },
+              lineStyle: { color: seriesColor(i) },
+              itemStyle: { color: seriesColor(i) },
             }
           }),
         },
@@ -300,7 +316,7 @@ export function ComparePage() {
           name: d.name,
           type: 'scatter',
           symbolSize: 12,
-          itemStyle: { color: COLORS[i % COLORS.length] },
+          itemStyle: { color: seriesColor(i) },
           data: cases
             .filter((c) => c.mean_tokens != null)
             .map((c) => [c.mean_tokens!, c.mean_rca_f1]),
@@ -326,7 +342,7 @@ export function ComparePage() {
                 meanTokens: d.mean_tokens,
                 price: cost.price,
                 edited: cost.edited,
-                color: COLORS[i % COLORS.length],
+                color: seriesColor(i),
               }
             : null
         })
@@ -358,7 +374,7 @@ export function ComparePage() {
             subtext: `${dropped} of ${details.length} selected entries have no token totals or no price and are not plotted`,
             left: 8,
             top: 2,
-            subtextStyle: { color: CHART_NOTE, fontSize: 11 },
+            subtextStyle: { color: CHART_MUTED, fontSize: 11 },
           }
         : undefined,
       tooltip: {
@@ -443,7 +459,7 @@ export function ComparePage() {
               formatter: p.name,
               position: 'right' as const,
               fontSize: 11,
-              color: onFront ? '#e2e8f0' : CHART_NOTE,
+              color: onFront ? CHART_TEXT : CHART_MUTED,
             },
           }
         }),
@@ -453,7 +469,7 @@ export function ComparePage() {
           showSymbol: false,
           silent: true,
           data: front.map((p) => [p.cost, p.score]),
-          lineStyle: { type: 'dashed', width: 2, color: '#8b9cb6', opacity: 0.9 },
+          lineStyle: { type: 'dashed', width: 2, color: CHART_MUTED, opacity: 0.9 },
           z: 1,
         },
       ] as EChartsOption['series'],
@@ -462,7 +478,7 @@ export function ComparePage() {
 
   const tokenBarOption = useMemo((): EChartsOption => {
     const colorById = new Map(
-      details.map((d, i) => [d.id, COLORS[i % COLORS.length]]),
+      details.map((d, i) => [d.id, seriesColor(i)]),
     )
     const rows = [...details].sort(
       (a, b) => (b.total_tokens ?? 0) - (a.total_tokens ?? 0),
@@ -511,7 +527,7 @@ export function ComparePage() {
           barMaxWidth: 48,
           data: rows.map((d) => ({
             value: d.total_tokens ?? 0,
-            itemStyle: { color: colorById.get(d.id) || COLORS[0] },
+            itemStyle: { color: colorById.get(d.id) || seriesColor(0) },
           })),
           label: {
             show: rows.length <= 10,
@@ -540,7 +556,7 @@ export function ComparePage() {
         name: d.name,
         type: 'line',
         showSymbol: false,
-        itemStyle: { color: COLORS[i % COLORS.length] },
+        itemStyle: { color: seriesColor(i) },
         data: cdfPoints(
           aggregateByCase(d.trials).map((c) => c.mean_rca_f1 || 0),
         ),
@@ -582,7 +598,7 @@ export function ComparePage() {
         axisLabel: {
           interval: 0,
           fontSize: 11,
-          color: '#e2e8f0',
+          color: CHART_TEXT,
           margin: 10,
         },
       },
@@ -592,7 +608,7 @@ export function ComparePage() {
         coordinateSystem: 'polar',
         name: d.name,
         data: cats.map((c) => byDetail[i].get(c) ?? 0),
-        itemStyle: { color: COLORS[i % COLORS.length] },
+        itemStyle: { color: seriesColor(i) },
       })),
     }
   }, [details])
@@ -628,7 +644,7 @@ export function ComparePage() {
           option={radarOption}
           filename="nika-radar"
           empty={!details.length}
-          height={520}
+          height={430}
           zoomable={false}
         />
         <ChartPanel

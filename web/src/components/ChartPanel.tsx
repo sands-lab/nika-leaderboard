@@ -2,6 +2,12 @@ import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } 
 import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import type { EChartsType } from 'echarts'
+import {
+  CHART_AXIS_NAME,
+  CHART_LINE,
+  CHART_MUTED,
+  CHART_TOOLTIP,
+} from '../lib/chartTheme'
 import { downloadPdf, downloadPng } from '../lib/export'
 
 interface ChartPanelProps {
@@ -23,8 +29,6 @@ interface ChartPanelProps {
   onChartReady?: (chart: EChartsType | null) => void
 }
 
-const CHART_MUTED = '#8b9cb6'
-const CHART_LINE = 'rgba(255, 255, 255, 0.1)'
 
 function withDarkTheme(option: EChartsOption): EChartsOption {
   const existingText =
@@ -36,13 +40,41 @@ function withDarkTheme(option: EChartsOption): EChartsOption {
       ? option.legend
       : null
 
+  // A radar's axis names and grid do not inherit textStyle, so ECharts' light
+  // defaults (#54555a names, pale grey bands) survive onto the dark panel.
+  const existingRadar =
+    option.radar && typeof option.radar === 'object' && !Array.isArray(option.radar)
+      ? option.radar
+      : null
+
+  const existingTooltip =
+    option.tooltip && typeof option.tooltip === 'object' && !Array.isArray(option.tooltip)
+      ? option.tooltip
+      : null
+
   return {
     ...option,
     backgroundColor: option.backgroundColor ?? 'transparent',
+    tooltip: existingTooltip
+      ? { ...CHART_TOOLTIP, ...existingTooltip }
+      : option.tooltip,
     textStyle: {
       color: CHART_MUTED,
       ...existingText,
     },
+    radar: existingRadar
+      ? {
+          axisName: { color: CHART_AXIS_NAME, fontSize: 12 },
+          axisLine: { lineStyle: { color: CHART_LINE } },
+          splitLine: { lineStyle: { color: CHART_LINE } },
+          splitArea: {
+            areaStyle: {
+              color: ['rgba(255, 255, 255, 0.02)', 'rgba(255, 255, 255, 0.045)'],
+            },
+          },
+          ...existingRadar,
+        }
+      : option.radar,
     legend: existingLegend
       ? {
           ...existingLegend,
@@ -96,7 +128,7 @@ function patchAxis(axis: unknown): unknown {
       lineStyle: { color: CHART_LINE, ...splitLineStyle },
     },
     nameTextStyle: {
-      color: CHART_MUTED,
+      color: CHART_AXIS_NAME,
       ...nameTextStyle,
     },
   }
@@ -110,6 +142,25 @@ function withDarkAxes(option: EChartsOption): EChartsOption {
     radiusAxis: patchAxis(option.radiusAxis) as EChartsOption['radiusAxis'],
     angleAxis: patchAxis(option.angleAxis) as EChartsOption['angleAxis'],
   }
+}
+
+/** The bottom zoom slider's geometry, shared so the legend can clear it. */
+const SLIDER_BOTTOM = 8
+const SLIDER_HEIGHT = 18
+const LEGEND_CLEARANCE = SLIDER_BOTTOM + SLIDER_HEIGHT + 8
+
+/**
+ * Keep a bottom-anchored legend clear of the zoom slider. Charts that set their
+ * own `bottom: 0` used to land exactly on top of it; the earlier guard only
+ * placed a legend that had no position of its own, so it never moved them.
+ */
+function patchLegend(legend: EChartsOption['legend'], zoomSlider: boolean) {
+  if (!legend || Array.isArray(legend)) return legend
+  if ('top' in legend && legend.top != null) return legend
+  const bottom = 'bottom' in legend ? legend.bottom : undefined
+  if (typeof bottom === 'string') return legend
+  const floor = zoomSlider ? LEGEND_CLEARANCE : 28
+  return { ...legend, bottom: Math.max(bottom ?? 0, floor) }
 }
 
 function withInteractions(
@@ -150,26 +201,15 @@ function withInteractions(
     dataZoom.push({
       type: 'slider',
       xAxisIndex: 0,
-      height: 18,
-      bottom: 8,
+      height: SLIDER_HEIGHT,
+      bottom: SLIDER_BOTTOM,
       filterMode: 'none',
     })
   }
 
   return {
     ...option,
-    legend: option.legend
-      ? Array.isArray(option.legend)
-        ? option.legend
-        : {
-            ...option.legend,
-            // Only pin legend to bottom when the option didn't already place it.
-            ...(!('top' in option.legend) &&
-            !('bottom' in option.legend && option.legend.bottom != null)
-              ? { bottom: 28 }
-              : {}),
-          }
-      : option.legend,
+    legend: patchLegend(option.legend, zoomSlider),
     toolbox: {
       ...existingToolbox,
       right: 12,

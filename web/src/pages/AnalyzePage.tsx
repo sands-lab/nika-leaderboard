@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import type { EChartsOption } from 'echarts'
 import { ChartPanel } from '../components/ChartPanel'
 import { SortableTh } from '../components/SortableTh'
+import { CHART_TEXT, seriesColor } from '../lib/chartTheme'
 import { formatCount, formatPct, formatScore } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { modelReleaseDate } from '../lib/modelMeta'
@@ -37,7 +38,7 @@ const ANALYZE_ACCESSORS: Record<
   timeout: (s) => s.case_timeout_sec,
 }
 
-const COLORS = ['#00d4ff', '#f97316', '#3b82f6', '#8b5cf6', '#eab308', '#ec4899']
+
 
 function resolvedValue(s: SubmissionSummary, metric: ResolvedMetric): number {
   return metric === 'success' ? s.success_rate ?? 0 : s.mean_rca_f1 ?? 0
@@ -135,7 +136,7 @@ function scatterOption(args: {
             position: 'top',
             distance: 8,
             fontSize: 11,
-            color: '#e2e8f0',
+            color: CHART_TEXT,
           },
         })),
       },
@@ -181,7 +182,7 @@ export function AnalyzePage() {
     () =>
       scoped.map((s, i) => ({
         s,
-        color: COLORS[i % COLORS.length],
+        color: seriesColor(i),
       })),
     [scoped],
   )
@@ -314,7 +315,7 @@ export function AnalyzePage() {
             const vals = groups.get(v) || []
             return vals.reduce((a, b) => a + b, 0) / (vals.length || 1)
           }),
-          itemStyle: { color: '#00d4ff' },
+          itemStyle: { color: seriesColor(0) },
         },
       ],
     }
@@ -341,7 +342,7 @@ export function AnalyzePage() {
         type: 'bar',
         data: systems.map((s) => byName.get(s)?.get(ver) ?? null),
         itemStyle: {
-          color: ['#00d4ff', '#f97316', '#3b82f6'][i % 3],
+          color: seriesColor(i),
         },
       })),
     }
