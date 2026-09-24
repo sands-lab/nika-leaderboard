@@ -41,55 +41,27 @@ jobs:
       - name: Install and build web
         working-directory: web
         env:
-          VITE_BASE_PATH: /nika/leaderboard/
+          # This repository's own Pages path. Publishing here needs no
+          # credentials beyond the workflow's own token.
+          VITE_BASE_PATH: /nika-leaderboard/
         run: |
           npm ci
           npm run build
+          # SPA deep links: Pages serves 404.html for unknown paths.
           cp dist/index.html dist/404.html
 
-      - name: Upload dist artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: leaderboard-dist
-          path: web/dist
-          retention-days: 1
-
-      - name: Upload Pages artifact (legacy redirect)
+      - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v5
         with:
-          path: web/redirect
+          path: web/dist
 
-  publish-nika:
-    needs: build
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-
-      - name: Download dist artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: leaderboard-dist
-          path: dist
-
-      - name: Publish to sands-lab/nika gh-pages/leaderboard
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: dist
-          repository-name: sands-lab/nika
-          branch: gh-pages
-          target-folder: leaderboard
-          token: ${{ secrets.NIKA_PAGES_TOKEN }}
-          clean: true
-          force: false
-          commit-message: Deploy NIKA leaderboard site
-
-  redirect-legacy:
+  deploy:
     needs: build
     runs-on: ubuntu-latest
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     steps:
-      - name: Deploy legacy redirect to GitHub Pages
+      - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
