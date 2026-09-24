@@ -32,8 +32,8 @@ export const FAMILY_COLORS: Record<string, string> = {
   Claude: SERIES_COLORS[3],
   Gemini: SERIES_COLORS[4],
   Llama: SERIES_COLORS[5],
-  DeepSeek: SERIES_COLORS[0],
-  Mistral: SERIES_COLORS[1],
+  DeepSeek: SERIES_COLORS[6],
+  Mistral: SERIES_COLORS[7],
   Other: CHART_MUTED,
 }
 

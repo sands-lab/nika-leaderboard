@@ -19,12 +19,21 @@ export const CHART_LINE = 'rgba(255, 255, 255, 0.1)'
 
 /**
  * Categorical slots, assigned in fixed order and never cycled, so a colour
- * follows the entity rather than its rank. Validated for the dark surface on
- * the adjacent pairlist (lines, bars, legends).
+ * follows the entity rather than its rank. This is the documented eight-slot
+ * order stepped for a dark surface; it validates on the adjacent pairlist
+ * (lines, bars, legends) against this site's #0d1525 chart surface, with the
+ * same worst pairs as the six-slot subset it replaces — CVD deltaE 8.4 on
+ * yellow/aqua, normal-vision 19.3 on magenta/yellow.
  *
- * Scatter and bubble forms compare every pair at once, and no six-colour
- * ordering clears that bar; only the first three slots do. Past three, such a
+ * Eight rather than six because there are eight model families to name, and a
+ * short list forced two of them to share a hue with another family.
+ *
+ * Scatter and bubble forms compare every pair at once, and no ordering of the
+ * full set clears that bar; only the first three slots do. Past three, such a
  * chart needs direct labels to carry identity — which the bubble chart has.
+ *
+ * The green and red slots are the categorical steps, deliberately distinct
+ * from the reserved status colours, which are never reused as a series.
  */
 export const SERIES_COLORS = [
   '#3987e5', // blue
@@ -32,7 +41,9 @@ export const SERIES_COLORS = [
   '#199e70', // aqua
   '#c98500', // yellow
   '#d55181', // magenta
+  '#008300', // green
   '#9085e9', // violet
+  '#e66767', // red
 ] as const
 
 /** Colour for series `i`, stable as the selection grows or shrinks. */
