@@ -722,14 +722,6 @@ code {
   color: var(--muted);
 }
 
-.table-note {
-  margin-top: 0.75rem;
-  color: var(--muted);
-  font-size: 0.8rem;
-  line-height: 1.5;
-  max-width: 60rem;
-}
-
 .score-pill {
   display: inline-flex;
   align-items: center;
