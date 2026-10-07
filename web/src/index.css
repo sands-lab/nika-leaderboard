@@ -1412,10 +1412,10 @@ code {
 
   .topbar {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
     grid-template-areas:
-      "brand github"
-      "nav nav";
+      "brand . ."
+      "nav nav nav";
     align-items: center;
     gap: 0.5rem 0.75rem;
     padding: 0.65rem 0.85rem;
@@ -1426,8 +1426,9 @@ code {
     min-width: 0;
   }
 
+  /* Row 1 only; each link auto-places into its own column. */
   .topbar__link {
-    grid-area: github;
+    grid-row: 1;
     justify-self: end;
     padding: 0.35rem 0.6rem;
     font-size: 0.82rem;
