@@ -98,14 +98,15 @@ function ScorePill({ value }: { value: number | null | undefined }) {
 }
 
 function rankTitle(s: SubmissionSummary, tied: number): string {
-  if (!s.rca_f1_ci) {
-    return 'Point-estimate rank: this entry has no per-trial results to test significance'
-  }
-  const better = s.rank ? s.rank - 1 : 0
-  const lead = `${better} visible ${better === 1 ? 'entry is' : 'entries are'} significantly better (paired bootstrap, 95%)`
+  if (!s.rca_f1_ci) return 'Ranked by score alone (no per-trial results)'
   return tied > 1
-    ? `${lead}; ${tied} entries share this rank (ex aequo)`
-    : lead
+    ? `Tied with ${tied - 1} other ${tied === 2 ? 'entry' : 'entries'}: the score gap is within run-to-run noise`
+    : 'Clearly ahead of every entry ranked below it'
+}
+
+/** Half-width of the 95% CI, shown as "± x" like most leaderboards. */
+function ciHalfWidth(ci: [number, number]): number {
+  return (ci[1] - ci[0]) / 2
 }
 
 function RcaCell({ s }: { s: SubmissionSummary }) {
@@ -115,16 +116,12 @@ function RcaCell({ s }: { s: SubmissionSummary }) {
       className="rca-cell"
       title={
         ci
-          ? `Mean RCA F1 ${formatScore(s.mean_rca_f1)}, 95% CI ${formatScore(ci[0])}–${formatScore(ci[1])} (cluster bootstrap over cases)`
-          : 'No per-trial results, so no confidence interval'
+          ? `On a fresh set of cases, this score would land between ${formatScore(ci[0], 2)} and ${formatScore(ci[1], 2)} 95% of the time`
+          : 'No per-trial results, so no uncertainty estimate'
       }
     >
       <ScorePill value={s.mean_rca_f1} />
-      {ci && (
-        <span className="ci-range">
-          {formatScore(ci[0], 2)}–{formatScore(ci[1], 2)}
-        </span>
-      )}
+      {ci && <span className="ci-range">± {formatScore(ciHalfWidth(ci), 2)}</span>}
     </span>
   )
 }
@@ -270,7 +267,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sortKey="rank"
               sort={sort}
               onSort={toggle}
-              title="Ex aequo rank: 1 + entries with significantly higher RCA F1 (paired bootstrap over cases, 95%). Tied entries are statistically indistinguishable."
+              title="Entries marked = are tied: their scores are too close to separate reliably"
             />
             <SortableTh
               label="Model"
@@ -330,7 +327,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sortKey="rca"
               sort={sort}
               onSort={toggle}
-              title="Mean RCA F1 with its 95% bootstrap confidence interval — the metric the leaderboard ranks by"
+              title="Mean RCA F1, the metric the leaderboard ranks by. ± is the run-to-run margin: on a fresh set of cases the score would land within it 95% of the time"
             />
             <SortableTh
               label="Success"

@@ -706,14 +706,14 @@ code {
 
 .rca-cell {
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
-  gap: 0.15rem;
+  gap: 0.25rem;
+  white-space: nowrap;
 }
 
 .ci-range {
   color: var(--muted);
-  font-size: 0.7rem;
+  font-size: 0.75rem;
   white-space: nowrap;
 }
 
@@ -846,7 +846,8 @@ code {
 
 .links {
   display: flex;
-  gap: 0.55rem;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.55rem;
   justify-content: center;
   align-items: center;
   font-size: 0.84rem;
