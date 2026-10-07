@@ -1,0 +1,32 @@
+{
+  "case_key": "sdn_l3_clos__web_dos_attack__hb8cb4f83387a",
+  "gt_fault_types": [
+    "web_dos_attack"
+  ],
+  "metrics": {
+    "detection_score": 0.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 290045,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 19399,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 16,
+    "tool_calls": 37,
+    "tool_errors": 2
+  },
+  "outcome": "success",
+  "predicted_fault_types": null,
+  "problem": "web_dos_attack",
+  "scenario": "sdn_l3_clos",
+  "score_status": "scored",
+  "trial_id": "sdn_l3_clos__web_dos_attack__hb8cb4f83387a__t03",
+  "trial_index": 3
+}
