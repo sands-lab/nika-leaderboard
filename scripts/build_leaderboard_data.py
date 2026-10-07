@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 from datetime import datetime, timezone
 import re
 import sys
@@ -423,6 +424,98 @@ def load_submission(
     return summary, detail
 
 
+# Paired cluster bootstrap over cases (Miller 2024, "Adding Error Bars to
+# Evals"): every entry is scored on the same resampled cases, and a case's
+# trials move together, so trial-to-trial noise stays inside the case.
+BOOTSTRAP_RESAMPLES = 10_000
+BOOTSTRAP_SEED = 0
+CONFIDENCE = 0.95
+
+
+def case_scores(detail: dict[str, Any]) -> dict[str, float] | None:
+    """Per-case mean RCA F1 (missing trials count 0); None without full trials."""
+    n_trials = detail.get("n_trials")
+    case_count = detail.get("case_count")
+    trials = detail.get("trials") or []
+    if not n_trials or not case_count or not trials:
+        return None
+    totals: dict[str, float] = defaultdict(float)
+    for t in trials:
+        totals[str(t.get("case_key"))] += float(t.get("rca_f1") or 0.0)
+    if len(totals) != int(case_count):
+        return None
+    return {key: total / int(n_trials) for key, total in totals.items()}
+
+
+def _percentile(sorted_values: list[float], q: float) -> float:
+    idx = q * (len(sorted_values) - 1)
+    lo = int(idx)
+    hi = min(lo + 1, len(sorted_values) - 1)
+    return sorted_values[lo] + (sorted_values[hi] - sorted_values[lo]) * (idx - lo)
+
+
+def rank_statistics(
+    summaries: list[dict[str, Any]],
+    scores: dict[str, dict[str, float] | None],
+) -> None:
+    """Annotate summaries with bootstrap CIs, ``beaten_by`` and ex-aequo ranks.
+
+    ``rank = 1 + |beaten_by|``: an entry only drops below those that are
+    significantly better on the paired difference, so neighbours that are
+    statistically indistinguishable share a rank. Entries without per-trial
+    data fall back to point-estimate comparison.
+    """
+    alpha = (1.0 - CONFIDENCE) / 2.0
+    groups: dict[tuple[Any, Any], list[dict[str, Any]]] = defaultdict(list)
+    for s in summaries:
+        s["rca_f1_ci"] = None
+        s["beaten_by"] = []
+        groups[(s.get("benchmark_version"), s.get("split"))].append(s)
+
+    for members in groups.values():
+        tested = [s for s in members if scores.get(s["id"]) is not None]
+        case_keys = sorted(scores[tested[0]["id"]]) if tested else []
+        tested = [s for s in tested if sorted(scores[s["id"]]) == case_keys]
+        tested_ids = {s["id"] for s in tested}
+        diffs: dict[tuple[str, str], list[float]] = {}
+        if tested:
+            vectors = {s["id"]: [scores[s["id"]][k] for k in case_keys] for s in tested}
+            n = len(case_keys)
+            rng = random.Random(BOOTSTRAP_SEED)
+            means: dict[str, list[float]] = {sid: [] for sid in vectors}
+            for _ in range(BOOTSTRAP_RESAMPLES):
+                idx = [rng.randrange(n) for _ in range(n)]
+                for sid, vec in vectors.items():
+                    means[sid].append(sum(vec[i] for i in idx) / n)
+            for s in tested:
+                dist = sorted(means[s["id"]])
+                s["rca_f1_ci"] = [
+                    round(_percentile(dist, alpha), 6),
+                    round(_percentile(dist, 1.0 - alpha), 6),
+                ]
+            for a in tested:
+                for b in tested:
+                    if a is not b:
+                        diffs[(a["id"], b["id"])] = sorted(
+                            x - y for x, y in zip(means[a["id"]], means[b["id"]])
+                        )
+
+        for s in members:
+            for other in members:
+                if other is s:
+                    continue
+                if s["id"] in tested_ids and other["id"] in tested_ids:
+                    better = _percentile(diffs[(other["id"], s["id"])], alpha) > 0
+                else:
+                    better = (other.get("mean_rca_f1") or 0.0) > (
+                        s.get("mean_rca_f1") or 0.0
+                    )
+                if better:
+                    s["beaten_by"].append(other["id"])
+            s["beaten_by"].sort()
+            s["rank"] = 1 + len(s["beaten_by"])
+
+
 def unique_sorted(values: set[Any]) -> list[Any]:
     return sorted(v for v in values if v is not None and v != "")
 
@@ -462,6 +555,7 @@ def build_leaderboard(
 ) -> None:
     submissions_root = repo_root / "submissions"
     summaries: list[dict[str, Any]] = []
+    scores: dict[str, dict[str, float] | None] = {}
     versions: set[str] = set(catalogs)
 
     frameworks: set[str] = set()
@@ -494,6 +588,7 @@ def build_leaderboard(
                 package_dir, version, lookup, repo_root=repo_root
             )
             summaries.append(summary)
+            scores[summary["id"]] = case_scores(detail)
             safe_id = summary["id"].replace("/", "__")
             write_json(submissions_out / f"{safe_id}.json", detail)
 
@@ -505,15 +600,16 @@ def build_leaderboard(
             orgs.add(summary.get("org"))
             splits.add(summary.get("split"))
 
+    rank_statistics(summaries, scores)
     summaries.sort(
         key=lambda s: (
+            s.get("benchmark_version") or "",
+            s["rank"],
             -(s.get("mean_rca_f1") or 0.0),
             s.get("name") or "",
             s.get("id") or "",
         )
     )
-    for i, s in enumerate(summaries, start=1):
-        s["rank"] = i
 
     # Copy catalogs into public data
     for version, catalog in catalogs.items():
@@ -552,6 +648,12 @@ def build_leaderboard(
                 "split": unique_sorted(splits),
             },
             "primary_metric": "mean_rca_f1",
+            "ranking": {
+                "method": "paired cluster bootstrap over cases",
+                "resamples": BOOTSTRAP_RESAMPLES,
+                "seed": BOOTSTRAP_SEED,
+                "confidence": CONFIDENCE,
+            },
             # So the page can say how fresh its numbers are.
             "generated_at": datetime.now(timezone.utc)
             .replace(microsecond=0)

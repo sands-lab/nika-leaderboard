@@ -6,7 +6,8 @@ import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { exportCsv, withRanks } from '../lib/metrics'
 
 export function LeaderboardPage() {
-  const { filtered, pricing, overrides, loading, error } = useLeaderboardData()
+  const { filtered, meta, pricing, overrides, loading, error } =
+    useLeaderboardData()
 
   const ranked = useMemo(() => withRanks(filtered), [filtered])
 
@@ -33,6 +34,20 @@ export function LeaderboardPage() {
       <LeaderCards rows={ranked} />
 
       <LeaderboardTable rows={ranked} />
+
+      <p className="table-note">
+        Ranks are ex aequo: an entry&apos;s rank is 1 + the number of entries
+        on the same release whose mean RCA F1 is significantly higher, so
+        statistically indistinguishable neighbours share a rank (marked =).
+        Significance uses a paired cluster bootstrap over cases (
+        {meta?.ranking?.resamples?.toLocaleString('en-US') ?? '10,000'}{' '}
+        resamples, {Math.round((meta?.ranking?.confidence ?? 0.95) * 100)}%):
+        every entry is rescored on the same resampled cases, and all trials of a
+        case are drawn together. The range under each RCA F1 is its{' '}
+        {Math.round((meta?.ranking?.confidence ?? 0.95) * 100)}% confidence
+        interval. Entries without per-trial results are ranked by point
+        estimate and show no interval.
+      </p>
     </div>
   )
 }
