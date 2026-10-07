@@ -1,0 +1,34 @@
+{
+  "case_key": "enterprise_branch__vrf_dscp__hcd608018d99c",
+  "gt_fault_types": [
+    "vrf_dscp_remarking"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 436789,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 14422,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 39,
+    "tool_calls": 37,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "bgp_missing_route_advertisement"
+  ],
+  "problem": "vrf_dscp_remarking",
+  "scenario": "enterprise_branch",
+  "score_status": "scored",
+  "trial_id": "enterprise_branch__vrf_dscp__hcd608018d99c__t01",
+  "trial_index": 1
+}
