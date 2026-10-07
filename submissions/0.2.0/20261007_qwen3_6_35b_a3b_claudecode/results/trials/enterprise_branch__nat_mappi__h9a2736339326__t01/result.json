@@ -1,0 +1,34 @@
+{
+  "case_key": "enterprise_branch__nat_mappi__h9a2736339326",
+  "gt_fault_types": [
+    "nat_mapping_removed_without_drain"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 605030,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 25092,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 45,
+    "tool_calls": 43,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "bgp_missing_route_advertisement"
+  ],
+  "problem": "nat_mapping_removed_without_drain",
+  "scenario": "enterprise_branch",
+  "score_status": "scored",
+  "trial_id": "enterprise_branch__nat_mappi__h9a2736339326__t01",
+  "trial_index": 1
+}

@@ -1,0 +1,35 @@
+{
+  "case_key": "dc_clos__receiver_resource_c__ha2be5b357067",
+  "gt_fault_types": [
+    "receiver_resource_contention"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 171342,
+    "localization_accuracy": 1.0,
+    "localization_f1": 0.6667,
+    "localization_precision": 0.5,
+    "localization_recall": 1.0,
+    "out_tokens": 22491,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 53,
+    "tool_calls": 51,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "host_incorrect_ip",
+    "host_incorrect_gateway"
+  ],
+  "problem": "receiver_resource_contention",
+  "scenario": "dc_clos",
+  "score_status": "scored",
+  "trial_id": "dc_clos__receiver_resource_c__ha2be5b357067__t02",
+  "trial_index": 2
+}

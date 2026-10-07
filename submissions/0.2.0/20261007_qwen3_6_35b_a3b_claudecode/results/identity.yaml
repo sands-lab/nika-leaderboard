@@ -1,0 +1,22 @@
+created_at: '2026-10-07T10:33:38+00:00'
+benchmark:
+  id: nika-bench
+  version: 0.2.0
+  ref: nika-bench@0.2.0
+  split: test
+  case_count: 85
+  n_trials: 3
+  scoring_id: rule-based
+  leaderboard_primary: rca_f1
+run:
+  run_id: 7ff2f0b4fe0f4e9b
+  official: true
+  agent_type: cli.claude
+  model: Qwen3.6-35B-A3B-FP8
+  llm_provider: custom
+  max_steps: 100
+  case_timeout_sec: 7800
+  nika_git_commit: 5ab69e6bef637d51d4c04c5c05eca5f4a1bfb37e
+  source_result_dir: results/bench-020-test-cli-claude-qwen36-n24-t7200-20261005-131635
+trajectories_relpath: trajectories/0.2.0/20261007_qwen3_6_35b_a3b_claudecode
+scores_package: null

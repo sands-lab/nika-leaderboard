@@ -1,0 +1,17 @@
+info:
+  name: Qwen3.6-35B-A3B ClaudeCode
+  authors: NIKA Team
+  org: null
+  site: null
+  report: null
+  logo: null
+  email: null
+  github: https://github.com/sands-lab/nika
+agent:
+  model: Qwen3.6-35B-A3B-FP8
+  framework: ClaudeCode
+  tools: []
+  skills: []
+  optimization_methods: []
+  tags: []
+  extra: {}
