@@ -150,15 +150,19 @@ export function groupMean(
     .sort((a, b) => b.mean - a.mean)
 }
 
-/** Short axis labels for polar/radial failure-category charts. */
+/** Short axis labels for NIKA failure domains (docs/operations/failures.md). */
 export const FAILURE_CATEGORY_SHORT: Record<string, string> = {
-  link_failure: 'Link',
-  end_host_failure: 'Host',
-  network_node_error: 'Node',
-  resource_contention: 'Resource',
-  misconfiguration: 'Misconfig',
-  network_under_attack: 'Attack',
-  multiple_faults: 'Multi',
+  link_interface: 'Link & Interface',
+  routing_control_plane: 'Routing',
+  forwarding_encapsulation_policy: 'Forwarding & Policy',
+  service_networking: 'Service Networking',
+  management_orchestration_plane: 'Mgmt & Orchestration',
+  addressing_neighbor_naming: 'Addressing & Naming',
+  endpoint_application: 'Endpoint & App',
+  traffic_queueing_resource: 'Traffic & Queueing',
+  security: 'Security',
+  multiple_faults: 'Multiple faults',
+  healthy: 'Healthy',
   unknown: 'Unknown',
 }
 
