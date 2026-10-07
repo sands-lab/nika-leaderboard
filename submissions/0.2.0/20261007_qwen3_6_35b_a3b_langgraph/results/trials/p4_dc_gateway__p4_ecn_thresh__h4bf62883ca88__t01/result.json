@@ -1,0 +1,32 @@
+{
+  "case_key": "p4_dc_gateway__p4_ecn_thresh__h4bf62883ca88",
+  "gt_fault_types": [
+    "p4_ecn_threshold_misconfiguration"
+  ],
+  "metrics": {
+    "detection_score": 0.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 147966,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 12226,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 11,
+    "tool_calls": 27,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": null,
+  "problem": "p4_ecn_threshold_misconfiguration",
+  "scenario": "p4_dc_gateway",
+  "score_status": "scored",
+  "trial_id": "p4_dc_gateway__p4_ecn_thresh__h4bf62883ca88__t01",
+  "trial_index": 1
+}

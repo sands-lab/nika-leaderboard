@@ -1,0 +1,34 @@
+{
+  "case_key": "min3clos__bgp_asn_misconfig__h72c7bf7e08f2",
+  "gt_fault_types": [
+    "bgp_asn_misconfig"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 207377,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 8852,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 17,
+    "tool_calls": 52,
+    "tool_errors": 1
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "link_flap"
+  ],
+  "problem": "bgp_asn_misconfig",
+  "scenario": "min3clos",
+  "score_status": "scored",
+  "trial_id": "min3clos__bgp_asn_misconfig__h72c7bf7e08f2__t02",
+  "trial_index": 2
+}
