@@ -12,7 +12,8 @@ Full instructions, package layout, metadata schema, and PR checklist:
 **[docs/leaderboard-submission.md](https://github.com/sands-lab/nika/blob/main/docs/benchmarks/leaderboard-submission.md)**
 
 ```shell
-nika leaderboard submit path/to/YYYYMMDD_slug
+# after an official run: nika benchmark run --release 0.2.0 --split test --result_dir results/my-run ...
+nika leaderboard submit --result_dir results/my-run --name "My Agent" --authors "Your Name"
 ```
 
 Do **not** commit raw traces, `messages.jsonl`, pcaps, or full session trees into this repository. CI re-runs `nika leaderboard validate` on PRs that touch `submissions/`.
@@ -90,4 +91,8 @@ web/                           # Vite React UI
 .vscode/extensions.json        # recommended Cursor/VS Code extensions
 ```
 
-Do not hand-edit integrity-bound files inside submission packages (`files.json`, metrics, trials). Change staging metadata in NIKA and re-`pack` instead.
+Do not hand-edit integrity-bound files inside submission packages (`identity.yaml`, `metrics.json`, `rca_confusion.json`, trial `result.json`). Fix the run or metadata in NIKA and rerun `nika leaderboard submit` instead.
+
+### Ranking
+
+The table ranks entries of the same release by mean RCA F1 with ex-aequo ties. An entry's rank is 1 + the number of entries whose RCA F1 is significantly higher, so statistically indistinguishable neighbours share a rank (the same rule as LMArena's upper-bound rank). `scripts/build_leaderboard_data.py` decides significance with a paired cluster bootstrap over cases (10,000 resamples, seed 0, 95%). Every entry is rescored on the same resampled case set and all trials of a case are drawn together, so trial-to-trial noise stays inside its case. Each RCA F1 shows its 95% percentile interval. Entries without per-trial results fall back to point-estimate ranking. The UI recomputes ranks over the visible rows when filters hide entries.
