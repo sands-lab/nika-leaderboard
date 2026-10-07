@@ -59,6 +59,10 @@ export interface SubmissionSummary {
   created_at: string | null
   run_id: string | null
   official: boolean | null
+  /** 95% bootstrap CI of mean RCA F1; null without per-trial data. */
+  rca_f1_ci?: [number, number] | null
+  /** Same-release entries whose RCA F1 is significantly higher. */
+  beaten_by?: string[]
 }
 
 export interface TrialRow {
@@ -130,6 +134,12 @@ export interface MetaFile {
   generated_at?: string
   /** BibTeX from catalog/citation.bib, when the archive ships one. */
   citation?: string
+  ranking?: {
+    method: string
+    resamples: number
+    seed: number
+    confidence: number
+  }
 }
 
 export interface CatalogCase {
