@@ -73,7 +73,7 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
               .map((s) => s.benchmark_version)
               .filter((v): v is string => Boolean(v)),
           ),
-        ].sort()
+        ].sort((a, b) => a.localeCompare(b, undefined, { numeric: true }))
         const initialVersion =
           versionsWithData.length > 0
             ? versionsWithData[versionsWithData.length - 1]

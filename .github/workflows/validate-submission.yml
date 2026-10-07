@@ -18,8 +18,8 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Set up Python
-        uses: actions/setup-python@v7
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v9.0.0
         with:
           python-version: "3.12"
 
@@ -30,10 +30,13 @@ jobs:
         run: |
           set -euo pipefail
           REF="${NIKA_REF:-main}"
-          python -m pip install --upgrade pip
           # Editable clone keeps benchmark/releases on disk (needed by validate).
           git clone --depth 1 --branch "$REF" https://github.com/sands-lab/nika.git "$HOME/nika"
-          python -m pip install -e "$HOME/nika"
+          # uv sync, not pip: the CLI imports the default `labs` dependency group
+          # (docker, kathara), which pip does not install.
+          uv sync --project "$HOME/nika" --no-dev
+          echo "$HOME/nika/.venv/bin" >> "$GITHUB_PATH"
+          export PATH="$HOME/nika/.venv/bin:$PATH"
           if ! nika --help 2>&1 | grep -q leaderboard; then
             echo "::error::Installed NIKA from ref '${REF}' has no 'nika leaderboard' command."
             nika --help || true
