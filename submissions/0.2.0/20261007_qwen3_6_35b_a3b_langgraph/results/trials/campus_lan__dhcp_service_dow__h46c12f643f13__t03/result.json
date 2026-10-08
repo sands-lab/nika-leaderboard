@@ -1,0 +1,34 @@
+{
+  "case_key": "campus_lan__dhcp_service_dow__h46c12f643f13",
+  "gt_fault_types": [
+    "dhcp_service_down"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 1.0,
+    "fault_type_precision": 1.0,
+    "fault_type_recall": 1.0,
+    "in_tokens": 649026,
+    "localization_accuracy": 1.0,
+    "localization_f1": 1.0,
+    "localization_precision": 1.0,
+    "localization_recall": 1.0,
+    "out_tokens": 7762,
+    "rca_accuracy": 1.0,
+    "rca_f1": 1.0,
+    "rca_precision": 1.0,
+    "rca_recall": 1.0,
+    "steps": 35,
+    "tool_calls": 34,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "dhcp_service_down"
+  ],
+  "problem": "dhcp_service_down",
+  "scenario": "campus_lan",
+  "score_status": "scored",
+  "trial_id": "campus_lan__dhcp_service_dow__h46c12f643f13__t03",
+  "trial_index": 3
+}

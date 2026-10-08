@@ -33,6 +33,7 @@ export function LeaderboardPage() {
       <LeaderCards rows={ranked} />
 
       <LeaderboardTable rows={ranked} />
+
     </div>
   )
 }

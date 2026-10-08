@@ -242,7 +242,7 @@ export function MatrixPage() {
             onChange={(e) => setMode(e.target.value as AggregateMode)}
           >
             <option value="problem">Problem / failure</option>
-            <option value="category">Failure category</option>
+            <option value="category">Failure domain</option>
             <option value="scenario">Scenario</option>
             <option value="size">Topo size</option>
           </select>

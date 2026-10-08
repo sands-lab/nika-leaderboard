@@ -161,14 +161,37 @@ export function applyFilters(
   })
 }
 
+/**
+ * Ex-aequo rank among the visible rows: 1 + the number of visible entries of
+ * the same release that are significantly better (precomputed `beaten_by`).
+ * Entries that are statistically indistinguishable therefore share a rank,
+ * and ranks never compare across releases with different case sets.
+ */
 export function withRanks(rows: SubmissionSummary[]): SubmissionSummary[] {
-  const sorted = [...rows].sort((a, b) => {
+  const visible = new Set(rows.map((s) => s.id))
+  const ranked = rows.map((s) => ({
+    ...s,
+    rank: 1 + (s.beaten_by ?? []).filter((id) => visible.has(id)).length,
+  }))
+  return ranked.sort((a, b) => {
+    if (a.benchmark_version !== b.benchmark_version) {
+      return b.benchmark_version.localeCompare(a.benchmark_version, undefined, {
+        numeric: true,
+      })
+    }
+    if (a.rank !== b.rank) return a.rank - b.rank
     const av = a.mean_rca_f1 ?? -1
     const bv = b.mean_rca_f1 ?? -1
     if (bv !== av) return bv - av
     return (a.name || '').localeCompare(b.name || '')
   })
-  return sorted.map((s, i) => ({ ...s, rank: i + 1 }))
+}
+
+/** How many visible rows share this row's rank (ties are ex aequo). */
+export function tieCount(rows: SubmissionSummary[], s: SubmissionSummary): number {
+  return rows.filter(
+    (o) => o.benchmark_version === s.benchmark_version && o.rank === s.rank,
+  ).length
 }
 
 export function exportCsv(
@@ -191,6 +214,8 @@ export function exportCsv(
     'mean_detection_score',
     'mean_localization_f1',
     'mean_rca_f1',
+    'rca_f1_ci_low',
+    'rca_f1_ci_high',
     'success_rate',
     'n_success',
     'n_trials_expected',
@@ -214,6 +239,8 @@ export function exportCsv(
       else if (h === 'cost_per_case_usd') v = cost?.perCase ?? ''
       else if (h === 'cost_total_usd') v = cost?.total ?? ''
       else if (h === 'skills') v = scaffoldTags(s).join('; ')
+      else if (h === 'rca_f1_ci_low') v = s.rca_f1_ci?.[0]
+      else if (h === 'rca_f1_ci_high') v = s.rca_f1_ci?.[1]
       else v = record[h]
       const str = v == null ? '' : String(v)
       return `"${str.replace(/"/g, '""')}"`

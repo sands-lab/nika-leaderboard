@@ -769,7 +769,7 @@ export function ComparePage() {
           height={520}
         />
         <ChartPanel
-          title="Radial: mean RCA F1 by failure category"
+          title="Radial: mean RCA F1 by failure domain"
           option={radialOption}
           filename="nika-radial"
           empty={!details.length}

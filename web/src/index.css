@@ -704,6 +704,24 @@ code {
   font-weight: 500;
 }
 
+.rca-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  white-space: nowrap;
+}
+
+.ci-range {
+  color: var(--muted);
+  font-size: 0.75rem;
+  white-space: nowrap;
+}
+
+.rank-tie {
+  margin-left: 0.15rem;
+  color: var(--muted);
+}
+
 .score-pill {
   display: inline-flex;
   align-items: center;
@@ -828,7 +846,8 @@ code {
 
 .links {
   display: flex;
-  gap: 0.55rem;
+  flex-wrap: wrap;
+  gap: 0.2rem 0.55rem;
   justify-content: center;
   align-items: center;
   font-size: 0.84rem;
@@ -1386,10 +1405,10 @@ code {
 
   .topbar {
     display: grid;
-    grid-template-columns: 1fr auto;
+    grid-template-columns: 1fr auto auto;
     grid-template-areas:
-      "brand github"
-      "nav nav";
+      "brand . ."
+      "nav nav nav";
     align-items: center;
     gap: 0.5rem 0.75rem;
     padding: 0.65rem 0.85rem;
@@ -1400,8 +1419,9 @@ code {
     min-width: 0;
   }
 
+  /* Row 1 only; each link auto-places into its own column. */
   .topbar__link {
-    grid-area: github;
+    grid-row: 1;
     justify-self: end;
     padding: 0.35rem 0.6rem;
     font-size: 0.82rem;

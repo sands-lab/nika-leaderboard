@@ -288,7 +288,7 @@ export function ConfusionPage() {
                   value={level}
                   onChange={(e) => setLevel(e.target.value as ConfusionLevel)}
                 >
-                  <option value="category">Failure category</option>
+                  <option value="category">Failure domain</option>
                   <option value="problem">RCA problem name</option>
                 </select>
               </label>
@@ -319,7 +319,7 @@ export function ConfusionPage() {
               <ChartPanel
                 title={
                   level === 'category'
-                    ? 'Category confusion'
+                    ? 'Failure domain confusion'
                     : 'Problem-name confusion'
                 }
                 description={

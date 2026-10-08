@@ -13,6 +13,7 @@ import {
   adaptationMethods,
   formatAdaptation,
   scaffoldTags,
+  tieCount,
 } from '../lib/metrics'
 import { modelReleaseDate } from '../lib/modelMeta'
 import {
@@ -96,6 +97,35 @@ function ScorePill({ value }: { value: number | null | undefined }) {
   )
 }
 
+function rankTitle(s: SubmissionSummary, tied: number): string {
+  if (!s.rca_f1_ci) return 'Ranked by score alone (no per-trial results)'
+  return tied > 1
+    ? `Tied with ${tied - 1} other ${tied === 2 ? 'entry' : 'entries'}: the score gap is within run-to-run noise`
+    : 'Clearly ahead of every entry ranked below it'
+}
+
+/** Half-width of the 95% CI, shown as "± x" like most leaderboards. */
+function ciHalfWidth(ci: [number, number]): number {
+  return (ci[1] - ci[0]) / 2
+}
+
+function RcaCell({ s }: { s: SubmissionSummary }) {
+  const ci = s.rca_f1_ci
+  return (
+    <span
+      className="rca-cell"
+      title={
+        ci
+          ? `On a fresh set of cases, this score would land between ${formatScore(ci[0], 2)} and ${formatScore(ci[1], 2)} 95% of the time`
+          : 'No per-trial results, so no uncertainty estimate'
+      }
+    >
+      <ScorePill value={s.mean_rca_f1} />
+      {ci && <span className="ci-range">± {formatScore(ciHalfWidth(ci), 2)}</span>}
+    </span>
+  )
+}
+
 function ProviderIcon({
   llmProvider,
   model,
@@ -145,7 +175,8 @@ function buildAccessors(
   overrides: PriceOverrides,
 ): Record<LbSortKey, (s: SubmissionSummary) => unknown> {
   return {
-    rank: (s) => s.rank ?? 0,
+    // Within a shared rank, list the higher point estimate first.
+    rank: (s) => (s.rank ?? 0) - (s.mean_rca_f1 ?? 0) / 2,
     model: (s) => s.model,
     model_release: (s) => modelReleaseDate(s.model)?.getTime() ?? null,
     scaffold: (s) => s.framework,
@@ -236,7 +267,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sortKey="rank"
               sort={sort}
               onSort={toggle}
-              title="Ranked by mean RCA F1"
+              title="Entries marked = are tied: their scores are too close to separate reliably"
             />
             <SortableTh
               label="Model"
@@ -296,7 +327,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sortKey="rca"
               sort={sort}
               onSort={toggle}
-              title="Mean RCA F1 — the metric the leaderboard ranks by"
+              title="Mean RCA F1, the metric the leaderboard ranks by. ± is the run-to-run margin: on a fresh set of cases the score would land within it 95% of the time"
             />
             <SortableTh
               label="Success"
@@ -339,7 +370,14 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
             const adapted = adaptationMethods(s)
             return (
               <tr key={s.id}>
-                <td>{s.rank}</td>
+                <td title={rankTitle(s, tieCount(rows, s))}>
+                  {s.rank}
+                  {s.rca_f1_ci && tieCount(rows, s) > 1 && (
+                    <span className="rank-tie" aria-label="tied">
+                      =
+                    </span>
+                  )}
+                </td>
                 <td className="model-td">
                   <strong className="model-name" title={s.name}>
                     {dash(s.model)}
@@ -367,7 +405,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                   <ScorePill value={s.mean_localization_f1} />
                 </td>
                 <td className="num">
-                  <ScorePill value={s.mean_rca_f1} />
+                  <RcaCell s={s} />
                 </td>
                 <td className="num col-secondary">
                   {formatPct(s.success_rate)}

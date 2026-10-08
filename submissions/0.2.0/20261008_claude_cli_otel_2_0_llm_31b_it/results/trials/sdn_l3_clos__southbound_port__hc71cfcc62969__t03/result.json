@@ -1,0 +1,34 @@
+{
+  "case_key": "sdn_l3_clos__southbound_port__hc71cfcc62969",
+  "gt_fault_types": [
+    "southbound_port_block"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 107735,
+    "localization_accuracy": 1.0,
+    "localization_f1": 1.0,
+    "localization_precision": 1.0,
+    "localization_recall": 1.0,
+    "out_tokens": 1304,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 8,
+    "tool_calls": 7,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "sdn_controller_crash"
+  ],
+  "problem": "southbound_port_block",
+  "scenario": "sdn_l3_clos",
+  "score_status": "scored",
+  "trial_id": "sdn_l3_clos__southbound_port__hc71cfcc62969__t03",
+  "trial_index": 3
+}

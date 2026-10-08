@@ -12,11 +12,20 @@ Full instructions, package layout, metadata schema, and PR checklist:
 **[docs/leaderboard-submission.md](https://github.com/sands-lab/nika/blob/dev/docs/benchmarks/leaderboard-submission.md)**
 
 ```shell
+# after an official run: uv run nika benchmark run --release 0.2.0 --split test --result_dir results/my-run ...
 uv run nika leaderboard submit --result_dir results/my-run \
   --name "My Agent" --authors "Your Name"
 ```
 
-Use a NIKA `dev` checkout for this command until the submission changes reach `main`. After completing an official release run, log in with `gh auth login` and `uv run hf auth login` (or set `GH_TOKEN` and `HF_TOKEN`). Run the submit command from your NIKA checkout. It generates metadata and a short README, validates both packages, and opens the paired GitHub and Hugging Face PRs. Add `--dry-run` for local validation before uploading. For custom metadata and documentation, use `--submission DIR` instead of `--name` / `--authors`.
+Use a NIKA `dev` checkout for this command until `main` supports the
+`--name` / `--authors` options. Run it from your NIKA checkout after completing
+an official release run. Authenticate with `gh auth login` and
+`uv run hf auth login` (or set `GH_TOKEN` and `HF_TOKEN`).
+
+The command generates metadata and a short README, validates both packages,
+and opens the paired GitHub and Hugging Face PRs. Add `--dry-run` for local
+validation before uploading. For custom metadata and documentation, use
+`--submission DIR` instead of `--name` / `--authors`.
 
 Maintainers review and merge both PRs. A successful submit prints their URLs; it does not publish or merge the entry itself.
 
@@ -95,4 +104,8 @@ web/                           # Vite React UI
 .vscode/extensions.json        # recommended Cursor/VS Code extensions
 ```
 
-Do not hand-edit integrity-bound files inside submission packages (`files.json`, metrics, trials). Change staging metadata in NIKA and re-`pack` instead.
+Do not hand-edit integrity-bound files inside submission packages (`identity.yaml`, `metrics.json`, `rca_confusion.json`, trial `result.json`). Fix the run or metadata in NIKA and rerun `nika leaderboard submit` instead.
+
+### Ranking
+
+The table ranks entries of the same release by mean RCA F1 with ex-aequo ties. An entry's rank is 1 + the number of entries whose RCA F1 is significantly higher, so statistically indistinguishable neighbours share a rank (the same rule as LMArena's upper-bound rank). `scripts/build_leaderboard_data.py` decides significance with a paired cluster bootstrap over cases (10,000 resamples, seed 0, 95%). Every entry is rescored on the same resampled case set and all trials of a case are drawn together, so trial-to-trial noise stays inside its case. Each RCA F1 is shown as `score ± margin`, where the margin is half the width of its 95% percentile interval (the convention of Terminal-Bench and similar leaderboards); the tooltip gives the full range. Entries without per-trial results fall back to point-estimate ranking. The UI recomputes ranks over the visible rows when filters hide entries.

@@ -1,0 +1,32 @@
+{
+  "conditional_mean_detection_score": 0.8705882352941177,
+  "conditional_mean_localization_f1": 0.3422184313725491,
+  "conditional_mean_rca_f1": 0.23810313725490193,
+  "fault_mean_localization_f1": 0.3520425438596491,
+  "fault_mean_rca_f1": 0.23559780701754385,
+  "healthy_mean_detection_score": 0.25925925925925924,
+  "mean_detection_score": 0.8705882352941177,
+  "mean_localization_f1": 0.3422184313725491,
+  "mean_rca_f1": 0.23810313725490193,
+  "n_agent_failed": 0,
+  "n_success": 255,
+  "n_trials_expected": 255,
+  "n_trials_present": 255,
+  "primary_metric": "rca_f1",
+  "status_counts": {
+    "grading_error": 0,
+    "infra_error": 0,
+    "no_submission": 0,
+    "scored": 255
+  },
+  "steps_totals": {
+    "steps": 17931,
+    "tool_calls": 17494,
+    "tool_errors": 0
+  },
+  "submission_rate": 1.0,
+  "token_totals": {
+    "in_tokens": 157833745,
+    "out_tokens": 6440546
+  }
+}

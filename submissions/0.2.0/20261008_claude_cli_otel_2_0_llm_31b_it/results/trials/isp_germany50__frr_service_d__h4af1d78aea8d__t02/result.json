@@ -1,0 +1,32 @@
+{
+  "case_key": "isp_germany50__frr_service_d__h4af1d78aea8d",
+  "gt_fault_types": [
+    "frr_service_down"
+  ],
+  "metrics": {
+    "detection_score": 0.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 28796,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 1039,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 7,
+    "tool_calls": 6,
+    "tool_errors": 0
+  },
+  "outcome": "agent_failed",
+  "predicted_fault_types": null,
+  "problem": "frr_service_down",
+  "scenario": "isp_germany50",
+  "score_status": "no_submission",
+  "trial_id": "isp_germany50__frr_service_d__h4af1d78aea8d__t02",
+  "trial_index": 2
+}

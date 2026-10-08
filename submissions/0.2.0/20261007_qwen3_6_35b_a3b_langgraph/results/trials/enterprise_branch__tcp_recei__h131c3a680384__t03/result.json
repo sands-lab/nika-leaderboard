@@ -1,0 +1,34 @@
+{
+  "case_key": "enterprise_branch__tcp_recei__h131c3a680384",
+  "gt_fault_types": [
+    "tcp_receive_window_limited"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 82016,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 8386,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 7,
+    "tool_calls": 12,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "bgp_missing_route_advertisement"
+  ],
+  "problem": "tcp_receive_window_limited",
+  "scenario": "enterprise_branch",
+  "score_status": "scored",
+  "trial_id": "enterprise_branch__tcp_recei__h131c3a680384__t03",
+  "trial_index": 3
+}

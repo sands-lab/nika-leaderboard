@@ -5,6 +5,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import random
 from datetime import datetime, timezone
 import re
 import sys
@@ -17,33 +18,11 @@ import yaml
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_NIKA_ROOT = REPO_ROOT.parent / "nika"
 NAME_RE = re.compile(r'root_cause_name(?::\s*\w+)?\s*=\s*"(?P<name>[^"]+)"')
-CAT_RE = re.compile(
-    r"root_cause_category(?::\s*[\w.]+)?\s*=\s*RootCauseCategory\.(?P<cat>[A-Z_]+)"
+# NIKA's failure taxonomy: each registered failure class declares one
+# ``failure_domain = FailureDomain.<NAME>`` (see docs/operations/failures.md).
+DOMAIN_RE = re.compile(
+    r"failure_domain(?::\s*[\w.]+)?\s*=\s*FailureDomain\.(?P<dom>[A-Z_]+)"
 )
-ENUM_MAP = {
-    "LINK_FAILURE": "link_failure",
-    "END_HOST_FAILURE": "end_host_failure",
-    "NETWORK_NODE_ERROR": "network_node_error",
-    "RESOURCE_CONTENTION": "resource_contention",
-    "MISCONFIGURATION": "misconfiguration",
-    "NETWORK_UNDER_ATTACK": "network_under_attack",
-    "MULTIPLE_FAULTS": "multiple_faults",
-}
-# Fallbacks for problems whose category is hard to scrape from source.
-CATEGORY_FALLBACKS: dict[str, str] = {
-    "arp_acl_block": "misconfiguration",
-    "bgp_acl_block": "misconfiguration",
-    "http_acl_block": "misconfiguration",
-    "icmp_acl_block": "misconfiguration",
-    "ospf_acl_block": "misconfiguration",
-    "bmv2_switch_down": "link_failure",
-    "mpls_label_limit_exceeded": "network_node_error",
-    "p4_compilation_error_parser_state": "network_node_error",
-    "p4_header_definition_error": "network_node_error",
-    "p4_table_entry_misconfig": "network_node_error",
-    "p4_table_entry_missing": "network_node_error",
-    "p4_aggressive_detection_thresholds": "misconfiguration",
-}
 
 
 def infer_llm_provider(model: str | None, explicit: str | None) -> str | None:
@@ -115,13 +94,13 @@ def case_key(
 
 
 def discover_problem_categories(nika_root: Path) -> dict[str, str]:
-    """Map problem name -> root_cause_category.
+    """Map problem name -> NIKA ``failure_domain``.
 
     Parses class bodies in the NIKA problems package. Class attributes may appear
     in either order and with or without type annotations.
     """
     problems_dir = nika_root / "src" / "nika" / "problems"
-    mapping: dict[str, str] = dict(CATEGORY_FALLBACKS)
+    mapping: dict[str, str] = {}
     if not problems_dir.is_dir():
         return mapping
 
@@ -132,12 +111,24 @@ def discover_problem_categories(nika_root: Path) -> dict[str, str]:
         for i in range(len(spans) - 1):
             body = text[spans[i] : spans[i + 1]]
             names = NAME_RE.findall(body)
-            cats = CAT_RE.findall(body)
-            if not names or not cats:
+            domains = DOMAIN_RE.findall(body)
+            if not names or not domains:
                 continue
-            cat = ENUM_MAP.get(cats[0], cats[0].lower())
             for name in names:
-                mapping[name] = cat
+                mapping[name] = domains[0].lower()
+    # Legacy ids NIKA rewrites at load time take their target's domain.
+    registry = problems_dir / "registry.py"
+    if registry.is_file():
+        block = re.search(
+            r"_PROBLEM_ALIASES[^{]*\{(?P<body>.*?)\}", registry.read_text(), re.DOTALL
+        )
+        for old, new in re.findall(
+            r'"(\w+)":\s*"(\w+)"', block["body"] if block else ""
+        ):
+            if new in mapping:
+                mapping.setdefault(old, mapping[new])
+    # No-fault control cases carry no failure_domain; label them explicitly.
+    mapping["healthy"] = "healthy"
     return mapping
 
 
@@ -191,6 +182,8 @@ def build_release_catalog(
         },
         "categories": sorted(set(categories.values())),
         "problems": sorted(categories.keys()),
+        # Every NIKA failure, so predictions outside this release still resolve.
+        "problem_domains": dict(sorted(categories.items())),
     }
     write_json(out_dir / version / "cases.json", catalog)
     return catalog
@@ -210,8 +203,9 @@ def score_or_zero(value: Any) -> float:
 
 def problem_to_category(
     catalog_lookup: dict[str, dict[str, Any]],
+    problem_domains: dict[str, str] | None = None,
 ) -> dict[str, str]:
-    mapping: dict[str, str] = {}
+    mapping: dict[str, str] = dict(problem_domains or {})
     for key, meta in catalog_lookup.items():
         if "__" not in key:
             continue
@@ -242,9 +236,11 @@ def normalize_name_list(value: Any) -> list[str] | None:
 
 
 def aggregate_trials(
-    trials: list[dict[str, Any]], catalog_lookup: dict[str, dict[str, Any]]
+    trials: list[dict[str, Any]],
+    catalog_lookup: dict[str, dict[str, Any]],
+    problem_domains: dict[str, str] | None = None,
 ) -> list[dict[str, Any]]:
-    name_to_cat = problem_to_category(catalog_lookup)
+    name_to_cat = problem_to_category(catalog_lookup, problem_domains)
     out: list[dict[str, Any]] = []
     for t in trials:
         scenario = t.get("scenario") or ""
@@ -309,6 +305,7 @@ def load_submission(
     catalog_lookup: dict[str, dict[str, Any]],
     *,
     repo_root: Path,
+    problem_domains: dict[str, str] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     del repo_root  # reserved for future catalog/sidecar hooks
     metadata = load_yaml(package_dir / "metadata.yaml")
@@ -321,7 +318,7 @@ def load_submission(
         for result_path in sorted(trials_dir.glob("*/result.json")):
             trials_raw.append(load_json(result_path))
 
-    trials = aggregate_trials(trials_raw, catalog_lookup)
+    trials = aggregate_trials(trials_raw, catalog_lookup, problem_domains)
     dirname = package_dir.name
     pid = package_id(version, dirname)
 
@@ -418,9 +415,101 @@ def load_submission(
         **summary,
         "trials": trials,
         "rca_confusion": rca_confusion,
-        "name_to_category": problem_to_category(catalog_lookup),
+        "name_to_category": problem_to_category(catalog_lookup, problem_domains),
     }
     return summary, detail
+
+
+# Paired cluster bootstrap over cases (Miller 2024, "Adding Error Bars to
+# Evals"): every entry is scored on the same resampled cases, and a case's
+# trials move together, so trial-to-trial noise stays inside the case.
+BOOTSTRAP_RESAMPLES = 10_000
+BOOTSTRAP_SEED = 0
+CONFIDENCE = 0.95
+
+
+def case_scores(detail: dict[str, Any]) -> dict[str, float] | None:
+    """Per-case mean RCA F1 (missing trials count 0); None without full trials."""
+    n_trials = detail.get("n_trials")
+    case_count = detail.get("case_count")
+    trials = detail.get("trials") or []
+    if not n_trials or not case_count or not trials:
+        return None
+    totals: dict[str, float] = defaultdict(float)
+    for t in trials:
+        totals[str(t.get("case_key"))] += float(t.get("rca_f1") or 0.0)
+    if len(totals) != int(case_count):
+        return None
+    return {key: total / int(n_trials) for key, total in totals.items()}
+
+
+def _percentile(sorted_values: list[float], q: float) -> float:
+    idx = q * (len(sorted_values) - 1)
+    lo = int(idx)
+    hi = min(lo + 1, len(sorted_values) - 1)
+    return sorted_values[lo] + (sorted_values[hi] - sorted_values[lo]) * (idx - lo)
+
+
+def rank_statistics(
+    summaries: list[dict[str, Any]],
+    scores: dict[str, dict[str, float] | None],
+) -> None:
+    """Annotate summaries with bootstrap CIs, ``beaten_by`` and ex-aequo ranks.
+
+    ``rank = 1 + |beaten_by|``: an entry only drops below those that are
+    significantly better on the paired difference, so neighbours that are
+    statistically indistinguishable share a rank. Entries without per-trial
+    data fall back to point-estimate comparison.
+    """
+    alpha = (1.0 - CONFIDENCE) / 2.0
+    groups: dict[tuple[Any, Any], list[dict[str, Any]]] = defaultdict(list)
+    for s in summaries:
+        s["rca_f1_ci"] = None
+        s["beaten_by"] = []
+        groups[(s.get("benchmark_version"), s.get("split"))].append(s)
+
+    for members in groups.values():
+        tested = [s for s in members if scores.get(s["id"]) is not None]
+        case_keys = sorted(scores[tested[0]["id"]]) if tested else []
+        tested = [s for s in tested if sorted(scores[s["id"]]) == case_keys]
+        tested_ids = {s["id"] for s in tested}
+        diffs: dict[tuple[str, str], list[float]] = {}
+        if tested:
+            vectors = {s["id"]: [scores[s["id"]][k] for k in case_keys] for s in tested}
+            n = len(case_keys)
+            rng = random.Random(BOOTSTRAP_SEED)
+            means: dict[str, list[float]] = {sid: [] for sid in vectors}
+            for _ in range(BOOTSTRAP_RESAMPLES):
+                idx = [rng.randrange(n) for _ in range(n)]
+                for sid, vec in vectors.items():
+                    means[sid].append(sum(vec[i] for i in idx) / n)
+            for s in tested:
+                dist = sorted(means[s["id"]])
+                s["rca_f1_ci"] = [
+                    round(_percentile(dist, alpha), 6),
+                    round(_percentile(dist, 1.0 - alpha), 6),
+                ]
+            for a in tested:
+                for b in tested:
+                    if a is not b:
+                        diffs[(a["id"], b["id"])] = sorted(
+                            x - y for x, y in zip(means[a["id"]], means[b["id"]])
+                        )
+
+        for s in members:
+            for other in members:
+                if other is s:
+                    continue
+                if s["id"] in tested_ids and other["id"] in tested_ids:
+                    better = _percentile(diffs[(other["id"], s["id"])], alpha) > 0
+                else:
+                    better = (other.get("mean_rca_f1") or 0.0) > (
+                        s.get("mean_rca_f1") or 0.0
+                    )
+                if better:
+                    s["beaten_by"].append(other["id"])
+            s["beaten_by"].sort()
+            s["rank"] = 1 + len(s["beaten_by"])
 
 
 def unique_sorted(values: set[Any]) -> list[Any]:
@@ -462,6 +551,7 @@ def build_leaderboard(
 ) -> None:
     submissions_root = repo_root / "submissions"
     summaries: list[dict[str, Any]] = []
+    scores: dict[str, dict[str, float] | None] = {}
     versions: set[str] = set(catalogs)
 
     frameworks: set[str] = set()
@@ -491,9 +581,14 @@ def build_leaderboard(
             if not (package_dir / "metadata.yaml").exists():
                 continue
             summary, detail = load_submission(
-                package_dir, version, lookup, repo_root=repo_root
+                package_dir,
+                version,
+                lookup,
+                repo_root=repo_root,
+                problem_domains=catalog.get("problem_domains"),
             )
             summaries.append(summary)
+            scores[summary["id"]] = case_scores(detail)
             safe_id = summary["id"].replace("/", "__")
             write_json(submissions_out / f"{safe_id}.json", detail)
 
@@ -505,15 +600,16 @@ def build_leaderboard(
             orgs.add(summary.get("org"))
             splits.add(summary.get("split"))
 
+    rank_statistics(summaries, scores)
     summaries.sort(
         key=lambda s: (
+            s.get("benchmark_version") or "",
+            s["rank"],
             -(s.get("mean_rca_f1") or 0.0),
             s.get("name") or "",
             s.get("id") or "",
         )
     )
-    for i, s in enumerate(summaries, start=1):
-        s["rank"] = i
 
     # Copy catalogs into public data
     for version, catalog in catalogs.items():
@@ -552,6 +648,12 @@ def build_leaderboard(
                 "split": unique_sorted(splits),
             },
             "primary_metric": "mean_rca_f1",
+            "ranking": {
+                "method": "paired cluster bootstrap over cases",
+                "resamples": BOOTSTRAP_RESAMPLES,
+                "seed": BOOTSTRAP_SEED,
+                "confidence": CONFIDENCE,
+            },
             # So the page can say how fresh its numbers are.
             "generated_at": datetime.now(timezone.utc)
             .replace(microsecond=0)

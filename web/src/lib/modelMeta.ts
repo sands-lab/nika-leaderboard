@@ -22,6 +22,8 @@ const MODEL_RELEASE_DATES: Record<string, string> = {
   'qwen3.5-27b': '2026-02-24',
   // Qwen3.6-27B: https://qwen.ai/blog?id=qwen3.6-27b (2026-04-22)
   'qwen3.6-27b': '2026-04-22',
+  // Qwen3.6-35B-A3B (MoE, open weights): announced by Tongyi Lab 2026-04-16
+  'qwen3.6-35b-a3b': '2026-04-16',
   'deepseek-r1': '2025-01-20',
   'deepseek-v3': '2024-12-26',
 }

@@ -5,7 +5,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "arp_acl_block",
       "topo_size": "s",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "pc_2_1_1_1"
@@ -16,7 +16,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "arp_cache_poisoning",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "dev",
       "inject": {
         "host_name": "pc_2_1_1_1"
@@ -27,7 +27,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "bgp_acl_block",
       "topo_size": "s",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "leaf_router_0_1"
@@ -38,7 +38,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "bgp_asn_misconfig",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev",
       "inject": {
         "host_name": "leaf_router_0_0"
@@ -49,7 +49,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "bgp_blackhole_route_leak",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev",
       "inject": {
         "host_name": "leaf_router_0_0"
@@ -60,7 +60,7 @@
       "scenario": "dc_clos_service",
       "problem": "bgp_hijacking",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "dev",
       "inject": {
         "host_name": "leaf_router_0_0"
@@ -71,7 +71,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "bgp_missing_route_advertisement",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev",
       "inject": {
         "host_name": "leaf_router_0_1"
@@ -82,7 +82,7 @@
       "scenario": "p4_bloom_filter",
       "problem": "bmv2_switch_down",
       "topo_size": null,
-      "root_cause_category": "link_failure",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "switch_1"
@@ -93,7 +93,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dhcp_missing_subnet",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "dhcp_server",
@@ -105,7 +105,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dhcp_service_down",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "dhcp_server",
@@ -117,7 +117,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dhcp_spoofed_dns",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "dev",
       "inject": {
         "host_name": "dhcp_server",
@@ -129,7 +129,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dhcp_spoofed_gateway",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "dev",
       "inject": {
         "host_name": "dhcp_server",
@@ -141,7 +141,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dhcp_spoofed_subnet",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "dev",
       "inject": {
         "host_name": "dhcp_server",
@@ -153,7 +153,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dns_lookup_latency",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "dns_server",
@@ -166,7 +166,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dns_port_blocked",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "dns_server"
@@ -177,7 +177,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dns_record_error",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "dns_server",
@@ -190,7 +190,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dns_service_down",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "dns_server"
@@ -201,7 +201,7 @@
       "scenario": "sdn_clos",
       "problem": "flow_rule_loop",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "spine_1",
@@ -213,7 +213,7 @@
       "scenario": "sdn_clos",
       "problem": "flow_rule_shadowing",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "leaf_2"
@@ -224,7 +224,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "frr_service_down",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev",
       "inject": {
         "host_name": "router_core_1"
@@ -235,7 +235,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "host_crash",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "dev",
       "inject": {
         "host_name": "pc_0_0"
@@ -246,7 +246,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "host_incorrect_dns",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "pc_1_1_1_1"
@@ -257,7 +257,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "host_incorrect_gateway",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "pc_2_1_1_1"
@@ -268,7 +268,7 @@
       "scenario": "ospf_enterprise_static",
       "problem": "host_incorrect_ip",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "pc_2_1_1_1"
@@ -279,7 +279,7 @@
       "scenario": "ospf_enterprise_static",
       "problem": "host_incorrect_netmask",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "pc_2_1_1_1",
@@ -291,7 +291,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "host_ip_conflict",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "pc_0_1",
@@ -303,7 +303,7 @@
       "scenario": "ospf_enterprise_static",
       "problem": "host_missing_ip",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "pc_2_1_1_1",
@@ -315,7 +315,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "host_static_blackhole",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "leaf_router_0_1"
@@ -326,7 +326,7 @@
       "scenario": "rip_small_internet_vpn",
       "problem": "host_vpn_membership_missing",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "web_server_1_1",
@@ -338,7 +338,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "http_acl_block",
       "topo_size": "s",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "pc_1_1_1_1"
@@ -349,7 +349,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "icmp_acl_block",
       "topo_size": "s",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "pc_2_1_1_1"
@@ -360,7 +360,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "incast_traffic_network_limitation",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "traffic_queueing_resource",
       "split": "dev",
       "inject": {
         "host_name": "web_server_1",
@@ -375,7 +375,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "link_bandwidth_throttling",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "traffic_queueing_resource",
       "split": "dev",
       "inject": {
         "host_name": "pc_0_1",
@@ -390,7 +390,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "link_detach",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "dev",
       "inject": {
         "host_name": "pc_0_1",
@@ -402,7 +402,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "link_down",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "dev",
       "inject": {
         "host_name": "pc_0_1",
@@ -414,7 +414,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "link_flap",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "dev",
       "inject": {
         "host_name": "pc_0_0",
@@ -428,7 +428,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "link_fragmentation_disabled",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "pc_0_0",
@@ -441,7 +441,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "link_high_packet_corruption",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "dev",
       "inject": {
         "host_name": "pc_0_0",
@@ -454,7 +454,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "load_balancer_overload",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "service_networking",
       "split": "dev",
       "inject": {
         "host_name": "load_balancer",
@@ -466,7 +466,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "mac_address_conflict",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev",
       "inject": {
         "host_name": "web_server_1",
@@ -478,7 +478,7 @@
       "scenario": "p4_mpls",
       "problem": "mpls_label_limit_exceeded",
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "switch_7"
@@ -489,7 +489,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "ospf_acl_block",
       "topo_size": "s",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "router_core_2"
@@ -500,7 +500,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "ospf_area_misconfiguration",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev",
       "inject": {
         "host_name": "server_access_router"
@@ -511,7 +511,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "ospf_neighbor_missing",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev",
       "inject": {
         "host_name": "server_access_router"
@@ -522,7 +522,7 @@
       "scenario": "p4_bloom_filter",
       "problem": "p4_aggressive_detection_thresholds",
       "topo_size": null,
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "switch_1"
@@ -533,7 +533,7 @@
       "scenario": "p4_bloom_filter",
       "problem": "p4_compilation_error_parser_state",
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "management_orchestration_plane",
       "split": "dev",
       "inject": {
         "host_name": "switch_1"
@@ -544,7 +544,7 @@
       "scenario": "p4_bloom_filter",
       "problem": "p4_header_definition_error",
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "management_orchestration_plane",
       "split": "dev",
       "inject": {
         "host_name": "switch_1"
@@ -555,7 +555,7 @@
       "scenario": "p4_bloom_filter",
       "problem": "p4_table_entry_misconfig",
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "switch_1"
@@ -566,7 +566,7 @@
       "scenario": "p4_bloom_filter",
       "problem": "p4_table_entry_missing",
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev",
       "inject": {
         "host_name": "switch_1"
@@ -577,7 +577,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "receiver_resource_contention",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "dev",
       "inject": {
         "host_name": "pc_1_1_1_1",
@@ -589,7 +589,7 @@
       "scenario": "sdn_clos",
       "problem": "sdn_controller_crash",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "dev",
       "inject": {
         "host_name": "controller"
@@ -600,7 +600,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "sender_application_delay",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "dev",
       "inject": {
         "host_name": "web_server_1"
@@ -611,7 +611,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "sender_resource_contention",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "dev",
       "inject": {
         "host_name": "web_server_3",
@@ -623,7 +623,7 @@
       "scenario": "sdn_clos",
       "problem": "southbound_port_block",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "dev",
       "inject": {
         "host_name": "controller",
@@ -635,7 +635,7 @@
       "scenario": "sdn_clos",
       "problem": "southbound_port_mismatch",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "dev",
       "inject": {
         "host_name": "controller",
@@ -648,7 +648,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "web_dos_attack",
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "dev",
       "inject": {
         "host_name": "web_server_0",
@@ -660,7 +660,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "arp_acl_block",
       "topo_size": "l",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "pc_2_0"
@@ -671,7 +671,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "arp_cache_poisoning",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test",
       "inject": {
         "host_name": "pc_1_6"
@@ -682,7 +682,7 @@
       "scenario": "dc_clos_service",
       "problem": "bgp_acl_block",
       "topo_size": "l",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "leaf_router_0_7"
@@ -693,7 +693,7 @@
       "scenario": "dc_clos_service",
       "problem": "bgp_asn_misconfig",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test",
       "inject": {
         "host_name": "spine_router_1_0"
@@ -704,7 +704,7 @@
       "scenario": "dc_clos_service",
       "problem": "bgp_blackhole_route_leak",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test",
       "inject": {
         "host_name": "leaf_router_3_3"
@@ -715,7 +715,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "bgp_hijacking",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test",
       "inject": {
         "host_name": "leaf_router_2_5"
@@ -726,7 +726,7 @@
       "scenario": "dc_clos_service",
       "problem": "bgp_missing_route_advertisement",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test",
       "inject": {
         "host_name": "leaf_router_0_1"
@@ -737,7 +737,7 @@
       "scenario": "p4_counter",
       "problem": "bmv2_switch_down",
       "topo_size": null,
-      "root_cause_category": "link_failure",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "s1"
@@ -748,7 +748,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dhcp_missing_subnet",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "dhcp_server",
@@ -760,7 +760,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dhcp_service_down",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "dhcp_server",
@@ -772,7 +772,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dhcp_spoofed_dns",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test",
       "inject": {
         "host_name": "dhcp_server",
@@ -784,7 +784,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dhcp_spoofed_gateway",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test",
       "inject": {
         "host_name": "dhcp_server",
@@ -796,7 +796,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "dhcp_spoofed_subnet",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test",
       "inject": {
         "host_name": "dhcp_server",
@@ -808,7 +808,7 @@
       "scenario": "dc_clos_service",
       "problem": "dns_lookup_latency",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "dns_pod1",
@@ -821,7 +821,7 @@
       "scenario": "dc_clos_service",
       "problem": "dns_port_blocked",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "dns_pod3"
@@ -832,7 +832,7 @@
       "scenario": "dc_clos_service",
       "problem": "dns_record_error",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "dns_pod3",
@@ -845,7 +845,7 @@
       "scenario": "dc_clos_service",
       "problem": "dns_service_down",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "dns_pod3"
@@ -856,7 +856,7 @@
       "scenario": "sdn_star",
       "problem": "flow_rule_loop",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "switch_0",
@@ -868,7 +868,7 @@
       "scenario": "sdn_star",
       "problem": "flow_rule_shadowing",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "switch_12"
@@ -879,7 +879,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "frr_service_down",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test",
       "inject": {
         "host_name": "leaf_router_2_7"
@@ -890,7 +890,7 @@
       "scenario": "dc_clos_service",
       "problem": "host_crash",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "test",
       "inject": {
         "host_name": "client_1"
@@ -901,7 +901,7 @@
       "scenario": "dc_clos_service",
       "problem": "host_incorrect_dns",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "client_3"
@@ -912,7 +912,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "host_incorrect_gateway",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "pc_3_3"
@@ -923,7 +923,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "host_incorrect_ip",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "pc_0_5"
@@ -934,7 +934,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "host_incorrect_netmask",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "pc_1_1",
@@ -946,7 +946,7 @@
       "scenario": "dc_clos_service",
       "problem": "host_ip_conflict",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "client_3",
@@ -958,7 +958,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "host_missing_ip",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "pc_2_7",
@@ -970,7 +970,7 @@
       "scenario": "dc_clos_service",
       "problem": "host_static_blackhole",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "leaf_router_2_4"
@@ -981,7 +981,7 @@
       "scenario": "rip_small_internet_vpn",
       "problem": "host_vpn_membership_missing",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "web_server_1_1",
@@ -993,7 +993,7 @@
       "scenario": "dc_clos_service",
       "problem": "http_acl_block",
       "topo_size": "l",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "client_2"
@@ -1004,7 +1004,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "icmp_acl_block",
       "topo_size": "l",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "pc_1_3"
@@ -1015,7 +1015,7 @@
       "scenario": "dc_clos_service",
       "problem": "incast_traffic_network_limitation",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "traffic_queueing_resource",
       "split": "test",
       "inject": {
         "host_name": "webserver0_pod1",
@@ -1030,7 +1030,7 @@
       "scenario": "dc_clos_service",
       "problem": "link_bandwidth_throttling",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "traffic_queueing_resource",
       "split": "test",
       "inject": {
         "host_name": "client_0",
@@ -1045,7 +1045,7 @@
       "scenario": "dc_clos_service",
       "problem": "link_detach",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "test",
       "inject": {
         "host_name": "client_3",
@@ -1057,7 +1057,7 @@
       "scenario": "dc_clos_service",
       "problem": "link_down",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "test",
       "inject": {
         "host_name": "client_0",
@@ -1069,7 +1069,7 @@
       "scenario": "dc_clos_service",
       "problem": "link_flap",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "test",
       "inject": {
         "host_name": "client_1",
@@ -1083,7 +1083,7 @@
       "scenario": "dc_clos_service",
       "problem": "link_fragmentation_disabled",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "client_0",
@@ -1096,7 +1096,7 @@
       "scenario": "dc_clos_service",
       "problem": "link_high_packet_corruption",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "test",
       "inject": {
         "host_name": "client_3",
@@ -1109,7 +1109,7 @@
       "scenario": "ospf_enterprise_dhcp",
       "problem": "load_balancer_overload",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "service_networking",
       "split": "test",
       "inject": {
         "host_name": "load_balancer",
@@ -1121,7 +1121,7 @@
       "scenario": "dc_clos_bgp",
       "problem": "mac_address_conflict",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test",
       "inject": {
         "host_name": "spine_router_1_2",
@@ -1133,7 +1133,7 @@
       "scenario": "p4_mpls",
       "problem": "mpls_label_limit_exceeded",
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "switch_1"
@@ -1144,7 +1144,7 @@
       "scenario": "ospf_enterprise_static",
       "problem": "ospf_acl_block",
       "topo_size": "l",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "switch_server_access"
@@ -1155,7 +1155,7 @@
       "scenario": "ospf_enterprise_static",
       "problem": "ospf_area_misconfiguration",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test",
       "inject": {
         "host_name": "switch_dist_1_2"
@@ -1166,7 +1166,7 @@
       "scenario": "ospf_enterprise_static",
       "problem": "ospf_neighbor_missing",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test",
       "inject": {
         "host_name": "switch_dist_2_3"
@@ -1177,7 +1177,7 @@
       "scenario": "p4_bloom_filter",
       "problem": "p4_aggressive_detection_thresholds",
       "topo_size": null,
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "switch_2"
@@ -1188,7 +1188,7 @@
       "scenario": "p4_counter",
       "problem": "p4_compilation_error_parser_state",
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "management_orchestration_plane",
       "split": "test",
       "inject": {
         "host_name": "s2"
@@ -1199,7 +1199,7 @@
       "scenario": "p4_counter",
       "problem": "p4_header_definition_error",
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "management_orchestration_plane",
       "split": "test",
       "inject": {
         "host_name": "s2"
@@ -1210,7 +1210,7 @@
       "scenario": "p4_counter",
       "problem": "p4_table_entry_misconfig",
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "s1"
@@ -1221,7 +1221,7 @@
       "scenario": "p4_counter",
       "problem": "p4_table_entry_missing",
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test",
       "inject": {
         "host_name": "s4"
@@ -1232,7 +1232,7 @@
       "scenario": "dc_clos_service",
       "problem": "receiver_resource_contention",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "test",
       "inject": {
         "host_name": "client_3",
@@ -1244,7 +1244,7 @@
       "scenario": "sdn_star",
       "problem": "sdn_controller_crash",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "test",
       "inject": {
         "host_name": "controller"
@@ -1255,7 +1255,7 @@
       "scenario": "dc_clos_service",
       "problem": "sender_application_delay",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "test",
       "inject": {
         "host_name": "webserver3_pod3"
@@ -1266,7 +1266,7 @@
       "scenario": "dc_clos_service",
       "problem": "sender_resource_contention",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "test",
       "inject": {
         "host_name": "webserver5_pod3",
@@ -1278,7 +1278,7 @@
       "scenario": "sdn_star",
       "problem": "southbound_port_block",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "test",
       "inject": {
         "host_name": "controller",
@@ -1290,7 +1290,7 @@
       "scenario": "sdn_star",
       "problem": "southbound_port_mismatch",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "test",
       "inject": {
         "host_name": "controller",
@@ -1303,7 +1303,7 @@
       "scenario": "dc_clos_service",
       "problem": "web_dos_attack",
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test",
       "inject": {
         "host_name": "webserver0_pod0",
@@ -1315,537 +1315,712 @@
   "by_scenario_problem": {
     "ospf_enterprise_dhcp__arp_acl_block": {
       "topo_size": "s",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__arp_cache_poisoning": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "dev"
     },
     "dc_clos_bgp__bgp_acl_block": {
       "topo_size": "s",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "dc_clos_bgp__bgp_asn_misconfig": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev"
     },
     "dc_clos_bgp__bgp_blackhole_route_leak": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev"
     },
     "dc_clos_service__bgp_hijacking": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "dev"
     },
     "dc_clos_bgp__bgp_missing_route_advertisement": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev"
     },
     "p4_bloom_filter__bmv2_switch_down": {
       "topo_size": null,
-      "root_cause_category": "link_failure",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__dhcp_missing_subnet": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "ospf_enterprise_dhcp__dhcp_service_down": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "ospf_enterprise_dhcp__dhcp_spoofed_dns": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test"
     },
     "ospf_enterprise_dhcp__dhcp_spoofed_gateway": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test"
     },
     "ospf_enterprise_dhcp__dhcp_spoofed_subnet": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test"
     },
     "ospf_enterprise_dhcp__dns_lookup_latency": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__dns_port_blocked": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__dns_record_error": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__dns_service_down": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev"
     },
     "sdn_clos__flow_rule_loop": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "sdn_clos__flow_rule_shadowing": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__frr_service_down": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev"
     },
     "dc_clos_bgp__host_crash": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__host_incorrect_dns": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__host_incorrect_gateway": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev"
     },
     "ospf_enterprise_static__host_incorrect_ip": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev"
     },
     "ospf_enterprise_static__host_incorrect_netmask": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev"
     },
     "dc_clos_bgp__host_ip_conflict": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev"
     },
     "ospf_enterprise_static__host_missing_ip": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev"
     },
     "dc_clos_bgp__host_static_blackhole": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "rip_small_internet_vpn__host_vpn_membership_missing": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "ospf_enterprise_dhcp__http_acl_block": {
       "topo_size": "s",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__icmp_acl_block": {
       "topo_size": "s",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__incast_traffic_network_limitation": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "traffic_queueing_resource",
       "split": "dev"
     },
     "dc_clos_bgp__link_bandwidth_throttling": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "traffic_queueing_resource",
       "split": "dev"
     },
     "dc_clos_bgp__link_detach": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "dev"
     },
     "dc_clos_bgp__link_down": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "dev"
     },
     "dc_clos_bgp__link_flap": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "dev"
     },
     "dc_clos_bgp__link_fragmentation_disabled": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "dc_clos_bgp__link_high_packet_corruption": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__load_balancer_overload": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "service_networking",
       "split": "test"
     },
     "ospf_enterprise_dhcp__mac_address_conflict": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "dev"
     },
     "p4_mpls__mpls_label_limit_exceeded": {
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "ospf_enterprise_dhcp__ospf_acl_block": {
       "topo_size": "s",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__ospf_area_misconfiguration": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__ospf_neighbor_missing": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "dev"
     },
     "p4_bloom_filter__p4_aggressive_detection_thresholds": {
       "topo_size": null,
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "p4_bloom_filter__p4_compilation_error_parser_state": {
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "management_orchestration_plane",
       "split": "dev"
     },
     "p4_bloom_filter__p4_header_definition_error": {
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "management_orchestration_plane",
       "split": "dev"
     },
     "p4_bloom_filter__p4_table_entry_misconfig": {
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "p4_bloom_filter__p4_table_entry_missing": {
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__receiver_resource_contention": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "dev"
     },
     "sdn_clos__sdn_controller_crash": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__sender_application_delay": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__sender_resource_contention": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "dev"
     },
     "sdn_clos__southbound_port_block": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "dev"
     },
     "sdn_clos__southbound_port_mismatch": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "dev"
     },
     "ospf_enterprise_dhcp__web_dos_attack": {
       "topo_size": "s",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "dev"
     },
     "dc_clos_bgp__arp_acl_block": {
       "topo_size": "l",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "dc_clos_bgp__arp_cache_poisoning": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test"
     },
     "dc_clos_service__bgp_acl_block": {
       "topo_size": "l",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "dc_clos_service__bgp_asn_misconfig": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test"
     },
     "dc_clos_service__bgp_blackhole_route_leak": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test"
     },
     "dc_clos_bgp__bgp_hijacking": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test"
     },
     "dc_clos_service__bgp_missing_route_advertisement": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test"
     },
     "p4_counter__bmv2_switch_down": {
       "topo_size": null,
-      "root_cause_category": "link_failure",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "dc_clos_service__dns_lookup_latency": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "dc_clos_service__dns_port_blocked": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "dc_clos_service__dns_record_error": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "dc_clos_service__dns_service_down": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "sdn_star__flow_rule_loop": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "sdn_star__flow_rule_shadowing": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "dc_clos_bgp__frr_service_down": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test"
     },
     "dc_clos_service__host_crash": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "test"
     },
     "dc_clos_service__host_incorrect_dns": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "dc_clos_bgp__host_incorrect_gateway": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "dc_clos_bgp__host_incorrect_ip": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "dc_clos_bgp__host_incorrect_netmask": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "dc_clos_service__host_ip_conflict": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "dc_clos_bgp__host_missing_ip": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "dc_clos_service__host_static_blackhole": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "dc_clos_service__http_acl_block": {
       "topo_size": "l",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "dc_clos_bgp__icmp_acl_block": {
       "topo_size": "l",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "dc_clos_service__incast_traffic_network_limitation": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "traffic_queueing_resource",
       "split": "test"
     },
     "dc_clos_service__link_bandwidth_throttling": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "traffic_queueing_resource",
       "split": "test"
     },
     "dc_clos_service__link_detach": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "test"
     },
     "dc_clos_service__link_down": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "test"
     },
     "dc_clos_service__link_flap": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "test"
     },
     "dc_clos_service__link_fragmentation_disabled": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "dc_clos_service__link_high_packet_corruption": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "link_interface",
       "split": "test"
     },
     "dc_clos_bgp__mac_address_conflict": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "addressing_neighbor_naming",
       "split": "test"
     },
     "ospf_enterprise_static__ospf_acl_block": {
       "topo_size": "l",
-      "root_cause_category": "misconfiguration",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "ospf_enterprise_static__ospf_area_misconfiguration": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test"
     },
     "ospf_enterprise_static__ospf_neighbor_missing": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "routing_control_plane",
       "split": "test"
     },
     "p4_counter__p4_compilation_error_parser_state": {
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "management_orchestration_plane",
       "split": "test"
     },
     "p4_counter__p4_header_definition_error": {
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "management_orchestration_plane",
       "split": "test"
     },
     "p4_counter__p4_table_entry_misconfig": {
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "p4_counter__p4_table_entry_missing": {
       "topo_size": null,
-      "root_cause_category": "network_node_error",
+      "root_cause_category": "forwarding_encapsulation_policy",
       "split": "test"
     },
     "dc_clos_service__receiver_resource_contention": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "test"
     },
     "sdn_star__sdn_controller_crash": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "test"
     },
     "dc_clos_service__sender_application_delay": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "test"
     },
     "dc_clos_service__sender_resource_contention": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "endpoint_application",
       "split": "test"
     },
     "sdn_star__southbound_port_block": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "test"
     },
     "sdn_star__southbound_port_mismatch": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "management_orchestration_plane",
       "split": "test"
     },
     "dc_clos_service__web_dos_attack": {
       "topo_size": "l",
-      "root_cause_category": null,
+      "root_cause_category": "security",
       "split": "test"
     }
   },
   "categories": [
-    "link_failure",
-    "misconfiguration",
-    "network_node_error"
+    "addressing_neighbor_naming",
+    "endpoint_application",
+    "forwarding_encapsulation_policy",
+    "healthy",
+    "link_interface",
+    "management_orchestration_plane",
+    "routing_control_plane",
+    "security",
+    "service_networking",
+    "traffic_queueing_resource"
   ],
   "problems": [
     "arp_acl_block",
+    "arp_cache_poisoning",
     "bgp_acl_block",
+    "bgp_asn_misconfig",
+    "bgp_blackhole_community_leak",
+    "bgp_blackhole_route_leak",
+    "bgp_hijacking",
+    "bgp_max_prefix_exceeded",
+    "bgp_missing_route_advertisement",
+    "bgp_rpki_invalid_route_leak",
     "bmv2_switch_down",
+    "device_forwarding_packet_corruption",
+    "dhcp_missing_subnet",
+    "dhcp_service_down",
+    "dhcp_spoofed_dns",
+    "dhcp_spoofed_gateway",
+    "dhcp_spoofed_subnet",
+    "dns_lookup_latency",
+    "dns_port_blocked",
+    "dns_record_error",
+    "dns_service_down",
+    "faulty_egress_interface",
+    "flow_rule_loop",
+    "flow_rule_shadowing",
+    "frr_service_down",
+    "healthy",
+    "host_crash",
+    "host_incorrect_dns",
+    "host_incorrect_gateway",
+    "host_incorrect_ip",
+    "host_incorrect_netmask",
+    "host_ip_conflict",
+    "host_missing_ip",
+    "host_static_blackhole",
+    "host_vpn_membership_missing",
     "http_acl_block",
     "icmp_acl_block",
+    "icmp_frag_needed_filter_misconfiguration",
+    "incast_traffic_network_limitation",
+    "int_insufficient_mtu_headroom",
+    "k8s_clusterip_routing_broken",
+    "k8s_coredns_isolated",
+    "k8s_networkpolicy_deny",
+    "k8s_worker_apiserver_partition",
+    "lb_connection_state_exhaustion",
+    "lb_pending_connection_update_race",
+    "link_bandwidth_throttling",
+    "link_capacity_bottleneck",
+    "link_detach",
+    "link_down",
+    "link_flap",
+    "link_fragmentation_disabled",
+    "link_high_packet_corruption",
+    "link_packet_corruption",
+    "load_balancer_overload",
+    "mac_address_conflict",
     "mpls_label_limit_exceeded",
+    "mtu_mismatch",
+    "nat_mapping_removed_without_drain",
     "ospf_acl_block",
+    "ospf_area_misconfiguration",
+    "ospf_neighbor_missing",
+    "p4_action_selector_member_misconfig",
     "p4_aggressive_detection_thresholds",
     "p4_compilation_error_parser_state",
+    "p4_ecmp_group_member_missing",
+    "p4_ecn_threshold_misconfiguration",
     "p4_header_definition_error",
     "p4_table_entry_misconfig",
-    "p4_table_entry_missing"
-  ]
+    "p4_table_entry_missing",
+    "p4_table_resource_exhaustion",
+    "p4_tcam_entry_corruption",
+    "p4runtime_partial_write",
+    "p4runtime_pipeline_mismatch",
+    "physical_link_corruption",
+    "receiver_resource_contention",
+    "sdn_controller_crash",
+    "sender_application_delay",
+    "sender_resource_contention",
+    "silent_egress_packet_loss",
+    "snat_port_pool_exhaustion",
+    "southbound_port_block",
+    "southbound_port_mismatch",
+    "tcp_receive_window_limited",
+    "tcp_syn_flood_attack",
+    "vrf_dscp_remarking",
+    "web_dos_attack",
+    "wireguard_allowed_ips_misconfiguration",
+    "wireguard_peer_key_misconfiguration"
+  ],
+  "problem_domains": {
+    "arp_acl_block": "forwarding_encapsulation_policy",
+    "arp_cache_poisoning": "security",
+    "bgp_acl_block": "forwarding_encapsulation_policy",
+    "bgp_asn_misconfig": "routing_control_plane",
+    "bgp_blackhole_community_leak": "routing_control_plane",
+    "bgp_blackhole_route_leak": "routing_control_plane",
+    "bgp_hijacking": "security",
+    "bgp_max_prefix_exceeded": "routing_control_plane",
+    "bgp_missing_route_advertisement": "routing_control_plane",
+    "bgp_rpki_invalid_route_leak": "routing_control_plane",
+    "bmv2_switch_down": "forwarding_encapsulation_policy",
+    "device_forwarding_packet_corruption": "forwarding_encapsulation_policy",
+    "dhcp_missing_subnet": "addressing_neighbor_naming",
+    "dhcp_service_down": "addressing_neighbor_naming",
+    "dhcp_spoofed_dns": "security",
+    "dhcp_spoofed_gateway": "security",
+    "dhcp_spoofed_subnet": "security",
+    "dns_lookup_latency": "addressing_neighbor_naming",
+    "dns_port_blocked": "forwarding_encapsulation_policy",
+    "dns_record_error": "addressing_neighbor_naming",
+    "dns_service_down": "addressing_neighbor_naming",
+    "faulty_egress_interface": "link_interface",
+    "flow_rule_loop": "forwarding_encapsulation_policy",
+    "flow_rule_shadowing": "forwarding_encapsulation_policy",
+    "frr_service_down": "routing_control_plane",
+    "healthy": "healthy",
+    "host_crash": "endpoint_application",
+    "host_incorrect_dns": "addressing_neighbor_naming",
+    "host_incorrect_gateway": "addressing_neighbor_naming",
+    "host_incorrect_ip": "addressing_neighbor_naming",
+    "host_incorrect_netmask": "addressing_neighbor_naming",
+    "host_ip_conflict": "addressing_neighbor_naming",
+    "host_missing_ip": "addressing_neighbor_naming",
+    "host_static_blackhole": "forwarding_encapsulation_policy",
+    "host_vpn_membership_missing": "forwarding_encapsulation_policy",
+    "http_acl_block": "forwarding_encapsulation_policy",
+    "icmp_acl_block": "forwarding_encapsulation_policy",
+    "icmp_frag_needed_filter_misconfiguration": "forwarding_encapsulation_policy",
+    "incast_traffic_network_limitation": "traffic_queueing_resource",
+    "int_insufficient_mtu_headroom": "forwarding_encapsulation_policy",
+    "k8s_clusterip_routing_broken": "service_networking",
+    "k8s_coredns_isolated": "addressing_neighbor_naming",
+    "k8s_networkpolicy_deny": "forwarding_encapsulation_policy",
+    "k8s_worker_apiserver_partition": "management_orchestration_plane",
+    "lb_connection_state_exhaustion": "service_networking",
+    "lb_pending_connection_update_race": "service_networking",
+    "link_bandwidth_throttling": "traffic_queueing_resource",
+    "link_capacity_bottleneck": "link_interface",
+    "link_detach": "link_interface",
+    "link_down": "link_interface",
+    "link_flap": "link_interface",
+    "link_fragmentation_disabled": "forwarding_encapsulation_policy",
+    "link_high_packet_corruption": "link_interface",
+    "link_packet_corruption": "link_interface",
+    "load_balancer_overload": "service_networking",
+    "mac_address_conflict": "addressing_neighbor_naming",
+    "mpls_label_limit_exceeded": "forwarding_encapsulation_policy",
+    "mtu_mismatch": "forwarding_encapsulation_policy",
+    "nat_mapping_removed_without_drain": "service_networking",
+    "ospf_acl_block": "forwarding_encapsulation_policy",
+    "ospf_area_misconfiguration": "routing_control_plane",
+    "ospf_neighbor_missing": "routing_control_plane",
+    "p4_action_selector_member_misconfig": "forwarding_encapsulation_policy",
+    "p4_aggressive_detection_thresholds": "forwarding_encapsulation_policy",
+    "p4_compilation_error_parser_state": "management_orchestration_plane",
+    "p4_ecmp_group_member_missing": "forwarding_encapsulation_policy",
+    "p4_ecn_threshold_misconfiguration": "traffic_queueing_resource",
+    "p4_header_definition_error": "management_orchestration_plane",
+    "p4_table_entry_misconfig": "forwarding_encapsulation_policy",
+    "p4_table_entry_missing": "forwarding_encapsulation_policy",
+    "p4_table_resource_exhaustion": "forwarding_encapsulation_policy",
+    "p4_tcam_entry_corruption": "forwarding_encapsulation_policy",
+    "p4runtime_partial_write": "forwarding_encapsulation_policy",
+    "p4runtime_pipeline_mismatch": "forwarding_encapsulation_policy",
+    "physical_link_corruption": "link_interface",
+    "receiver_resource_contention": "endpoint_application",
+    "sdn_controller_crash": "management_orchestration_plane",
+    "sender_application_delay": "endpoint_application",
+    "sender_resource_contention": "endpoint_application",
+    "silent_egress_packet_loss": "link_interface",
+    "snat_port_pool_exhaustion": "service_networking",
+    "southbound_port_block": "management_orchestration_plane",
+    "southbound_port_mismatch": "management_orchestration_plane",
+    "tcp_receive_window_limited": "traffic_queueing_resource",
+    "tcp_syn_flood_attack": "security",
+    "vrf_dscp_remarking": "forwarding_encapsulation_policy",
+    "web_dos_attack": "security",
+    "wireguard_allowed_ips_misconfiguration": "forwarding_encapsulation_policy",
+    "wireguard_peer_key_misconfiguration": "forwarding_encapsulation_policy"
+  }
 }

@@ -1,0 +1,34 @@
+{
+  "case_key": "isp_abilene__bgp_max_prefix__hafac0c356cde",
+  "gt_fault_types": [
+    "bgp_max_prefix_exceeded"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 126918,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 2715,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 13,
+    "tool_calls": 12,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "ospf_neighbor_missing"
+  ],
+  "problem": "bgp_max_prefix_exceeded",
+  "scenario": "isp_abilene",
+  "score_status": "scored",
+  "trial_id": "isp_abilene__bgp_max_prefix__hafac0c356cde__t01",
+  "trial_index": 1
+}
