@@ -9,12 +9,25 @@ Pack, validate, and open PRs with the NIKA CLI:
 
 Full instructions, package layout, metadata schema, and PR checklist:
 
-**[docs/leaderboard-submission.md](https://github.com/sands-lab/nika/blob/main/docs/benchmarks/leaderboard-submission.md)**
+**[docs/leaderboard-submission.md](https://github.com/sands-lab/nika/blob/dev/docs/benchmarks/leaderboard-submission.md)**
 
 ```shell
-# after an official run: nika benchmark run --release 0.2.0 --split test --result_dir results/my-run ...
-nika leaderboard submit --result_dir results/my-run --name "My Agent" --authors "Your Name"
+# after an official run: uv run nika benchmark run --release 0.2.0 --split test --result_dir results/my-run ...
+uv run nika leaderboard submit --result_dir results/my-run \
+  --name "My Agent" --authors "Your Name"
 ```
+
+Use a NIKA `dev` checkout for this command until `main` supports the
+`--name` / `--authors` options. Run it from your NIKA checkout after completing
+an official release run. Authenticate with `gh auth login` and
+`uv run hf auth login` (or set `GH_TOKEN` and `HF_TOKEN`).
+
+The command generates metadata and a short README, validates both packages,
+and opens the paired GitHub and Hugging Face PRs. Add `--dry-run` for local
+validation before uploading. For custom metadata and documentation, use
+`--submission DIR` instead of `--name` / `--authors`.
+
+Maintainers review and merge both PRs. A successful submit prints their URLs; it does not publish or merge the entry itself.
 
 Do **not** commit raw traces, `messages.jsonl`, pcaps, or full session trees into this repository. CI re-runs `nika leaderboard validate` on PRs that touch `submissions/`.
 
