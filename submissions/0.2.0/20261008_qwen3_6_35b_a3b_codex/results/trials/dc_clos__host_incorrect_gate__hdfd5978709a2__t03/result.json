@@ -1,0 +1,34 @@
+{
+  "case_key": "dc_clos__host_incorrect_gate__hdfd5978709a2",
+  "gt_fault_types": [
+    "host_incorrect_gateway"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 706335,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 8242,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 23,
+    "tool_calls": 24,
+    "tool_errors": 4
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "link_down"
+  ],
+  "problem": "host_incorrect_gateway",
+  "scenario": "dc_clos",
+  "score_status": "scored",
+  "trial_id": "dc_clos__host_incorrect_gate__hdfd5978709a2__t03",
+  "trial_index": 3
+}

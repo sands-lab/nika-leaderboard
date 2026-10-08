@@ -1,0 +1,34 @@
+{
+  "case_key": "p4_dc_gateway__healthy__m",
+  "gt_fault_types": [
+    "healthy"
+  ],
+  "metrics": {
+    "detection_score": 0.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 465826,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 7788,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 22,
+    "tool_calls": 21,
+    "tool_errors": 1
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "p4_table_entry_missing"
+  ],
+  "problem": "healthy",
+  "scenario": "p4_dc_gateway",
+  "score_status": "scored",
+  "trial_id": "p4_dc_gateway__healthy__m__t01",
+  "trial_index": 1
+}
