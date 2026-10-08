@@ -1,0 +1,34 @@
+{
+  "case_key": "p4_dc_gateway__icmp_acl_bloc__h2ed8bf2882e3",
+  "gt_fault_types": [
+    "icmp_acl_block"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 47799,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 1916,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 7,
+    "tool_calls": 6,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "host_missing_ip"
+  ],
+  "problem": "icmp_acl_block",
+  "scenario": "p4_dc_gateway",
+  "score_status": "scored",
+  "trial_id": "p4_dc_gateway__icmp_acl_bloc__h2ed8bf2882e3__t02",
+  "trial_index": 2
+}

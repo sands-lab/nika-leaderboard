@@ -1,0 +1,42 @@
+info:
+  name: Claude CLI + OTel-2.0-LLM-31B-IT
+  authors: zhihao1998
+  org: null
+  site: null
+  report: null
+  logo: null
+  email: null
+  github: https://github.com/zhihao1998
+agent:
+  model: OTel-2.0-LLM-31B-IT
+  framework: cli.claude
+  tools:
+  - containerlab_srl_mcp_server
+  - k8s_mcp_server
+  - kathara_base_mcp_server
+  - pingmesh_mcp_server
+  - packet_capture_mcp_server
+  - kathara_frr_mcp_server
+  - kathara_bmv2_mcp_server
+  - kathara_sdn_mcp_server
+  - kathara_telemetry_mcp_server
+  - task_mcp_server
+  skills: []
+  optimization_methods: []
+  tags: []
+  extra:
+    model_repository: farbodtavakkoli/OTel-2.0-LLM-31B-IT
+    model_revision: de9c87a5681a4d6dce4ea2419eec8a2aadd5e071
+    max_steps: 100
+    max_tokens: 8192
+    agent_timeout_sec: 1800
+    case_timeout_sec: 2400
+    serving_context_tokens: 65536
+    serving_precision: BF16
+    serving_tensor_parallel_size: 4
+    serving_hardware: 4 x A100 40GB
+    thinking_configuration: Explicit enable_thinking=true set during the run; earlier
+      trials used the prior serving defaults.
+    retry_policy: Targeted replacement of one deployment error and 14 endpoint/long-wait
+      failures; two of those trials repeated after backend preemption. Model no-output
+      failures retained; no best-of score selection.
