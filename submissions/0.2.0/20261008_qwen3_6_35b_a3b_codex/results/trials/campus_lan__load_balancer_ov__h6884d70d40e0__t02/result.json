@@ -1,0 +1,32 @@
+{
+  "case_key": "campus_lan__load_balancer_ov__h6884d70d40e0",
+  "gt_fault_types": [
+    "load_balancer_overload"
+  ],
+  "metrics": {
+    "detection_score": 0.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 2863673,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 17356,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 65,
+    "tool_calls": 64,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": null,
+  "problem": "load_balancer_overload",
+  "scenario": "campus_lan",
+  "score_status": "scored",
+  "trial_id": "campus_lan__load_balancer_ov__h6884d70d40e0__t02",
+  "trial_index": 2
+}

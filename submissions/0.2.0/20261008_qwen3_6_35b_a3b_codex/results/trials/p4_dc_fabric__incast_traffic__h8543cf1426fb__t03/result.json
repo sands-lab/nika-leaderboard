@@ -1,0 +1,34 @@
+{
+  "case_key": "p4_dc_fabric__incast_traffic__h8543cf1426fb",
+  "gt_fault_types": [
+    "incast_traffic_network_limitation"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 371840,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 10894,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 13,
+    "tool_calls": 12,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "p4_ecmp_group_member_missing"
+  ],
+  "problem": "incast_traffic_network_limitation",
+  "scenario": "p4_dc_fabric",
+  "score_status": "scored",
+  "trial_id": "p4_dc_fabric__incast_traffic__h8543cf1426fb__t03",
+  "trial_index": 3
+}
