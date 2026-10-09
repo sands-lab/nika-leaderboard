@@ -1,5 +1,6 @@
 /**
- * Approximate public model release dates for "Resolved vs model release date".
+ * Public model release dates for the Released column and "Resolved vs model
+ * release date".
  * Extend as new models appear on the leaderboard. Values are UTC midnight ISO dates.
  */
 const MODEL_RELEASE_DATES: Record<string, string> = {
@@ -28,21 +29,45 @@ const MODEL_RELEASE_DATES: Record<string, string> = {
   'deepseek-v3': '2024-12-26',
 }
 
+/**
+ * Official model pages (vendor docs or the weights' model card), keyed like
+ * MODEL_RELEASE_DATES. A quantized checkpoint links to its own card.
+ */
+const MODEL_LINKS: Record<string, string> = {
+  'gpt-5': 'https://developers.openai.com/api/docs/models/gpt-5',
+  'gpt-5-mini': 'https://developers.openai.com/api/docs/models/gpt-5-mini',
+  'gpt-oss-20b': 'https://huggingface.co/openai/gpt-oss-20b',
+  'gpt-oss:20b': 'https://huggingface.co/openai/gpt-oss-20b',
+  'qwen3.5-27b': 'https://huggingface.co/Qwen/Qwen3.5-27B',
+  'qwen3.6-27b': 'https://huggingface.co/Qwen/Qwen3.6-27B',
+  'qwen3.6-35b-a3b-fp8': 'https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8',
+  'qwen3.6-35b-a3b': 'https://huggingface.co/Qwen/Qwen3.6-35B-A3B',
+}
+
 function normalizeModelKey(model: string): string {
   return model.trim().toLowerCase().replace(/_/g, '-')
 }
 
-/** Return model release date as Date, or null if unknown. */
-export function modelReleaseDate(model: string | null | undefined): Date | null {
+/** Exact key first, then the longest table key the model name contains. */
+function lookup<T>(table: Record<string, T>, model: string | null | undefined): T | null {
   if (!model) return null
   const key = normalizeModelKey(model)
-  const direct = MODEL_RELEASE_DATES[key]
-  if (direct) return new Date(`${direct}T00:00:00Z`)
-  // Prefix match for variants like "gpt-5-2025-08-07" or provider prefixes
-  for (const [name, iso] of Object.entries(MODEL_RELEASE_DATES)) {
-    if (key.includes(name) || name.includes(key)) {
-      return new Date(`${iso}T00:00:00Z`)
-    }
-  }
-  return null
+  if (key in table) return table[key]
+  // Variants like "gpt-5-2025-08-07" or provider prefixes. The longest match
+  // wins so "gpt-5-mini-…" resolves to gpt-5-mini, not gpt-5.
+  const hit = Object.keys(table)
+    .filter((name) => key.includes(name) || name.includes(key))
+    .sort((a, b) => b.length - a.length)[0]
+  return hit ? table[hit] : null
+}
+
+/** Return model release date as Date, or null if unknown. */
+export function modelReleaseDate(model: string | null | undefined): Date | null {
+  const iso = lookup(MODEL_RELEASE_DATES, model)
+  return iso ? new Date(`${iso}T00:00:00Z`) : null
+}
+
+/** Official page for the model, or null if none is on file. */
+export function modelLink(model: string | null | undefined): string | null {
+  return lookup(MODEL_LINKS, model)
 }

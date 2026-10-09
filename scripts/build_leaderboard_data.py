@@ -25,10 +25,28 @@ DOMAIN_RE = re.compile(
 )
 
 
+KNOWN_VENDORS = {"openai", "anthropic", "google", "deepseek", "qwen", "meta", "mistral"}
+
+
 def infer_llm_provider(model: str | None, explicit: str | None) -> str | None:
     """Prefer explicit run.llm_provider; otherwise infer from model id."""
     if explicit and str(explicit).strip():
         return str(explicit).strip().lower().replace(" ", "-").replace("_", "-")
+    return vendor_from_model(model)
+
+
+def model_vendor(model: str | None, llm_provider: str | None) -> str | None:
+    """Who made the model, as the UI's Provider column and filter show it.
+
+    ``custom`` (an OpenAI-compatible base_url) names the serving route rather
+    than a vendor, so any value outside the known vendors defers to the model id.
+    """
+    if llm_provider in KNOWN_VENDORS:
+        return llm_provider
+    return vendor_from_model(model) or llm_provider
+
+
+def vendor_from_model(model: str | None) -> str | None:
     if not model:
         return None
     key = str(model).strip().lower().replace("_", "-")
@@ -384,6 +402,7 @@ def load_submission(
         "skills": agent.get("skills") or [],
         "optimization_methods": agent.get("optimization_methods") or [],
         "tags": agent.get("tags") or [],
+        "extra": agent.get("extra") or {},
         "benchmark_version": bench.get("version") or version,
         "split": bench.get("split"),
         "case_count": bench.get("case_count"),
@@ -409,10 +428,17 @@ def load_submission(
         "created_at": identity.get("created_at"),
         "run_id": run.get("run_id"),
         "official": run.get("official"),
+        "nika_git_commit": run.get("nika_git_commit"),
     }
 
+    readme_path = package_dir / "README.md"
     detail = {
         **summary,
+        "readme": (
+            readme_path.read_text(encoding="utf-8").strip()
+            if readme_path.is_file()
+            else None
+        ),
         "trials": trials,
         "rca_confusion": rca_confusion,
         "name_to_category": problem_to_category(catalog_lookup, problem_domains),
@@ -593,7 +619,9 @@ def build_leaderboard(
             write_json(submissions_out / f"{safe_id}.json", detail)
 
             frameworks.add(summary.get("framework"))
-            providers.add(summary.get("llm_provider"))
+            providers.add(
+                model_vendor(summary.get("model"), summary.get("llm_provider"))
+            )
             models.add(summary.get("model"))
             methods.update(summary.get("optimization_methods") or [])
             tags.update(summary.get("tags") or [])

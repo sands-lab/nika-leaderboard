@@ -1,13 +1,15 @@
-import { useMemo } from 'react'
+import { useMemo, type MouseEvent } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { EntryLinks } from './EntryLinks'
 import { SortableTh } from './SortableTh'
 import type { SubmissionSummary } from '../lib/types'
 import {
   dash,
+  entryLinks,
+  entryPath,
   formatDateUtc,
   formatCount,
-  formatPct,
   formatScore,
-  primaryLink,
 } from '../lib/data'
 import {
   adaptationMethods,
@@ -38,7 +40,7 @@ const NUM = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 })
  * `run.official: true`, so an unofficial entry is the notable case and is
  * marked as plainly as a verified one.
  */
-function VerifiedMark({ official }: { official: boolean | null }) {
+export function VerifiedMark({ official }: { official: boolean | null }) {
   // Icon only: a word here widens the busiest column enough to push the table
   // off screen. The label lives in the tooltip and the column header.
   return official ? (
@@ -68,18 +70,15 @@ type LbSortKey =
   | 'rank'
   | 'model'
   | 'model_release'
-  | 'scaffold'
+  | 'harness'
   | 'adaptation'
   | 'provider'
   | 'rca'
   | 'loc'
   | 'detection'
-  | 'success'
   | 'cost'
-  | 'avg_steps'
-  | 'submitted'
 
-function ScorePill({ value }: { value: number | null | undefined }) {
+export function ScorePill({ value }: { value: number | null | undefined }) {
   if (value == null || Number.isNaN(value)) {
     return <span className="num">—</span>
   }
@@ -109,7 +108,7 @@ function ciHalfWidth(ci: [number, number]): number {
   return (ci[1] - ci[0]) / 2
 }
 
-function RcaCell({ s }: { s: SubmissionSummary }) {
+export function RcaCell({ s }: { s: SubmissionSummary }) {
   const ci = s.rca_f1_ci
   return (
     <span
@@ -126,7 +125,7 @@ function RcaCell({ s }: { s: SubmissionSummary }) {
   )
 }
 
-function ProviderIcon({
+export function ProviderIcon({
   llmProvider,
   model,
 }: {
@@ -152,7 +151,7 @@ function ProviderIcon({
   )
 }
 
-function ScaffoldCell({ s }: { s: SubmissionSummary }) {
+export function HarnessCell({ s }: { s: SubmissionSummary }) {
   const tags = scaffoldTags(s)
   return (
     <div className="scaffold-cell">
@@ -179,21 +178,18 @@ function buildAccessors(
     rank: (s) => (s.rank ?? 0) - (s.mean_rca_f1 ?? 0) / 2,
     model: (s) => s.model,
     model_release: (s) => modelReleaseDate(s.model)?.getTime() ?? null,
-    scaffold: (s) => s.framework,
+    harness: (s) => s.framework,
     adaptation: (s) => formatAdaptation(s),
     provider: (s) => resolveProvider(s.llm_provider, s.model),
     rca: (s) => s.mean_rca_f1,
     loc: (s) => s.mean_localization_f1,
     detection: (s) => s.mean_detection_score,
-    success: (s) => s.success_rate,
     cost: (s) => submissionCost(s, pricing, overrides)?.perRun ?? null,
-    avg_steps: (s) => s.mean_steps,
-    submitted: (s) => s.created_at,
   }
 }
 
 /** The cost cell: dollars on screen, the tokens and unit price behind it. */
-function CostCell({
+export function CostCell({
   s,
   pricing,
   overrides,
@@ -246,20 +242,30 @@ function CostCell({
 
 export function LeaderboardTable({ rows }: LeaderboardTableProps) {
   const { pricing, overrides } = useLeaderboardData()
+  const navigate = useNavigate()
+  const { search } = useLocation()
   const { sort, toggle } = useTableSort<LbSortKey>(
     { key: 'rank', dir: 'asc' },
     'desc',
-    // Cheaper and fewer are better, so these lead with their best row.
-    { cost: 'asc', avg_steps: 'asc', rank: 'asc' },
+    // Cheaper is better, so these lead with their best row.
+    { cost: 'asc', rank: 'asc' },
   )
   const sorted = useMemo(
     () => sortByAccessors(rows, sort, buildAccessors(pricing, overrides)),
     [rows, sort, pricing, overrides],
   )
 
+  // The whole row opens the entry; links inside it keep their own target.
+  // The model name is the keyboard- and middle-click-reachable link.
+  const openRow = (e: MouseEvent, s: SubmissionSummary) => {
+    if ((e.target as HTMLElement).closest('a, button')) return
+    if (window.getSelection()?.toString()) return
+    navigate({ pathname: entryPath(s.id), search })
+  }
+
   return (
     <div className="table-wrap">
-      <table className="data-table">
+      <table className="data-table data-table--entries">
         <thead>
           <tr>
             <SortableTh
@@ -274,7 +280,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sortKey="model"
               sort={sort}
               onSort={toggle}
-              title="✓ = packaged from an official release run; ? = self-reported"
+              title="Click a row for the entry's full details. ✓ = packaged from an official release run; ? = self-reported"
               className="model-th"
             />
             <SortableTh
@@ -282,14 +288,15 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sortKey="model_release"
               sort={sort}
               onSort={toggle}
-              title="Approximate public model release date"
-              className="col-secondary col-tertiary"
+              title="Public model release date"
+              className="col-secondary"
             />
             <SortableTh
-              label="Scaffold"
-              sortKey="scaffold"
+              label="Harness"
+              sortKey="harness"
               sort={sort}
               onSort={toggle}
+              title="Agent harness that drove the model (e.g. ReACT, LangGraph, Claude Code)"
               className="col-narrow-hide"
             />
             <SortableTh
@@ -305,8 +312,8 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sortKey="provider"
               sort={sort}
               onSort={toggle}
-              title="LLM provider"
-              className="col-secondary col-tertiary"
+              title="Model vendor"
+              className="col-secondary"
             />
             <SortableTh
               label="Detection"
@@ -330,46 +337,25 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               title="Mean RCA F1, the metric the leaderboard ranks by. ± is the run-to-run margin: on a fresh set of cases the score would land within it 95% of the time"
             />
             <SortableTh
-              label="Success"
-              sortKey="success"
-              sort={sort}
-              onSort={toggle}
-              className="col-secondary"
-            />
-            <SortableTh
-              label="Cost / run"
+              label="Cost"
               sortKey="cost"
               sort={sort}
               onSort={toggle}
               title="USD to run the whole benchmark once at the model's reference price. Hover a cell for the per-case figures and what this submission spent in total."
-              className="col-secondary"
             />
-            <SortableTh
-              label="Steps / case"
-              sortKey="avg_steps"
-              sort={sort}
-              onSort={toggle}
-              title="Mean steps per case"
-              className="col-secondary"
-            />
-            <SortableTh
-              label="Submitted"
-              sortKey="submitted"
-              sort={sort}
-              onSort={toggle}
-              title="Package identity created_at (UTC date)"
-              className="col-secondary col-tertiary"
-            />
-            <th className="col-secondary">Links</th>
+            <th className="col-narrow-hide">Links</th>
           </tr>
         </thead>
         <tbody>
           {sorted.map((s) => {
-            const link = primaryLink(s)
             const release = modelReleaseDate(s.model)
             const adapted = adaptationMethods(s)
             return (
-              <tr key={s.id}>
+              <tr
+                key={s.id}
+                className="entry-row"
+                onClick={(e) => openRow(e, s)}
+              >
                 <td title={rankTitle(s, tieCount(rows, s))}>
                   {s.rank}
                   {s.rca_f1_ci && tieCount(rows, s) > 1 && (
@@ -379,23 +365,25 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                   )}
                 </td>
                 <td className="model-td">
-                  <strong className="model-name" title={s.name}>
+                  <Link
+                    className="model-name"
+                    to={{ pathname: entryPath(s.id), search }}
+                    title={`${s.name}: view details`}
+                  >
                     {dash(s.model)}
-                  </strong>
+                  </Link>
                   <VerifiedMark official={s.official} />
                 </td>
-                <td className="num col-secondary col-tertiary">
-                  {formatDateUtc(release)}
-                </td>
+                <td className="num col-secondary">{formatDateUtc(release)}</td>
                 <td className="col-narrow-hide">
-                  <ScaffoldCell s={s} />
+                  <HarnessCell s={s} />
                 </td>
                 <td
                   className={`col-narrow-hide adaptation-td${adapted.length === 0 ? ' adaptation-td--none' : ''}`}
                 >
                   {formatAdaptation(s)}
                 </td>
-                <td className="col-secondary col-tertiary">
+                <td className="col-secondary">
                   <ProviderIcon llmProvider={s.llm_provider} model={s.model} />
                 </td>
                 <td className="num col-secondary">
@@ -407,63 +395,18 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                 <td className="num">
                   <RcaCell s={s} />
                 </td>
-                <td className="num col-secondary">
-                  {formatPct(s.success_rate)}
-                </td>
-                <td className="num col-secondary">
+                <td className="num">
                   <CostCell s={s} pricing={pricing} overrides={overrides} />
                 </td>
-                <td className="num col-secondary">
-                  {formatCount(s.mean_steps)}
-                </td>
-                <td
-                  className="num col-secondary col-tertiary"
-                  title={s.created_at || undefined}
-                >
-                  {formatDateUtc(s.created_at)}
-                </td>
-                <td className="col-secondary">
-                  <div className="links">
-                    {s.github && (
-                      <a href={s.github} target="_blank" rel="noreferrer">
-                        GitHub
-                      </a>
-                    )}
-                    {s.trajectories_url && (
-                      <a
-                        href={s.trajectories_url}
-                        target="_blank"
-                        rel="noreferrer"
-                      >
-                        Trajectories
-                      </a>
-                    )}
-                    {s.site && (
-                      <a href={s.site} target="_blank" rel="noreferrer">
-                        Site
-                      </a>
-                    )}
-                    {s.report && (
-                      <a
-                        href={s.report}
-                        target="_blank"
-                        rel="noreferrer"
-                        title={s.report}
-                      >
-                        arXiv
-                      </a>
-                    )}
-                    {!link && !s.trajectories_url && (
-                      <span className="muted">—</span>
-                    )}
-                  </div>
+                <td className="col-narrow-hide">
+                  <EntryLinks links={entryLinks(s)} />
                 </td>
               </tr>
             )
           })}
           {sorted.length === 0 && (
             <tr>
-              <td colSpan={14} className="empty-row">
+              <td colSpan={11} className="empty-row">
                 No submissions match the current filters.
               </td>
             </tr>

@@ -32,6 +32,8 @@ export interface SubmissionSummary {
   skills: string[]
   optimization_methods: string[]
   tags: string[]
+  /** Free-form `agent.extra` from metadata.yaml. */
+  extra?: Record<string, unknown>
   benchmark_version: string
   split: string | null
   case_count: number | null
@@ -59,6 +61,7 @@ export interface SubmissionSummary {
   created_at: string | null
   run_id: string | null
   official: boolean | null
+  nika_git_commit?: string | null
   /** 95% bootstrap CI of mean RCA F1; null without per-trial data. */
   rca_f1_ci?: [number, number] | null
   /** Same-release entries whose RCA F1 is significantly higher. */
@@ -106,6 +109,8 @@ export interface RcaConfusionBlock {
 }
 
 export interface SubmissionDetail extends SubmissionSummary {
+  /** The package's README.md, verbatim. */
+  readme?: string | null
   trials: TrialRow[]
   rca_confusion?: RcaConfusionBlock | null
   /** problem / root-cause name → failure category */

@@ -10,7 +10,6 @@
       "ReACT"
     ],
     "llm_provider": [
-      "custom",
       "openai",
       "qwen"
     ],
@@ -42,5 +41,5 @@
     "seed": 0,
     "confidence": 0.95
   },
-  "generated_at": "2026-10-07T14:47:58+00:00"
+  "generated_at": "2026-10-08T19:04:57+00:00"
 }

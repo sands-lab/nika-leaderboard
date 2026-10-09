@@ -7,7 +7,7 @@ import type { FilterState, SubmissionSummary } from './types'
 const FILTER_PARAMS: Record<keyof FilterState, string> = {
   version: 'release',
   split: 'split',
-  framework: 'scaffold',
+  framework: 'harness',
   llm_provider: 'provider',
   model: 'model',
   optimization_method: 'adaptation',
@@ -16,8 +16,16 @@ const FILTER_PARAMS: Record<keyof FilterState, string> = {
   query: 'q',
 }
 
+/** Earlier names of a filter's parameter, still read so old links keep working. */
+const LEGACY_FILTER_PARAMS: Partial<Record<keyof FilterState, string>> = {
+  framework: 'scaffold',
+}
+
 /** Every query-string key the filters own, for clearing before a rewrite. */
-export const FILTER_PARAM_KEYS = Object.values(FILTER_PARAMS)
+export const FILTER_PARAM_KEYS = [
+  ...Object.values(FILTER_PARAMS),
+  ...Object.values(LEGACY_FILTER_PARAMS),
+]
 
 /** Filters as a query string, omitting anything left at its default. */
 export function filtersToParams(filters: FilterState): URLSearchParams {
@@ -41,13 +49,14 @@ export function filtersFromParams(
   for (const [key, param] of Object.entries(FILTER_PARAMS) as Array<
     [keyof FilterState, string]
   >) {
-    const raw = params.get(param)
+    const legacy = LEGACY_FILTER_PARAMS[key]
+    const raw = params.get(param) ?? (legacy ? params.get(legacy) : null)
     if (raw != null) next[key] = raw
   }
   return next
 }
 
-/** Values that belong on scaffold tags, not Adaptation. */
+/** Values that belong on harness tags, not Adaptation. */
 const SCAFFOLD_EXTRA_METHODS = new Set(['skills', 'multi-agent', 'multiagent'])
 
 export const defaultFilters = (version: string | 'all' = 'all'): FilterState => ({
@@ -90,7 +99,7 @@ export function formatAdaptation(s: SubmissionSummary): string {
   return methods.length > 0 ? methods.join(', ') : 'None'
 }
 
-/** Scaffold annotation tags (skills list, plus misfiled scaffold extras). */
+/** Harness annotation tags (skills list, plus misfiled harness extras). */
 export function scaffoldTags(s: SubmissionSummary): string[] {
   const tags: string[] = []
   const seen = new Set<string>()

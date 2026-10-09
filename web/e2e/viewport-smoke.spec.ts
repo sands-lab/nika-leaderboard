@@ -12,6 +12,10 @@ const pages = [
   { name: 'matrix', path: '/#/analytics/matrix' },
   { name: 'confusion', path: '/#/analytics/confusion' },
   { name: 'analyze', path: '/#/analytics/analyze' },
+  {
+    name: 'entry',
+    path: '/#/entry/0.2.0/20261007_qwen3_6_35b_a3b_claudecode',
+  },
 ] as const
 
 test.describe('viewport smoke', () => {
@@ -42,4 +46,20 @@ test.describe('viewport smoke', () => {
       ).toEqual([])
     })
   }
+})
+
+test('clicking a leaderboard row opens its entry page and back returns', async ({
+  page,
+}) => {
+  await page.goto('/#/', { waitUntil: 'domcontentloaded' })
+  const row = page.locator('tr.entry-row').first()
+  await expect(row).toBeVisible({ timeout: 30_000 })
+  const model = (await row.locator('.model-name').innerText()).trim()
+  // Click the rank cell, not the model link, to exercise the row handler.
+  await row.locator('td').first().click()
+  await expect(page).toHaveURL(/#\/entry\/[^/]+\/[^/]+/)
+  await expect(page.getByRole('heading', { level: 1 })).toContainText(model)
+  await expect(page.getByRole('heading', { name: 'Run' })).toBeVisible()
+  await page.getByRole('link', { name: '← Leaderboard' }).click()
+  await expect(page.locator('tr.entry-row').first()).toBeVisible()
 })
