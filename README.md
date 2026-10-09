@@ -33,7 +33,7 @@ Do **not** commit raw traces, `messages.jsonl`, pcaps, or full session trees int
 
 ## Leaderboard web UI
 
-The `web/` app is a Vite + React + TypeScript + ECharts static site. It ranks validated packages, filters by scaffold/provider/model/tags, compares selected entries (pairwise + charts), and shows scenario / failure / size matrices. When a package identity includes `trajectories_relpath`, the UI links to the paired HF trajectories folder.
+The `web/` app is a Vite + React + TypeScript + ECharts static site. It ranks validated packages, filters by harness/provider/model/tags, compares selected entries (pairwise + charts), and shows scenario / failure / size matrices. The table keeps to the headline columns; clicking a row opens the entry's page (`#/entry/<release>/<package>`) with its full metadata, run settings, token usage, and cost breakdown. When a package identity includes `trajectories_relpath`, the UI links to the paired HF trajectories folder.
 
 ### Prerequisites
 

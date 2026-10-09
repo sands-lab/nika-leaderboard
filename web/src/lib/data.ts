@@ -44,6 +44,11 @@ export function submissionDetailPath(id: string): string {
   return `submissions/${id.replace(/\//g, '__')}.json`
 }
 
+/** Route of an entry's detail page; ids are `<release>/<package dir>`. */
+export function entryPath(id: string): string {
+  return `/entry/${id.split('/').map(encodeURIComponent).join('/')}`
+}
+
 export function loadSubmissionDetail(id: string): Promise<SubmissionDetail> {
   const key = id
   let pending = detailCache.get(key)
@@ -111,8 +116,28 @@ export function formatSubmittedAt(value: string | null | undefined): string {
   return formatDateUtc(value)
 }
 
-export function primaryLink(s: SubmissionSummary): string | null {
-  return s.github || s.trajectories_url || s.site || s.report || null
+export type EntryLinkKind = 'github' | 'trajectories' | 'report' | 'site' | 'model'
+
+export interface EntryLink {
+  kind: EntryLinkKind
+  label: string
+  href: string
+}
+
+/** The package's outbound links, in a fixed order. */
+export function entryLinks(s: SubmissionSummary): EntryLink[] {
+  const out: EntryLink[] = []
+  if (s.github) out.push({ kind: 'github', label: 'Code on GitHub', href: s.github })
+  if (s.trajectories_url) {
+    out.push({
+      kind: 'trajectories',
+      label: 'Trajectories on Hugging Face',
+      href: s.trajectories_url,
+    })
+  }
+  if (s.report) out.push({ kind: 'report', label: 'Paper / report', href: s.report })
+  if (s.site) out.push({ kind: 'site', label: 'Project site', href: s.site })
+  return out
 }
 
 export function dash(value: string | null | undefined): string {

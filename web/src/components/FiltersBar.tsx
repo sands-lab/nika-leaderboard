@@ -98,7 +98,7 @@ export function FiltersBar({
         onChange={(v) => set('split', v)}
       />
       <Select
-        label="Scaffold"
+        label="Harness"
         value={filters.framework}
         options={metaFilters.framework}
         onChange={(v) => set('framework', v)}

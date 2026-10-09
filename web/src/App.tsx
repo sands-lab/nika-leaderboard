@@ -5,6 +5,7 @@ import { AnalyzePage } from './pages/AnalyzePage'
 import { AnalyticsLayout } from './pages/AnalyticsLayout'
 import { ComparePage } from './pages/ComparePage'
 import { ConfusionPage } from './pages/ConfusionPage'
+import { EntryPage } from './pages/EntryPage'
 import { InsightsPage } from './pages/InsightsPage'
 import { LeaderboardPage } from './pages/LeaderboardPage'
 import { MatrixPage } from './pages/MatrixPage'
@@ -31,6 +32,7 @@ export default function App() {
         <Routes>
           <Route element={<Layout />}>
             <Route index element={<LeaderboardPage />} />
+            <Route path="entry/:version/:dirname" element={<EntryPage />} />
             <Route path="analytics" element={<AnalyticsLayout />}>
               <Route index element={<Navigate to="insights" replace />} />
               <Route path="insights" element={<InsightsPage />} />

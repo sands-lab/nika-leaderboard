@@ -60,15 +60,31 @@ export function inferProviderFromModel(
   return null
 }
 
-/** Resolved provider slug: explicit metadata wins, else model inference. */
+/**
+ * Resolved model vendor: a known vendor in the metadata wins, else model
+ * inference. NIKA's `custom` provider names the serving route (an
+ * OpenAI-compatible base_url), not who made the model, so it falls through to
+ * the model name like any other unrecognized value.
+ */
 export function resolveProvider(
   llmProvider: string | null | undefined,
   model: string | null | undefined,
 ): string | null {
-  if (llmProvider && llmProvider.trim()) {
-    return normalizeProviderKey(llmProvider)
-  }
-  return inferProviderFromModel(model)
+  const explicit = llmProvider?.trim() ? normalizeProviderKey(llmProvider) : null
+  if (explicit && explicit in PROVIDER_LABELS) return explicit
+  return inferProviderFromModel(model) ?? explicit
+}
+
+/**
+ * How the run reached the model, only where the package states it. A vendor
+ * slug may have been inferred from the model name at build time, so it says
+ * nothing about serving; only NIKA's `custom` provider does.
+ */
+export function servingLabel(llmProvider: string | null | undefined): string | null {
+  if (!llmProvider?.trim()) return null
+  return normalizeProviderKey(llmProvider) === 'custom'
+    ? 'Self-hosted (OpenAI-compatible endpoint)'
+    : null
 }
 
 export function providerDisplayName(provider: string | null | undefined): string {
