@@ -97,10 +97,12 @@ function Readme({ text }: { text: string }) {
 }
 
 function extraRows(s: SubmissionSummary): Row[] {
-  return Object.entries(s.extra ?? {}).map(([k, v]) => [
-    k,
-    typeof v === 'string' ? v : JSON.stringify(v),
-  ])
+  return Object.entries(s.extra ?? {})
+    .filter(([key]) => key !== 'retry_policy')
+    .map(([k, v]) => [
+      k.replace(/_/g, ' ').replace(/^./, (letter) => letter.toUpperCase()),
+      typeof v === 'string' ? v : JSON.stringify(v),
+    ])
 }
 
 export function EntryPage() {
@@ -167,7 +169,11 @@ export function EntryPage() {
       <header className="entry-head">
         <div>
           <h1>
-            {s.model ?? s.name}
+            {modelUrl ? (
+              <a href={modelUrl} target="_blank" rel="noreferrer">
+                {s.model ?? s.name}
+              </a>
+            ) : s.model ?? s.name}
             <VerifiedMark official={s.official} />
           </h1>
           <p className="lede">

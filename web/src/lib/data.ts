@@ -127,7 +127,10 @@ export interface EntryLink {
 /** The package's outbound links, in a fixed order. */
 export function entryLinks(s: SubmissionSummary): EntryLink[] {
   const out: EntryLink[] = []
-  if (s.github) out.push({ kind: 'github', label: 'Code on GitHub', href: s.github })
+  // Shared NIKA resources have site-wide links; these icons identify the entry.
+  if (s.github && s.github.replace(/\/$/, '') !== 'https://github.com/sands-lab/nika') {
+    out.push({ kind: 'github', label: 'Code on GitHub', href: s.github })
+  }
   if (s.trajectories_url) {
     out.push({
       kind: 'trajectories',
@@ -135,8 +138,12 @@ export function entryLinks(s: SubmissionSummary): EntryLink[] {
       href: s.trajectories_url,
     })
   }
-  if (s.report) out.push({ kind: 'report', label: 'Paper / report', href: s.report })
-  if (s.site) out.push({ kind: 'site', label: 'Project site', href: s.site })
+  if (s.report && s.report !== 'https://arxiv.org/abs/2512.16381') {
+    out.push({ kind: 'report', label: 'Paper / report', href: s.report })
+  }
+  if (s.site && s.site.replace(/\/$/, '') !== 'https://sands-lab.github.io/nika') {
+    out.push({ kind: 'site', label: 'Project site', href: s.site })
+  }
   return out
 }
 
