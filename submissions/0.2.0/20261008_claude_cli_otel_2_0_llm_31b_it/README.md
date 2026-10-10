@@ -4,8 +4,7 @@ Authors: zhihao1998
 
 This entry runs NIKA's `cli.claude` agent with the self-hosted
 `farbodtavakkoli/OTel-2.0-LLM-31B-IT` model and NIKA's standard MCP tools.
-The model endpoint uses the OpenAI-compatible API; the agent framework is
-Claude CLI, not a Claude model.
+The model endpoint uses the OpenAI-compatible API; the agent harness is Claude Code.
 
 ## Evaluation
 
@@ -39,3 +38,15 @@ remain. The primary mean RCA F1 is 0.037908627450980385 (3.79%).
 - Agent and benchmark: https://github.com/sands-lab/nika
 - Model: https://huggingface.co/farbodtavakkoli/OTel-2.0-LLM-31B-IT
 - Submitter: https://github.com/zhihao1998
+
+- Project site: https://sands-lab.github.io/nika/
+- Benchmark paper: https://arxiv.org/abs/2512.16381
+- Trajectories: https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261008_claude_cli_otel_2_0_llm_31b_it
+
+## Model release and reference price
+
+- Released weights: 2026-07-23. Source: https://huggingface.co/farbodtavakkoli/OTel-2.0-LLM-31B-IT/commit/2d474f02c3a4f8d98254c0574e0f085e8e19e1fc
+- Reference quote, retrieved 2026-10-10: Featherless AI: $0.12 input / $0.36 output per million tokens. Source: https://featherless.ai/models/farbodtavakkoli/OTel-2.0-LLM-31B-IT. The quote serves FP8; the run used BF16.
+
+The leaderboard derives a hosted reference estimate from recorded token counts.
+It does not measure this self-hosted run's GPU bill or apply cache discounts.

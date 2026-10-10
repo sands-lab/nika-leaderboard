@@ -53,6 +53,26 @@ This writes compact JSON under `web/public/data/` from `submissions/` plus vendo
 
 CI builds with `--skip-catalog-refresh` so it only needs the committed catalog + submissions.
 
+### Submission display metadata
+
+Before accepting a submission, review its public harness name, code and project
+links, official model page, released date, and reference price. Submitters supply
+model identity and sources in their metadata and README. Maintainers register
+model pages and release dates in `web/src/lib/modelMeta.ts`, and dated input/output
+quotes in `catalog/pricing.json`. Use the submitted model string as the pricing
+key. The [submission guide](https://github.com/sands-lab/nika/blob/dev/docs/benchmarks/leaderboard-submission.md#model-release-dates-prices-and-display-names)
+describes the sources and cost calculation.
+
+The website calculates cost from recorded tokens and reviewed reference rates.
+Open-weight prices estimate hosted inference, including any documented precision
+differences; they do not measure the submitter's GPU bill. Missing prices remain
+unknown until a supported quote is available.
+
+The data builder derives `name` from model, normalized harness, optimization
+methods, and skills. Repeated configurations add split and run identity. It
+preserves the submitter's title in `submission_name` for the detail page. Charts
+and comparisons use the generated label, while accepted package names stay fixed.
+
 ### Run locally
 
 ```shell

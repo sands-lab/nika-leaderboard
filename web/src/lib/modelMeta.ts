@@ -25,6 +25,10 @@ const MODEL_RELEASE_DATES: Record<string, string> = {
   'qwen3.6-27b': '2026-04-22',
   // Qwen3.6-35B-A3B (MoE, open weights): announced by Tongyi Lab 2026-04-16
   'qwen3.6-35b-a3b': '2026-04-16',
+  // First FP8 weight upload: https://huggingface.co/Qwen/Qwen3.8-27B-FP8/commit/10b09acb2fdc08d52017d17c1e3d42845fba3f4f
+  'qwen3.8-27b-fp8': '2026-08-13',
+  // First weight upload: https://huggingface.co/farbodtavakkoli/OTel-2.0-LLM-31B-IT/commit/2d474f02c3a4f8d98254c0574e0f085e8e19e1fc
+  'otel-2.0-llm-31b-it': '2026-07-23',
   'deepseek-r1': '2025-01-20',
   'deepseek-v3': '2024-12-26',
 }
@@ -42,6 +46,8 @@ const MODEL_LINKS: Record<string, string> = {
   'qwen3.6-27b': 'https://huggingface.co/Qwen/Qwen3.6-27B',
   'qwen3.6-35b-a3b-fp8': 'https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8',
   'qwen3.6-35b-a3b': 'https://huggingface.co/Qwen/Qwen3.6-35B-A3B',
+  'qwen3.8-27b-fp8': 'https://huggingface.co/Qwen/Qwen3.8-27B-FP8',
+  'otel-2.0-llm-31b-it': 'https://huggingface.co/farbodtavakkoli/OTel-2.0-LLM-31B-IT',
 }
 
 function normalizeModelKey(model: string): string {

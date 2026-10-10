@@ -42,7 +42,7 @@ export function familyColor(family: string): string {
 }
 
 export function shortLabel(name: string, model: string | null, framework: string | null): string {
-  // Prefer the submission display name so Skills / GEPA / replication stay visible.
+  // The builder's label already includes recorded harness adaptations.
   const trimmed = name.trim()
   if (trimmed) return trimmed
   const fw = framework || ''
