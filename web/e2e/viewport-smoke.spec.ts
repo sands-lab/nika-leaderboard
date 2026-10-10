@@ -63,3 +63,36 @@ test('clicking a leaderboard row opens its entry page and back returns', async (
   await page.getByRole('link', { name: '← Leaderboard' }).click()
   await expect(page.locator('tr.entry-row').first()).toBeVisible()
 })
+
+test('model metadata and generated entry labels reach the leaderboard', async ({ page }) => {
+  await page.goto('/#/', { waitUntil: 'domcontentloaded' })
+  const response = await page.request.get('/data/index.json')
+  const { submissions } = await response.json()
+  const names = submissions.map((s: { name: string }) => s.name)
+  expect(new Set(names).size).toBe(names.length)
+  expect(names).toContain('Qwen3.5-27B · ReACT · GEPA (d)')
+  expect(names).toContain('Qwen3.5-27B · ReACT · GEPA (d+s)')
+
+  for (const [model, date] of [
+    ['Qwen3.8-27B-FP8', '2026-08-13'],
+    ['OTel-2.0-LLM-31B-IT', '2026-07-23'],
+  ]) {
+    const entry = submissions.find((s: { model: string }) => s.model === model)
+    expect(entry.name).toBe(`${model} · Claude Code`)
+    expect(entry.submission_name).toBeTruthy()
+    const row = page.locator('tr.entry-row').filter({ hasText: model })
+    await expect(row).toContainText('Claude Code')
+    await expect(row).toContainText(date)
+    await expect(row.locator('span[title*="One run ="]')).toContainText('$')
+    await row.locator('td').first().click()
+    await expect(page.locator('.lede')).toContainText(entry.name)
+    for (const label of [
+      'Code on GitHub', 'Trajectories on Hugging Face',
+      'Paper / report', 'Project site', 'Model page',
+    ]) {
+      await expect(page.getByRole('link', { name: label, exact: true }).first()).toBeVisible()
+    }
+    await expect(page.locator('main')).toContainText(entry.submission_name)
+    await page.getByRole('link', { name: '← Leaderboard' }).click()
+  }
+})

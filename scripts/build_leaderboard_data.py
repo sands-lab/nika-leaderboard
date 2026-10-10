@@ -28,6 +28,30 @@ DOMAIN_RE = re.compile(
 KNOWN_VENDORS = {"openai", "anthropic", "google", "deepseek", "qwen", "meta", "mistral"}
 
 
+def harness_name(value: str | None) -> str | None:
+    aliases = {
+        "cli.claude": "Claude Code",
+        "claudecode": "Claude Code",
+        "claude code": "Claude Code",
+        "cli.codex": "Codex",
+        "byo.langgraph": "LangGraph",
+    }
+    return aliases.get(value.strip().lower(), value.strip()) if value else None
+
+
+def entry_name(summary: dict[str, Any]) -> str:
+    """Compose chart labels from recorded model, harness and adaptations."""
+    parts = [summary.get("model"), summary.get("framework")]
+    extra = summary.get("extra") or {}
+    for method in summary.get("optimization_methods") or []:
+        variant = extra.get(f"{str(method).lower()}_variant")
+        parts.append(f"{method} ({variant})" if variant else method)
+    parts.extend(summary.get("skills") or [])
+    return " · ".join(
+        dict.fromkeys(str(p).strip() for p in parts if p and str(p).strip())
+    ) or "Unknown model · Unknown harness"
+
+
 def infer_llm_provider(model: str | None, explicit: str | None) -> str | None:
     """Prefer explicit run.llm_provider; otherwise infer from model id."""
     if explicit and str(explicit).strip():
@@ -381,7 +405,7 @@ def load_submission(
     summary = {
         "id": pid,
         "dirname": dirname,
-        "name": info.get("name"),
+        "submission_name": info.get("name"),
         "authors": info.get("authors"),
         "org": info.get("org"),
         "site": info.get("site"),
@@ -392,7 +416,7 @@ def load_submission(
         "trajectories_url": trajectories_url,
         "trajectories_relpath": traj_rel if isinstance(traj_rel, str) else None,
         "model": agent.get("model") or run.get("model"),
-        "framework": agent.get("framework") or run.get("agent_type"),
+        "framework": harness_name(agent.get("framework") or run.get("agent_type")),
         "agent_type": run.get("agent_type"),
         "llm_provider": infer_llm_provider(
             agent.get("model") or run.get("model"),
@@ -431,6 +455,7 @@ def load_submission(
         "nika_git_commit": run.get("nika_git_commit"),
     }
 
+    summary["name"] = entry_name(summary)
     readme_path = package_dir / "README.md"
     detail = {
         **summary,
@@ -593,6 +618,7 @@ def build_leaderboard(
     _reset_dir(submissions_out)
     _reset_dir(catalog_out)
 
+    details: dict[str, dict[str, Any]] = {}
     for version_dir in sorted(submissions_root.iterdir()):
         if not version_dir.is_dir() or version_dir.name.startswith("."):
             continue
@@ -615,8 +641,7 @@ def build_leaderboard(
             )
             summaries.append(summary)
             scores[summary["id"]] = case_scores(detail)
-            safe_id = summary["id"].replace("/", "__")
-            write_json(submissions_out / f"{safe_id}.json", detail)
+            details[summary["id"]] = detail
 
             frameworks.add(summary.get("framework"))
             providers.add(
@@ -627,6 +652,23 @@ def build_leaderboard(
             tags.update(summary.get("tags") or [])
             orgs.add(summary.get("org"))
             splits.add(summary.get("split"))
+
+    # Repeated configurations need distinct legend names. Use recorded split
+    # and run identity rather than the submitter's free-form title.
+    names: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for summary in summaries:
+        names[summary["name"]].append(summary)
+    for group in names.values():
+        if len(group) > 1:
+            for summary in group:
+                split = summary.get("split") or "unknown split"
+                run_id = summary.get("run_id") or summary["id"]
+                summary["name"] += f" · {split} · {run_id}"
+    for summary in summaries:
+        detail = details[summary["id"]]
+        detail["name"] = summary["name"]
+        safe_id = summary["id"].replace("/", "__")
+        write_json(submissions_out / f"{safe_id}.json", detail)
 
     rank_statistics(summaries, scores)
     summaries.sort(

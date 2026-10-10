@@ -14,6 +14,8 @@ export interface SubmissionSummary {
   dirname: string
   rank?: number
   name: string
+  /** Submitter's original title; charts use the generated name. */
+  submission_name?: string | null
   authors: string
   org: string | null
   site: string | null

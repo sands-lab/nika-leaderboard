@@ -324,7 +324,7 @@ export function AnalyzePage() {
   const systemAcrossVersions = useMemo((): EChartsOption => {
     const byName = new Map<string, Map<string, number>>()
     for (const r of scoped) {
-      const stem = (r.name || '').replace(/\s*\([^)]*\)\s*$/, '').trim() || r.name
+      const stem = r.name
       const m = byName.get(stem) || new Map<string, number>()
       const prev = m.get(r.benchmark_version)
       const score = r.mean_rca_f1 ?? 0

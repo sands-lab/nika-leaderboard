@@ -2,14 +2,14 @@ info:
   name: Claude CLI + OTel-2.0-LLM-31B-IT
   authors: zhihao1998
   org: null
-  site: null
-  report: null
+  site: https://sands-lab.github.io/nika/
+  report: https://arxiv.org/abs/2512.16381
   logo: null
   email: null
-  github: https://github.com/zhihao1998
+  github: https://github.com/sands-lab/nika
 agent:
   model: OTel-2.0-LLM-31B-IT
-  framework: cli.claude
+  framework: Claude Code
   tools:
   - containerlab_srl_mcp_server
   - k8s_mcp_server

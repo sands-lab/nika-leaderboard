@@ -338,7 +338,8 @@ export function EntryPage() {
         <Facts
           title="Submission"
           rows={[
-            ['Name', s.name],
+            ['Submitted name', s.submission_name],
+            ['Display name', s.name],
             ['Authors', s.authors],
             ['Organization', s.org],
             ['Contact', s.email && <a href={`mailto:${s.email}`}>{s.email}</a>],
