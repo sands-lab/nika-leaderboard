@@ -34,7 +34,9 @@ def harness_name(value: str | None) -> str | None:
         "claudecode": "Claude Code",
         "claude code": "Claude Code",
         "cli.codex": "Codex",
-        "byo.langgraph": "LangGraph",
+        "byo.langgraph": "ReAct",
+        "langgraph": "ReAct",
+        "react": "ReAct",
     }
     return aliases.get(value.strip().lower(), value.strip()) if value else None
 

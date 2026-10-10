@@ -70,8 +70,12 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
   const { submissions } = await response.json()
   const names = submissions.map((s: { name: string }) => s.name)
   expect(new Set(names).size).toBe(names.length)
-  expect(names).toContain('Qwen3.5-27B · ReACT · GEPA (d)')
-  expect(names).toContain('Qwen3.5-27B · ReACT · GEPA (d+s)')
+  expect(names).toContain('Qwen3.5-27B · ReAct · GEPA (d)')
+  expect(names).toContain('Qwen3.5-27B · ReAct · GEPA (d+s)')
+  const reactEntry = submissions.find((s: { agent_type: string }) => s.agent_type === 'byo.langgraph')
+  expect(reactEntry.framework).toBe('ReAct')
+  expect(reactEntry.name).toBe(`${reactEntry.model} · ReAct`)
+  await expect(page.locator('tr.entry-row').filter({ hasText: 'ReAct' })).toContainText(reactEntry.model)
 
   for (const [model, date, modelUrl] of [
     ['Qwen3.8-27B-FP8', '2026-08-13', 'https://huggingface.co/Qwen/Qwen3.8-27B-FP8'],
