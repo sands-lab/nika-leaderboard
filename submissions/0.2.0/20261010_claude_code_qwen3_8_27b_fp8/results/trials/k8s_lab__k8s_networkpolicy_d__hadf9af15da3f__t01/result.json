@@ -1,0 +1,36 @@
+{
+  "case_key": "k8s_lab__k8s_networkpolicy_d__hadf9af15da3f",
+  "gt_fault_types": [
+    "k8s_networkpolicy_deny"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.5,
+    "fault_type_precision": 0.3333,
+    "fault_type_recall": 1.0,
+    "in_tokens": 2189735,
+    "localization_accuracy": 1.0,
+    "localization_f1": 0.6667,
+    "localization_precision": 0.5,
+    "localization_recall": 1.0,
+    "out_tokens": 63264,
+    "rca_accuracy": 1.0,
+    "rca_f1": 0.5,
+    "rca_precision": 0.3333,
+    "rca_recall": 1.0,
+    "steps": 108,
+    "tool_calls": 107,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "k8s_networkpolicy_deny",
+    "frr_service_down",
+    "host_static_blackhole"
+  ],
+  "problem": "k8s_networkpolicy_deny",
+  "scenario": "k8s_lab",
+  "score_status": "scored",
+  "trial_id": "k8s_lab__k8s_networkpolicy_d__hadf9af15da3f__t01",
+  "trial_index": 1
+}

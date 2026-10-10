@@ -1,0 +1,34 @@
+{
+  "case_key": "isp_geant_ebgp_rpki__bgp_rpk__h084f2b27c006",
+  "gt_fault_types": [
+    "bgp_rpki_invalid_route_leak"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 1.0,
+    "fault_type_precision": 1.0,
+    "fault_type_recall": 1.0,
+    "in_tokens": 2328631,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 109487,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 86,
+    "tool_calls": 82,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "bgp_rpki_invalid_route_leak"
+  ],
+  "problem": "bgp_rpki_invalid_route_leak",
+  "scenario": "isp_geant_ebgp_rpki",
+  "score_status": "scored",
+  "trial_id": "isp_geant_ebgp_rpki__bgp_rpk__h084f2b27c006__t02",
+  "trial_index": 2
+}

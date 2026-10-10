@@ -1,0 +1,790 @@
+{
+  "labeling": "multi_label_edges",
+  "missing_prediction_trial_ids": [
+    "campus_lan__device_forwardin__h0b9011ea426b__t01",
+    "campus_lan__device_forwardin__h0b9011ea426b__t02",
+    "campus_lan__device_forwardin__h0b9011ea426b__t03",
+    "dc_clos__healthy__s__t03",
+    "enterprise_branch__bgp_hijac__h3c9b99a5e810__t01",
+    "enterprise_branch__bgp_hijac__h3c9b99a5e810__t02",
+    "enterprise_branch__healthy__m__t02",
+    "enterprise_branch__nat_mappi__h9a2736339326__t01",
+    "enterprise_branch__nat_mappi__h9a2736339326__t02",
+    "enterprise_branch__nat_mappi__h9a2736339326__t03",
+    "enterprise_branch__tcp_recei__h131c3a680384__t03",
+    "isp_di-yuan__link_capacity_b__h1064a287c312__t01",
+    "isp_di-yuan__link_capacity_b__h1064a287c312__t02",
+    "isp_di-yuan__link_capacity_b__h1064a287c312__t03",
+    "k8s_lab__k8s_clusterip_routi__he53ec359efd5__t01",
+    "llmd_lab__healthy__t01",
+    "llmd_lab__healthy__t03",
+    "llmd_lab__k8s_coredns_isolat__he788b9979872__t02",
+    "llmd_lab__k8s_coredns_isolat__he788b9979872__t03",
+    "p4_dc_gateway__http_acl_bloc__hcec9063e909a__t01",
+    "p4_dc_gateway__lb_pending_co__h40b4eccba51a__t01",
+    "p4_dc_gateway__silent_egress__h8eba7ba89f0d__t02",
+    "sdn_l3_clos__healthy__l__t01",
+    "sdn_l3_clos__healthy__l__t02",
+    "sdn_l3_clos__healthy__m__t01",
+    "sdn_l3_clos__healthy__m__t02",
+    "sdn_l3_clos__healthy__m__t03"
+  ],
+  "n_missing_prediction": 27,
+  "pairs": [
+    {
+      "count": 6,
+      "gt": "bgp_asn_misconfig",
+      "predicted": "bgp_asn_misconfig"
+    },
+    {
+      "count": 3,
+      "gt": "arp_acl_block",
+      "predicted": "arp_acl_block"
+    },
+    {
+      "count": 3,
+      "gt": "arp_cache_poisoning",
+      "predicted": "arp_cache_poisoning"
+    },
+    {
+      "count": 3,
+      "gt": "arp_cache_poisoning",
+      "predicted": "silent_egress_packet_loss"
+    },
+    {
+      "count": 3,
+      "gt": "bgp_acl_block",
+      "predicted": "bgp_acl_block"
+    },
+    {
+      "count": 3,
+      "gt": "bgp_max_prefix_exceeded",
+      "predicted": "bgp_hijacking"
+    },
+    {
+      "count": 3,
+      "gt": "bgp_missing_route_advertisement",
+      "predicted": "bgp_missing_route_advertisement"
+    },
+    {
+      "count": 3,
+      "gt": "bmv2_switch_down",
+      "predicted": "bmv2_switch_down"
+    },
+    {
+      "count": 3,
+      "gt": "dhcp_missing_subnet",
+      "predicted": "dhcp_missing_subnet"
+    },
+    {
+      "count": 3,
+      "gt": "dhcp_service_down",
+      "predicted": "dhcp_service_down"
+    },
+    {
+      "count": 3,
+      "gt": "dhcp_spoofed_dns",
+      "predicted": "dhcp_spoofed_dns"
+    },
+    {
+      "count": 3,
+      "gt": "dhcp_spoofed_gateway",
+      "predicted": "dhcp_spoofed_gateway"
+    },
+    {
+      "count": 3,
+      "gt": "dhcp_spoofed_subnet",
+      "predicted": "dhcp_spoofed_subnet"
+    },
+    {
+      "count": 3,
+      "gt": "dns_lookup_latency",
+      "predicted": "dns_lookup_latency"
+    },
+    {
+      "count": 3,
+      "gt": "dns_port_blocked",
+      "predicted": "dns_port_blocked"
+    },
+    {
+      "count": 3,
+      "gt": "dns_record_error",
+      "predicted": "dns_record_error"
+    },
+    {
+      "count": 3,
+      "gt": "dns_service_down",
+      "predicted": "dns_service_down"
+    },
+    {
+      "count": 3,
+      "gt": "flow_rule_loop",
+      "predicted": "flow_rule_shadowing"
+    },
+    {
+      "count": 3,
+      "gt": "flow_rule_shadowing",
+      "predicted": "flow_rule_shadowing"
+    },
+    {
+      "count": 3,
+      "gt": "frr_service_down",
+      "predicted": "frr_service_down"
+    },
+    {
+      "count": 3,
+      "gt": "healthy",
+      "predicted": "bgp_asn_misconfig"
+    },
+    {
+      "count": 3,
+      "gt": "healthy",
+      "predicted": "host_incorrect_dns"
+    },
+    {
+      "count": 3,
+      "gt": "host_incorrect_dns",
+      "predicted": "host_incorrect_dns"
+    },
+    {
+      "count": 3,
+      "gt": "host_incorrect_gateway",
+      "predicted": "host_incorrect_gateway"
+    },
+    {
+      "count": 3,
+      "gt": "host_incorrect_ip",
+      "predicted": "host_incorrect_gateway"
+    },
+    {
+      "count": 3,
+      "gt": "host_incorrect_ip",
+      "predicted": "host_incorrect_ip"
+    },
+    {
+      "count": 3,
+      "gt": "host_ip_conflict",
+      "predicted": "host_ip_conflict"
+    },
+    {
+      "count": 3,
+      "gt": "host_missing_ip",
+      "predicted": "host_missing_ip"
+    },
+    {
+      "count": 3,
+      "gt": "host_static_blackhole",
+      "predicted": "host_static_blackhole"
+    },
+    {
+      "count": 3,
+      "gt": "icmp_acl_block",
+      "predicted": "icmp_acl_block"
+    },
+    {
+      "count": 3,
+      "gt": "int_insufficient_mtu_headroom",
+      "predicted": "int_insufficient_mtu_headroom"
+    },
+    {
+      "count": 3,
+      "gt": "k8s_worker_apiserver_partition",
+      "predicted": "k8s_worker_apiserver_partition"
+    },
+    {
+      "count": 3,
+      "gt": "link_detach",
+      "predicted": "link_detach"
+    },
+    {
+      "count": 3,
+      "gt": "link_down",
+      "predicted": "link_down"
+    },
+    {
+      "count": 3,
+      "gt": "ospf_acl_block",
+      "predicted": "ospf_acl_block"
+    },
+    {
+      "count": 3,
+      "gt": "ospf_area_misconfiguration",
+      "predicted": "ospf_area_misconfiguration"
+    },
+    {
+      "count": 3,
+      "gt": "ospf_neighbor_missing",
+      "predicted": "ospf_neighbor_missing"
+    },
+    {
+      "count": 3,
+      "gt": "p4_action_selector_member_misconfig",
+      "predicted": "p4_action_selector_member_misconfig"
+    },
+    {
+      "count": 3,
+      "gt": "p4_ecmp_group_member_missing",
+      "predicted": "p4_ecmp_group_member_missing"
+    },
+    {
+      "count": 3,
+      "gt": "p4_table_entry_misconfig",
+      "predicted": "p4_table_entry_misconfig"
+    },
+    {
+      "count": 3,
+      "gt": "p4_table_entry_missing",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 3,
+      "gt": "p4_table_resource_exhaustion",
+      "predicted": "p4_table_resource_exhaustion"
+    },
+    {
+      "count": 3,
+      "gt": "p4_tcam_entry_corruption",
+      "predicted": "p4_table_entry_misconfig"
+    },
+    {
+      "count": 3,
+      "gt": "p4runtime_partial_write",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 3,
+      "gt": "sdn_controller_crash",
+      "predicted": "sdn_controller_crash"
+    },
+    {
+      "count": 3,
+      "gt": "sender_resource_contention",
+      "predicted": "sender_resource_contention"
+    },
+    {
+      "count": 3,
+      "gt": "snat_port_pool_exhaustion",
+      "predicted": "bgp_missing_route_advertisement"
+    },
+    {
+      "count": 3,
+      "gt": "southbound_port_block",
+      "predicted": "southbound_port_block"
+    },
+    {
+      "count": 3,
+      "gt": "wireguard_allowed_ips_misconfiguration",
+      "predicted": "wireguard_allowed_ips_misconfiguration"
+    },
+    {
+      "count": 3,
+      "gt": "wireguard_peer_key_misconfiguration",
+      "predicted": "wireguard_peer_key_misconfiguration"
+    },
+    {
+      "count": 2,
+      "gt": "bgp_asn_misconfig",
+      "predicted": "receiver_resource_contention"
+    },
+    {
+      "count": 2,
+      "gt": "bgp_blackhole_community_leak",
+      "predicted": "bgp_blackhole_community_leak"
+    },
+    {
+      "count": 2,
+      "gt": "bgp_max_prefix_exceeded",
+      "predicted": "bgp_max_prefix_exceeded"
+    },
+    {
+      "count": 2,
+      "gt": "bgp_rpki_invalid_route_leak",
+      "predicted": "bgp_missing_route_advertisement"
+    },
+    {
+      "count": 2,
+      "gt": "bmv2_switch_down",
+      "predicted": "device_forwarding_packet_corruption"
+    },
+    {
+      "count": 2,
+      "gt": "healthy",
+      "predicted": "bgp_missing_route_advertisement"
+    },
+    {
+      "count": 2,
+      "gt": "healthy",
+      "predicted": "frr_service_down"
+    },
+    {
+      "count": 2,
+      "gt": "healthy",
+      "predicted": "p4_table_entry_misconfig"
+    },
+    {
+      "count": 2,
+      "gt": "host_incorrect_gateway",
+      "predicted": "host_incorrect_dns"
+    },
+    {
+      "count": 2,
+      "gt": "host_incorrect_ip",
+      "predicted": "p4runtime_pipeline_mismatch"
+    },
+    {
+      "count": 2,
+      "gt": "host_incorrect_netmask",
+      "predicted": "frr_service_down"
+    },
+    {
+      "count": 2,
+      "gt": "http_acl_block",
+      "predicted": "http_acl_block"
+    },
+    {
+      "count": 2,
+      "gt": "icmp_acl_block",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 2,
+      "gt": "icmp_frag_needed_filter_misconfiguration",
+      "predicted": "p4runtime_pipeline_mismatch"
+    },
+    {
+      "count": 2,
+      "gt": "incast_traffic_network_limitation",
+      "predicted": "link_capacity_bottleneck"
+    },
+    {
+      "count": 2,
+      "gt": "k8s_networkpolicy_deny",
+      "predicted": "k8s_networkpolicy_deny"
+    },
+    {
+      "count": 2,
+      "gt": "lb_connection_state_exhaustion",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 2,
+      "gt": "lb_pending_connection_update_race",
+      "predicted": "lb_pending_connection_update_race"
+    },
+    {
+      "count": 2,
+      "gt": "link_flap",
+      "predicted": "p4_table_entry_misconfig"
+    },
+    {
+      "count": 2,
+      "gt": "link_packet_corruption",
+      "predicted": "link_packet_corruption"
+    },
+    {
+      "count": 2,
+      "gt": "mac_address_conflict",
+      "predicted": "mac_address_conflict"
+    },
+    {
+      "count": 2,
+      "gt": "mtu_mismatch",
+      "predicted": "bgp_missing_route_advertisement"
+    },
+    {
+      "count": 2,
+      "gt": "mtu_mismatch",
+      "predicted": "bgp_rpki_invalid_route_leak"
+    },
+    {
+      "count": 2,
+      "gt": "p4_ecn_threshold_misconfiguration",
+      "predicted": "p4_ecn_threshold_misconfiguration"
+    },
+    {
+      "count": 2,
+      "gt": "p4runtime_pipeline_mismatch",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 2,
+      "gt": "p4runtime_pipeline_mismatch",
+      "predicted": "p4runtime_pipeline_mismatch"
+    },
+    {
+      "count": 2,
+      "gt": "receiver_resource_contention",
+      "predicted": "sender_resource_contention"
+    },
+    {
+      "count": 2,
+      "gt": "silent_egress_packet_loss",
+      "predicted": "p4runtime_pipeline_mismatch"
+    },
+    {
+      "count": 2,
+      "gt": "southbound_port_mismatch",
+      "predicted": "southbound_port_mismatch"
+    },
+    {
+      "count": 2,
+      "gt": "tcp_receive_window_limited",
+      "predicted": "bgp_missing_route_advertisement"
+    },
+    {
+      "count": 2,
+      "gt": "tcp_syn_flood_attack",
+      "predicted": "tcp_syn_flood_attack"
+    },
+    {
+      "count": 2,
+      "gt": "vrf_dscp_remarking",
+      "predicted": "incast_traffic_network_limitation"
+    },
+    {
+      "count": 2,
+      "gt": "web_dos_attack",
+      "predicted": "web_dos_attack"
+    },
+    {
+      "count": 1,
+      "gt": "bgp_asn_misconfig",
+      "predicted": "mtu_mismatch"
+    },
+    {
+      "count": 1,
+      "gt": "bgp_blackhole_community_leak",
+      "predicted": "ospf_neighbor_missing"
+    },
+    {
+      "count": 1,
+      "gt": "bgp_hijacking",
+      "predicted": "bgp_hijacking"
+    },
+    {
+      "count": 1,
+      "gt": "bgp_hijacking",
+      "predicted": "bgp_missing_route_advertisement"
+    },
+    {
+      "count": 1,
+      "gt": "bgp_max_prefix_exceeded",
+      "predicted": "bgp_missing_route_advertisement"
+    },
+    {
+      "count": 1,
+      "gt": "bgp_rpki_invalid_route_leak",
+      "predicted": "bgp_rpki_invalid_route_leak"
+    },
+    {
+      "count": 1,
+      "gt": "dhcp_spoofed_gateway",
+      "predicted": "host_incorrect_gateway"
+    },
+    {
+      "count": 1,
+      "gt": "dhcp_spoofed_gateway",
+      "predicted": "silent_egress_packet_loss"
+    },
+    {
+      "count": 1,
+      "gt": "dns_record_error",
+      "predicted": "link_capacity_bottleneck"
+    },
+    {
+      "count": 1,
+      "gt": "healthy",
+      "predicted": "flow_rule_loop"
+    },
+    {
+      "count": 1,
+      "gt": "healthy",
+      "predicted": "host_incorrect_ip"
+    },
+    {
+      "count": 1,
+      "gt": "healthy",
+      "predicted": "host_missing_ip"
+    },
+    {
+      "count": 1,
+      "gt": "healthy",
+      "predicted": "host_static_blackhole"
+    },
+    {
+      "count": 1,
+      "gt": "healthy",
+      "predicted": "link_capacity_bottleneck"
+    },
+    {
+      "count": 1,
+      "gt": "healthy",
+      "predicted": "p4_ecmp_group_member_missing"
+    },
+    {
+      "count": 1,
+      "gt": "healthy",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 1,
+      "gt": "healthy",
+      "predicted": "p4runtime_pipeline_mismatch"
+    },
+    {
+      "count": 1,
+      "gt": "healthy",
+      "predicted": "receiver_resource_contention"
+    },
+    {
+      "count": 1,
+      "gt": "healthy",
+      "predicted": "sender_resource_contention"
+    },
+    {
+      "count": 1,
+      "gt": "host_incorrect_ip",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 1,
+      "gt": "host_incorrect_netmask",
+      "predicted": "host_incorrect_gateway"
+    },
+    {
+      "count": 1,
+      "gt": "host_incorrect_netmask",
+      "predicted": "host_missing_ip"
+    },
+    {
+      "count": 1,
+      "gt": "host_static_blackhole",
+      "predicted": "bgp_missing_route_advertisement"
+    },
+    {
+      "count": 1,
+      "gt": "http_acl_block",
+      "predicted": "p4runtime_pipeline_mismatch"
+    },
+    {
+      "count": 1,
+      "gt": "icmp_acl_block",
+      "predicted": "p4_table_entry_misconfig"
+    },
+    {
+      "count": 1,
+      "gt": "icmp_frag_needed_filter_misconfiguration",
+      "predicted": "device_forwarding_packet_corruption"
+    },
+    {
+      "count": 1,
+      "gt": "incast_traffic_network_limitation",
+      "predicted": "receiver_resource_contention"
+    },
+    {
+      "count": 1,
+      "gt": "int_insufficient_mtu_headroom",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 1,
+      "gt": "k8s_clusterip_routing_broken",
+      "predicted": "frr_service_down"
+    },
+    {
+      "count": 1,
+      "gt": "k8s_clusterip_routing_broken",
+      "predicted": "host_incorrect_ip"
+    },
+    {
+      "count": 1,
+      "gt": "k8s_clusterip_routing_broken",
+      "predicted": "k8s_clusterip_routing_broken"
+    },
+    {
+      "count": 1,
+      "gt": "k8s_coredns_isolated",
+      "predicted": "arp_cache_poisoning"
+    },
+    {
+      "count": 1,
+      "gt": "k8s_networkpolicy_deny",
+      "predicted": "frr_service_down"
+    },
+    {
+      "count": 1,
+      "gt": "k8s_networkpolicy_deny",
+      "predicted": "host_missing_ip"
+    },
+    {
+      "count": 1,
+      "gt": "k8s_networkpolicy_deny",
+      "predicted": "host_static_blackhole"
+    },
+    {
+      "count": 1,
+      "gt": "lb_connection_state_exhaustion",
+      "predicted": "device_forwarding_packet_corruption"
+    },
+    {
+      "count": 1,
+      "gt": "lb_connection_state_exhaustion",
+      "predicted": "lb_connection_state_exhaustion"
+    },
+    {
+      "count": 1,
+      "gt": "lb_connection_state_exhaustion",
+      "predicted": "lb_pending_connection_update_race"
+    },
+    {
+      "count": 1,
+      "gt": "lb_connection_state_exhaustion",
+      "predicted": "p4_table_entry_misconfig"
+    },
+    {
+      "count": 1,
+      "gt": "link_flap",
+      "predicted": "link_flap"
+    },
+    {
+      "count": 1,
+      "gt": "link_packet_corruption",
+      "predicted": "sender_resource_contention"
+    },
+    {
+      "count": 1,
+      "gt": "load_balancer_overload",
+      "predicted": "link_capacity_bottleneck"
+    },
+    {
+      "count": 1,
+      "gt": "load_balancer_overload",
+      "predicted": "link_down"
+    },
+    {
+      "count": 1,
+      "gt": "load_balancer_overload",
+      "predicted": "load_balancer_overload"
+    },
+    {
+      "count": 1,
+      "gt": "load_balancer_overload",
+      "predicted": "sender_resource_contention"
+    },
+    {
+      "count": 1,
+      "gt": "load_balancer_overload",
+      "predicted": "web_dos_attack"
+    },
+    {
+      "count": 1,
+      "gt": "mac_address_conflict",
+      "predicted": "arp_cache_poisoning"
+    },
+    {
+      "count": 1,
+      "gt": "mac_address_conflict",
+      "predicted": "device_forwarding_packet_corruption"
+    },
+    {
+      "count": 1,
+      "gt": "mac_address_conflict",
+      "predicted": "host_incorrect_gateway"
+    },
+    {
+      "count": 1,
+      "gt": "mac_address_conflict",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 1,
+      "gt": "mtu_mismatch",
+      "predicted": "bgp_hijacking"
+    },
+    {
+      "count": 1,
+      "gt": "ospf_acl_block",
+      "predicted": "link_capacity_bottleneck"
+    },
+    {
+      "count": 1,
+      "gt": "p4_action_selector_member_misconfig",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 1,
+      "gt": "p4_ecn_threshold_misconfiguration",
+      "predicted": "device_forwarding_packet_corruption"
+    },
+    {
+      "count": 1,
+      "gt": "p4_ecn_threshold_misconfiguration",
+      "predicted": "p4_table_entry_misconfig"
+    },
+    {
+      "count": 1,
+      "gt": "p4_ecn_threshold_misconfiguration",
+      "predicted": "p4runtime_pipeline_mismatch"
+    },
+    {
+      "count": 1,
+      "gt": "p4_table_resource_exhaustion",
+      "predicted": "p4runtime_pipeline_mismatch"
+    },
+    {
+      "count": 1,
+      "gt": "p4runtime_partial_write",
+      "predicted": "p4runtime_pipeline_mismatch"
+    },
+    {
+      "count": 1,
+      "gt": "receiver_resource_contention",
+      "predicted": "tcp_syn_flood_attack"
+    },
+    {
+      "count": 1,
+      "gt": "sender_resource_contention",
+      "predicted": "k8s_clusterip_routing_broken"
+    },
+    {
+      "count": 1,
+      "gt": "silent_egress_packet_loss",
+      "predicted": "silent_egress_packet_loss"
+    },
+    {
+      "count": 1,
+      "gt": "snat_port_pool_exhaustion",
+      "predicted": "icmp_acl_block"
+    },
+    {
+      "count": 1,
+      "gt": "southbound_port_mismatch",
+      "predicted": "sdn_controller_crash"
+    },
+    {
+      "count": 1,
+      "gt": "tcp_receive_window_limited",
+      "predicted": "silent_egress_packet_loss"
+    },
+    {
+      "count": 1,
+      "gt": "tcp_syn_flood_attack",
+      "predicted": "incast_traffic_network_limitation"
+    },
+    {
+      "count": 1,
+      "gt": "tcp_syn_flood_attack",
+      "predicted": "sender_resource_contention"
+    },
+    {
+      "count": 1,
+      "gt": "vrf_dscp_remarking",
+      "predicted": "silent_egress_packet_loss"
+    },
+    {
+      "count": 1,
+      "gt": "web_dos_attack",
+      "predicted": "link_capacity_bottleneck"
+    }
+  ]
+}

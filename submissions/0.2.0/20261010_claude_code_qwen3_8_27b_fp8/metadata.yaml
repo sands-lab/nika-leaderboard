@@ -1,0 +1,17 @@
+info:
+  name: Claude Code + Qwen3.8-27B-FP8
+  authors: NIKA Team
+  org: null
+  site: null
+  report: null
+  logo: null
+  email: null
+  github: null
+agent:
+  model: Qwen3.8-27B-FP8
+  framework: cli.claude
+  tools: []
+  skills: []
+  optimization_methods: []
+  tags: []
+  extra: {}
