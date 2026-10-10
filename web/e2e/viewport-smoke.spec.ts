@@ -73,9 +73,9 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
   expect(names).toContain('Qwen3.5-27B · ReACT · GEPA (d)')
   expect(names).toContain('Qwen3.5-27B · ReACT · GEPA (d+s)')
 
-  for (const [model, date] of [
-    ['Qwen3.8-27B-FP8', '2026-08-13'],
-    ['OTel-2.0-LLM-31B-IT', '2026-07-23'],
+  for (const [model, date, modelUrl] of [
+    ['Qwen3.8-27B-FP8', '2026-08-13', 'https://huggingface.co/Qwen/Qwen3.8-27B-FP8'],
+    ['OTel-2.0-LLM-31B-IT', '2026-07-23', 'https://huggingface.co/farbodtavakkoli/OTel-2.0-LLM-31B-IT'],
   ]) {
     const entry = submissions.find((s: { model: string }) => s.model === model)
     expect(entry.name).toBe(`${model} · Claude Code`)
@@ -84,13 +84,33 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
     await expect(row).toContainText('Claude Code')
     await expect(row).toContainText(date)
     await expect(row.locator('span[title*="One run ="]')).toContainText('$')
+    if (model.startsWith('OTel')) {
+      // The compact table hides its Provider column on smaller viewports.
+      await expect(row.getByRole('img', { name: 'AT&T', includeHidden: true }))
+        .toHaveAttribute('src', /providers\/att\.svg$/)
+    }
     await row.locator('td').first().click()
     await expect(page.locator('.lede')).toContainText(entry.name)
-    for (const label of [
-      'Code on GitHub', 'Trajectories on Hugging Face',
-      'Paper / report', 'Project site', 'Model page',
-    ]) {
+    for (const label of ['Trajectories on Hugging Face', 'Model page']) {
       await expect(page.getByRole('link', { name: label, exact: true }).first()).toBeVisible()
+    }
+    for (const label of ['Code on GitHub', 'Paper / report', 'Project site']) {
+      await expect(page.getByRole('link', { name: label, exact: true })).toHaveCount(0)
+    }
+    await expect(page.locator('h1 a')).toHaveAttribute('href', modelUrl)
+    if (model.startsWith('OTel')) {
+      const provider = page.getByRole('img', { name: 'AT&T' }).first()
+      await provider.scrollIntoViewIfNeeded()
+      await expect(provider).toBeVisible()
+      await expect.poll(() => provider.evaluate((img) => (img as HTMLImageElement).naturalWidth))
+        .toBeGreaterThan(0)
+      const setting = page.locator('.entry-facts__row')
+        .filter({ has: page.getByText('Serving tensor parallel size', { exact: true }) })
+      await expect(setting.locator('dd')).toHaveText('4')
+      await expect(page.locator('dt').filter({ hasText: /Retry policy|retry_policy/ })).toHaveCount(0)
+      const labelBox = await setting.locator('dt').boundingBox()
+      const valueBox = await setting.locator('dd').boundingBox()
+      expect(labelBox!.x + labelBox!.width).toBeLessThanOrEqual(valueBox!.x)
     }
     await expect(page.locator('main')).toContainText(entry.submission_name)
     await page.getByRole('link', { name: '← Leaderboard' }).click()

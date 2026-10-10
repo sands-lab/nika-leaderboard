@@ -11,6 +11,7 @@ export type KnownProvider =
   | 'qwen'
   | 'meta'
   | 'mistral'
+  | 'att'
 
 const PROVIDER_LABELS: Record<string, string> = {
   openai: 'OpenAI',
@@ -20,6 +21,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   qwen: 'Qwen',
   meta: 'Meta',
   mistral: 'Mistral',
+  att: 'AT&T',
 }
 
 const PROVIDER_ICONS: Record<string, string> = {
@@ -28,6 +30,7 @@ const PROVIDER_ICONS: Record<string, string> = {
   google: 'providers/google.svg',
   deepseek: 'providers/deepseek.svg',
   qwen: 'providers/qwen.svg',
+  att: 'providers/att.svg',
 }
 
 function normalizeProviderKey(value: string): string {
@@ -55,6 +58,7 @@ export function inferProviderFromModel(
   if (key.includes('gemini') || key.includes('gemma')) return 'google'
   if (key.includes('deepseek')) return 'deepseek'
   if (key.includes('qwen')) return 'qwen'
+  if (key.includes('otel-2.0-llm')) return 'att'
   if (key.includes('llama') || key.startsWith('meta-')) return 'meta'
   if (key.includes('mistral') || key.includes('mixtral')) return 'mistral'
   return null

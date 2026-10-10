@@ -902,6 +902,15 @@ a.model-name:hover {
   font-size: 0.85rem;
 }
 
+.entry-head h1 a {
+  color: inherit;
+}
+
+.entry-head h1 a:hover {
+  color: var(--brand);
+  text-decoration: underline;
+}
+
 .entry-stats {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
@@ -971,6 +980,8 @@ a.model-name:hover {
 
 .entry-facts__row dt {
   color: var(--muted);
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
 
 .entry-facts__row dd {

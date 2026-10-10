@@ -33,6 +33,7 @@ Do not add raw traces, per-case session artifacts, credentials, caches, or sourc
 
 ## Editing Rules
 
+- Use readable metadata labels and entry-specific links in the UI. Keep shared NIKA code, website, and paper links in site navigation instead of repeating them on each entry.
 - Treat `results/identity.yaml`, `results/metrics.json`, `results/rca_confusion.json`, and every trial `result.json` as generated, integrity-bound data. Do not hand-edit them.
 - Do not fabricate scores, trial coverage, benchmark identities, release versions, or hashes. Packages must originate from a completed official release run (`run.official: true`).
 - Submission paths must remain `submissions/<release_version>/<YYYYMMDD>_<slug>/`; the slug is derived from `metadata.info.name` as lowercase ASCII words joined with underscores.
