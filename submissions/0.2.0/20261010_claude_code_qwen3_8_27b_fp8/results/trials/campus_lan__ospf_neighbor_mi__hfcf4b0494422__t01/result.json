@@ -1,0 +1,34 @@
+{
+  "case_key": "campus_lan__ospf_neighbor_mi__hfcf4b0494422",
+  "gt_fault_types": [
+    "ospf_neighbor_missing"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 1.0,
+    "fault_type_precision": 1.0,
+    "fault_type_recall": 1.0,
+    "in_tokens": 668506,
+    "localization_accuracy": 1.0,
+    "localization_f1": 1.0,
+    "localization_precision": 1.0,
+    "localization_recall": 1.0,
+    "out_tokens": 34067,
+    "rca_accuracy": 1.0,
+    "rca_f1": 1.0,
+    "rca_precision": 1.0,
+    "rca_recall": 1.0,
+    "steps": 69,
+    "tool_calls": 68,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "ospf_neighbor_missing"
+  ],
+  "problem": "ospf_neighbor_missing",
+  "scenario": "campus_lan",
+  "score_status": "scored",
+  "trial_id": "campus_lan__ospf_neighbor_mi__hfcf4b0494422__t01",
+  "trial_index": 1
+}

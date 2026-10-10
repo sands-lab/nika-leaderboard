@@ -1,0 +1,34 @@
+{
+  "case_key": "dc_clos__healthy__m",
+  "gt_fault_types": [
+    "healthy"
+  ],
+  "metrics": {
+    "detection_score": 0.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 651759,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 28776,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 42,
+    "tool_calls": 41,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "bgp_missing_route_advertisement"
+  ],
+  "problem": "healthy",
+  "scenario": "dc_clos",
+  "score_status": "scored",
+  "trial_id": "dc_clos__healthy__m__t02",
+  "trial_index": 2
+}
