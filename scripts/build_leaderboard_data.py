@@ -399,7 +399,8 @@ def load_submission(
     mean_tokens = ((in_tokens + out_tokens) / denom) if denom else None
     mean_steps = (steps / denom) if denom else None
 
-    traj_rel = identity.get("trajectories_relpath")
+    original_traj_rel = identity.get("trajectories_relpath")
+    traj_rel = original_traj_rel
     trajectories_url = None
     if isinstance(traj_rel, str) and traj_rel.strip():
         framework = harness_name(agent.get("framework") or run.get("agent_type"))
@@ -468,13 +469,12 @@ def load_submission(
 
     summary["name"] = entry_name(summary)
     readme_path = package_dir / "README.md"
+    readme = readme_path.read_text(encoding="utf-8").strip() if readme_path.is_file() else None
+    if readme and original_traj_rel and traj_rel:
+        readme = readme.replace(original_traj_rel, traj_rel)
     detail = {
         **summary,
-        "readme": (
-            readme_path.read_text(encoding="utf-8").strip()
-            if readme_path.is_file()
-            else None
-        ),
+        "readme": readme,
         "trials": trials,
         "rca_confusion": rca_confusion,
         "name_to_category": problem_to_category(catalog_lookup, problem_domains),

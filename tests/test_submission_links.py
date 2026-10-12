@@ -17,3 +17,9 @@ class SubmissionLinksTest(unittest.TestCase):
         self.assertTrue(
             summary["trajectories_url"].endswith(summary["trajectories_relpath"])
         )
+
+    def test_entry_readme_links_follow_the_canonical_directory(self):
+        root = Path(__file__).resolve().parents[1]
+        package = root / "submissions/0.2.0/20261008_claude_cli_otel_2_0_llm_31b_it"
+        summary, detail = load_submission(package, "0.2.0", {}, repo_root=root)
+        self.assertIn(summary["trajectories_url"], detail["readme"])
