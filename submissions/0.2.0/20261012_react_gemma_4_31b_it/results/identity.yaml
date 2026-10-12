@@ -1,0 +1,22 @@
+created_at: '2026-10-12T18:21:09+00:00'
+benchmark:
+  id: nika-bench
+  version: 0.2.0
+  ref: nika-bench@0.2.0
+  split: test
+  case_count: 85
+  n_trials: 3
+  scoring_id: rule-based
+  leaderboard_primary: rca_f1
+run:
+  run_id: bd167ed99e60276f
+  official: true
+  agent_type: byo.langgraph
+  model: gemma-4-31B-it
+  llm_provider: custom
+  max_steps: 100
+  case_timeout_sec: 15000
+  nika_git_commit: 8f04c8422623f9f785fa391d7e2ead62f4bfab9c
+  source_result_dir: bench-020-test-byo-langgraph-gemma4-31b-t7200-20261012-090335
+trajectories_relpath: trajectories/0.2.0/20261012_react_gemma_4_31b_it
+scores_package: null
