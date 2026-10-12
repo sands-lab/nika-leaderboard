@@ -1,0 +1,47 @@
+{
+  "GPT-5": {
+    "released": "2025-08-07",
+    "release_source": "https://openai.com/index/introducing-gpt-5/",
+    "model_page": "https://developers.openai.com/api/docs/models/gpt-5"
+  },
+  "GPT-5-mini": {
+    "released": "2025-08-07",
+    "release_source": "https://openai.com/index/introducing-gpt-5/",
+    "model_page": "https://developers.openai.com/api/docs/models/gpt-5-mini"
+  },
+  "GPT-OSS-20B": {
+    "released": "2025-08-05",
+    "release_source": "https://openai.com/index/introducing-gpt-oss/",
+    "model_page": "https://huggingface.co/openai/gpt-oss-20b"
+  },
+  "Qwen3.5-27B": {
+    "released": "2026-02-24",
+    "release_source": "https://github.com/QwenLM/Qwen3.5",
+    "model_page": "https://huggingface.co/Qwen/Qwen3.5-27B"
+  },
+  "Qwen3.6-27B": {
+    "released": "2026-04-22",
+    "release_source": "https://qwen.ai/blog?id=qwen3.6-27b",
+    "model_page": "https://huggingface.co/Qwen/Qwen3.6-27B"
+  },
+  "Qwen3.6-35B-A3B-FP8": {
+    "released": "2026-04-16",
+    "release_source": "https://qwen.ai/blog?id=qwen3.6-35b-a3b",
+    "model_page": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8"
+  },
+  "Qwen3.8-27B-FP8": {
+    "released": "2026-08-13",
+    "release_source": "https://huggingface.co/Qwen/Qwen3.8-27B-FP8/commit/10b09acb2fdc08d52017d17c1e3d42845fba3f4f",
+    "model_page": "https://huggingface.co/Qwen/Qwen3.8-27B-FP8"
+  },
+  "OTel-2.0-LLM-31B-IT": {
+    "released": "2026-07-23",
+    "release_source": "https://huggingface.co/farbodtavakkoli/OTel-2.0-LLM-31B-IT/commit/2d474f02c3a4f8d98254c0574e0f085e8e19e1fc",
+    "model_page": "https://huggingface.co/farbodtavakkoli/OTel-2.0-LLM-31B-IT"
+  },
+  "gemma-4-31B-it": {
+    "released": "2026-04-02",
+    "release_source": "https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/",
+    "model_page": "https://huggingface.co/google/gemma-4-31B-it"
+  }
+}

@@ -402,6 +402,12 @@ def load_submission(
     traj_rel = identity.get("trajectories_relpath")
     trajectories_url = None
     if isinstance(traj_rel, str) and traj_rel.strip():
+        framework = harness_name(agent.get("framework") or run.get("agent_type"))
+        model = agent.get("model") or run.get("model")
+        date = dirname.split("_", 1)[0]
+        if framework and model and re.fullmatch(r"\d{8}", date):
+            slug = re.sub(r"[^a-z0-9]+", "_", f"{framework} {model}".lower()).strip("_")
+            traj_rel = f"trajectories/{version}/{date}_{slug}"
         trajectories_url = (
             "https://huggingface.co/datasets/Zhihao98/nika-trajectories/"
             f"tree/main/{traj_rel.strip().strip('/')}"

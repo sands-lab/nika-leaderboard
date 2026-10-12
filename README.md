@@ -58,15 +58,41 @@ CI builds with `--skip-catalog-refresh` so it only needs the committed catalog +
 Before accepting a submission, review its public harness name, code and project
 links, official model page, released date, and reference price. Submitters supply
 model identity and sources in their metadata and README. Maintainers register
-model pages and release dates in `web/src/lib/modelMeta.ts`, and dated input/output
+model pages, sourced release dates in `catalog/models.json`, and dated input/output
 quotes in `catalog/pricing.json`. Use the submitted model string as the pricing
 key. The [submission guide](https://github.com/sands-lab/nika/blob/dev/docs/benchmarks/leaderboard-submission.md#model-release-dates-prices-and-display-names)
 describes the sources and cost calculation.
 
+The required `model-metadata` PR check validates every submitted model against
+`catalog/models.json` and `catalog/pricing.json`. Use the exact `agent.model`
+string as both catalog keys. A model needs `released` (YYYY-MM-DD), an HTTPS
+`release_source`, and an HTTPS `model_page`. Its price needs positive finite
+`input` and `output` USD per million tokens, `basis` (`api` or
+`hosted_open_weight`), `provider`, an HTTPS `source`, and a `retrieved` date.
+Register a new model in the submission PR or in an earlier catalog PR.
+
+Run the same check locally:
+
+```shell
+uv run python scripts/validate_model_metadata.py
+```
+
+Missing entries, missing sources, future/invalid dates, and missing, zero,
+negative, or non-finite rates fail the check. The UI reads the same model catalog.
+Maintainers must keep `model-metadata` and `validate` as required status checks
+on `main`, including for administrators. CI checks required fields and format;
+maintainers still review whether sources support the model and quoted prices.
+
+Trajectory package directories use `YYYYMMDD_<framework>_<model>` with lowercase
+ASCII words separated by underscores, such as
+`20261012_claude_code_gemma_4_31b_it`. The public trajectory link uses this
+canonical directory. Accepted scores package IDs remain fixed.
+
 The website calculates cost from recorded tokens and reviewed reference rates.
 Open-weight prices estimate hosted inference, including any documented precision
 differences; they do not measure the submitter's GPU bill. Missing prices remain
-unknown until a supported quote is available.
+unknown until a supported quote is available. New submissions require a supported
+quote before merging.
 
 The data builder derives `name` from model, normalized harness, optimization
 methods, and skills. Repeated configurations add split and run identity. It
