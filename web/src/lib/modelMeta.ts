@@ -29,6 +29,8 @@ const MODEL_RELEASE_DATES: Record<string, string> = {
   'qwen3.8-27b-fp8': '2026-08-13',
   // First weight upload: https://huggingface.co/farbodtavakkoli/OTel-2.0-LLM-31B-IT/commit/2d474f02c3a4f8d98254c0574e0f085e8e19e1fc
   'otel-2.0-llm-31b-it': '2026-07-23',
+  // https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/
+  'gemma-4-31b-it': '2026-04-02',
   'deepseek-r1': '2025-01-20',
   'deepseek-v3': '2024-12-26',
 }
@@ -38,6 +40,7 @@ const MODEL_RELEASE_DATES: Record<string, string> = {
  * MODEL_RELEASE_DATES. A quantized checkpoint links to its own card.
  */
 const MODEL_LINKS: Record<string, string> = {
+  'gemma-4-31b-it': 'https://huggingface.co/google/gemma-4-31B-it',
   'gpt-5': 'https://developers.openai.com/api/docs/models/gpt-5',
   'gpt-5-mini': 'https://developers.openai.com/api/docs/models/gpt-5-mini',
   'gpt-oss-20b': 'https://huggingface.co/openai/gpt-oss-20b',

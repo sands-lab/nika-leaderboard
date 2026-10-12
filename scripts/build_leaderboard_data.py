@@ -526,11 +526,11 @@ def rank_statistics(
 
     for members in groups.values():
         tested = [s for s in members if scores.get(s["id"]) is not None]
-        case_keys = sorted(scores[tested[0]["id"]]) if tested else []
-        tested = [s for s in tested if sorted(scores[s["id"]]) == case_keys]
-        tested_ids = {s["id"] for s in tested}
+        cohorts: dict[tuple[str, ...], list[dict[str, Any]]] = defaultdict(list)
+        for entry in tested:
+            cohorts[tuple(sorted(scores[entry["id"]]))].append(entry)
         diffs: dict[tuple[str, str], list[float]] = {}
-        if tested:
+        for case_keys, tested in cohorts.items():
             vectors = {s["id"]: [scores[s["id"]][k] for k in case_keys] for s in tested}
             n = len(case_keys)
             rng = random.Random(BOOTSTRAP_SEED)
@@ -556,7 +556,7 @@ def rank_statistics(
             for other in members:
                 if other is s:
                     continue
-                if s["id"] in tested_ids and other["id"] in tested_ids:
+                if (other["id"], s["id"]) in diffs:
                     better = _percentile(diffs[(other["id"], s["id"])], alpha) > 0
                 else:
                     better = (other.get("mean_rca_f1") or 0.0) > (
@@ -669,13 +669,14 @@ def build_leaderboard(
                 split = summary.get("split") or "unknown split"
                 run_id = summary.get("run_id") or summary["id"]
                 summary["name"] += f" · {split} · {run_id}"
+    rank_statistics(summaries, scores)
     for summary in summaries:
         detail = details[summary["id"]]
+        detail.update({key: summary[key] for key in ("rca_f1_ci", "beaten_by", "rank")})
         detail["name"] = summary["name"]
         safe_id = summary["id"].replace("/", "__")
         write_json(submissions_out / f"{safe_id}.json", detail)
 
-    rank_statistics(summaries, scores)
     summaries.sort(
         key=lambda s: (
             s.get("benchmark_version") or "",
