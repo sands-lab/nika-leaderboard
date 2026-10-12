@@ -1,0 +1,36 @@
+{
+  "case_key": "campus_lan__host_incorrect_d__h5ac233e53e43",
+  "gt_fault_types": [
+    "host_incorrect_dns"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.5,
+    "fault_type_precision": 0.3333,
+    "fault_type_recall": 1.0,
+    "in_tokens": 1447293,
+    "localization_accuracy": 1.0,
+    "localization_f1": 0.5,
+    "localization_precision": 0.3333,
+    "localization_recall": 1.0,
+    "out_tokens": 11939,
+    "rca_accuracy": 1.0,
+    "rca_f1": 0.5,
+    "rca_precision": 0.3333,
+    "rca_recall": 1.0,
+    "steps": 60,
+    "tool_calls": 59,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "link_capacity_bottleneck",
+    "http_acl_block",
+    "host_incorrect_dns"
+  ],
+  "problem": "host_incorrect_dns",
+  "scenario": "campus_lan",
+  "score_status": "scored",
+  "trial_id": "campus_lan__host_incorrect_d__h5ac233e53e43__t03",
+  "trial_index": 3
+}
