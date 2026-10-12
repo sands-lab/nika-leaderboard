@@ -1,5 +1,5 @@
 {
-  "case_key": "enterprise_branch__bgp_hijac__h3c9b99a5e810",
+  "case_key": "enterprise_branch__bgp_hijac__h93dd2b8e7404",
   "gt_fault_types": [
     "bgp_hijacking"
   ],
@@ -29,6 +29,6 @@
   "problem": "bgp_hijacking",
   "scenario": "enterprise_branch",
   "score_status": "scored",
-  "trial_id": "enterprise_branch__bgp_hijac__h3c9b99a5e810__t03",
+  "trial_id": "enterprise_branch__bgp_hijac__h93dd2b8e7404__t03",
   "trial_index": 3
 }

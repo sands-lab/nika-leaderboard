@@ -1,5 +1,5 @@
 {
-  "case_key": "p4_dc_gateway__lb_pending_co__h40b4eccba51a",
+  "case_key": "p4_dc_gateway__lb_pending_co__he9ad04263eac",
   "gt_fault_types": [
     "lb_pending_connection_update_race"
   ],
@@ -29,6 +29,6 @@
   "problem": "lb_pending_connection_update_race",
   "scenario": "p4_dc_gateway",
   "score_status": "scored",
-  "trial_id": "p4_dc_gateway__lb_pending_co__h40b4eccba51a__t03",
+  "trial_id": "p4_dc_gateway__lb_pending_co__he9ad04263eac__t03",
   "trial_index": 3
 }

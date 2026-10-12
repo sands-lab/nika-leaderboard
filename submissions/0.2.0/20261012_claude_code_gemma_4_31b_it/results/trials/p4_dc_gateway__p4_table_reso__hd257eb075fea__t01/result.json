@@ -1,5 +1,5 @@
 {
-  "case_key": "p4_dc_gateway__lb_connection__h81de21679bfa",
+  "case_key": "p4_dc_gateway__p4_table_reso__hd257eb075fea",
   "gt_fault_types": [
     "lb_connection_state_exhaustion"
   ],
@@ -30,6 +30,6 @@
   "problem": "lb_connection_state_exhaustion",
   "scenario": "p4_dc_gateway",
   "score_status": "scored",
-  "trial_id": "p4_dc_gateway__lb_connection__h81de21679bfa__t01",
+  "trial_id": "p4_dc_gateway__p4_table_reso__hd257eb075fea__t01",
   "trial_index": 1
 }
