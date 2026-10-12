@@ -87,6 +87,11 @@
     },
     {
       "count": 3,
+      "gt": "host_incorrect_netmask",
+      "predicted": "host_incorrect_dns"
+    },
+    {
+      "count": 3,
       "gt": "host_missing_ip",
       "predicted": "host_missing_ip"
     },
@@ -94,16 +99,6 @@
       "count": 3,
       "gt": "incast_traffic_network_limitation",
       "predicted": "sender_resource_contention"
-    },
-    {
-      "count": 3,
-      "gt": "lb_connection_state_exhaustion",
-      "predicted": "http_acl_block"
-    },
-    {
-      "count": 3,
-      "gt": "lb_pending_connection_update_race",
-      "predicted": "http_acl_block"
     },
     {
       "count": 3,
@@ -119,6 +114,11 @@
       "count": 3,
       "gt": "link_packet_corruption",
       "predicted": "bgp_missing_route_advertisement"
+    },
+    {
+      "count": 3,
+      "gt": "mac_address_conflict",
+      "predicted": "mac_address_conflict"
     },
     {
       "count": 3,
@@ -257,11 +257,6 @@
     },
     {
       "count": 2,
-      "gt": "host_incorrect_netmask",
-      "predicted": "bgp_missing_route_advertisement"
-    },
-    {
-      "count": 2,
       "gt": "host_static_blackhole",
       "predicted": "bgp_missing_route_advertisement"
     },
@@ -287,6 +282,11 @@
     },
     {
       "count": 2,
+      "gt": "lb_pending_connection_update_race",
+      "predicted": "p4_table_entry_misconfig"
+    },
+    {
+      "count": 2,
       "gt": "link_flap",
       "predicted": "p4_table_entry_misconfig"
     },
@@ -294,11 +294,6 @@
       "count": 2,
       "gt": "link_packet_corruption",
       "predicted": "silent_egress_packet_loss"
-    },
-    {
-      "count": 2,
-      "gt": "mac_address_conflict",
-      "predicted": "p4_table_entry_missing"
     },
     {
       "count": 2,
@@ -319,6 +314,16 @@
       "count": 2,
       "gt": "p4_table_entry_misconfig",
       "predicted": "p4_table_entry_misconfig"
+    },
+    {
+      "count": 2,
+      "gt": "p4_table_resource_exhaustion",
+      "predicted": "http_acl_block"
+    },
+    {
+      "count": 2,
+      "gt": "p4_table_resource_exhaustion",
+      "predicted": "p4_table_entry_missing"
     },
     {
       "count": 2,
@@ -547,11 +552,6 @@
     },
     {
       "count": 1,
-      "gt": "host_incorrect_netmask",
-      "predicted": "k8s_clusterip_routing_broken"
-    },
-    {
-      "count": 1,
       "gt": "http_acl_block",
       "predicted": "lb_connection_state_exhaustion"
     },
@@ -602,6 +602,11 @@
     },
     {
       "count": 1,
+      "gt": "lb_pending_connection_update_race",
+      "predicted": "p4_table_entry_missing"
+    },
+    {
+      "count": 1,
       "gt": "link_capacity_bottleneck",
       "predicted": "device_forwarding_packet_corruption"
     },
@@ -639,11 +644,6 @@
       "count": 1,
       "gt": "load_balancer_overload",
       "predicted": "mtu_mismatch"
-    },
-    {
-      "count": 1,
-      "gt": "mac_address_conflict",
-      "predicted": "link_down"
     },
     {
       "count": 1,
@@ -743,7 +743,7 @@
     {
       "count": 1,
       "gt": "p4_table_resource_exhaustion",
-      "predicted": "http_acl_block"
+      "predicted": "p4_table_entry_misconfig"
     },
     {
       "count": 1,

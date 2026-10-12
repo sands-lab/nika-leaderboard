@@ -1,13 +1,13 @@
 {
   "conditional_mean_detection_score": 0.8745098039215686,
-  "conditional_mean_localization_f1": 0.35913490196078446,
-  "conditional_mean_rca_f1": 0.21820235294117643,
-  "fault_mean_localization_f1": 0.3446464912280701,
-  "fault_mean_rca_f1": 0.18702456140350876,
+  "conditional_mean_localization_f1": 0.37185843137254915,
+  "conditional_mean_rca_f1": 0.22604588235294112,
+  "fault_mean_localization_f1": 0.3588767543859649,
+  "fault_mean_rca_f1": 0.1957969298245614,
   "healthy_mean_detection_score": 0.48148148148148145,
   "mean_detection_score": 0.8745098039215686,
-  "mean_localization_f1": 0.35913490196078446,
-  "mean_rca_f1": 0.21820235294117643,
+  "mean_localization_f1": 0.37185843137254915,
+  "mean_rca_f1": 0.22604588235294112,
   "n_agent_failed": 0,
   "n_success": 255,
   "n_trials_expected": 255,
@@ -20,13 +20,13 @@
     "scored": 255
   },
   "steps_totals": {
-    "steps": 3093,
-    "tool_calls": 3869,
-    "tool_errors": 192
+    "steps": 3097,
+    "tool_calls": 3780,
+    "tool_errors": 176
   },
   "submission_rate": 1.0,
   "token_totals": {
-    "in_tokens": 32089979,
-    "out_tokens": 1963132
+    "in_tokens": 32109863,
+    "out_tokens": 1955508
   }
 }

@@ -7,13 +7,13 @@ This entry uses the ReAct agent implemented with LangGraph through NIKA's `byo.l
 ## Evaluation
 
 - All 255 trials finished with scored submissions.
-- Mean RCA F1: 0.21820235294117646 (21.82%).
-- Mean localization F1: 0.3591349019607844 (35.91%).
+- Mean RCA F1: 0.22604588235294118 (22.60%).
+- Mean localization F1: 0.37185843137254904 (37.19%).
 - Mean detection score: 0.8745098039215686 (87.45%).
 
 - Benchmark release: nika-bench 0.2.0, test split, 85 tasks with 3 trials each.
 - Recorded budgets: 100 steps, 32768 maximum output tokens, 14400-second agent timeout and 15000-second task timeout.
-- NIKA commit: `8f04c8422623f9f785fa391d7e2ead62f4bfab9c`, with a clean worktree recorded at run creation.
+- NIKA commits: 240 trials ran at `8f04c8422623f9f785fa391d7e2ead62f4bfab9c` and 15 at `e9656af3aa15e3db1168328656065d11e19d4b85`, both from clean worktrees.
 
 ## Links and model information
 
@@ -27,4 +27,4 @@ This submission reuses the leaderboard's reviewed `gemma-4-31B-it` catalog entri
 
 ## Release provenance
 
-We packed this completed run against the 0.2.0 release manifest at its recorded NIKA commit, `8f04c8422623f9f785fa391d7e2ead62f4bfab9c`. Subsequent NIKA PR #178 changed five test tasks (15 trial slots): enterprise BGP hijacking, Kubernetes incorrect netmask, P4 connection-state exhaustion, P4 pending-connection update race, and MAC address conflict. This run used the earlier tasks. We did not relabel them as the replacements or change ground truth and scores. Current leaderboard CI uses `dev`, so maintainers must resolve the manifest version mismatch before accepting this entry.
+NIKA PR #178 changed five test tasks (15 trial slots) after this run started. Enterprise BGP hijacking, Kubernetes incorrect netmask, and P4 pending-connection update race were repaired; MAC address conflict moved from P4 to the campus LAN; and P4 connection-state exhaustion was held out, with a P4 table-resource exhaustion task taking its slots. We deleted the 15 trials of the old tasks and ran the 15 replacement slots at `e9656af3aa15e3db1168328656065d11e19d4b85` in the same result directory, with the same model, agent, and budgets. The package matches the current 0.2.0 test manifest.
