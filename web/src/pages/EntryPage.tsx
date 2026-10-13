@@ -315,7 +315,17 @@ export function EntryPage() {
             ['Input tokens', hasTokens && formatInt(inTok)],
             ['Output tokens', hasTokens && formatInt(outTok)],
             ['Tokens / case', hasTokens && formatCount(s.mean_tokens)],
-            ['Steps / case', formatCount(s.mean_steps) !== '—' && formatCount(s.mean_steps)],
+            [
+              'Avg steps / trial',
+              formatCount(s.mean_steps) !== '—' && (
+                <span title="Total recorded agent steps divided by all expected trials, including failed trials. Claude Code steps sum result.num_turns in the diagnosis phase.">
+                  {s.mean_steps?.toLocaleString(undefined, {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </span>
+              ),
+            ],
             [
               'Tool calls',
               (s.steps_totals?.tool_calls ?? 0) > 0 && formatInt(s.steps_totals?.tool_calls),
