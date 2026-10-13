@@ -43,5 +43,10 @@
     "released": "2026-04-02",
     "release_source": "https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/",
     "model_page": "https://huggingface.co/google/gemma-4-31B-it"
+  },
+  "TelecomGPT-R1": {
+    "released": "2026-06-08",
+    "release_source": "https://huggingface.co/KU-DFI/TelecomGPT-R1/commit/99f638ac5691b0ed9e21fffbe1d9308af0205280",
+    "model_page": "https://huggingface.co/KU-DFI/TelecomGPT-R1"
   }
 }
