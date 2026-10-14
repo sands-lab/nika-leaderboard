@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { FilterShell } from '../components/FilterShell'
-import { LeaderboardTable } from '../components/LeaderboardTable'
+import { LeaderboardTable, ScoreKey } from '../components/LeaderboardTable'
 import { LeaderCards } from '../components/LeaderCards'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { exportCsv, withRanks } from '../lib/metrics'
@@ -17,8 +17,14 @@ export function LeaderboardPage() {
     <div className="page">
       <FilterShell />
 
-      <div className="page__header">
-        <h1>Leaderboard</h1>
+      {/* The logo and nav already name the page; the heading stays for screen readers. */}
+      <h1 className="visually-hidden">Leaderboard</h1>
+
+      <LeaderCards rows={ranked} />
+
+      {/* The score key sits right above the scores it explains. */}
+      <div className="table-toolbar">
+        <ScoreKey />
         <button
           type="button"
           className="btn btn--ghost"
@@ -29,8 +35,6 @@ export function LeaderboardPage() {
           Export CSV
         </button>
       </div>
-
-      <LeaderCards rows={ranked} />
 
       <LeaderboardTable rows={ranked} />
 

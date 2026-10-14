@@ -69,13 +69,21 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
   const response = await page.request.get('/data/index.json')
   const { submissions } = await response.json()
   const names = submissions.map((s: { name: string }) => s.name)
-  expect(new Set(names).size).toBe(names.length)
+  // Unique within a release, and never qualified by a run id or hash.
+  const keyed = submissions.map(
+    (s: { name: string; benchmark_version: string }) => `${s.benchmark_version}|${s.name}`,
+  )
+  expect(new Set(keyed).size).toBe(keyed.length)
+  for (const name of names) expect(name).not.toMatch(/[0-9a-f]{12,}|preview-/)
+  expect(names).toContain('GPT-OSS-20B · ReAct · replication')
   expect(names).toContain('Qwen3.5-27B · ReAct · GEPA (d)')
   expect(names).toContain('Qwen3.5-27B · ReAct · GEPA (d+s)')
   const reactEntry = submissions.find((s: { agent_type: string }) => s.agent_type === 'byo.langgraph')
   expect(reactEntry.framework).toBe('ReAct')
   expect(reactEntry.name).toBe(`${reactEntry.model} · ReAct`)
-  await expect(page.locator('tr.entry-row').filter({ hasText: 'ReAct' })).toContainText(reactEntry.model)
+  await expect(
+    page.locator('tr.entry-row').filter({ hasText: 'ReAct' }).filter({ hasText: reactEntry.model }).first(),
+  ).toBeVisible()
 
   for (const [model, date, modelUrl] of [
     ['Qwen3.8-27B-FP8', '2026-08-13', 'https://huggingface.co/Qwen/Qwen3.8-27B-FP8'],
@@ -84,7 +92,10 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
     const entry = submissions.find((s: { model: string }) => s.model === model)
     expect(entry.name).toBe(`${model} · Claude Code`)
     expect(entry.submission_name).toBeTruthy()
-    const row = page.locator('tr.entry-row').filter({ hasText: model })
+    const row = page
+      .locator('tr.entry-row')
+      .filter({ hasText: model })
+      .filter({ hasText: 'Claude Code' })
     await expect(row).toContainText('Claude Code')
     await expect(row).toContainText(date)
     await expect(row.locator('span[title*="One run ="]')).toContainText('$')
@@ -119,4 +130,17 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
     await expect(page.locator('main')).toContainText(entry.submission_name)
     await page.getByRole('link', { name: '← Leaderboard' }).click()
   }
+})
+
+test('labels repeated across releases gain the release only in a mixed view', async ({ page }) => {
+  await page.goto('/#/analytics/analyze', { waitUntil: 'domcontentloaded' })
+  const table = page.locator('main table').last()
+  await expect(table).toContainText('Qwen3.5-27B · ReAct')
+  await expect(table).not.toContainText('· v0.2.0')
+  const showFilters = page.getByRole('button', { name: 'Show filters' })
+  if (await showFilters.isVisible()) await showFilters.click()
+  await page.locator('select').first().selectOption('all')
+  await expect(table).toContainText('Qwen3.5-27B · ReAct · v0.1.0')
+  await expect(table).toContainText('Qwen3.5-27B · ReAct · v0.2.0')
+  await expect(table).not.toContainText('GPT-5 · ReAct · v0.1.0')
 })

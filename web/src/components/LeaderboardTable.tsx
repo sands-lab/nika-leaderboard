@@ -1,4 +1,4 @@
-import { useMemo, type MouseEvent } from 'react'
+import { useMemo, type MouseEvent, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { EntryLinks } from './EntryLinks'
 import { SortableTh } from './SortableTh'
@@ -15,6 +15,8 @@ import {
   adaptationMethods,
   formatAdaptation,
   scaffoldTags,
+  scoreRange,
+  type ScoreRange,
   tieCount,
 } from '../lib/metrics'
 import { modelReleaseDate } from '../lib/modelMeta'
@@ -78,20 +80,95 @@ type LbSortKey =
   | 'detection'
   | 'cost'
 
-export function ScorePill({ value }: { value: number | null | undefined }) {
+/**
+ * Five steps from worst to best of the entries shown, on a diverging scale:
+ * rose for the bad end, cyan for the good end, neutral grey in the middle.
+ * Two opposed hues read as worse/better at a glance and stay apart for
+ * colour-blind readers, which red/green would not. Steps split the column's
+ * observed range evenly, so near-equal scores share a step rather than being
+ * forced apart by rank. The range is never taken as narrower than
+ * MIN_SCORE_SPAN, about twice the run-to-run margin: a column whose scores
+ * all sit within the noise reads as mid-range, not as a best and a worst.
+ */
+const MIN_SCORE_SPAN = 0.15
+
+const SCORE_TIERS = [
+  { key: 'poor', label: 'near the worst' },
+  { key: 'weak', label: 'below the middle' },
+  { key: 'mid', label: 'mid-range' },
+  { key: 'good', label: 'above the middle' },
+  { key: 'top', label: 'near the best' },
+] as const
+
+function scoreTier(value: number, range: ScoreRange): (typeof SCORE_TIERS)[number] {
+  const span = Math.max(range.max - range.min, MIN_SCORE_SPAN)
+  const t = 0.5 + (value - (range.min + range.max) / 2) / span
+  const i = Math.floor(t * SCORE_TIERS.length)
+  return SCORE_TIERS[Math.max(0, Math.min(SCORE_TIERS.length - 1, i))]
+}
+
+/**
+ * A score as coloured digits, no frame. Given the range of its column (the
+ * entries it is compared with), the colour says where it stands; without one
+ * it is plain text.
+ */
+export function ScoreValue({
+  value,
+  range,
+  suffix,
+}: {
+  value: number | null | undefined
+  range?: ScoreRange | null
+  /** Shown after the number, e.g. the RCA margin. */
+  suffix?: ReactNode
+}) {
   if (value == null || Number.isNaN(value)) {
     return <span className="num">—</span>
   }
-  const t = Math.max(0, Math.min(1, value))
+  const tier = range ? scoreTier(value, range) : null
   return (
-    <span
-      className="score-pill"
-      style={{
-        background: `rgba(0, 212, 255, ${0.1 + t * 0.32})`,
-        boxShadow: `inset 0 0 0 1px rgba(0, 212, 255, ${0.12 + t * 0.28})`,
-      }}
-    >
-      {formatScore(value)}
+    <span className="score">
+      <span
+        className={`score-value score-value--${tier?.key ?? 'mid'}`}
+        title={tier ? `${formatScore(value)} · ${tier.label} of the entries shown` : undefined}
+      >
+        {formatScore(value)}
+      </span>
+      {suffix}
+    </span>
+  )
+}
+
+/** What the score tints mean, shown once above the table. */
+export function ScoreKey() {
+  return (
+    <p className="score-key" aria-label="Score colours, relative to the entries shown">
+      <span className="score-key__label">Scores vs. entries shown</span>
+      <span className="score-key__scale">
+        <span className="score-key__end">worse</span>
+        {SCORE_TIERS.map((t) => (
+          <span key={t.key} className={`score-key__dot score-value--${t.key}`} title={t.label} />
+        ))}
+        <span className="score-key__end">better</span>
+      </span>
+    </p>
+  )
+}
+
+/**
+ * The first three ranks get a medal icon and gold, silver or bronze digits,
+ * unframed; shared ranks share a medal. Later ranks are plain numbers.
+ */
+export function RankBadge({ rank }: { rank: number | undefined }) {
+  if (rank == null) return <span className="rank-num">—</span>
+  if (rank > 3) return <span className="rank-num">{rank}</span>
+  return (
+    <span className={`rank-medal rank-medal--${rank}`} aria-label={`Rank ${rank}`}>
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8.2 13.2 6.5 22l5.5-3 5.5 3-1.7-8.8" />
+        <circle cx="12" cy="8.5" r="6" />
+      </svg>
+      {rank}
     </span>
   )
 }
@@ -108,7 +185,13 @@ function ciHalfWidth(ci: [number, number]): number {
   return (ci[1] - ci[0]) / 2
 }
 
-export function RcaCell({ s }: { s: SubmissionSummary }) {
+export function RcaCell({
+  s,
+  range,
+}: {
+  s: SubmissionSummary
+  range?: ScoreRange | null
+}) {
   const ci = s.rca_f1_ci
   return (
     <span
@@ -119,8 +202,11 @@ export function RcaCell({ s }: { s: SubmissionSummary }) {
           : 'No per-trial results, so no uncertainty estimate'
       }
     >
-      <ScorePill value={s.mean_rca_f1} />
-      {ci && <span className="ci-range">± {formatScore(ciHalfWidth(ci), 2)}</span>}
+      <ScoreValue
+        value={s.mean_rca_f1}
+        range={range}
+        suffix={ci && <span className="ci-range">± {formatScore(ciHalfWidth(ci), 2)}</span>}
+      />
     </span>
   )
 }
@@ -254,6 +340,14 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
     () => sortByAccessors(rows, sort, buildAccessors(pricing, overrides)),
     [rows, sort, pricing, overrides],
   )
+  const ranges = useMemo(
+    () => ({
+      detection: scoreRange(rows.map((s) => s.mean_detection_score)),
+      loc: scoreRange(rows.map((s) => s.mean_localization_f1)),
+      rca: scoreRange(rows.map((s) => s.mean_rca_f1)),
+    }),
+    [rows],
+  )
 
   // The whole row opens the entry; links inside it keep their own target.
   // The model name is the keyboard- and middle-click-reachable link.
@@ -264,6 +358,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
   }
 
   return (
+    <>
     <div className="table-wrap">
       <table className="data-table data-table--entries">
         <thead>
@@ -274,6 +369,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sort={sort}
               onSort={toggle}
               title="Entries marked = are tied: their scores are too close to separate reliably"
+              className="w-rank"
             />
             <SortableTh
               label="Model"
@@ -289,7 +385,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sort={sort}
               onSort={toggle}
               title="Public model release date"
-              className="col-secondary"
+              className="w-released col-secondary"
             />
             <SortableTh
               label="Harness"
@@ -297,7 +393,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sort={sort}
               onSort={toggle}
               title="Agent harness that drove the model (e.g. ReACT, LangGraph, Claude Code)"
-              className="col-narrow-hide"
+              className="w-harness col-narrow-hide"
             />
             <SortableTh
               label="Adaptation"
@@ -305,7 +401,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sort={sort}
               onSort={toggle}
               title="Pre-benchmark optimization / training (e.g. None, GEPA, SFT, RL)"
-              className="col-narrow-hide"
+              className="w-adaptation col-narrow-hide"
             />
             <SortableTh
               label="Provider"
@@ -313,21 +409,21 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sort={sort}
               onSort={toggle}
               title="Model vendor"
-              className="col-secondary"
+              className="w-provider col-secondary"
             />
             <SortableTh
               label="Detection"
               sortKey="detection"
               sort={sort}
               onSort={toggle}
-              className="col-secondary"
+              className="w-score col-secondary"
             />
             <SortableTh
               label="Loc F1"
               sortKey="loc"
               sort={sort}
               onSort={toggle}
-              className="col-secondary"
+              className="w-score col-secondary"
             />
             <SortableTh
               label="RCA F1"
@@ -335,6 +431,7 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sort={sort}
               onSort={toggle}
               title="Mean RCA F1, the metric the leaderboard ranks by. ± is the run-to-run margin: on a fresh set of cases the score would land within it 95% of the time"
+              className="w-rca"
             />
             <SortableTh
               label="Cost"
@@ -342,8 +439,9 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
               sort={sort}
               onSort={toggle}
               title="USD to run the whole benchmark once at the model's reference price. Hover a cell for the per-case figures and what this submission spent in total."
+              className="w-cost"
             />
-            <th className="col-narrow-hide">Links</th>
+            <th className="w-links col-narrow-hide">Links</th>
           </tr>
         </thead>
         <tbody>
@@ -356,13 +454,14 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                 className="entry-row"
                 onClick={(e) => openRow(e, s)}
               >
-                <td title={rankTitle(s, tieCount(rows, s))}>
-                  {s.rank}
-                  {s.rca_f1_ci && tieCount(rows, s) > 1 && (
-                    <span className="rank-tie" aria-label="tied">
-                      =
+                <td className="rank-td" title={rankTitle(s, tieCount(rows, s))}>
+                  {/* A fixed slot for the tie mark keeps badges and numbers aligned. */}
+                  <span className="rank-cell">
+                    <RankBadge rank={s.rank} />
+                    <span className="rank-tie" aria-label={s.rca_f1_ci && tieCount(rows, s) > 1 ? 'tied' : undefined}>
+                      {s.rca_f1_ci && tieCount(rows, s) > 1 ? '=' : ''}
                     </span>
-                  )}
+                  </span>
                 </td>
                 <td className="model-td">
                   <Link
@@ -387,13 +486,13 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
                   <ProviderIcon llmProvider={s.llm_provider} model={s.model} />
                 </td>
                 <td className="num col-secondary">
-                  <ScorePill value={s.mean_detection_score} />
+                  <ScoreValue value={s.mean_detection_score} range={ranges.detection} />
                 </td>
                 <td className="num col-secondary">
-                  <ScorePill value={s.mean_localization_f1} />
+                  <ScoreValue value={s.mean_localization_f1} range={ranges.loc} />
                 </td>
                 <td className="num">
-                  <RcaCell s={s} />
+                  <RcaCell s={s} range={ranges.rca} />
                 </td>
                 <td className="num">
                   <CostCell s={s} pricing={pricing} overrides={overrides} />
@@ -414,5 +513,6 @@ export function LeaderboardTable({ rows }: LeaderboardTableProps) {
         </tbody>
       </table>
     </div>
+    </>
   )
 }

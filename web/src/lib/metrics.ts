@@ -118,6 +118,33 @@ export function scaffoldTags(s: SubmissionSummary): string[] {
   return tags
 }
 
+/** Observed range of one score column, for shading cells by standing. */
+export interface ScoreRange {
+  min: number
+  max: number
+}
+
+export function scoreRange(values: Array<number | null | undefined>): ScoreRange | null {
+  const present = values.filter((v): v is number => v != null && !Number.isNaN(v))
+  if (!present.length) return null
+  return { min: Math.min(...present), max: Math.max(...present) }
+}
+
+/**
+ * Labels are unique within a release, so a view spanning releases can repeat
+ * one. Those repeats, and only those, gain the release as a final qualifier;
+ * a single-release view keeps every label as generated.
+ */
+export function qualifyNames(rows: SubmissionSummary[]): SubmissionSummary[] {
+  const counts = new Map<string, number>()
+  for (const s of rows) counts.set(s.name, (counts.get(s.name) ?? 0) + 1)
+  return rows.map((s) =>
+    (counts.get(s.name) ?? 0) > 1
+      ? { ...s, base_name: s.name, name: `${s.name} · v${s.benchmark_version}` }
+      : s,
+  )
+}
+
 export function applyFilters(
   rows: SubmissionSummary[],
   filters: FilterState,

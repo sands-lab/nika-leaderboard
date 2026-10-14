@@ -4,8 +4,9 @@ import { EntryLinks, LinkIcon } from '../components/EntryLinks'
 import {
   HarnessCell,
   ProviderIcon,
+  RankBadge,
   RcaCell,
-  ScorePill,
+  ScoreValue,
   VerifiedMark,
 } from '../components/LeaderboardTable'
 import {
@@ -17,7 +18,13 @@ import {
   loadSubmissionDetail,
 } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
-import { formatAdaptation, scaffoldTags, tieCount, withRanks } from '../lib/metrics'
+import {
+  formatAdaptation,
+  scaffoldTags,
+  scoreRange,
+  tieCount,
+  withRanks,
+} from '../lib/metrics'
 import { modelLink, modelReleaseDate } from '../lib/modelMeta'
 import { BASIS_LABEL, formatUsd, submissionCost } from '../lib/pricing'
 import { providerDisplayName, resolveProvider, servingLabel } from '../lib/providerMeta'
@@ -157,6 +164,12 @@ export function EntryPage() {
   const vendor = resolveProvider(s.llm_provider, s.model)
   const modelUrl = modelLink(s.model)
   const tied = tieCount(release, s)
+  // Tinted against the rest of the release, as on the leaderboard.
+  const ranges = {
+    rca: scoreRange(release.map((r) => r.mean_rca_f1)),
+    loc: scoreRange(release.map((r) => r.mean_localization_f1)),
+    detection: scoreRange(release.map((r) => r.mean_detection_score)),
+  }
   const inTok = s.token_totals?.in_tokens ?? 0
   const outTok = s.token_totals?.out_tokens ?? 0
   const hasTokens = inTok > 0 || outTok > 0
@@ -186,18 +199,18 @@ export function EntryPage() {
 
       <div className="entry-stats">
         <Stat label="Rank">
-          {s.rank}
+          <RankBadge rank={s.rank} />
           {s.rca_f1_ci && tied > 1 && <span className="rank-tie">=</span>}
           <small> of {release.length}</small>
         </Stat>
         <Stat label="RCA F1">
-          <RcaCell s={s} />
+          <RcaCell s={s} range={ranges.rca} />
         </Stat>
         <Stat label="Loc F1">
-          <ScorePill value={s.mean_localization_f1} />
+          <ScoreValue value={s.mean_localization_f1} range={ranges.loc} />
         </Stat>
         <Stat label="Detection">
-          <ScorePill value={s.mean_detection_score} />
+          <ScoreValue value={s.mean_detection_score} range={ranges.detection} />
         </Stat>
         <Stat label="Cost / run">
           {cost?.perRun != null ? formatUsd(cost.perRun) : '—'}

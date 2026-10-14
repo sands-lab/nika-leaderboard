@@ -10,7 +10,14 @@ import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { compareSortValues, useTableSort } from '../lib/tableSort'
 import type { CaseAggregate } from '../lib/compare'
 import type { SubmissionDetail } from '../lib/types'
-import { HEAT_RAMP } from '../lib/chartTheme'
+import {
+  CHART_MUTED,
+  CHART_SURFACE,
+  CHART_TEXT,
+  DIVERGING_RAMP,
+  divergingColor,
+  heatInk,
+} from '../lib/chartTheme'
 
 type AggregateMode = 'problem' | 'category' | 'scenario' | 'size'
 type MetricMode = 'success' | 'rca'
@@ -24,9 +31,10 @@ function rowKey(c: CaseAggregate, mode: AggregateMode): string {
 }
 
 export function MatrixPage() {
-  const { filtered, loading, error } = useLeaderboardData()
+  const { filtered, withLabels, loading, error } = useLeaderboardData()
   const [params, setParams] = useSearchParams()
-  const [details, setDetails] = useState<SubmissionDetail[]>([])
+  const [rawDetails, setDetails] = useState<SubmissionDetail[]>([])
+  const details = useMemo(() => withLabels(rawDetails), [rawDetails, withLabels])
   const [selected, setSelected] = useState<string[]>([])
   const [mode, setMode] = useState<AggregateMode>('problem')
   const [metric, setMetric] = useState<MetricMode>('success')
@@ -142,34 +150,52 @@ export function MatrixPage() {
   const heatOption = useMemo((): EChartsOption => {
     const yLabels = matrix.map((r) => r.key)
     const xLabels = details.map((d) => d.name)
-    const data: Array<[number, number, number]> = []
+    const tilted = xLabels.length > 8
+    // Each cell's label takes white or dark ink by its own fill, so the
+    // number stays legible from the darkest step of the ramp to the lightest.
+    const data: Array<{ value: [number, number, number]; label: { color: string } }> = []
     matrix.forEach((row, yi) => {
       row.values.forEach((v, xi) => {
-        if (v != null) data.push([xi, yi, Number(v.toFixed(4))])
+        if (v != null) {
+          data.push({
+            value: [xi, yi, Number(v.toFixed(4))],
+            label: { color: heatInk(divergingColor(v)) },
+          })
+        }
       })
     })
     return {
       tooltip: {
         formatter: (p: unknown) => {
           const item = p as { value: number[] }
-          return `${xLabels[item.value[0]]}<br/>${yLabels[item.value[1]]}<br/>${(
-            item.value[2] * 100
-          ).toFixed(1)}%`
+          const v = item.value[2]
+          // Success is a share of cases; RCA F1 is a score, not a percentage.
+          const shown = metric === 'success' ? formatPct(v) : `RCA F1 ${formatScore(v)}`
+          return `${xLabels[item.value[0]]}<br/>${yLabels[item.value[1]]}<br/>${shown}`
         },
       },
-      grid: { left: 160, right: 96, top: 28, bottom: 120 },
+      grid: { left: 16, right: 88, top: 16, bottom: 16, containLabel: true },
       xAxis: {
         type: 'category',
         data: xLabels,
+        position: 'top',
         axisLabel: {
-          rotate: 28,
+          // Model on one line, harness and qualifiers on the next; a wide
+          // selection tilts them, but every column keeps its label.
+          formatter: (v: string) => v.replace(' · ', '\n'),
+          rotate: tilted ? 30 : 0,
           interval: 0,
-          hideOverlap: true,
           fontSize: 11,
-          margin: 14,
+          lineHeight: 14,
+          color: CHART_TEXT,
         },
       },
-      yAxis: { type: 'category', data: yLabels },
+      yAxis: {
+        type: 'category',
+        data: yLabels,
+        inverse: true,
+        axisLabel: { fontSize: 11, color: CHART_TEXT },
+      },
       visualMap: {
         min: 0,
         max: 1,
@@ -180,23 +206,28 @@ export function MatrixPage() {
         itemHeight: 140,
         text: ['High', 'Low'],
         textGap: 8,
-        inRange: { color: [...HEAT_RAMP] },
+        textStyle: { color: CHART_MUTED },
+        inRange: { color: [...DIVERGING_RAMP] },
       },
       series: [
         {
           type: 'heatmap',
           data,
+          itemStyle: { borderColor: CHART_SURFACE, borderWidth: 1 },
           label: {
-            show: matrix.length <= 40,
+            show: true,
+            fontSize: 11,
+            fontWeight: 600,
             formatter: (p: unknown) => {
               const item = p as { value: number[] }
-              return `${Math.round(item.value[2] * 100)}`
+              const v = item.value[2]
+              return metric === 'success' ? `${Math.round(v * 100)}` : formatScore(v)
             },
           },
         },
       ],
     }
-  }, [matrix, details])
+  }, [matrix, details, metric])
 
   if (loading) return <p className="status">Loading matrix…</p>
   if (error || detailError) {
@@ -263,7 +294,9 @@ export function MatrixPage() {
         title="Heatmap"
         option={heatOption}
         filename="nika-matrix"
-        height={Math.min(760, 120 + matrix.length * 22)}
+        // A fixed row pitch, so every row keeps a readable label and value
+        // however many problems there are.
+        height={(details.length > 8 ? 160 : 100) + matrix.length * 22}
         empty={!details.length || !matrix.length}
         emptyMessage={
           !details.length
@@ -302,13 +335,12 @@ export function MatrixPage() {
                 {row.values.map((v, i) => (
                   <td
                     key={`${row.key}-${i}`}
-                    className="num"
-                    style={{
-                      background:
-                        v == null
-                          ? undefined
-                          : `rgba(0, 212, 255, ${0.12 + v * 0.55})`,
-                    }}
+                    className="num heat-cell"
+                    style={
+                      v == null
+                        ? undefined
+                        : { background: divergingColor(v), color: heatInk(divergingColor(v)) }
+                    }
                   >
                     {v == null
                       ? '—'

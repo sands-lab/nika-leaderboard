@@ -13,7 +13,13 @@ export interface SubmissionSummary {
   id: string
   dirname: string
   rank?: number
+  /**
+   * Generated label, unique within a release. The site qualifies it with the
+   * release when the visible entries span releases and repeat a label.
+   */
   name: string
+  /** The generated label before any release qualifier. */
+  base_name?: string
   /** Submitter's original title; charts use the generated name. */
   submission_name?: string | null
   authors: string

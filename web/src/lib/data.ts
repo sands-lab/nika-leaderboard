@@ -70,7 +70,12 @@ export function formatPct(value: number | null | undefined, digits = 1): string 
   return `${(value * 100).toFixed(digits)}%`
 }
 
-export function formatScore(value: number | null | undefined, digits = 3): string {
+/**
+ * Scores (F1, detection) as 0-1 decimals, two places: run-to-run margins are
+ * around ±0.07, so a third place would only display noise. Proportions such as
+ * success rate use formatPct instead; a score is not a share of cases.
+ */
+export function formatScore(value: number | null | undefined, digits = 2): string {
   if (value == null || Number.isNaN(value)) return '—'
   return value.toFixed(digits)
 }

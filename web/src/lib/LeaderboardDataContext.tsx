@@ -16,6 +16,7 @@ import {
   FILTER_PARAM_KEYS,
   filtersFromParams,
   filtersToParams,
+  qualifyNames,
 } from './metrics'
 import { loadOverrides, saveOverrides } from './pricing'
 import type { PriceOverrides, PricingFile } from './pricing'
@@ -27,6 +28,8 @@ interface LeaderboardDataValue {
   filters: FilterState
   setFilters: (next: FilterState) => void
   filtered: SubmissionSummary[]
+  /** Give loaded details the labels their summaries carry in this view. */
+  withLabels: <T extends { id: string; name: string }>(rows: T[]) => T[]
   /** Reference token prices, shared so every page costs runs identically. */
   pricing: PricingFile | null
   overrides: PriceOverrides
@@ -118,8 +121,19 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
   }, [])
 
   const filtered = useMemo(
-    () => applyFilters(submissions, filters),
+    () => qualifyNames(applyFilters(submissions, filters)),
     [submissions, filters],
+  )
+
+  const withLabels = useCallback(
+    <T extends { id: string; name: string }>(rows: T[]): T[] => {
+      const names = new Map(filtered.map((s) => [s.id, s.name]))
+      return rows.map((r) => {
+        const name = names.get(r.id)
+        return name && name !== r.name ? { ...r, name } : r
+      })
+    },
+    [filtered],
   )
 
   const value = useMemo(
@@ -129,6 +143,7 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
       filters,
       setFilters,
       filtered,
+      withLabels,
       pricing,
       overrides,
       setOverrides,
@@ -141,6 +156,7 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
       filters,
       setFilters,
       filtered,
+      withLabels,
       pricing,
       overrides,
       setOverrides,

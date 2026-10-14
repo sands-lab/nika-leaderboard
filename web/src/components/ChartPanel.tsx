@@ -1,11 +1,21 @@
-import { useEffect, useMemo, useRef, useState, type ReactNode, type RefObject } from 'react'
+import {
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+  type RefObject,
+} from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import type { EChartsType } from 'echarts'
 import {
   CHART_AXIS_NAME,
+  CHART_FOCUS,
   CHART_LINE,
   CHART_MUTED,
+  CHART_RAISED,
   CHART_TOOLTIP,
 } from '../lib/chartTheme'
 import { downloadPdf, downloadPng } from '../lib/export'
@@ -21,7 +31,7 @@ interface ChartPanelProps {
   emptyMessage?: string
   /** Enable inside dataZoom / toolbox zoom when the option has cartesian axes. */
   zoomable?: boolean
-  /** Show the bottom dataZoom slider (can collide with rotated x-axis labels). */
+  /** Show zoom sliders for both axes (bottom for x, right for y). */
   zoomSlider?: boolean
   onEvents?: Record<string, (params: unknown) => void>
   /** Overlay rendered above the chart canvas (same size box). */
@@ -144,95 +154,251 @@ function withDarkAxes(option: EChartsOption): EChartsOption {
   }
 }
 
-/** The bottom zoom slider's geometry, shared so the legend can clear it. */
-const SLIDER_BOTTOM = 8
-const SLIDER_HEIGHT = 18
-const LEGEND_CLEARANCE = SLIDER_BOTTOM + SLIDER_HEIGHT + 8
+/** Zoom sliders' geometry, shared so the plot and axis names can clear them. */
+const SLIDER_GAP = 8
+const SLIDER_SIZE = 16
 
 /**
- * Keep a bottom-anchored legend clear of the zoom slider. Charts that set their
- * own `bottom: 0` used to land exactly on top of it; the earlier guard only
- * placed a legend that had no position of its own, so it never moved them.
+ * Every legend is laid out the same way: a horizontal block across the top of
+ * the canvas that wraps onto as many rows as the entries need. The canvas grows
+ * by the block's height, so a long legend never takes room from the plot and
+ * never lands on an axis, a slider or a label. The previous mix - pages of a
+ * scrolling legend in one chart, a vertical column in another, a bottom row
+ * colliding with rotated labels in a third - is what this replaces.
  */
-function patchLegend(legend: EChartsOption['legend'], zoomSlider: boolean) {
-  if (!legend || Array.isArray(legend)) return legend
-  if ('top' in legend && legend.top != null) return legend
-  const bottom = 'bottom' in legend ? legend.bottom : undefined
-  if (typeof bottom === 'string') return legend
-  const floor = zoomSlider ? LEGEND_CLEARANCE : 28
-  return { ...legend, bottom: Math.max(bottom ?? 0, floor) }
+const LEGEND_FONT = 'Inter, system-ui, sans-serif'
+const LEGEND_FONT_SIZE = 12
+const LEGEND_ICON_W = 14
+const LEGEND_ICON_H = 10
+const LEGEND_ICON_GAP = 5
+const LEGEND_ITEM_GAP = 14
+/** ECharts spaces wrapped rows by the item gap too. */
+const LEGEND_ROW_GAP = LEGEND_ITEM_GAP
+/** Fixed via textStyle.lineHeight, so a row is this tall whatever its icon. */
+const LEGEND_ROW_H = 14
+const LEGEND_TOP = 6
+/** ECharts' default legend padding, included in the box it reports. */
+const LEGEND_PADDING = 5
+/** Width the toolbox's icons take in the top-right corner. */
+const TOOLBOX_RESERVE = 96
+
+let measureCtx: CanvasRenderingContext2D | null = null
+function textWidth(text: string): number {
+  if (!measureCtx) {
+    measureCtx = document.createElement('canvas').getContext('2d')
+  }
+  if (!measureCtx) return text.length * 7
+  measureCtx.font = `${LEGEND_FONT_SIZE}px ${LEGEND_FONT}`
+  return measureCtx.measureText(text).width
 }
 
-function withInteractions(
+function legendNames(option: EChartsOption): string[] {
+  const legend = option.legend
+  if (legend && !Array.isArray(legend) && Array.isArray(legend.data)) {
+    return legend.data.map((d) =>
+      typeof d === 'string' ? d : String((d as { name?: unknown }).name ?? ''),
+    )
+  }
+  const series = Array.isArray(option.series) ? option.series : option.series ? [option.series] : []
+  return series.map((s) => String((s as { name?: unknown }).name ?? '')).filter(Boolean)
+}
+
+/** Rows a wrapping horizontal legend needs at this width (ECharts' box layout). */
+function legendRows(names: string[], available: number): number {
+  let rows = 1
+  let x = 0
+  for (const name of names) {
+    // A couple of pixels of slack per item: canvas and ECharts round differently.
+    const w = LEGEND_ICON_W + LEGEND_ICON_GAP + textWidth(name) + 2
+    if (x > 0 && x + w > available) {
+      rows += 1
+      x = 0
+    }
+    x += w + LEGEND_ITEM_GAP
+  }
+  return rows
+}
+
+interface Layout {
+  option: EChartsOption
+  /** Canvas height: the requested plot height plus the legend block. */
+  height: number
+  /** Legend rows' height as laid out, to compare with what renders. */
+  legendHeight: number
+}
+
+function layoutChart(
   option: EChartsOption,
+  width: number,
+  height: number,
   zoomable: boolean,
   zoomSlider: boolean,
-): EChartsOption {
-  if (!zoomable) return option
-  const hasCartesian = Boolean(
-    option.xAxis || option.yAxis || (option as { grid?: unknown }).grid,
-  )
-  if (!hasCartesian) return option
+  /** The legend's rendered height, once known; otherwise it is estimated. */
+  measuredLegend?: number,
+): Layout {
+  const hasCartesian = Boolean(option.xAxis || option.yAxis)
+  const toolbox = zoomable && hasCartesian
+  const legend = option.legend && !Array.isArray(option.legend) ? option.legend : null
+  const names = legend ? legendNames(option) : []
+  const showLegend = legend != null && legend.show !== false && names.length > 0
 
-  const existingToolbox =
-    option.toolbox && typeof option.toolbox === 'object' && !Array.isArray(option.toolbox)
-      ? option.toolbox
-      : {}
-  const existingFeature =
-    existingToolbox.feature && typeof existingToolbox.feature === 'object'
-      ? existingToolbox.feature
-      : {}
+  const left = 12
+  const right = toolbox ? TOOLBOX_RESERVE : 12
+  const legendWidth = Math.max(120, width - left - right)
+  const rows = showLegend ? legendRows(names, legendWidth) : 0
+  const legendHeight = showLegend
+    ? (measuredLegend ??
+      rows * LEGEND_ROW_H + (rows - 1) * LEGEND_ROW_GAP + 2 * LEGEND_PADDING)
+    : 0
+  const legendBlock = showLegend ? LEGEND_TOP + legendHeight + 12 : 0
+  const ySlider = toolbox && zoomSlider
 
-  const existingGrid =
-    typeof option.grid === 'object' && !Array.isArray(option.grid) ? option.grid : {}
-  const existingBottom =
-    typeof existingGrid.bottom === 'number' ? existingGrid.bottom : 48
+  const out: EChartsOption = { ...option }
+  if (showLegend) {
+    // The panel owns legend placement; any position a chart set is dropped.
+    const rest = { ...legend } as Record<string, unknown>
+    for (const key of ['top', 'bottom', 'left', 'right', 'width', 'height', 'orient', 'type']) {
+      delete rest[key]
+    }
+    out.legend = {
+      ...rest,
+      type: 'plain',
+      orient: 'horizontal',
+      left,
+      // A set width, not `right`: ECharts wraps the legend at its width and
+      // ignores `right` for that, which ran the first row under the toolbox.
+      width: legendWidth,
+      top: LEGEND_TOP,
+      itemWidth: LEGEND_ICON_W,
+      itemHeight: LEGEND_ICON_H,
+      itemGap: LEGEND_ITEM_GAP,
+      textStyle: {
+        color: CHART_MUTED,
+        fontSize: LEGEND_FONT_SIZE,
+        fontFamily: LEGEND_FONT,
+        lineHeight: LEGEND_ROW_H,
+        ...(typeof legend.textStyle === 'object' ? legend.textStyle : {}),
+      },
+    }
+  }
 
-  const dataZoom: object[] = [
-    ...(Array.isArray(option.dataZoom)
+  const grid = typeof option.grid === 'object' && !Array.isArray(option.grid) ? option.grid : null
+  if (hasCartesian) {
+    const top = typeof grid?.top === 'number' ? grid.top : 36
+    const bottom = typeof grid?.bottom === 'number' ? grid.bottom : 48
+    const gridRight = typeof grid?.right === 'number' ? grid.right : 28
+    out.grid = {
+      ...grid,
+      top: top + legendBlock,
+      bottom: toolbox && zoomSlider ? bottom + SLIDER_SIZE + SLIDER_GAP : bottom,
+      right: ySlider ? gridRight + SLIDER_SIZE + SLIDER_GAP : gridRight,
+    }
+  }
+
+  // A radar or polar plot is centred in what is left below the legend, sized
+  // to fit it, rather than in the whole canvas where the legend would cover it.
+  const plotCentre: [string, number] = ['50%', legendBlock + height / 2]
+  const fit = Math.max(60, Math.min(width / 2, height / 2) - 44)
+  const radar = option.radar && !Array.isArray(option.radar) ? option.radar : null
+  if (radar) out.radar = { ...radar, center: plotCentre, radius: fit }
+  const polar = option.polar && !Array.isArray(option.polar) ? option.polar : null
+  if (polar) out.polar = { ...polar, center: plotCentre, radius: [fit * 0.26, fit] }
+
+  if (toolbox) {
+    const existingToolbox =
+      option.toolbox && typeof option.toolbox === 'object' && !Array.isArray(option.toolbox)
+        ? option.toolbox
+        : {}
+    const existingFeature =
+      existingToolbox.feature && typeof existingToolbox.feature === 'object'
+        ? existingToolbox.feature
+        : {}
+    const existingZoom = Array.isArray(option.dataZoom)
       ? option.dataZoom
       : option.dataZoom
         ? [option.dataZoom]
-        : []),
-    { type: 'inside', xAxisIndex: 0, filterMode: 'none' },
-    { type: 'inside', yAxisIndex: 0, filterMode: 'none' },
-  ]
-  if (zoomSlider) {
-    dataZoom.push({
-      type: 'slider',
-      xAxisIndex: 0,
-      height: SLIDER_HEIGHT,
-      bottom: SLIDER_BOTTOM,
-      filterMode: 'none',
-    })
-  }
-
-  return {
-    ...option,
-    legend: patchLegend(option.legend, zoomSlider),
-    toolbox: {
+        : []
+    // Both axes zoom alike: the wheel, a drag, the box tool and the sliders.
+    // A small throttle keeps wheel zoom continuous instead of stepping every
+    // 100 ms (ECharts' default).
+    const dataZoom: object[] = [
+      ...existingZoom,
+      { type: 'inside', xAxisIndex: 0, filterMode: 'none', throttle: 16 },
+      { type: 'inside', yAxisIndex: 0, filterMode: 'none', throttle: 16 },
+    ]
+    if (zoomSlider) {
+      const slider = {
+        type: 'slider',
+        filterMode: 'none',
+        throttle: 16,
+        showDetail: false,
+        brushSelect: false,
+        // A quiet track: the slider is a control, not data.
+        backgroundColor: 'rgba(255, 255, 255, 0.02)',
+        borderColor: CHART_LINE,
+        borderRadius: 6,
+        fillerColor: 'rgba(34, 211, 238, 0.07)',
+        handleStyle: { color: CHART_RAISED, borderColor: CHART_MUTED },
+        emphasis: { handleStyle: { borderColor: CHART_FOCUS } },
+        moveHandleSize: 0,
+        showDataShadow: false,
+      }
+      dataZoom.push(
+        { ...slider, xAxisIndex: 0, height: SLIDER_SIZE, bottom: SLIDER_GAP },
+        {
+          ...slider,
+          yAxisIndex: 0,
+          width: SLIDER_SIZE,
+          right: SLIDER_GAP,
+          top: legendBlock + (typeof grid?.top === 'number' ? grid.top : 36),
+          bottom: (typeof grid?.bottom === 'number' ? grid.bottom : 48) + SLIDER_SIZE + SLIDER_GAP,
+        },
+      )
+    }
+    out.toolbox = {
       ...existingToolbox,
       right: 12,
-      top: 0,
+      top: 2,
+      itemSize: 14,
       iconStyle: {
         borderColor: CHART_MUTED,
-        ...(typeof existingToolbox.iconStyle === 'object'
-          ? existingToolbox.iconStyle
-          : {}),
+        ...(typeof existingToolbox.iconStyle === 'object' ? existingToolbox.iconStyle : {}),
       },
       feature: {
         ...existingFeature,
-        dataZoom: { yAxisIndex: 'none', title: { zoom: 'Zoom', back: 'Reset zoom' } },
+        dataZoom: { title: { zoom: 'Box zoom (both axes)', back: 'Undo zoom' } },
         restore: { title: 'Reset' },
       },
-    },
-    dataZoom,
-    grid: {
-      ...existingGrid,
-      // Keep room for axis labels; only bump further when a bottom slider is shown.
-      bottom: zoomSlider ? Math.max(existingBottom, 96) : existingBottom,
-    },
+    }
+    out.dataZoom = dataZoom as EChartsOption['dataZoom']
+    // Zoom redraws every mark; easing each redraw is what made it lag behind
+    // the wheel.
+    out.animationDurationUpdate = 0
   }
+
+  const tooltip =
+    out.tooltip && typeof out.tooltip === 'object' && !Array.isArray(out.tooltip) ? out.tooltip : null
+  if (tooltip) out.tooltip = { confine: true, ...tooltip }
+
+  return { option: out, height: height + legendBlock, legendHeight }
+}
+
+function useWidth(ref: RefObject<HTMLElement>): number {
+  const [width, setWidth] = useState(0)
+  // Layout effect: the first paint already has the real width, so the legend
+  // is never laid out for a zero-width box and the page does not jump.
+  useLayoutEffect(() => {
+    const el = ref.current
+    if (!el) return
+    setWidth(el.clientWidth)
+    const ro = new ResizeObserver(([entry]) => {
+      // Whole pixels only, so sub-pixel jitter does not re-layout the chart.
+      setWidth(Math.round(entry.contentRect.width))
+    })
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [ref])
+  return width
 }
 
 function ChartCanvas({
@@ -243,6 +409,7 @@ function ChartCanvas({
   zoomSlider,
   onEvents,
   onChartReady,
+  overlay,
 }: {
   option: EChartsOption
   height: number
@@ -251,30 +418,93 @@ function ChartCanvas({
   zoomSlider: boolean
   onEvents?: Record<string, (params: unknown) => void>
   onChartReady?: (chart: EChartsType | null) => void
+  overlay?: ReactNode
 }) {
-  const merged = useMemo(
-    () => withInteractions(withDarkAxes(withDarkTheme(option)), zoomable, zoomSlider),
-    [option, zoomable, zoomSlider],
+  const hostRef = useRef<HTMLDivElement>(null)
+  const width = useWidth(hostRef)
+
+  // The estimate can be off by a row (fonts differ by platform), so after
+  // each draw the legend's real height is read back and, if it differs, the
+  // layout is redone with it. Keyed by width and entries so it never goes stale.
+  const legendKey = `${width}|${legendNames(option).join('\u0000')}`
+  const [measured, setMeasured] = useState<{ key: string; height: number } | null>(null)
+  const layout = useMemo(
+    () =>
+      layoutChart(
+        withDarkAxes(withDarkTheme(option)),
+        width,
+        height,
+        zoomable,
+        zoomSlider,
+        measured?.key === legendKey ? measured.height : undefined,
+      ),
+    [option, width, height, zoomable, zoomSlider, measured, legendKey],
   )
+
+  const readBack = (chart: EChartsType) => {
+    if (!layout.legendHeight || chart.isDisposed()) return
+    // Not in ECharts' public typings, but stable across v5 and v6.
+    const inst = chart as unknown as {
+      getModel: () => { getComponent: (t: string) => unknown }
+      getViewOfComponentModel: (
+        m: unknown,
+      ) => { group: { getBoundingRect: () => { height: number } } } | undefined
+    }
+    const model = inst.getModel().getComponent('legend')
+    const view = model ? inst.getViewOfComponentModel(model) : undefined
+    const h = view ? Math.ceil(view.group.getBoundingRect().height) : 0
+    if (h > 0 && Math.abs(h - layout.legendHeight) > 2) {
+      setMeasured({ key: legendKey, height: h })
+    }
+  }
+
+  // echarts-for-react unbinds and rebinds every handler whenever the onEvents
+  // object changes identity, which an inline handler map does on every render.
+  // It gets one stable map per set of event names, forwarding to the latest
+  // handlers; the library binds it to each new instance itself, which is also
+  // how the legend read-back stays attached.
+  const latest = useRef({ onEvents, readBack })
+  useEffect(() => {
+    latest.current = { onEvents, readBack }
+  })
+  const eventNames = Object.keys(onEvents ?? {}).filter((n) => n !== 'finished').sort().join(',')
+  const stableEvents = useMemo(() => {
+    const map: Record<string, (p: unknown, chart: EChartsType) => void> = {
+      finished: (p, chart) => {
+        latest.current.onEvents?.finished?.(p)
+        latest.current.readBack(chart)
+      },
+    }
+    for (const name of eventNames.split(',').filter(Boolean)) {
+      map[name] = (p) => latest.current.onEvents?.[name]?.(p)
+    }
+    return map
+  }, [eventNames])
 
   useEffect(() => {
     const chart = chartRef.current?.getEchartsInstance() ?? null
     onChartReady?.(chart)
     return () => onChartReady?.(null)
-  }, [chartRef, onChartReady, merged])
+  }, [chartRef, onChartReady, layout])
 
   return (
-    <ReactECharts
-      // echarts-for-react ref typings disagree with React 18 RefObject<T | null>
-      ref={chartRef as never}
-      option={merged}
-      opts={{ renderer: 'svg' }}
-      style={{ height, width: '100%' }}
-      notMerge
-      lazyUpdate
-      onEvents={onEvents}
-      onChartReady={(instance) => onChartReady?.(instance)}
-    />
+    <div ref={hostRef} className="chart-panel__stage" style={{ height: layout.height }}>
+      {width > 0 && (
+        <ReactECharts
+          // echarts-for-react ref typings disagree with React 18 RefObject<T | null>
+          ref={chartRef as never}
+          option={layout.option}
+          // Canvas keeps zoom and pan smooth; the PDF export re-renders as SVG.
+          opts={{ renderer: 'canvas' }}
+          style={{ height: layout.height, width: '100%' }}
+          notMerge
+          lazyUpdate
+          onEvents={stableEvents}
+          onChartReady={(instance) => onChartReady?.(instance)}
+        />
+      )}
+      {overlay}
+    </div>
   )
 }
 
@@ -383,25 +613,22 @@ export function ChartPanel({
           </div>
         ) : (
           ready && (
-            <div className="chart-panel__stage" style={{ height }}>
-              <ChartCanvas
-                chartRef={chartRef}
-                option={option}
-                height={height}
-                zoomable={zoomable}
-                zoomSlider={zoomSlider}
-                onEvents={onEvents}
-                onChartReady={onChartReady}
-              />
-              {overlay}
-            </div>
+            <ChartCanvas
+              chartRef={chartRef}
+              option={option}
+              height={height}
+              zoomable={zoomable}
+              zoomSlider={zoomSlider}
+              onEvents={onEvents}
+              onChartReady={onChartReady}
+              overlay={overlay}
+            />
           )
         )}
         {!empty && zoomable && (
           <p className="chart-panel__hint muted">
-            {zoomSlider
-              ? 'Scroll / drag to zoom; use toolbox Reset, or Enlarge for a larger view.'
-              : 'Scroll / drag to zoom (toolbox Zoom / Reset); Enlarge for a larger view.'}
+            Scroll to zoom, drag to pan, or box-zoom from the toolbox; both axes
+            zoom. Reset restores the full view.
           </p>
         )}
       </section>

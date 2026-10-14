@@ -576,7 +576,7 @@
       "run_id": "preview-gpt_oss_20b_react",
       "official": false,
       "nika_git_commit": null,
-      "name": "GPT-OSS-20B · ReAct · test · preview-gpt_oss_20b_react",
+      "name": "GPT-OSS-20B · ReAct",
       "rca_f1_ci": null,
       "beaten_by": [
         "0.1.0/20260910_gpt_5_mini_react",
@@ -645,7 +645,7 @@
       "run_id": "preview-gpt_oss_20b_react_replication",
       "official": false,
       "nika_git_commit": null,
-      "name": "GPT-OSS-20B · ReAct · test · preview-gpt_oss_20b_react_replication",
+      "name": "GPT-OSS-20B · ReAct · replication",
       "rca_f1_ci": null,
       "beaten_by": [
         "0.1.0/20260910_gpt_5_mini_react",
@@ -890,6 +890,168 @@
       "rank": 2
     },
     {
+      "id": "0.2.0/20261014_react_qwen3_5_27b",
+      "dirname": "20261014_react_qwen3_5_27b",
+      "submission_name": "ReAct + Qwen3.5-27B",
+      "authors": "NIKA Team",
+      "org": null,
+      "site": "https://sands-lab.github.io/nika/",
+      "report": "https://arxiv.org/abs/2512.16381",
+      "logo": null,
+      "github": "https://github.com/sands-lab/nika",
+      "email": null,
+      "trajectories_url": "https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261014_react_qwen3_5_27b",
+      "trajectories_relpath": "trajectories/0.2.0/20261014_react_qwen3_5_27b",
+      "model": "Qwen3.5-27B",
+      "framework": "ReAct",
+      "agent_type": "byo.langgraph",
+      "llm_provider": "custom",
+      "tools": [
+        "containerlab_srl_mcp_server",
+        "k8s_mcp_server",
+        "kathara_base_mcp_server",
+        "pingmesh_mcp_server",
+        "packet_capture_mcp_server",
+        "kathara_frr_mcp_server",
+        "kathara_bmv2_mcp_server",
+        "kathara_sdn_mcp_server",
+        "kathara_telemetry_mcp_server",
+        "task_mcp_server"
+      ],
+      "skills": [],
+      "optimization_methods": [],
+      "tags": [],
+      "extra": {
+        "model_repository": "Qwen/Qwen3.5-27B",
+        "max_steps": 100,
+        "max_tokens": 32768,
+        "agent_timeout_sec": 14400,
+        "case_timeout_sec": 15000
+      },
+      "benchmark_version": "0.2.0",
+      "split": "test",
+      "case_count": 85,
+      "n_trials": 3,
+      "primary_metric": "rca_f1",
+      "mean_rca_f1": 0.3343807843137256,
+      "mean_localization_f1": 0.4553901960784316,
+      "mean_detection_score": 0.8627450980392157,
+      "n_trials_expected": 255,
+      "n_trials_present": 255,
+      "n_success": 247,
+      "n_agent_failed": 8,
+      "success_rate": 0.968627,
+      "token_totals": {
+        "in_tokens": 210016204,
+        "out_tokens": 1865148
+      },
+      "steps_totals": {
+        "steps": 9964,
+        "tool_calls": 11017,
+        "tool_errors": 74
+      },
+      "mean_tokens": 830907.263,
+      "mean_steps": 39.075,
+      "total_tokens": 211881352,
+      "max_steps": 100,
+      "case_timeout_sec": 15000,
+      "created_at": "2026-10-14T06:36:19+00:00",
+      "run_id": "d45f4be0c28acc57",
+      "official": true,
+      "nika_git_commit": "ba4e78364b26b3a948c234e450c93df3e23090be",
+      "name": "Qwen3.5-27B · ReAct",
+      "rca_f1_ci": [
+        0.253727,
+        0.418564
+      ],
+      "beaten_by": [
+        "0.2.0/20261010_claude_code_qwen3_8_27b_fp8",
+        "0.2.0/20261011_react_qwen3_8_27b_fp8"
+      ],
+      "rank": 3
+    },
+    {
+      "id": "0.2.0/20261014_claude_code_qwen3_5_27b",
+      "dirname": "20261014_claude_code_qwen3_5_27b",
+      "submission_name": "Claude Code + Qwen3.5-27B",
+      "authors": "NIKA Team",
+      "org": null,
+      "site": "https://sands-lab.github.io/nika/",
+      "report": "https://arxiv.org/abs/2512.16381",
+      "logo": null,
+      "github": "https://github.com/sands-lab/nika",
+      "email": null,
+      "trajectories_url": "https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261014_claude_code_qwen3_5_27b",
+      "trajectories_relpath": "trajectories/0.2.0/20261014_claude_code_qwen3_5_27b",
+      "model": "Qwen3.5-27B",
+      "framework": "Claude Code",
+      "agent_type": "cli.claude",
+      "llm_provider": "custom",
+      "tools": [
+        "containerlab_srl_mcp_server",
+        "k8s_mcp_server",
+        "kathara_base_mcp_server",
+        "pingmesh_mcp_server",
+        "packet_capture_mcp_server",
+        "kathara_frr_mcp_server",
+        "kathara_bmv2_mcp_server",
+        "kathara_sdn_mcp_server",
+        "kathara_telemetry_mcp_server",
+        "task_mcp_server"
+      ],
+      "skills": [],
+      "optimization_methods": [],
+      "tags": [],
+      "extra": {
+        "model_repository": "Qwen/Qwen3.5-27B",
+        "max_steps": 100,
+        "max_tokens": 32768,
+        "agent_timeout_sec": 14400,
+        "case_timeout_sec": 15000
+      },
+      "benchmark_version": "0.2.0",
+      "split": "test",
+      "case_count": 85,
+      "n_trials": 3,
+      "primary_metric": "rca_f1",
+      "mean_rca_f1": 0.31814745098039227,
+      "mean_localization_f1": 0.44878039215686305,
+      "mean_detection_score": 0.8666666666666667,
+      "n_trials_expected": 255,
+      "n_trials_present": 255,
+      "n_success": 254,
+      "n_agent_failed": 1,
+      "success_rate": 0.996078,
+      "token_totals": {
+        "in_tokens": 254104538,
+        "out_tokens": 3160021
+      },
+      "steps_totals": {
+        "steps": 15853,
+        "tool_calls": 15686,
+        "tool_errors": 0
+      },
+      "mean_tokens": 1008880.624,
+      "mean_steps": 62.169,
+      "total_tokens": 257264559,
+      "max_steps": 100,
+      "case_timeout_sec": 15000,
+      "created_at": "2026-10-14T06:35:03+00:00",
+      "run_id": "6306186bfe22100a",
+      "official": true,
+      "nika_git_commit": "ba4e78364b26b3a948c234e450c93df3e23090be",
+      "name": "Qwen3.5-27B · Claude Code",
+      "rca_f1_ci": [
+        0.237835,
+        0.399448
+      ],
+      "beaten_by": [
+        "0.2.0/20261010_claude_code_qwen3_8_27b_fp8",
+        "0.2.0/20261011_react_qwen3_8_27b_fp8"
+      ],
+      "rank": 3
+    },
+    {
       "id": "0.2.0/20261012_claude_code_gemma_4_31b_it",
       "dirname": "20261012_claude_code_gemma_4_31b_it",
       "submission_name": "Claude Code + Gemma-4-31B-it",
@@ -972,6 +1134,259 @@
       "rank": 3
     },
     {
+      "id": "0.2.0/20261013_claude_code_telecomgpt_r1",
+      "dirname": "20261013_claude_code_telecomgpt_r1",
+      "submission_name": "Claude Code + TelecomGPT-R1",
+      "authors": "NIKA Team",
+      "org": null,
+      "site": "https://sands-lab.github.io/nika/",
+      "report": "https://arxiv.org/abs/2512.16381",
+      "logo": null,
+      "github": "https://github.com/sands-lab/nika",
+      "email": null,
+      "trajectories_url": "https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261013_claude_code_telecomgpt_r1",
+      "trajectories_relpath": "trajectories/0.2.0/20261013_claude_code_telecomgpt_r1",
+      "model": "TelecomGPT-R1",
+      "framework": "Claude Code",
+      "agent_type": "cli.claude",
+      "llm_provider": "custom",
+      "tools": [
+        "containerlab_srl_mcp_server",
+        "k8s_mcp_server",
+        "kathara_base_mcp_server",
+        "pingmesh_mcp_server",
+        "packet_capture_mcp_server",
+        "kathara_frr_mcp_server",
+        "kathara_bmv2_mcp_server",
+        "kathara_sdn_mcp_server",
+        "kathara_telemetry_mcp_server",
+        "task_mcp_server"
+      ],
+      "skills": [],
+      "optimization_methods": [],
+      "tags": [],
+      "extra": {
+        "model_repository": "KU-DFI/TelecomGPT-R1",
+        "max_steps": 100,
+        "max_tokens": 32768,
+        "agent_timeout_sec": 14400,
+        "case_timeout_sec": 15000
+      },
+      "benchmark_version": "0.2.0",
+      "split": "test",
+      "case_count": 85,
+      "n_trials": 3,
+      "primary_metric": "rca_f1",
+      "mean_rca_f1": 0.2463792156862745,
+      "mean_localization_f1": 0.3348694117647059,
+      "mean_detection_score": 0.8156862745098039,
+      "n_trials_expected": 255,
+      "n_trials_present": 255,
+      "n_success": 245,
+      "n_agent_failed": 10,
+      "success_rate": 0.960784,
+      "token_totals": {
+        "in_tokens": 180718746,
+        "out_tokens": 1894283
+      },
+      "steps_totals": {
+        "steps": 12653,
+        "tool_calls": 13929,
+        "tool_errors": 0
+      },
+      "mean_tokens": 716129.525,
+      "mean_steps": 49.62,
+      "total_tokens": 182613029,
+      "max_steps": 100,
+      "case_timeout_sec": 15000,
+      "created_at": "2026-10-13T06:16:24+00:00",
+      "run_id": "ed11cc8866ce847c",
+      "official": true,
+      "nika_git_commit": "ba4e78364b26b3a948c234e450c93df3e23090be",
+      "name": "TelecomGPT-R1 · Claude Code",
+      "rca_f1_ci": [
+        0.174176,
+        0.323131
+      ],
+      "beaten_by": [
+        "0.2.0/20261010_claude_code_qwen3_8_27b_fp8",
+        "0.2.0/20261011_react_qwen3_8_27b_fp8",
+        "0.2.0/20261012_claude_code_gemma_4_31b_it",
+        "0.2.0/20261014_claude_code_qwen3_5_27b",
+        "0.2.0/20261014_react_qwen3_5_27b"
+      ],
+      "rank": 6
+    },
+    {
+      "id": "0.2.0/20261013_react_telecomgpt_r1",
+      "dirname": "20261013_react_telecomgpt_r1",
+      "submission_name": "ReAct + TelecomGPT-R1",
+      "authors": "NIKA Team",
+      "org": null,
+      "site": "https://sands-lab.github.io/nika/",
+      "report": "https://arxiv.org/abs/2512.16381",
+      "logo": null,
+      "github": "https://github.com/sands-lab/nika",
+      "email": null,
+      "trajectories_url": "https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261013_react_telecomgpt_r1",
+      "trajectories_relpath": "trajectories/0.2.0/20261013_react_telecomgpt_r1",
+      "model": "TelecomGPT-R1",
+      "framework": "ReAct",
+      "agent_type": "byo.langgraph",
+      "llm_provider": "custom",
+      "tools": [
+        "containerlab_srl_mcp_server",
+        "k8s_mcp_server",
+        "kathara_base_mcp_server",
+        "pingmesh_mcp_server",
+        "packet_capture_mcp_server",
+        "kathara_frr_mcp_server",
+        "kathara_bmv2_mcp_server",
+        "kathara_sdn_mcp_server",
+        "kathara_telemetry_mcp_server",
+        "task_mcp_server"
+      ],
+      "skills": [],
+      "optimization_methods": [],
+      "tags": [],
+      "extra": {
+        "model_repository": "KU-DFI/TelecomGPT-R1",
+        "max_steps": 100,
+        "max_tokens": 32768,
+        "agent_timeout_sec": 14400,
+        "case_timeout_sec": 15000
+      },
+      "benchmark_version": "0.2.0",
+      "split": "test",
+      "case_count": 85,
+      "n_trials": 3,
+      "primary_metric": "rca_f1",
+      "mean_rca_f1": 0.24621882352941177,
+      "mean_localization_f1": 0.34268117647058827,
+      "mean_detection_score": 0.7372549019607844,
+      "n_trials_expected": 255,
+      "n_trials_present": 255,
+      "n_success": 238,
+      "n_agent_failed": 17,
+      "success_rate": 0.933333,
+      "token_totals": {
+        "in_tokens": 186995666,
+        "out_tokens": 2381981
+      },
+      "steps_totals": {
+        "steps": 8260,
+        "tool_calls": 14184,
+        "tool_errors": 50
+      },
+      "mean_tokens": 742657.439,
+      "mean_steps": 32.392,
+      "total_tokens": 189377647,
+      "max_steps": 100,
+      "case_timeout_sec": 15000,
+      "created_at": "2026-10-13T11:07:51+00:00",
+      "run_id": "73005ec6f687776d",
+      "official": true,
+      "nika_git_commit": "ba4e78364b26b3a948c234e450c93df3e23090be",
+      "name": "TelecomGPT-R1 · ReAct",
+      "rca_f1_ci": [
+        0.17395,
+        0.322969
+      ],
+      "beaten_by": [
+        "0.2.0/20261010_claude_code_qwen3_8_27b_fp8",
+        "0.2.0/20261011_react_qwen3_8_27b_fp8",
+        "0.2.0/20261012_claude_code_gemma_4_31b_it",
+        "0.2.0/20261014_claude_code_qwen3_5_27b",
+        "0.2.0/20261014_react_qwen3_5_27b"
+      ],
+      "rank": 6
+    },
+    {
+      "id": "0.2.0/20261012_react_gemma_4_31b_it",
+      "dirname": "20261012_react_gemma_4_31b_it",
+      "submission_name": "ReAct + Gemma-4-31B-it",
+      "authors": "NIKA Team",
+      "org": null,
+      "site": "https://sands-lab.github.io/nika/",
+      "report": "https://arxiv.org/abs/2512.16381",
+      "logo": null,
+      "github": "https://github.com/sands-lab/nika",
+      "email": null,
+      "trajectories_url": "https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261012_react_gemma_4_31b_it",
+      "trajectories_relpath": "trajectories/0.2.0/20261012_react_gemma_4_31b_it",
+      "model": "gemma-4-31B-it",
+      "framework": "ReAct",
+      "agent_type": "byo.langgraph",
+      "llm_provider": "custom",
+      "tools": [
+        "containerlab_srl_mcp_server",
+        "k8s_mcp_server",
+        "kathara_base_mcp_server",
+        "pingmesh_mcp_server",
+        "packet_capture_mcp_server",
+        "kathara_frr_mcp_server",
+        "kathara_bmv2_mcp_server",
+        "kathara_sdn_mcp_server",
+        "kathara_telemetry_mcp_server",
+        "task_mcp_server"
+      ],
+      "skills": [],
+      "optimization_methods": [],
+      "tags": [],
+      "extra": {
+        "max_steps": 100,
+        "max_tokens": 32768,
+        "agent_timeout_sec": 14400,
+        "case_timeout_sec": 15000,
+        "model_repository": "google/gemma-4-31B-it"
+      },
+      "benchmark_version": "0.2.0",
+      "split": "test",
+      "case_count": 85,
+      "n_trials": 3,
+      "primary_metric": "rca_f1",
+      "mean_rca_f1": 0.22604588235294112,
+      "mean_localization_f1": 0.37185843137254915,
+      "mean_detection_score": 0.8745098039215686,
+      "n_trials_expected": 255,
+      "n_trials_present": 255,
+      "n_success": 255,
+      "n_agent_failed": 0,
+      "success_rate": 1.0,
+      "token_totals": {
+        "in_tokens": 32109863,
+        "out_tokens": 1955508
+      },
+      "steps_totals": {
+        "steps": 3097,
+        "tool_calls": 3780,
+        "tool_errors": 176
+      },
+      "mean_tokens": 133589.69,
+      "mean_steps": 12.145,
+      "total_tokens": 34065371,
+      "max_steps": 100,
+      "case_timeout_sec": 15000,
+      "created_at": "2026-10-12T19:07:32+00:00",
+      "run_id": "bd167ed99e60276f",
+      "official": true,
+      "nika_git_commit": "e9656af3aa15e3db1168328656065d11e19d4b85",
+      "name": "gemma-4-31B-it · ReAct",
+      "rca_f1_ci": [
+        0.157982,
+        0.296299
+      ],
+      "beaten_by": [
+        "0.2.0/20261007_qwen3_6_35b_a3b_claudecode",
+        "0.2.0/20261010_claude_code_qwen3_8_27b_fp8",
+        "0.2.0/20261011_react_qwen3_8_27b_fp8",
+        "0.2.0/20261012_claude_code_gemma_4_31b_it",
+        "0.2.0/20261014_claude_code_qwen3_5_27b",
+        "0.2.0/20261014_react_qwen3_5_27b"
+      ],
+      "rank": 7
+    },
+    {
       "id": "0.2.0/20261007_qwen3_6_35b_a3b_claudecode",
       "dirname": "20261007_qwen3_6_35b_a3b_claudecode",
       "submission_name": "Qwen3.6-35B-A3B ClaudeCode",
@@ -1032,9 +1447,13 @@
       "beaten_by": [
         "0.2.0/20261010_claude_code_qwen3_8_27b_fp8",
         "0.2.0/20261011_react_qwen3_8_27b_fp8",
-        "0.2.0/20261012_claude_code_gemma_4_31b_it"
+        "0.2.0/20261012_claude_code_gemma_4_31b_it",
+        "0.2.0/20261013_claude_code_telecomgpt_r1",
+        "0.2.0/20261013_react_telecomgpt_r1",
+        "0.2.0/20261014_claude_code_qwen3_5_27b",
+        "0.2.0/20261014_react_qwen3_5_27b"
       ],
-      "rank": 4
+      "rank": 8
     },
     {
       "id": "0.2.0/20261008_qwen3_6_35b_a3b_codex",
@@ -1097,9 +1516,14 @@
       "beaten_by": [
         "0.2.0/20261010_claude_code_qwen3_8_27b_fp8",
         "0.2.0/20261011_react_qwen3_8_27b_fp8",
-        "0.2.0/20261012_claude_code_gemma_4_31b_it"
+        "0.2.0/20261012_claude_code_gemma_4_31b_it",
+        "0.2.0/20261012_react_gemma_4_31b_it",
+        "0.2.0/20261013_claude_code_telecomgpt_r1",
+        "0.2.0/20261013_react_telecomgpt_r1",
+        "0.2.0/20261014_claude_code_qwen3_5_27b",
+        "0.2.0/20261014_react_qwen3_5_27b"
       ],
-      "rank": 4
+      "rank": 9
     },
     {
       "id": "0.2.0/20261007_qwen3_6_35b_a3b_langgraph",
@@ -1162,9 +1586,14 @@
       "beaten_by": [
         "0.2.0/20261010_claude_code_qwen3_8_27b_fp8",
         "0.2.0/20261011_react_qwen3_8_27b_fp8",
-        "0.2.0/20261012_claude_code_gemma_4_31b_it"
+        "0.2.0/20261012_claude_code_gemma_4_31b_it",
+        "0.2.0/20261012_react_gemma_4_31b_it",
+        "0.2.0/20261013_claude_code_telecomgpt_r1",
+        "0.2.0/20261013_react_telecomgpt_r1",
+        "0.2.0/20261014_claude_code_qwen3_5_27b",
+        "0.2.0/20261014_react_qwen3_5_27b"
       ],
-      "rank": 4
+      "rank": 9
     },
     {
       "id": "0.2.0/20261008_claude_cli_otel_2_0_llm_31b_it",
@@ -1254,9 +1683,14 @@
         "0.2.0/20261008_qwen3_6_35b_a3b_codex",
         "0.2.0/20261010_claude_code_qwen3_8_27b_fp8",
         "0.2.0/20261011_react_qwen3_8_27b_fp8",
-        "0.2.0/20261012_claude_code_gemma_4_31b_it"
+        "0.2.0/20261012_claude_code_gemma_4_31b_it",
+        "0.2.0/20261012_react_gemma_4_31b_it",
+        "0.2.0/20261013_claude_code_telecomgpt_r1",
+        "0.2.0/20261013_react_telecomgpt_r1",
+        "0.2.0/20261014_claude_code_qwen3_5_27b",
+        "0.2.0/20261014_react_qwen3_5_27b"
       ],
-      "rank": 7
+      "rank": 12
     }
   ]
 }

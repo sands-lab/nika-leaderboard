@@ -1,44 +1,77 @@
 import { CHART_MUTED, SERIES_COLORS } from './chartTheme'
-/** Infer a display family for bubble coloring from model name. */
+
+/**
+ * Known families, matched in order so the more specific name wins: GPT-OSS
+ * before GPT, and TelecomGPT before either. Gemma is Google's open-weight line
+ * and Gemini its hosted one; they share a vendor, not a family.
+ */
+const KNOWN_FAMILIES: Array<[RegExp, string]> = [
+  [/telecomgpt/, 'TelecomGPT'],
+  [/gpt[-_]?oss/, 'GPT-OSS'],
+  [/^(gpt|o[134]\b|o[134]-)/, 'GPT'],
+  [/qwen/, 'Qwen'],
+  [/claude|sonnet|opus|haiku/, 'Claude'],
+  [/gemini/, 'Gemini'],
+  [/gemma/, 'Gemma'],
+  [/llama|^meta-/, 'Llama'],
+  [/deepseek/, 'DeepSeek'],
+  [/mistral|mixtral/, 'Mistral'],
+  [/otel/, 'OTel'],
+]
+
+/**
+ * Display family for bubble coloring. An unlisted model is its own family,
+ * named by the letters its id starts with, rather than being folded into a
+ * family it does not belong to.
+ */
 export function inferModelFamily(model: string | null | undefined): string {
-  const m = (model || '').toLowerCase()
-  if (!m) return 'Other'
-  if (m.includes('gpt-oss') || m.includes('gpt_oss')) return 'GPT-OSS'
-  if (m.includes('gpt')) return 'GPT'
-  if (m.includes('qwen')) return 'Qwen'
-  if (m.includes('claude') || m.includes('sonnet') || m.includes('opus')) {
-    return 'Claude'
+  const raw = (model || '').trim()
+  if (!raw) return 'Other'
+  const m = raw.toLowerCase()
+  for (const [pattern, family] of KNOWN_FAMILIES) {
+    if (pattern.test(m)) return family
   }
-  if (m.includes('gemini') || m.includes('gemma')) return 'Gemini'
-  if (m.includes('llama') || m.includes('meta-')) return 'Llama'
-  if (m.includes('deepseek')) return 'DeepSeek'
-  if (m.includes('mistral') || m.includes('mixtral')) return 'Mistral'
-  return 'Other'
+  return raw.match(/^[A-Za-z]+/)?.[0] ?? 'Other'
 }
 
 /**
- * Model families take the shared categorical slots in a fixed order, so a
- * family keeps its colour however the selection changes. The old map paired
- * GPT with GPT-OSS as two blues a validator scored ΔE 10.2 apart in normal
- * vision — measurably hard to tell apart, and 1.3 for deuteranopes.
- *
- * Bubble charts compare all pairs at once, where only the first three slots
- * clear the separation floor; beyond that the per-bubble labels carry identity.
+ * Families take the shared categorical slots in a fixed order computed from
+ * the whole archive, never from the current filter, so a family keeps its
+ * colour however the selection changes. Families in the newest release come
+ * first (then by entry count, then name): those are shown together by default,
+ * so they get the slots that sit furthest apart. Past the eighth slot a family
+ * folds into the muted "Other" colour rather than a generated hue; the
+ * per-point labels still name it.
  */
-export const FAMILY_COLORS: Record<string, string> = {
-  GPT: SERIES_COLORS[0],
-  Qwen: SERIES_COLORS[1],
-  'GPT-OSS': SERIES_COLORS[2],
-  Claude: SERIES_COLORS[3],
-  Gemini: SERIES_COLORS[4],
-  Llama: SERIES_COLORS[5],
-  DeepSeek: SERIES_COLORS[6],
-  Mistral: SERIES_COLORS[7],
-  Other: CHART_MUTED,
+export function familyPalette(
+  entries: Array<{ model: string | null | undefined; benchmark_version: string }>,
+): Map<string, string> {
+  const versions = [...new Set(entries.map((e) => e.benchmark_version))].sort((a, b) =>
+    a.localeCompare(b, undefined, { numeric: true }),
+  )
+  const newest = versions[versions.length - 1]
+  const counts = new Map<string, number>()
+  const recent = new Map<string, number>()
+  for (const e of entries) {
+    const f = inferModelFamily(e.model)
+    counts.set(f, (counts.get(f) ?? 0) + 1)
+    if (e.benchmark_version === newest) recent.set(f, (recent.get(f) ?? 0) + 1)
+  }
+  const order = [...counts.keys()]
+    .filter((f) => f !== 'Other')
+    .sort(
+      (a, b) =>
+        (recent.get(b) ?? 0) - (recent.get(a) ?? 0) ||
+        (counts.get(b) ?? 0) - (counts.get(a) ?? 0) ||
+        a.localeCompare(b),
+    )
+  return new Map(
+    order.map((f, i) => [f, i < SERIES_COLORS.length ? SERIES_COLORS[i] : CHART_MUTED]),
+  )
 }
 
-export function familyColor(family: string): string {
-  return FAMILY_COLORS[family] || FAMILY_COLORS.Other
+export function familyColor(palette: Map<string, string>, family: string): string {
+  return palette.get(family) ?? CHART_MUTED
 }
 
 export function shortLabel(name: string, model: string | null, framework: string | null): string {
@@ -81,14 +114,16 @@ export interface BubbleAxisOption {
   label: string
   /** Display as percentage (0–100) in the chart. */
   asPercent: boolean
+  /** A 0-1 score shown as a two-place decimal (F1, detection), not a share. */
+  score?: boolean
   /** Fixed axis max when set (after asPercent scaling). */
   max?: number
 }
 
 export const BUBBLE_AXIS_OPTIONS: BubbleAxisOption[] = [
-  { key: 'detection', label: 'Detection', asPercent: true, max: 100 },
-  { key: 'localization', label: 'Localization', asPercent: true, max: 100 },
-  { key: 'rca', label: 'RCA F1', asPercent: true, max: 100 },
+  { key: 'detection', label: 'Detection', asPercent: false, score: true, max: 1 },
+  { key: 'localization', label: 'Localization', asPercent: false, score: true, max: 1 },
+  { key: 'rca', label: 'RCA F1', asPercent: false, score: true, max: 1 },
   { key: 'success_rate', label: 'Success', asPercent: true, max: 100 },
   { key: 'cases', label: 'Cases', asPercent: false },
   { key: 'mean_tokens', label: 'Avg tokens', asPercent: false },
@@ -116,6 +151,7 @@ export function formatAxisValue(point: BubblePoint, key: BubbleAxisKey): string 
   const opt = bubbleAxisOption(key)
   const raw = axisRawValue(point, key)
   if (opt.asPercent) return `${(raw * 100).toFixed(1)}%`
+  if (opt.score) return raw.toFixed(2)
   if (key === 'mean_tokens') return Math.round(raw).toLocaleString()
   if (key === 'mean_steps') return raw.toFixed(1)
   return String(raw)
@@ -137,6 +173,7 @@ export function formatAxisDelta(
   }
   const d = bv - av
   const sign = d > 0 ? '+' : ''
+  if (opt.score) return `${sign}${d.toFixed(2)}`
   if (key === 'mean_tokens') return `${sign}${Math.round(d).toLocaleString()}`
   if (key === 'mean_steps') return `${sign}${d.toFixed(1)}`
   return `${sign}${d.toFixed(0)}`
@@ -280,12 +317,8 @@ export function makePairId(fromId: string, toId: string): string {
   return `${fromId}→${toId}`
 }
 
-export function deltaPp(a: number, b: number): number {
-  return (b - a) * 100
-}
-
-export function formatDeltaPp(a: number, b: number, digits = 1): string {
-  const d = deltaPp(a, b)
-  const sign = d > 0 ? '+' : ''
-  return `${sign}${d.toFixed(digits)}%`
+/** Signed difference of two 0-1 scores, two places: "+0.05". */
+export function formatScoreDelta(a: number, b: number): string {
+  const d = b - a
+  return `${d > 0 ? '+' : ''}${d.toFixed(2)}`
 }

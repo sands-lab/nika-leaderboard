@@ -7,7 +7,7 @@ import {
   axisPlotValue,
   bubbleAxisOption,
   formatAxisDelta,
-  formatDeltaPp,
+  formatScoreDelta,
 } from '../lib/insights'
 
 interface BubbleGainOverlaysProps {
@@ -53,7 +53,7 @@ export function BubbleGainOverlays({
   } | null>(null)
 
   const recompute = useCallback(() => {
-    if (!chart) {
+    if (!chart || chart.isDisposed()) {
       setTags([])
       return
     }
@@ -96,7 +96,7 @@ export function BubbleGainOverlays({
         lines: [
           `${xOpt.label} ${formatAxisDelta(a, b, xAxisKey)}`,
           `${yOpt.label} ${formatAxisDelta(a, b, yAxisKey)}`,
-          `RCA ${formatDeltaPp(a.rca, b.rca)}`,
+          `RCA ${formatScoreDelta(a.rca, b.rca)}`,
         ],
       })
     }
@@ -108,7 +108,7 @@ export function BubbleGainOverlays({
   }, [recompute])
 
   useEffect(() => {
-    if (!chart) return
+    if (!chart || chart.isDisposed()) return
     const onUpdate = () => recompute()
     chart.on('finished', onUpdate)
     chart.on('rendered', onUpdate)
@@ -116,11 +116,13 @@ export function BubbleGainOverlays({
     chart.on('restore', onUpdate)
     window.addEventListener('resize', onUpdate)
     return () => {
+      window.removeEventListener('resize', onUpdate)
+      // The chart may be gone already (unmounted with the page).
+      if (chart.isDisposed()) return
       chart.off('finished', onUpdate)
       chart.off('rendered', onUpdate)
       chart.off('dataZoom', onUpdate)
       chart.off('restore', onUpdate)
-      window.removeEventListener('resize', onUpdate)
     }
   }, [chart, recompute])
 

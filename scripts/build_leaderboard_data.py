@@ -608,6 +608,46 @@ def _reset_dir(path: Path) -> None:
         path.mkdir(parents=True, exist_ok=True)
 
 
+def disambiguate_names(summaries: list[dict[str, Any]]) -> None:
+    """Give repeated configurations within one release distinct labels.
+
+    Labels only need to be unique inside a release: the site shows one release
+    at a time and qualifies cross-release repeats with the release itself. A
+    qualifier must stay readable in a chart legend, so it is, in order: the
+    recorded tags the repeats do not share, else the split when the repeats
+    ran on different splits, else the run's order by submission date - never
+    a run id or hash. A qualifier that would recreate another entry's label
+    in the same release falls through to the next option.
+    """
+    groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for summary in summaries:
+        groups[(summary.get("benchmark_version") or "", summary["name"])].append(summary)
+    taken: dict[str, set[str]] = defaultdict(set)
+    for version, name in groups:
+        taken[version].add(name)
+
+    def usable(version: str, name: str, labels: list[str]) -> bool:
+        full = [f"{name} · {label}" if label else name for label in labels]
+        others = taken[version] - {name}
+        return len(set(full)) == len(full) and not others.intersection(full)
+
+    for (version, name), group in groups.items():
+        if len(group) < 2:
+            continue
+        shared = set.intersection(*(set(s.get("tags") or []) for s in group))
+        candidates = [
+            [" · ".join(t for t in (s.get("tags") or []) if t not in shared) for s in group],
+            [s.get("split") or "" for s in group],
+        ]
+        ordered = sorted(group, key=lambda s: (s.get("created_at") or "", s["id"]))
+        by_run = [f"run {ordered.index(s) + 1}" for s in group]
+        labels = next((c for c in candidates if usable(version, name, c)), by_run)
+        for summary, label in zip(group, labels):
+            if label:
+                summary["name"] += f" · {label}"
+                taken[version].add(summary["name"])
+
+
 def build_leaderboard(
     repo_root: Path,
     catalogs: dict[str, dict[str, Any]],
@@ -666,17 +706,7 @@ def build_leaderboard(
             orgs.add(summary.get("org"))
             splits.add(summary.get("split"))
 
-    # Repeated configurations need distinct legend names. Use recorded split
-    # and run identity rather than the submitter's free-form title.
-    names: dict[str, list[dict[str, Any]]] = defaultdict(list)
-    for summary in summaries:
-        names[summary["name"]].append(summary)
-    for group in names.values():
-        if len(group) > 1:
-            for summary in group:
-                split = summary.get("split") or "unknown split"
-                run_id = summary.get("run_id") or summary["id"]
-                summary["name"] += f" · {split} · {run_id}"
+    disambiguate_names(summaries)
     rank_statistics(summaries, scores)
     for summary in summaries:
         detail = details[summary["id"]]

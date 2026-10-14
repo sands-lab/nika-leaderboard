@@ -19,16 +19,17 @@ import {
   encodeLabel,
   encodeRawValue,
   familyColor,
+  familyPalette,
   formatAxisDelta,
   formatAxisTick,
   formatAxisValue,
-  formatDeltaPp,
+  formatScoreDelta,
   inferModelFamily,
   makePairId,
   shortLabel,
 } from '../lib/insights'
 import type { SubmissionSummary } from '../lib/types'
-import { CHART_FOCUS, CHART_TEXT, SERIES_COLORS } from '../lib/chartTheme'
+import { CHART_FOCUS, CHART_MUTED, CHART_TEXT, SERIES_COLORS } from '../lib/chartTheme'
 
 const ARROW_COLORS = [...SERIES_COLORS, CHART_TEXT]
 
@@ -63,7 +64,11 @@ function metricOpacity(value: number, minV: number, maxV: number): number {
 }
 
 export function InsightsPage() {
-  const { filtered, loading, error } = useLeaderboardData()
+  const { submissions, filtered, loading, error } = useLeaderboardData()
+  const palette = useMemo(
+    () => familyPalette(submissions),
+    [submissions],
+  )
   const [pendingFrom, setPendingFrom] = useState<string | null>(null)
   const [pairs, setPairs] = useState<PairAnnotation[]>([])
   const [draftLabel, setDraftLabel] = useState('Relative gain')
@@ -192,13 +197,15 @@ export function InsightsPage() {
         data: subset.map((p) => {
           const sizeVal = encodeRawValue(p, sizeKey)
           const opacityVal = encodeRawValue(p, opacityKey)
+          const x = axisPlotValue(p, xAxisKey)
+          const xLo = xRange.min
+          const xHi = xRange.max
+          // Bubbles in the right half label to their left, so a label never
+          // runs off the plot's right edge.
+          const labelLeft = xHi > xLo && (x - xLo) / (xHi - xLo) > 0.55
           return {
-            value: [
-              axisPlotValue(p, xAxisKey),
-              axisPlotValue(p, yAxisKey),
-              opacityVal,
-              sizeVal,
-            ],
+            value: [x, axisPlotValue(p, yAxisKey), opacityVal, sizeVal],
+            label: { position: labelLeft ? ('left' as const) : ('right' as const) },
             id: p.id,
             name: p.label,
             point: p,
@@ -212,7 +219,7 @@ export function InsightsPage() {
           return sizeScale(v[3] ?? 0, sizeExtents.min, sizeExtents.max)
         },
         itemStyle: {
-          color: familyColor(family),
+          color: familyColor(palette, family),
           opacity: 0.85,
           borderColor: CHART_TEXT,
           borderWidth: 1.5,
@@ -227,9 +234,10 @@ export function InsightsPage() {
           fontSize: 11,
           color: CHART_TEXT,
         },
-        // Crowded corners stack labels into unreadable mush; drop the ones that
-        // would collide and let hover reveal them instead.
-        labelLayout: { hideOverlap: true },
+        // Crowded corners stack labels into unreadable mush: nudge colliding
+        // labels apart, drop the ones that still collide, and let hover and
+        // zoom reveal them.
+        labelLayout: { hideOverlap: true, moveOverlap: 'shiftY' as const },
         emphasis: {
           scale: 1.12,
           itemStyle: { borderColor: CHART_FOCUS, borderWidth: 2 },
@@ -301,10 +309,7 @@ export function InsightsPage() {
           ].join('<br/>')
         },
       },
-      legend: {
-        data: families,
-        top: 0,
-      },
+      legend: { data: families },
       visualMap:
         opacityKey === 'fixed'
           ? []
@@ -315,37 +320,48 @@ export function InsightsPage() {
                 min: opacityExtents.min,
                 max: Math.max(
                   opacityExtents.max,
-                  opacityExtents.min + (opacityAsPercent ? 0.01 : 1),
+                  // Shares and 0-1 scores pad by a hundredth; counts by one.
+                  opacityExtents.min +
+                    (opacityAsPercent || bubbleAxisOption(opacityKey).score ? 0.01 : 1),
                 ),
                 calculable: false,
-                orient: 'vertical',
-                right: 4,
-                top: 'middle',
-                text: [encodeLabel(opacityKey), ''],
+                // Below the plot, clear of the bubbles' right-hand labels.
+                orient: 'horizontal',
+                left: 12,
+                bottom: 6,
+                text: ['high', `Opacity = ${encodeLabel(opacityKey)}: low`],
                 textGap: 8,
-                itemHeight: 120,
+                itemWidth: 10,
+                itemHeight: 110,
+                textStyle: { color: CHART_MUTED, fontSize: 11 },
                 inRange: {
                   colorAlpha: [0.3, 1],
                 },
+                // The key shows opacity alone, in neutral ink, rather than
+                // ECharts' default blue, which matched no series.
+                controller: { inRange: { color: [CHART_MUTED], colorAlpha: [0.3, 1] } },
                 seriesIndex: families.map((_, i) => i),
                 formatter: (v: unknown) => {
                   const n = Number(v)
                   if (opacityAsPercent) return `${(n * 100).toFixed(0)}%`
+                  if (bubbleAxisOption(opacityKey).score) {
+                    return n.toFixed(2)
+                  }
                   if (opacityKey === 'mean_tokens') return `${Math.round(n)}`
                   if (opacityKey === 'mean_steps') return n.toFixed(1)
                   return `${n.toFixed(0)}`
                 },
               },
             ],
-      grid: { left: 64, right: 140, top: 48, bottom: 52 },
+      grid: { left: 64, right: 56, top: 32, bottom: 80 },
       xAxis: {
         name: xName,
         nameLocation: 'middle',
         nameGap: 30,
-        min: xOpt.asPercent ? 0 : xRange.min,
-        max: xOpt.asPercent ? 100 : xRange.max,
-        interval: xOpt.asPercent ? 20 : undefined,
-        scale: !xOpt.asPercent,
+        // Fixed-scale axes (scores 0-1, shares 0-100) start at zero.
+        min: xRange.min,
+        max: xRange.max,
+        scale: xOpt.max == null,
         axisLabel: {
           formatter: (v: number) => formatAxisTick(v, xOpt.asPercent),
         },
@@ -355,10 +371,9 @@ export function InsightsPage() {
         name: yName,
         nameLocation: 'middle',
         nameGap: 44,
-        min: yOpt.asPercent ? 0 : yRange.min,
-        max: yOpt.asPercent ? 100 : yRange.max,
-        interval: yOpt.asPercent ? 20 : undefined,
-        scale: !yOpt.asPercent,
+        min: yRange.min,
+        max: yRange.max,
+        scale: yOpt.max == null,
         axisLabel: {
           formatter: (v: number) => formatAxisTick(v, yOpt.asPercent),
         },
@@ -370,7 +385,7 @@ export function InsightsPage() {
           data: s.data.map((d) => ({
             ...d,
             itemStyle: {
-              color: familyColor(s.name),
+              color: familyColor(palette, s.name),
               opacity:
                 opacityKey === 'fixed'
                   ? 0.85
@@ -406,6 +421,7 @@ export function InsightsPage() {
     }
   }, [
     points,
+    palette,
     pairs,
     byId,
     sizeExtents,
@@ -512,11 +528,11 @@ export function InsightsPage() {
               value={draftColor}
               onChange={(e) => setDraftColor(e.target.value)}
             >
-              <option value={SERIES_COLORS[0]}>Blue (gain)</option>
-              <option value={SERIES_COLORS[1]}>Orange (arch)</option>
-              <option value={SERIES_COLORS[2]}>Aqua</option>
-              <option value={SERIES_COLORS[5]}>Violet</option>
-              <option value={SERIES_COLORS[3]}>Yellow</option>
+              <option value={SERIES_COLORS[0]}>Cyan (gain)</option>
+              <option value={SERIES_COLORS[4]}>Orange (arch)</option>
+              <option value={SERIES_COLORS[1]}>Violet</option>
+              <option value={SERIES_COLORS[5]}>Emerald</option>
+              <option value={SERIES_COLORS[2]}>Amber</option>
               <option value={CHART_TEXT}>Ink (trade-off)</option>
             </select>
           </label>
@@ -626,7 +642,7 @@ export function InsightsPage() {
                           {formatAxisDelta(a, b, xAxisKey)} ·{' '}
                           {bubbleAxisOption(yAxisKey).label}{' '}
                           {formatAxisDelta(a, b, yAxisKey)} · RCA{' '}
-                          {formatDeltaPp(a.rca, b.rca)}
+                          {formatScoreDelta(a.rca, b.rca)}
                         </p>
                       </div>
                       <div className="insights-pair-card__actions">

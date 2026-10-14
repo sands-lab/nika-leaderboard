@@ -13,15 +13,23 @@ import {
 import { loadSubmissionDetails } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import type { SubmissionDetail } from '../lib/types'
-import { CHART_TEXT, HEAT_RAMP } from '../lib/chartTheme'
+import {
+  CHART_MUTED,
+  CHART_SURFACE,
+  CHART_TEXT,
+  HEAT_RAMP,
+  heatColor,
+  heatInk,
+} from '../lib/chartTheme'
 
 type ValueMode = 'rate' | 'count'
 
 
 export function ConfusionPage() {
-  const { filtered, loading, error } = useLeaderboardData()
+  const { filtered, withLabels, loading, error } = useLeaderboardData()
   const [params, setParams] = useSearchParams()
-  const [details, setDetails] = useState<SubmissionDetail[]>([])
+  const [rawDetails, setDetails] = useState<SubmissionDetail[]>([])
+  const details = useMemo(() => withLabels(rawDetails), [rawDetails, withLabels])
   const [selected, setSelected] = useState<string[]>([])
   const [valueMode, setValueMode] = useState<ValueMode>('rate')
   const [level, setLevel] = useState<ConfusionLevel>('category')
@@ -103,24 +111,30 @@ export function ConfusionPage() {
 
   const heatmapOption = useMemo((): EChartsOption => {
     const labels = matrix.labels.map((l) => axisLabel(l, level))
-    const data: Array<[number, number, number]> = []
+    const cells: Array<[number, number, number]> = []
     let max = 0
     for (let i = 0; i < matrix.labels.length; i++) {
       for (let j = 0; j < matrix.labels.length; j++) {
         const v =
           valueMode === 'rate' ? matrix.rates[i][j] * 100 : matrix.counts[i][j]
-        data.push([j, i, Number(v.toFixed(valueMode === 'rate' ? 1 : 0))])
+        cells.push([j, i, Number(v.toFixed(valueMode === 'rate' ? 1 : 0))])
         if (v > max) max = v
       }
     }
+    const scaleMax = Math.max(max, valueMode === 'rate' ? 1 : 0.01)
+    // Each label takes white or dark ink by its own cell's fill.
+    const data = cells.map((value) => ({
+      value,
+      label: { color: heatInk(heatColor(value[2] / scaleMax)) },
+    }))
     const isProblem = level === 'problem'
     const n = matrix.labels.length
     return {
       tooltip: {
         position: 'top',
         formatter: (p: unknown) => {
-          const item = p as { data: [number, number, number] }
-          const [pj, pi] = item.data
+          const item = p as { value: [number, number, number] }
+          const [pj, pi] = item.value
           const trueL = matrix.labels[pi]
           const predL = matrix.labels[pj]
           const count = matrix.counts[pi][pj]
@@ -165,12 +179,13 @@ export function ConfusionPage() {
       },
       visualMap: {
         min: 0,
-        max: Math.max(max, valueMode === 'rate' ? 1 : 0.01),
+        max: scaleMax,
         calculable: true,
         orient: 'vertical',
         right: 4,
         top: 'middle',
         text: valueMode === 'rate' ? ['%', ''] : ['count', ''],
+        textStyle: { color: CHART_MUTED },
         inRange: { color: [...HEAT_RAMP] },
         formatter: (v: unknown) =>
           valueMode === 'rate'
@@ -181,11 +196,13 @@ export function ConfusionPage() {
         {
           type: 'heatmap',
           data,
+          itemStyle: { borderColor: CHART_SURFACE, borderWidth: 1 },
           label: {
             show: !isProblem || n <= 20,
-            fontSize: isProblem ? 8 : 10,
+            fontSize: isProblem ? 9 : 11,
+            fontWeight: 600,
             formatter: (p: unknown) => {
-              const v = (p as { data: [number, number, number] }).data[2]
+              const v = (p as { value: [number, number, number] }).value[2]
               if (v <= 0) return ''
               return `${v}`
             },

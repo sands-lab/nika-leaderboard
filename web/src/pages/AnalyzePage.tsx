@@ -3,6 +3,7 @@ import type { EChartsOption } from 'echarts'
 import { ChartPanel } from '../components/ChartPanel'
 import { SortableTh } from '../components/SortableTh'
 import { CHART_TEXT, seriesColor } from '../lib/chartTheme'
+import { familyColor, familyPalette, inferModelFamily } from '../lib/insights'
 import { formatCount, formatPct, formatScore } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { modelReleaseDate } from '../lib/modelMeta'
@@ -53,6 +54,7 @@ function scatterOption(args: {
     name: string
     x: number
     y: number
+    family: string
     color: string
   }>
   xName: string
@@ -84,7 +86,7 @@ function scatterOption(args: {
         const yVal = item.data.value[1]
         const yText = yAsPercent
           ? `${(yVal * 100).toFixed(1)}%`
-          : yVal.toFixed(3)
+          : formatScore(yVal)
         return `${item.data.name}<br/>${xName}: ${xVal}<br/>${yName}: ${yText}`
       },
     },
@@ -106,6 +108,12 @@ function scatterOption(args: {
           min: xPad.min,
           max: xPad.max,
           scale: true,
+          // The padded ends are not data; label only the round ticks between.
+          axisLabel: {
+            showMinLabel: false,
+            showMaxLabel: false,
+            formatter: (v: number) => compactNumber(v),
+          },
         },
     yAxis: {
       type: 'value',
@@ -115,15 +123,20 @@ function scatterOption(args: {
       min: 0,
       max: yAxisMax,
       axisLabel: {
+        showMaxLabel: yAxisMax <= yHi,
         formatter: (v: number) =>
           yAsPercent ? `${Math.round(v * 100)}%` : v.toFixed(2),
       },
     },
-    series: [
-      {
-        type: 'scatter',
+    // One series per model family, coloured as on the bubble chart, so the
+    // legend names what a colour means; the direct labels name the entry.
+    legend: { data: [...new Set(points.map((p) => p.family))].sort() },
+    series: [...new Set(points.map((p) => p.family))].sort().map((family) => ({
+        name: family,
+        type: 'scatter' as const,
         symbolSize: 16,
-        data: points.map((pt) => ({
+        itemStyle: { color: points.find((p) => p.family === family)?.color },
+        data: points.filter((pt) => pt.family === family).map((pt) => ({
           name: pt.name,
           value: [pt.x, pt.y],
           xLabel: xIsDate
@@ -139,9 +152,18 @@ function scatterOption(args: {
             color: CHART_TEXT,
           },
         })),
-      },
-    ],
+        labelLayout: { hideOverlap: true, moveOverlap: 'shiftX' as const },
+      })),
   }
+}
+
+/** 1,200 -> "1.2k", 569,792,879 -> "570M". */
+function compactNumber(value: number): string {
+  const abs = Math.abs(value)
+  if (abs >= 1e9) return `${+(value / 1e9).toFixed(1)}B`
+  if (abs >= 1e6) return `${+(value / 1e6).toFixed(1)}M`
+  if (abs >= 1e3) return `${+(value / 1e3).toFixed(1)}k`
+  return `${+value.toFixed(1)}`
 }
 
 function paddedExtent(
@@ -161,7 +183,7 @@ function paddedExtent(
 }
 
 export function AnalyzePage() {
-  const { filtered, loading, error } = useLeaderboardData()
+  const { submissions, filtered, loading, error } = useLeaderboardData()
   const [resolvedMetric, setResolvedMetric] = useState<ResolvedMetric>('success')
   const { sort, toggle } = useTableSort<AnalyzeSortKey>({
     key: 'rca',
@@ -178,13 +200,17 @@ export function AnalyzePage() {
     [scoped],
   )
 
+  const palette = useMemo(
+    () => familyPalette(submissions),
+    [submissions],
+  )
   const colored = useMemo(
     () =>
-      scoped.map((s, i) => ({
-        s,
-        color: seriesColor(i),
-      })),
-    [scoped],
+      scoped.map((s) => {
+        const family = inferModelFamily(s.model)
+        return { s, family, color: familyColor(palette, family) }
+      }),
+    [scoped, palette],
   )
 
   const yName = resolvedLabel(resolvedMetric)
@@ -194,8 +220,9 @@ export function AnalyzePage() {
   const vsCost = useMemo((): EChartsOption => {
     const points = colored
       .filter(({ s }) => (s.total_tokens ?? 0) > 0)
-      .map(({ s, color }) => ({
+      .map(({ s, family, color }) => ({
         name: s.name,
+        family,
         x: s.total_tokens ?? 0,
         y: resolvedValue(s, resolvedMetric),
         color,
@@ -211,11 +238,12 @@ export function AnalyzePage() {
 
   const vsReleaseDate = useMemo((): EChartsOption => {
     const raw = colored
-      .map(({ s, color }) => {
+      .map(({ s, family, color }) => {
         const d = modelReleaseDate(s.model)
         if (!d) return null
         return {
           name: s.name,
+          family,
           x: d.getTime(),
           y: resolvedValue(s, resolvedMetric),
           color,
@@ -243,8 +271,9 @@ export function AnalyzePage() {
   const vsAvgCost = useMemo((): EChartsOption => {
     const points = colored
       .filter(({ s }) => (s.mean_tokens ?? 0) > 0)
-      .map(({ s, color }) => ({
+      .map(({ s, family, color }) => ({
         name: s.name,
+        family,
         x: s.mean_tokens ?? 0,
         y: resolvedValue(s, resolvedMetric),
         color,
@@ -261,8 +290,9 @@ export function AnalyzePage() {
   const vsCostLimit = useMemo((): EChartsOption => {
     const points = colored
       .filter(({ s }) => s.case_timeout_sec != null && s.case_timeout_sec > 0)
-      .map(({ s, color }) => ({
+      .map(({ s, family, color }) => ({
         name: s.name,
+        family,
         x: s.case_timeout_sec ?? 0,
         y: resolvedValue(s, resolvedMetric),
         color,
@@ -279,8 +309,9 @@ export function AnalyzePage() {
   const vsStepLimit = useMemo((): EChartsOption => {
     const points = colored
       .filter(({ s }) => s.max_steps != null && s.max_steps > 0)
-      .map(({ s, color }) => ({
+      .map(({ s, family, color }) => ({
         name: s.name,
+        family,
         x: s.max_steps ?? 0,
         y: resolvedValue(s, resolvedMetric),
         color,
@@ -324,29 +355,51 @@ export function AnalyzePage() {
   const systemAcrossVersions = useMemo((): EChartsOption => {
     const byName = new Map<string, Map<string, number>>()
     for (const r of scoped) {
-      const stem = r.name
+      // The unqualified label, so one system lines up across releases.
+      const stem = r.base_name ?? r.name
       const m = byName.get(stem) || new Map<string, number>()
       const prev = m.get(r.benchmark_version)
       const score = r.mean_rca_f1 ?? 0
       m.set(r.benchmark_version, prev == null ? score : Math.max(prev, score))
       byName.set(stem, m)
     }
-    const systems = [...byName.keys()].sort()
+    // Reverse alphabetical, so the list reads A-Z top-down on the category axis.
+    const systems = [...byName.keys()].sort((a, b) =>
+      b.localeCompare(a, undefined, { sensitivity: 'base', numeric: true }),
+    )
     return {
-      tooltip: { trigger: 'axis' },
-      legend: { data: versions, bottom: 0 },
-      xAxis: { type: 'category', data: systems, axisLabel: { rotate: 20 } },
-      yAxis: { type: 'value', min: 0, max: 1, name: 'RCA F1' },
+      tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+      legend: { data: versions },
+      grid: { left: 16, right: 32, top: 12, bottom: 40, containLabel: true },
+      // Names on the vertical axis read horizontally at any length.
+      yAxis: {
+        type: 'category',
+        data: systems,
+        axisLabel: { interval: 0, fontSize: 11, color: CHART_TEXT },
+        axisTick: { show: false },
+      },
+      xAxis: {
+        type: 'value',
+        min: 0,
+        max: 1,
+        name: 'RCA F1',
+        nameLocation: 'middle',
+        nameGap: 28,
+      },
       series: versions.map((ver, i) => ({
         name: ver,
         type: 'bar',
+        barMaxWidth: 14,
         data: systems.map((s) => byName.get(s)?.get(ver) ?? null),
-        itemStyle: {
-          color: seriesColor(i),
-        },
+        itemStyle: { color: seriesColor(i), borderRadius: [0, 4, 4, 0] },
       })),
     }
   }, [scoped, versions])
+
+  const systemCount = useMemo(
+    () => new Set(scoped.map((r) => r.base_name ?? r.name)).size,
+    [scoped],
+  )
 
   const hasStepLimit = colored.some(
     ({ s }) => s.max_steps != null && s.max_steps > 0,
@@ -439,7 +492,8 @@ export function AnalyzePage() {
           option={byVersionOption}
           filename="nika-by-version"
           empty={!scoped.length}
-          height={480}
+          height={360}
+          zoomable={false}
         />
         {versions.length > 1 && (
           <ChartPanel
@@ -447,7 +501,8 @@ export function AnalyzePage() {
             option={systemAcrossVersions}
             filename="nika-system-versions"
             empty={!scoped.length}
-            height={480}
+            height={Math.max(240, 64 + systemCount * versions.length * 16)}
+            zoomable={false}
           />
         )}
       </div>

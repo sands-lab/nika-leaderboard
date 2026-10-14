@@ -18,7 +18,10 @@ import {
 import {
   CHART_MUTED,
   CHART_TEXT,
+  CHART_TOOLTIP,
   seriesColor,
+  seriesDash,
+  seriesSymbol,
 } from '../lib/chartTheme'
 import { formatScore, loadSubmissionDetails } from '../lib/data'
 import {
@@ -67,10 +70,19 @@ function compactCount(value: number): string {
 }
 
 export function ComparePage() {
-  const { submissions, filtered, pricing, overrides, setOverrides, loading, error } =
-    useLeaderboardData()
+  const {
+    submissions,
+    filtered,
+    withLabels,
+    pricing,
+    overrides,
+    setOverrides,
+    loading,
+    error,
+  } = useLeaderboardData()
   const [params, setParams] = useSearchParams()
-  const [details, setDetails] = useState<SubmissionDetail[]>([])
+  const [rawDetails, setDetails] = useState<SubmissionDetail[]>([])
+  const details = useMemo(() => withLabels(rawDetails), [rawDetails, withLabels])
   const [selected, setSelected] = useState<string[]>([])
   const [pairA, setPairA] = useState('')
   const [pairB, setPairB] = useState('')
@@ -236,7 +248,7 @@ export function ComparePage() {
           const lines = indicators.map((ind, k) => {
             const v = p.value![k]
             const suffix = raw[k] ? ` <span style="opacity:.7">(${raw[k]})</span>` : ''
-            const shown = v == null ? '—' : v.toFixed(3)
+            const shown = formatScore(v)
             return `${ind.name}: <strong>${shown}</strong>${suffix}`
           })
           // Each hover card states how the efficiency scores are derived.
@@ -251,21 +263,8 @@ export function ComparePage() {
           return `<strong>${p.name}</strong><br/>${lines.join('<br/>')}${scale}`
         },
       },
-      // A radar is square, so on a wide panel the side margins are dead space.
-      // The legend moves into it and the plot takes the freed height.
-      legend: {
-        data: details.map((d) => d.name),
-        type: 'scroll',
-        orient: 'vertical',
-        right: 8,
-        top: 'middle',
-        itemGap: 10,
-      },
-      radar: {
-        indicator: indicators,
-        center: ['40%', '52%'],
-        radius: '80%',
-      },
+      legend: { data: details.map((d) => d.name) },
+      radar: { indicator: indicators },
       series: [
         {
           type: 'radar',
@@ -281,7 +280,8 @@ export function ComparePage() {
                 invertedMinMax(a.tokens, baseline.tokens),
                 invertedMinMax(a.steps, baseline.steps),
               ],
-              lineStyle: { color: seriesColor(i) },
+              symbol: seriesSymbol(i),
+              lineStyle: { color: seriesColor(i), type: seriesDash(i) },
               itemStyle: { color: seriesColor(i) },
             }
           }),
@@ -303,24 +303,35 @@ export function ComparePage() {
       tooltip: {
         formatter: (p: unknown) => {
           const item = p as { seriesName: string; value: number[] }
-          return `${item.seriesName}<br/>tokens / case: ${Math.round(item.value[0])}<br/>mean RCA F1: ${item.value[1].toFixed(3)}`
+          return `${item.seriesName}<br/>tokens / case: ${Math.round(item.value[0])}<br/>mean RCA F1: ${formatScore(item.value[1])}`
         },
       },
-      legend: { data: details.map((d) => d.name), bottom: 0 },
+      legend: { data: details.map((d) => d.name) },
       grid: { left: 56, right: 28, top: 28, bottom: 64, containLabel: true },
       xAxis: {
         name: 'Mean tokens / case',
+        nameLocation: 'middle',
+        nameGap: 30,
         type: 'value',
-        axisLabel: { formatter: (v: number) => compactCount(v) },
+        // The padded end is not data; label only the round ticks.
+        axisLabel: { formatter: (v: number) => compactCount(v), showMaxLabel: false },
         min: Math.max(0, xMin - xPad),
         max: xMax + xPad,
       },
-      yAxis: { name: 'Mean RCA F1', type: 'value', min: 0, max: 1.05 },
+      yAxis: {
+        name: 'Mean RCA F1',
+        type: 'value',
+        min: 0,
+        max: 1.05,
+        // 1.05 is headroom for markers at 1, not a score.
+        axisLabel: { showMaxLabel: false },
+      },
       series: details.map((d, i) => {
         const cases = aggregateByCase(d.trials)
         return {
           name: d.name,
           type: 'scatter',
+          symbol: seriesSymbol(i),
           symbolSize: 12,
           itemStyle: { color: seriesColor(i) },
           data: cases
@@ -349,6 +360,7 @@ export function ComparePage() {
                 price: cost.price,
                 edited: cost.edited,
                 color: seriesColor(i),
+                symbol: seriesSymbol(i),
               }
             : null
         })
@@ -367,7 +379,6 @@ export function ComparePage() {
 
   const paretoOption = useMemo((): EChartsOption => {
     const points = costPoints
-    const dropped = details.length - points.length
     const front = paretoFront(points)
     const frontIds = new Set(front.map((p) => p.id))
     const xs = points.map((p) => p.cost)
@@ -375,14 +386,6 @@ export function ComparePage() {
     const xMax = niceLog((xs.length ? Math.max(...xs) : 1) * 1.6, 'ceil')
 
     return {
-      title: dropped
-        ? {
-            subtext: `${dropped} of ${details.length} selected entries have no token totals or no price and are not plotted`,
-            left: 8,
-            top: 2,
-            subtextStyle: { color: CHART_MUTED, fontSize: 11 },
-          }
-        : undefined,
       tooltip: {
         trigger: 'item',
         formatter: (params: unknown) => {
@@ -397,7 +400,7 @@ export function ComparePage() {
           if (!d?.value) return ''
           return [
             `<strong>${d.name}</strong>`,
-            `RCA F1: ${d.value[1].toFixed(3)}`,
+            `RCA F1: ${formatScore(d.value[1])}`,
             `Cost / run: ${formatUsd(d.cost)}`,
             `Submission total: ${formatUsd(d.totalCost)}`,
             d.meanTokens != null
@@ -417,18 +420,8 @@ export function ComparePage() {
             .join('<br/>')
         },
       },
-      legend: {
-        data: [...points.map((p) => p.name), 'Pareto frontier'],
-        bottom: 0,
-        type: 'scroll',
-      },
-      grid: {
-        left: 56,
-        right: 36,
-        top: dropped ? 48 : 36,
-        bottom: 72,
-        containLabel: true,
-      },
+      legend: { data: [...points.map((p) => p.name), 'Pareto frontier'] },
+      grid: { left: 56, right: 36, top: 24, bottom: 56, containLabel: true },
       xAxis: {
         name: 'Cost per benchmark run, USD (log)',
         type: 'log',
@@ -443,6 +436,7 @@ export function ComparePage() {
         type: 'value',
         min: 0,
         max: 1.05,
+        axisLabel: { showMaxLabel: false },
         nameLocation: 'middle',
         nameGap: 40,
       },
@@ -452,6 +446,7 @@ export function ComparePage() {
           return {
             name: p.name,
             type: 'scatter' as const,
+            symbol: p.symbol,
             symbolSize: onFront ? 16 : 11,
             itemStyle: {
               color: onFront ? p.color : 'transparent',
@@ -460,13 +455,19 @@ export function ComparePage() {
               opacity: onFront ? 1 : 0.75,
             },
             data: [{ ...p, value: [p.cost, p.score], onFrontier: onFront }],
+            // Frontier points carry a direct label; the rest rely on the
+            // legend and hover, which keeps a crowded middle readable.
             label: {
-              show: points.length <= 12,
+              show: onFront,
               formatter: p.name,
-              position: 'right' as const,
+              // Below the point: the frontier line leaves each point toward
+              // the upper right, so a right-hand label would sit on it.
+              position: 'bottom' as const,
+              distance: 8,
               fontSize: 11,
-              color: onFront ? CHART_TEXT : CHART_MUTED,
+              color: CHART_TEXT,
             },
+            labelLayout: { hideOverlap: true, moveOverlap: 'shiftY' as const },
           }
         }),
         {
@@ -480,14 +481,16 @@ export function ComparePage() {
         },
       ] as EChartsOption['series'],
     }
-  }, [costPoints, details.length])
+  }, [costPoints])
 
   const tokenBarOption = useMemo((): EChartsOption => {
     const colorById = new Map(
       details.map((d, i) => [d.id, seriesColor(i)]),
     )
+    // Largest at the top. Names sit on the vertical axis, where they read
+    // horizontally at any length instead of rotating into each other.
     const rows = [...details].sort(
-      (a, b) => (b.total_tokens ?? 0) - (a.total_tokens ?? 0),
+      (a, b) => (a.total_tokens ?? 0) - (b.total_tokens ?? 0),
     )
     return {
       tooltip: {
@@ -508,36 +511,40 @@ export function ComparePage() {
               ? `Avg / case: ${Math.round(d.mean_tokens).toLocaleString()}`
               : null,
             d?.mean_rca_f1 != null
-              ? `RCA F1: ${d.mean_rca_f1.toFixed(3)}`
+              ? `RCA F1: ${formatScore(d.mean_rca_f1)}`
               : null,
           ]
             .filter(Boolean)
             .join('<br/>')
         },
       },
-      grid: { left: 48, right: 28, top: 28, bottom: 96, containLabel: true },
-      xAxis: {
+      grid: { left: 16, right: 56, top: 12, bottom: 40, containLabel: true },
+      yAxis: {
         type: 'category',
         data: rows.map((d) => d.name),
-        axisLabel: { rotate: 28, fontSize: 11, interval: 0 },
+        axisLabel: { fontSize: 11, interval: 0, color: CHART_TEXT },
+        axisTick: { show: false },
       },
-      yAxis: {
+      xAxis: {
         type: 'value',
         name: 'Total tokens',
         nameLocation: 'middle',
-        nameGap: 52,
+        nameGap: 28,
+        axisLabel: { formatter: (v: number) => compactCount(v) },
       },
       series: [
         {
           type: 'bar',
-          barMaxWidth: 48,
+          barMaxWidth: 22,
+          itemStyle: { borderRadius: [0, 4, 4, 0] },
           data: rows.map((d) => ({
             value: d.total_tokens ?? 0,
             itemStyle: { color: colorById.get(d.id) || seriesColor(0) },
           })),
           label: {
-            show: rows.length <= 10,
-            position: 'top',
+            show: true,
+            position: 'right',
+            color: CHART_TEXT,
             formatter: (p: unknown) => {
               const v = (p as { value: number }).value
               if (v >= 1_000_000) return `${(v / 1_000_000).toFixed(1)}M`
@@ -554,15 +561,23 @@ export function ComparePage() {
   const cdfOption = useMemo((): EChartsOption => {
     return {
       tooltip: { trigger: 'axis' },
-      legend: { data: details.map((d) => d.name), bottom: 0 },
+      legend: { data: details.map((d) => d.name) },
       grid: { left: 56, right: 28, top: 28, bottom: 64, containLabel: true },
-      xAxis: { name: 'Mean RCA F1 (per case)', type: 'value', min: 0, max: 1 },
+      xAxis: {
+        name: 'Mean RCA F1 (per case)',
+        nameLocation: 'middle',
+        nameGap: 30,
+        type: 'value',
+        min: 0,
+        max: 1,
+      },
       yAxis: { name: 'CDF', type: 'value', min: 0, max: 1 },
       series: details.map((d, i) => ({
         name: d.name,
         type: 'line',
         showSymbol: false,
         itemStyle: { color: seriesColor(i) },
+        lineStyle: { type: seriesDash(i) },
         data: cdfPoints(
           aggregateByCase(d.trials).map((c) => c.mean_rca_f1 || 0),
         ),
@@ -583,21 +598,74 @@ export function ComparePage() {
     const cats = [...categories].sort()
     const shortCats = cats.map(shortFailureCategory)
     return {
+      // Hovering anywhere in a domain lights up its whole sector and opens an
+      // enlarged view of it: every entry as a bar, best first. The polar plot
+      // packs one thin bar per entry into each sector, which is too small to
+      // read or compare directly once more than a few entries are selected.
       tooltip: {
-        trigger: 'item',
+        trigger: 'axis',
+        axisPointer: {
+          type: 'shadow',
+          shadowStyle: { color: 'rgba(34, 211, 238, 0.08)' },
+        },
+        extraCssText: `${CHART_TOOLTIP.extraCssText} min-width: 300px;`,
+        // Pinned to the side away from the pointer, so the enlarged view sits
+        // beside the sector being read instead of on top of it.
+        position: (
+          point: number[],
+          _params: unknown,
+          _dom: unknown,
+          _rect: unknown,
+          size: { contentSize: number[]; viewSize: number[] },
+        ) => {
+          const [w, h] = size.contentSize
+          const [vw, vh] = size.viewSize
+          const x = point[0] > vw / 2 ? 12 : vw - w - 12
+          const y = Math.max(8, Math.min(vh - h - 8, point[1] - h / 2))
+          return [x, y]
+        },
         formatter: (params: unknown) => {
-          const p = params as {
+          const list = params as Array<{
             seriesName: string
-            name: string
-            value: number
+            seriesIndex: number
             dataIndex: number
-          }
-          const full = cats[p.dataIndex] || p.name
-          return `${p.seriesName}<br/>${full}<br/>RCA F1: ${Number(p.value).toFixed(3)}`
+            color: string
+          }>
+          if (!list.length) return ''
+          const ci = list[0].dataIndex
+          const rows = list
+            .map((p) => ({
+              name: p.seriesName,
+              color: p.color,
+              value: byDetail[p.seriesIndex]?.get(cats[ci]) ?? null,
+            }))
+            .sort((a, b) => (b.value ?? -1) - (a.value ?? -1))
+          const bars = rows
+            .map((r) => {
+              const pct = r.value == null ? 0 : Math.max(0, Math.min(1, r.value)) * 100
+              return (
+                `<div style="display:grid;grid-template-columns:minmax(0,1fr) 96px 40px;` +
+                `gap:8px;align-items:center;margin-top:4px">` +
+                `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">` +
+                `<span style="display:inline-block;width:8px;height:8px;border-radius:2px;` +
+                `background:${r.color};margin-right:6px"></span>${r.name}</span>` +
+                `<span style="height:6px;border-radius:3px;background:rgba(255,255,255,0.08)">` +
+                `<span style="display:block;height:6px;width:${pct}%;border-radius:3px;` +
+                `background:${r.color}"></span></span>` +
+                `<span style="text-align:right;font-variant-numeric:tabular-nums">` +
+                `${formatScore(r.value)}</span></div>`
+              )
+            })
+            .join('')
+          return (
+            `<strong style="font-size:13px">${shortCats[ci]}</strong>` +
+            `<div style="opacity:.65;font-size:11px;margin-bottom:4px">` +
+            `${cats[ci]} · mean RCA F1</div>${bars}`
+          )
         },
       },
-      legend: { data: details.map((d) => d.name), bottom: 0 },
-      polar: { radius: ['18%', '68%'] },
+      legend: { data: details.map((d) => d.name) },
+      polar: {},
       angleAxis: {
         type: 'category',
         data: shortCats,
@@ -615,6 +683,9 @@ export function ComparePage() {
         name: d.name,
         data: cats.map((c) => byDetail[i].get(c) ?? 0),
         itemStyle: { color: seriesColor(i) },
+        // Pointing at one bar picks out that entry in every domain.
+        emphasis: { focus: 'series' as const },
+        blur: { itemStyle: { opacity: 0.2 } },
       })),
     }
   }, [details])
@@ -646,27 +717,17 @@ export function ComparePage() {
 
       <div className="chart-grid chart-grid--stack">
         <ChartPanel
-          title="Radar (further from centre is better)"
-          option={radarOption}
-          filename="nika-radar"
-          empty={!details.length}
-          height={430}
-          zoomable={false}
-        />
-        <ChartPanel
-          title="Tokens vs RCA F1, one dot per case"
-          option={scatterOption}
-          filename="nika-scatter"
-          empty={!details.length}
-          height={520}
-        />
-        <ChartPanel
           title="Cost–performance Pareto frontier (upper left is better)"
+          description={
+            details.length > costPoints.length
+              ? `${details.length - costPoints.length} of ${details.length} selected entries have no token totals or no price and are not plotted.`
+              : undefined
+          }
           option={paretoOption}
           filename="nika-pareto-frontier"
           empty={!costPoints.length}
           emptyMessage="No entry here has both token accounting and a model price."
-          height={520}
+          height={480}
         />
         <section className="pricing-panel">
           <button
@@ -753,12 +814,27 @@ export function ComparePage() {
           )}
         </section>
         <ChartPanel
+          title="Radar (further from centre is better)"
+          option={radarOption}
+          filename="nika-radar"
+          empty={!details.length}
+          height={440}
+          zoomable={false}
+        />
+        <ChartPanel
+          title="Tokens vs RCA F1, one dot per case"
+          option={scatterOption}
+          filename="nika-scatter"
+          empty={!details.length}
+          height={520}
+        />
+        <ChartPanel
           title="Total tokens per entry"
           option={tokenBarOption}
           filename="nika-total-tokens"
           empty={!details.length || details.every((d) => !(d.total_tokens && d.total_tokens > 0))}
           emptyMessage="No token totals available for the selected entries."
-          height={480}
+          height={Math.max(160, 64 + details.length * 30)}
           zoomable={false}
         />
         <ChartPanel
