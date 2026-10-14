@@ -1,0 +1,39 @@
+{
+  "case_key": "llmd_lab__k8s_coredns_isolat__he788b9979872",
+  "gt_fault_types": [
+    "k8s_coredns_isolated"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.2857,
+    "fault_type_precision": 0.1667,
+    "fault_type_recall": 1.0,
+    "in_tokens": 985732,
+    "localization_accuracy": 1.0,
+    "localization_f1": 0.2222,
+    "localization_precision": 0.125,
+    "localization_recall": 1.0,
+    "out_tokens": 10143,
+    "rca_accuracy": 1.0,
+    "rca_f1": 0.1818,
+    "rca_precision": 0.1,
+    "rca_recall": 1.0,
+    "steps": 73,
+    "tool_calls": 71,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "k8s_clusterip_routing_broken",
+    "dns_port_blocked",
+    "dns_service_down",
+    "k8s_coredns_isolated",
+    "host_incorrect_dns",
+    "k8s_worker_apiserver_partition"
+  ],
+  "problem": "k8s_coredns_isolated",
+  "scenario": "llmd_lab",
+  "score_status": "scored",
+  "trial_id": "llmd_lab__k8s_coredns_isolat__he788b9979872__t02",
+  "trial_index": 2
+}
