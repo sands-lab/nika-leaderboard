@@ -13,6 +13,7 @@ export type KnownProvider =
   | 'mistral'
   | 'att'
   | 'ku-dfi'
+  | 'zai'
 
 const PROVIDER_LABELS: Record<string, string> = {
   openai: 'OpenAI',
@@ -24,6 +25,7 @@ const PROVIDER_LABELS: Record<string, string> = {
   mistral: 'Mistral',
   att: 'AT&T',
   'ku-dfi': 'KU-DFI',
+  zai: 'Z.ai',
 }
 
 const PROVIDER_ICONS: Record<string, string> = {
@@ -34,6 +36,7 @@ const PROVIDER_ICONS: Record<string, string> = {
   qwen: 'providers/qwen.svg',
   att: 'providers/att.svg',
   'ku-dfi': 'providers/ku-dfi.png',
+  zai: 'providers/zai.svg',
 }
 
 function normalizeProviderKey(value: string): string {
@@ -62,6 +65,7 @@ export function inferProviderFromModel(
   if (key.includes('deepseek')) return 'deepseek'
   if (key.includes('qwen')) return 'qwen'
   if (key.includes('telecomgpt-r1') || key.startsWith('ku-dfi/')) return 'ku-dfi'
+  if (key.startsWith('glm-') || key.startsWith('zai-org/')) return 'zai'
   if (key.includes('otel-2.0-llm')) return 'att'
   if (key.includes('llama') || key.startsWith('meta-')) return 'meta'
   if (key.includes('mistral') || key.includes('mixtral')) return 'mistral'
