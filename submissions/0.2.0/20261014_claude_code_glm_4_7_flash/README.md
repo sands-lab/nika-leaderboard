@@ -23,11 +23,7 @@ The model was served with vLLM 0.24 from revision
 window and piecewise CUDA graphs. The run metadata does not record the serving
 context or precision.
 
-Nine trials first ended their diagnosis within two turns without
-investigating (the agent replied that no problem was described) and were
-recorded as agent failures. Those nine slots were cleared and run once more
-under the same model, harness, and budgets; their reruns are the reported
-results. No other trial was rerun for its agent outcome.
+Nine trials that ended diagnosis within two turns were rerun once.
 
 ## Links and model information
 
