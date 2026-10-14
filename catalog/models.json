@@ -48,5 +48,10 @@
     "released": "2026-06-08",
     "release_source": "https://huggingface.co/KU-DFI/TelecomGPT-R1/commit/99f638ac5691b0ed9e21fffbe1d9308af0205280",
     "model_page": "https://huggingface.co/KU-DFI/TelecomGPT-R1"
+  },
+  "GLM-4.7-Flash": {
+    "released": "2026-01-19",
+    "release_source": "https://huggingface.co/zai-org/GLM-4.7-Flash/commit/75fce703a93da3705c4cf8d3caadbac1d1072c78",
+    "model_page": "https://huggingface.co/zai-org/GLM-4.7-Flash"
   }
 }
