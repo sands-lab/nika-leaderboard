@@ -1,0 +1,22 @@
+created_at: '2026-10-15T08:13:14+00:00'
+benchmark:
+  id: nika-bench
+  version: 0.2.0
+  ref: nika-bench@0.2.0
+  split: test
+  case_count: 85
+  n_trials: 3
+  scoring_id: rule-based
+  leaderboard_primary: rca_f1
+run:
+  run_id: c6917f63cb8b1e5b
+  official: true
+  agent_type: byo.langgraph
+  model: GLM-4.7-Flash
+  llm_provider: custom
+  max_steps: 100
+  case_timeout_sec: 15000
+  nika_git_commit: 663784e8bea88499b157008299e9957c61905f48
+  source_result_dir: results/bench-020-test-byo-langgraph-glm47flash-t7200-20261014-184105
+trajectories_relpath: trajectories/0.2.0/20261015_react_glm_4_7_flash
+scores_package: null

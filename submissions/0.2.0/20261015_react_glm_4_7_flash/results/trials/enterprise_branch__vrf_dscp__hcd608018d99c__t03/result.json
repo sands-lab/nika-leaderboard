@@ -1,0 +1,34 @@
+{
+  "case_key": "enterprise_branch__vrf_dscp__hcd608018d99c",
+  "gt_fault_types": [
+    "vrf_dscp_remarking"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 687478,
+    "localization_accuracy": 1.0,
+    "localization_f1": 0.6667,
+    "localization_precision": 0.5,
+    "localization_recall": 1.0,
+    "out_tokens": 6069,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 37,
+    "tool_calls": 36,
+    "tool_errors": 2
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "wireguard_allowed_ips_misconfiguration"
+  ],
+  "problem": "vrf_dscp_remarking",
+  "scenario": "enterprise_branch",
+  "score_status": "scored",
+  "trial_id": "enterprise_branch__vrf_dscp__hcd608018d99c__t03",
+  "trial_index": 3
+}
