@@ -581,7 +581,7 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
                 className="w-tokens col-secondary"
               />
             )}
-            <th className="w-links col-narrow-hide">Links</th>
+            <th className="w-links col-narrow-hide" title="Agent trajectories for this entry on Hugging Face">Datasets</th>
           </tr>
         </thead>
         <tbody>
