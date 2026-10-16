@@ -21,7 +21,7 @@ This entry uses the ReAct agent implemented with LangGraph through NIKA's `byo.l
 - [Project site](https://sands-lab.github.io/nika/)
 - [Benchmark paper](https://arxiv.org/abs/2512.16381), which describes NIKA.
 - [Model checkpoint](https://huggingface.co/google/gemma-4-31B-it)
-- [Trajectories](https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261012_react_gemma_4_31b_it)
+- [Trajectories](https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261012_react_gemma_4_31b_it)
 
 This submission reuses the leaderboard's reviewed `gemma-4-31B-it` catalog entries: release date 2026-04-02, sourced from the [Google announcement](https://blog.google/innovation-and-ai/technology/developers-tools/gemma-4/), and the [OpenRouter reference quote](https://openrouter.ai/google/gemma-4-31b-it) retrieved on 2026-10-12 (USD 0.09 per million input tokens and USD 0.34 per million output tokens). The hosted quote estimates token costs; it does not measure this run's GPU bill. The run metadata does not record the evaluated model revision or serving precision.
 

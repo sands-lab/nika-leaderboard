@@ -33,7 +33,7 @@ the serving context or precision.
 - [Project site](https://sands-lab.github.io/nika/)
 - [Benchmark paper](https://arxiv.org/abs/2512.16381), which describes NIKA.
 - [Model checkpoint](https://huggingface.co/KU-DFI/TelecomGPT-R1)
-- [Trajectories](https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261013_react_telecomgpt_r1)
+- [Trajectories](https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261013_react_telecomgpt_r1)
 
 This submission reuses the leaderboard's reviewed `TelecomGPT-R1` catalog
 entries: weight release date 2026-06-08 and the Featherless AI reference quote

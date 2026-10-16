@@ -29,4 +29,4 @@ retrieved 2026-10-14 from the [model page](https://openrouter.ai/z-ai/glm-4.7-fl
 and [public model API](https://openrouter.ai/api/v1/models).
 This estimates hosted token cost; the self-hosted GPU bill is not recorded.
 
-[Trajectories](https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261015_react_glm_4_7_flash)
+[Trajectories](https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261015_react_glm_4_7_flash)

@@ -41,7 +41,7 @@ remain. The primary mean RCA F1 is 0.037908627450980385 (3.79%).
 
 - Project site: https://sands-lab.github.io/nika/
 - Benchmark paper: https://arxiv.org/abs/2512.16381
-- Trajectories: https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261008_claude_cli_otel_2_0_llm_31b_it
+- Trajectories: https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261008_claude_cli_otel_2_0_llm_31b_it
 
 ## Model release and reference price
 
