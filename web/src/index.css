@@ -1042,8 +1042,97 @@ code {
 }
 
 .data-table--entries td {
-  padding-top: 0.55rem;
-  padding-bottom: 0.55rem;
+  padding-top: 0.7rem;
+  padding-bottom: 0.7rem;
+}
+
+/*
+ * The leaderboard is the page's main content, so it is set larger than the
+ * other tables and framed more firmly.
+ *
+ * Its header sticks to the page below the pinned top bar and filters. A
+ * scrolling wrapper would capture the header instead, so the wrapper clips
+ * (keeping its rounded corners) without scrolling. Only a table too wide for
+ * the page gets a scrolling wrapper, capped to the viewport so the header
+ * still stays in view, pinned inside it.
+ */
+.table-wrap--entries {
+  overflow: clip;
+  border-color: var(--line-strong);
+  box-shadow: var(--shadow-lg), 0 0 0 1px rgb(var(--brand-rgb) / 0.08),
+    0 18px 48px -28px rgb(var(--brand-rgb) / 0.35);
+}
+
+.table-wrap--entries.is-overflowing-x {
+  overflow: auto;
+  max-height: calc(100dvh - var(--sticky-head-top, 0px) - 1rem);
+}
+
+.table-wrap--entries.is-overflowing-x .data-table--entries th {
+  top: 0;
+}
+
+.data-table--entries {
+  font-size: 1rem;
+}
+
+.data-table--entries th {
+  top: var(--sticky-head-top, 0px);
+  /* Above the pinned body cells, which scroll beneath it on both axes. */
+  z-index: 3;
+  font-size: 0.74rem;
+  color: #b4bfd1;
+  /* A collapsed border scrolls away with the body; a shadow stays put. */
+  box-shadow: inset 0 -1px 0 var(--line-strong);
+}
+
+.data-table--entries .num,
+.data-table--entries .score-value {
+  font-size: 0.98rem;
+}
+
+.data-table--entries .rank-num {
+  font-size: 0.95rem;
+}
+
+.data-table--entries .rank-medal {
+  font-size: 1rem;
+}
+
+.data-table--entries .rank-medal svg {
+  width: 1.1rem;
+  height: 1.1rem;
+}
+
+.data-table--entries .scaffold-tag {
+  font-size: 0.74rem;
+}
+
+.data-table--entries .verified-mark {
+  font-size: 0.72rem;
+}
+
+/* Vendor logo, model name and provenance mark on one line. */
+.model-cell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+}
+
+.model-cell .provider-icon {
+  flex: none;
+  margin: 0;
+  width: 1.65rem;
+  height: 1.65rem;
+}
+
+.model-cell .provider-icon img {
+  width: 1rem;
+  height: 1rem;
+}
+
+.model-cell .verified-mark {
+  margin-left: -0.2rem;
 }
 
 .data-table--entries .w-rank {
@@ -1060,10 +1149,6 @@ code {
 
 .data-table--entries .w-optimizations {
   width: 9.5rem;
-}
-
-.data-table--entries .w-provider {
-  width: 5.5rem;
 }
 
 .data-table--entries .w-score {
@@ -1111,12 +1196,15 @@ code {
 
 .data-table--entries th.sticky-rank,
 .data-table--entries th.sticky-model {
-  z-index: 3;
+  z-index: 4;
 }
 
 .data-table--entries td.sticky-rank,
 .data-table--entries td.sticky-model {
   background: var(--panel);
+  /* A pinned cell's fill can cover the collapsed row line at fractional row
+     heights, so it draws its own. */
+  box-shadow: inset 0 -1px 0 var(--line);
 }
 
 .data-table--entries tbody tr:hover td.sticky-rank,
@@ -1137,9 +1225,9 @@ code {
   pointer-events: none;
 }
 
-/* Fits the longest name ("Qwen3.6-35B-A3B-FP8" plus its mark). */
+/* Fits the longest name ("Qwen3.6-35B-A3B-FP8" plus its logo and mark). */
 .data-table--entries .model-th {
-  width: 13rem;
+  width: 17rem;
 }
 
 .heat-cell {
@@ -2242,10 +2330,41 @@ a.model-name:hover {
 
   .data-table--entries .sortable-th__btn {
     gap: 0.15rem;
+    /* "Est. cost" on one line is wider than any cost under it. */
+    white-space: normal;
   }
 
   .data-table--entries .model-name {
     font-size: 0.8rem;
+  }
+
+  .data-table--entries .num,
+  .data-table--entries .score-value,
+  .data-table--entries .rank-num {
+    font-size: 0.84rem;
+  }
+
+  .data-table--entries .rank-medal svg {
+    width: 0.95rem;
+    height: 0.95rem;
+  }
+
+  .model-cell {
+    gap: 0.3rem;
+  }
+
+  .model-cell .provider-icon {
+    width: 1.2rem;
+    height: 1.2rem;
+  }
+
+  .model-cell .provider-icon img {
+    width: 0.75rem;
+    height: 0.75rem;
+  }
+
+  .model-cell .verified-mark {
+    margin-left: 0;
   }
 
   .data-table--entries .w-rank {

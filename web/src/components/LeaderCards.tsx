@@ -1,5 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
-import { entryPath, formatScore } from '../lib/data'
+import { entryPath, formatScore, SCORE_DIGITS } from '../lib/data'
 import { adaptationMethods, scaffoldTags } from '../lib/metrics'
 import { formatUsd, submissionCost } from '../lib/pricing'
 import type { PriceOverrides, PricingFile } from '../lib/pricing'
@@ -61,7 +61,7 @@ function pickLeaders(
     kind: 'best',
     axis: 'Top performer',
     entry: best,
-    value: formatScore(best.mean_rca_f1),
+    value: formatScore(best.mean_rca_f1, SCORE_DIGITS),
     unit: 'RCA F1',
     note: 'Highest mean RCA F1, the metric the leaderboard ranks by',
   })
@@ -79,7 +79,7 @@ function pickLeaders(
         kind: 'open',
       axis: 'Best open weights',
         entry: top,
-        value: formatScore(top.mean_rca_f1),
+        value: formatScore(top.mean_rca_f1, SCORE_DIGITS),
         unit: 'RCA F1',
         note: 'Highest RCA F1 among models whose weights are publicly available',
       })
@@ -101,7 +101,7 @@ function pickLeaders(
       entry: cheapest.s,
       value: formatUsd(cheapest.cost),
       unit: 'est. per run',
-      note: `Lowest estimated cost to run the benchmark once, at reference token prices, among entries whose RCA F1 score is at or above the median (${formatScore(cutoff)})`,
+      note: `Lowest estimated cost to run the benchmark once, at reference token prices, among entries whose RCA F1 score is at or above the median (${formatScore(cutoff, SCORE_DIGITS)})`,
     })
   }
 

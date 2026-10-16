@@ -112,8 +112,8 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
     }
     await expect(row.locator('span[title*="One run ="]')).toContainText('$')
     if (model.startsWith('OTel')) {
-      // The compact table hides its Provider column on smaller viewports.
-      await expect(row.getByRole('img', { name: 'AT&T', includeHidden: true }))
+      // The vendor logo sits beside the model name at every viewport.
+      await expect(row.getByRole('img', { name: 'AT&T' }))
         .toHaveAttribute('src', /providers\/att\.svg$/)
     }
     await row.locator('td').first().click()
