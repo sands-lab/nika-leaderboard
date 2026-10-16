@@ -3,7 +3,7 @@
 ## Repository Purpose
 
 - This repository is the official, append-only archive for NIKA leaderboard **scores** and hosts the static leaderboard web UI. It stores compact, validated result packages; it does not contain the benchmark runner.
-- Raw agent trajectories (`messages.jsonl`, `nika.jsonl`, session logs, ground truth dumps) belong on Hugging Face: [`Zhihao98/nika-trajectories`](https://huggingface.co/datasets/Zhihao98/nika-trajectories). Do not add trajectory dumps to `submissions/`.
+- Raw agent trajectories (`messages.jsonl`, `nika.jsonl`, session logs, ground truth dumps) belong on Hugging Face: [`nika-bench/nika-trajectories`](https://huggingface.co/datasets/nika-bench/nika-trajectories). Do not add trajectory dumps to `submissions/`.
 - `<NIKA_ROOT>` denotes the root of a local checkout of the NIKA source repository: `https://github.com/sands-lab/nika`.
 - The NIKA source repository is the source of truth for the `nika leaderboard` CLI, schemas, packing, validation, release manifests, and tests.
 - `<NIKA_LEADERBOARD_ROOT>` denotes the root of this repository.

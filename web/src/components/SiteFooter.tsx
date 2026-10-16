@@ -3,7 +3,7 @@ import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 const SUBMISSION_DOC =
   'https://github.com/sands-lab/nika/blob/main/docs/benchmarks/leaderboard-submission.md'
 const TRAJECTORIES =
-  'https://huggingface.co/datasets/Zhihao98/nika-trajectories'
+  'https://huggingface.co/datasets/nika-bench/nika-trajectories'
 
 function formatBuilt(iso: string | undefined): string | null {
   if (!iso) return null

@@ -5,7 +5,7 @@ Official submission archive and static leaderboard UI for [NIKA](https://github.
 Pack, validate, and open PRs with the NIKA CLI:
 
 - **Scores** land here under `submissions/<release_version>/{YYYYMMDD}_{slug}/` (GitHub PR)
-- **Trajectories** go to the Hugging Face dataset [`Zhihao98/nika-trajectories`](https://huggingface.co/datasets/Zhihao98/nika-trajectories) (Hub PR)
+- **Trajectories** go to the Hugging Face dataset [`nika-bench/nika-trajectories`](https://huggingface.co/datasets/nika-bench/nika-trajectories) (Hub PR)
 
 Full instructions, package layout, metadata schema, and PR checklist:
 
