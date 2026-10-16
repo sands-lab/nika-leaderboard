@@ -38,7 +38,7 @@ not recorded.
 - [Project site](https://sands-lab.github.io/nika/)
 - [Benchmark paper](https://arxiv.org/abs/2512.16381), which describes NIKA.
 - [Model checkpoint](https://huggingface.co/openai/gpt-oss-120b)
-- [Trajectories](https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261016_claude_code_gpt_oss_120b)
+- [Trajectories](https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261016_claude_code_gpt_oss_120b)
 
 Model weights release date: 2025-08-05
 ([announcement](https://openai.com/index/introducing-gpt-oss/)).

@@ -28,7 +28,7 @@ window. The run metadata does not record the serving context or precision.
 - [Project site](https://sands-lab.github.io/nika/)
 - [Benchmark paper](https://arxiv.org/abs/2512.16381), which describes NIKA.
 - [Model checkpoint](https://huggingface.co/Qwen/Qwen3.5-27B)
-- [Trajectories](https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261014_claude_code_qwen3_5_27b)
+- [Trajectories](https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261014_claude_code_qwen3_5_27b)
 
 This submission reuses the leaderboard's reviewed `Qwen3.5-27B` catalog
 entries: release date 2026-02-24, sourced from the

@@ -44,4 +44,4 @@ is USD 2 per million input tokens and USD 10 per million output tokens, retrieve
 The leaderboard uses these rates as a token-price reference for this subscription-
 authenticated run. It does not measure the subscription bill or apply cache discounts.
 
-[Paired trajectories](https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261016_claude_code_claude_sonnet_5_5).
+[Paired trajectories](https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261016_claude_code_claude_sonnet_5_5).

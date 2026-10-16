@@ -30,7 +30,7 @@ in the run metadata.
 - [Project site](https://sands-lab.github.io/nika/)
 - [Benchmark paper](https://arxiv.org/abs/2512.16381), which describes NIKA.
 - [Model checkpoint](https://huggingface.co/KU-DFI/TelecomGPT-R1)
-- [Trajectories](https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261013_claude_code_telecomgpt_r1)
+- [Trajectories](https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261013_claude_code_telecomgpt_r1)
 
 Model weights release date: 2026-06-08. The [first complete weight upload](https://huggingface.co/KU-DFI/TelecomGPT-R1/commit/99f638ac5691b0ed9e21fffbe1d9308af0205280)
 contains both safetensors shards. Earlier snapshots contain metadata without weights;

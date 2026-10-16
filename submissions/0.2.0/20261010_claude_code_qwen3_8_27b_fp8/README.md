@@ -19,7 +19,7 @@ self-hosted Qwen3.8-27B-FP8 and the standard NIKA MCP tools.
 - Project site: https://sands-lab.github.io/nika/
 - Benchmark paper: https://arxiv.org/abs/2512.16381
 - Model: https://huggingface.co/Qwen/Qwen3.8-27B-FP8
-- Trajectories: https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261010_claude_code_qwen3_8_27b_fp8
+- Trajectories: https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261010_claude_code_qwen3_8_27b_fp8
 
 ## Display metadata correction
 

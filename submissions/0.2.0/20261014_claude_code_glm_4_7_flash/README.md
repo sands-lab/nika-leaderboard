@@ -31,7 +31,7 @@ Nine trials that ended diagnosis within two turns were rerun once.
 - [Project site](https://sands-lab.github.io/nika/)
 - [Benchmark paper](https://arxiv.org/abs/2512.16381), which describes NIKA.
 - [Model checkpoint](https://huggingface.co/zai-org/GLM-4.7-Flash)
-- [Trajectories](https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261014_claude_code_glm_4_7_flash)
+- [Trajectories](https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261014_claude_code_glm_4_7_flash)
 
 Model weights release date: 2026-01-19. The
 [first weight upload](https://huggingface.co/zai-org/GLM-4.7-Flash/commit/75fce703a93da3705c4cf8d3caadbac1d1072c78)

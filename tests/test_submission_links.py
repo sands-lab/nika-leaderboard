@@ -22,4 +22,8 @@ class SubmissionLinksTest(unittest.TestCase):
         root = Path(__file__).resolve().parents[1]
         package = root / "submissions/0.2.0/20261008_claude_cli_otel_2_0_llm_31b_it"
         summary, detail = load_submission(package, "0.2.0", {}, repo_root=root)
-        self.assertIn(summary["trajectories_url"], detail["readme"])
+        rel = summary["trajectories_relpath"]
+        self.assertTrue(summary["trajectories_url"].endswith(rel))
+        # Historical READMEs may still name the pre-move Zhihao98 host; the Hub
+        # redirects that namespace to nika-bench. Require the canonical path.
+        self.assertIn(rel, detail["readme"])

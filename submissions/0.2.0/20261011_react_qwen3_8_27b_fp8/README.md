@@ -22,7 +22,7 @@ This entry uses the ReAct agent implemented with LangGraph through NIKA's
 - Project site: https://sands-lab.github.io/nika/
 - Benchmark paper: https://arxiv.org/abs/2512.16381
 - Model: https://huggingface.co/Qwen/Qwen3.8-27B-FP8
-- Trajectories: https://huggingface.co/datasets/nika-bench/nika-trajectories/tree/main/trajectories/0.2.0/20261011_react_qwen3_8_27b_fp8
+- Trajectories: https://huggingface.co/datasets/Zhihao98/nika-trajectories/tree/main/trajectories/0.2.0/20261011_react_qwen3_8_27b_fp8
 
 The benchmark paper describes NIKA. It is not a separate report about this agent.
 The leaderboard already contains model release and hosted reference-price metadata
