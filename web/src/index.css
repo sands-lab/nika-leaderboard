@@ -329,7 +329,7 @@ code {
 /* Compact on purpose: the tiles are a summary; the table is the page. */
 .leader-card {
   --accent: var(--muted);
-  flex: 0 1 17rem;
+  flex: 0 1 19rem;
   min-width: 0;
   display: flex;
   flex-direction: column;
@@ -368,18 +368,6 @@ code {
 
 .leader-card--cheap {
   --accent: #fbbf24;
-}
-
-.leader-card--reliable {
-  --accent: #34d399;
-}
-
-.leader-card--loc {
-  --accent: var(--brand-2);
-}
-
-.leader-card--detect {
-  --accent: #f472b6;
 }
 
 .leader-card__axis {
@@ -440,8 +428,21 @@ code {
 .leader-card__who {
   min-width: 0;
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 0.4rem;
+}
+
+.leader-card__who .provider-icon {
+  flex: none;
+  margin: 0;
+}
+
+.leader-card__name a {
+  color: inherit;
+}
+
+.leader-card__name a:hover {
+  color: var(--brand-ink);
 }
 
 .leader-card__name {
@@ -500,6 +501,18 @@ code {
 
   .leader-card__who {
     grid-area: who;
+    flex-wrap: wrap;
+    row-gap: 0.1rem;
+  }
+
+  /* The harness drops under the name so the name is never cut short. */
+  .leader-card__stack {
+    flex-basis: 100%;
+    padding-left: 1.9rem;
+  }
+
+  .leader-card__stack::before {
+    content: none;
   }
 
   .leader-card__value {
