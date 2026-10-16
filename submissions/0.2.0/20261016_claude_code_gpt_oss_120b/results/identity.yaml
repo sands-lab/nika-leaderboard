@@ -1,0 +1,22 @@
+created_at: '2026-10-16T09:05:59+00:00'
+benchmark:
+  id: nika-bench
+  version: 0.2.0
+  ref: nika-bench@0.2.0
+  split: test
+  case_count: 85
+  n_trials: 3
+  scoring_id: rule-based
+  leaderboard_primary: rca_f1
+run:
+  run_id: b169dba30aabb6bf
+  official: true
+  agent_type: cli.claude
+  model: gpt-oss:120b
+  llm_provider: custom
+  max_steps: 100
+  case_timeout_sec: 2400
+  nika_git_commit: 5096d23a3b79cd0d425d65ef1ebcb647ac2e8918
+  source_result_dir: results/gpt-oss-120b
+trajectories_relpath: trajectories/0.2.0/20261016_claude_code_gpt_oss_120b
+scores_package: null

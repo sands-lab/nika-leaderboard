@@ -1,0 +1,35 @@
+{
+  "case_key": "enterprise_branch__wireguard__hcd29627d2190",
+  "gt_fault_types": [
+    "wireguard_peer_key_misconfiguration"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 0.6667,
+    "fault_type_precision": 0.5,
+    "fault_type_recall": 1.0,
+    "in_tokens": 2541587,
+    "localization_accuracy": 0.6667,
+    "localization_f1": 0.8,
+    "localization_precision": 1.0,
+    "localization_recall": 0.6667,
+    "out_tokens": 24951,
+    "rca_accuracy": 0.3333,
+    "rca_f1": 0.4,
+    "rca_precision": 0.5,
+    "rca_recall": 0.3333,
+    "steps": 83,
+    "tool_calls": 82,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "wireguard_peer_key_misconfiguration",
+    "wireguard_allowed_ips_misconfiguration"
+  ],
+  "problem": "wireguard_peer_key_misconfiguration",
+  "scenario": "enterprise_branch",
+  "score_status": "scored",
+  "trial_id": "enterprise_branch__wireguard__hcd29627d2190__t01",
+  "trial_index": 1
+}

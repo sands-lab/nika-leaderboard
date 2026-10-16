@@ -54,6 +54,11 @@
     "release_source": "https://huggingface.co/zai-org/GLM-4.7-Flash/commit/75fce703a93da3705c4cf8d3caadbac1d1072c78",
     "model_page": "https://huggingface.co/zai-org/GLM-4.7-Flash"
   },
+  "GPT-OSS-120B": {
+    "released": "2025-08-05",
+    "release_source": "https://openai.com/index/introducing-gpt-oss/",
+    "model_page": "https://huggingface.co/openai/gpt-oss-120b"
+  },
   "claude-sonnet-5-5": {
     "released": "2026-09-28",
     "release_source": "https://www.anthropic.com/claude-sonnet-5-5",
