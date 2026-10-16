@@ -414,7 +414,7 @@ def load_submission(
             slug = re.sub(r"[^a-z0-9]+", "_", f"{framework} {model}".lower()).strip("_")
             traj_rel = f"trajectories/{version}/{date}_{slug}"
         trajectories_url = (
-            "https://huggingface.co/datasets/Zhihao98/nika-trajectories/"
+            "https://huggingface.co/datasets/nika-bench/nika-trajectories/"
             f"tree/main/{traj_rel.strip().strip('/')}"
         )
 
