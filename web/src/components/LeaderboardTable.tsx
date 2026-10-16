@@ -10,6 +10,7 @@ import {
   formatDateUtc,
   formatCount,
   formatScore,
+  SCORE_DIGITS,
 } from '../lib/data'
 import {
   adaptationMethods,
@@ -82,7 +83,6 @@ type LbSortKey =
   | 'model_release'
   | 'harness'
   | 'optimizations'
-  | 'provider'
   | 'user'
   | 'rca'
   | 'loc'
@@ -161,9 +161,9 @@ export function ScoreValue({
     <span className="score">
       <span
         className={`score-value score-value--${tier?.key ?? 'mid'}`}
-        title={tier ? `${formatScore(value)} · ${tier.label} of the entries shown` : undefined}
+        title={tier ? `${formatScore(value, SCORE_DIGITS)} · ${tier.label} of the entries shown` : undefined}
       >
-        {formatScore(value)}
+        {formatScore(value, SCORE_DIGITS)}
       </span>
       {suffix}
     </span>
@@ -232,14 +232,14 @@ export function RcaCell({
       className="rca-cell"
       title={
         ci
-          ? `On a fresh set of cases, this score would land between ${formatScore(ci[0], 2)} and ${formatScore(ci[1], 2)} 95% of the time`
+          ? `On a fresh set of cases, this score would land between ${formatScore(ci[0], SCORE_DIGITS)} and ${formatScore(ci[1], SCORE_DIGITS)} 95% of the time`
           : 'No per-trial results, so no uncertainty estimate'
       }
     >
       <ScoreValue
         value={s.mean_rca_f1}
         range={range}
-        suffix={margin && ci && <span className="ci-range">± {formatScore(ciHalfWidth(ci), 2)}</span>}
+        suffix={margin && ci && <span className="ci-range">± {formatScore(ciHalfWidth(ci), SCORE_DIGITS)}</span>}
       />
     </span>
   )
@@ -300,7 +300,6 @@ function buildAccessors(
     model_release: (s) => modelReleaseDate(s.model)?.getTime() ?? null,
     harness: (s) => s.framework,
     optimizations: (s) => formatAdaptation(s),
-    provider: (s) => resolveProvider(s.llm_provider, s.model),
     user: (s) => submitter(s),
     rca: (s) => s.mean_rca_f1,
     loc: (s) => s.mean_localization_f1,
@@ -426,8 +425,8 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
     '',
     'Hover a cell for the model\'s rate and the per-case figures.',
   ].join('\n')
-  // Always-on columns: rank, model, harness, provider, three scores, cost, links.
-  const columnCount = 9 + Object.values(columns).filter(Boolean).length
+  // Always-on columns: rank, model, harness, three scores, cost, links.
+  const columnCount = 8 + Object.values(columns).filter(Boolean).length
 
   // Rank and Model stay pinned while the table scrolls sideways. Model is
   // pinned just right of Rank, whose width depends on how spare table width
@@ -447,6 +446,30 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
     observer.observe(rankTh)
     return () => observer.disconnect()
   }, [])
+
+  // The header sticks to the page, just below whatever chrome is pinned above
+  // it. That needs a wrapper that is not a scroll container, so the wrapper
+  // only scrolls (header pinned inside it instead) once the table is too wide.
+  useEffect(() => {
+    const wrap = wrapRef.current
+    const table = tableRef.current
+    if (!wrap || !table) return
+    const chrome = Array.from(
+      document.querySelectorAll<HTMLElement>('.topbar, .analytics-filters'),
+    )
+    const update = () => {
+      const top = chrome.reduce((max, el) => {
+        const style = getComputedStyle(el)
+        if (style.position !== 'sticky') return max
+        return Math.max(max, (parseFloat(style.top) || 0) + el.getBoundingClientRect().height)
+      }, 0)
+      wrap.style.setProperty('--sticky-head-top', `${top}px`)
+      wrap.classList.toggle('is-overflowing-x', table.scrollWidth > wrap.clientWidth + 1)
+    }
+    const observer = new ResizeObserver(update)
+    for (const el of [wrap, table, ...chrome]) observer.observe(el)
+    return () => observer.disconnect()
+  }, [])
   // A shadow on the pinned edge only once there is something scrolled under it.
   const onScroll = () => {
     const wrap = wrapRef.current
@@ -463,7 +486,7 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
 
   return (
     <>
-    <div className="table-wrap" ref={wrapRef} onScroll={onScroll}>
+    <div className="table-wrap table-wrap--entries" ref={wrapRef} onScroll={onScroll}>
       <table className="data-table data-table--entries" ref={tableRef}>
         <thead>
           <tr>
@@ -480,7 +503,7 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
               sortKey="model"
               sort={sort}
               onSort={toggle}
-              title="Click a row for the entry's full details. ✓ = packaged from an official release run; ? = self-reported"
+              title="Model, with its vendor's logo. Click a row for the entry's full details. ✓ = packaged from an official release run; ? = self-reported"
               className="model-th sticky-model"
             />
             {columns.released && (
@@ -511,14 +534,6 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
                 className="w-optimizations col-narrow-hide"
               />
             )}
-            <SortableTh
-              label="Provider"
-              sortKey="provider"
-              sort={sort}
-              onSort={toggle}
-              title="Model vendor"
-              className="w-provider col-secondary"
-            />
             {columns.user && (
               <SortableTh
                 label="User"
@@ -605,14 +620,17 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
                   </span>
                 </td>
                 <td className="model-td sticky-model">
-                  <Link
-                    className="model-name"
-                    to={{ pathname: entryPath(s.id), search }}
-                    title={`${s.name}: view details`}
-                  >
-                    {dash(s.model)}
-                  </Link>
-                  <VerifiedMark official={s.official} />
+                  <span className="model-cell">
+                    <ProviderIcon llmProvider={s.llm_provider} model={s.model} />
+                    <Link
+                      className="model-name"
+                      to={{ pathname: entryPath(s.id), search }}
+                      title={`${s.name}: view details`}
+                    >
+                      {dash(s.model)}
+                    </Link>
+                    <VerifiedMark official={s.official} />
+                  </span>
                 </td>
                 {columns.released && (
                   <td className="num col-secondary">{formatDateUtc(release)}</td>
@@ -627,9 +645,6 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
                     {formatAdaptation(s)}
                   </td>
                 )}
-                <td className="col-secondary">
-                  <ProviderIcon llmProvider={s.llm_provider} model={s.model} />
-                </td>
                 {columns.user && (
                   <td
                     className={`col-secondary user-td${user ? '' : ' user-td--anonymous'}`}

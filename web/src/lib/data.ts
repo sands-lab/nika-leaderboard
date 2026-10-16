@@ -71,9 +71,18 @@ export function formatPct(value: number | null | undefined, digits = 1): string 
 }
 
 /**
- * Scores (F1, detection) as 0-1 decimals, two places: run-to-run margins are
- * around ±0.07, so a third place would only display noise. Proportions such as
- * success rate use formatPct instead; a score is not a share of cases.
+/**
+ * Decimals for the headline scores (RCA, localization, detection) wherever an
+ * entry is ranked or shown: three, so close entries read apart. Run-to-run
+ * margins are around ±0.07, so the third place is precision, not a gap; ties
+ * are marked by rank, not by equal digits.
+ */
+export const SCORE_DIGITS = 3
+
+/**
+ * Scores (F1, detection) as 0-1 decimals, two places unless told otherwise.
+ * Proportions such as success rate use formatPct instead; a score is not a
+ * share of cases.
  */
 export function formatScore(value: number | null | undefined, digits = 2): string {
   if (value == null || Number.isNaN(value)) return '—'
