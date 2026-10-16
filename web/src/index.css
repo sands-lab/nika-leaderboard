@@ -514,7 +514,8 @@ code {
     font-size: 1.3rem;
   }
 
-  /* A CSV download is a desk task; on a phone the row keeps just the key. */
+  /* CSV downloads and extra columns are desk tasks; on a phone the row keeps
+     just the key. */
   .table-toolbar .btn {
     display: none;
   }
@@ -1044,8 +1045,8 @@ code {
   width: 8.5rem;
 }
 
-.data-table--entries .w-adaptation {
-  width: 7.5rem;
+.data-table--entries .w-optimizations {
+  width: 9.5rem;
 }
 
 .data-table--entries .w-provider {
@@ -1057,15 +1058,70 @@ code {
 }
 
 .data-table--entries .w-rca {
-  width: 8.75rem;
+  width: 6.5rem;
 }
 
 .data-table--entries .w-cost {
   width: 6rem;
 }
 
+.data-table--entries .w-user {
+  width: 8rem;
+}
+
+.data-table--entries .w-tokens {
+  width: 7.5rem;
+}
+
 .data-table--entries .w-links {
   width: 4.5rem;
+}
+
+/*
+ * Rank and Model stay pinned on the left while the table scrolls sideways.
+ * Pinned cells need an opaque fill to cover what scrolls beneath them, so row
+ * hover is repainted on top of it.
+ */
+.data-table--entries .sticky-rank,
+.data-table--entries .sticky-model {
+  position: sticky;
+  z-index: 2;
+}
+
+.data-table--entries .sticky-rank {
+  left: 0;
+}
+
+.data-table--entries .sticky-model {
+  left: var(--sticky-model-left, 4.5rem);
+}
+
+.data-table--entries th.sticky-rank,
+.data-table--entries th.sticky-model {
+  z-index: 3;
+}
+
+.data-table--entries td.sticky-rank,
+.data-table--entries td.sticky-model {
+  background: var(--panel);
+}
+
+.data-table--entries tbody tr:hover td.sticky-rank,
+.data-table--entries tbody tr:hover td.sticky-model {
+  background: linear-gradient(rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.035)), var(--panel);
+}
+
+/* Cells in a collapsed-border table drop box-shadows, so the edge is drawn. */
+.table-wrap.is-scrolled-x .sticky-model::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: -12px;
+  width: 12px;
+  border-left: 1px solid var(--line-strong);
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.45), rgba(0, 0, 0, 0));
+  pointer-events: none;
 }
 
 /* Fits the longest name ("Qwen3.6-35B-A3B-FP8" plus its mark). */
@@ -1182,6 +1238,90 @@ code {
 .adaptation-td--none {
   color: var(--muted);
   font-weight: 400;
+}
+
+.user-td {
+  white-space: nowrap;
+}
+
+.user-td--anonymous {
+  color: var(--muted);
+  font-style: italic;
+}
+
+/* "Columns" menu in the table toolbar, for the optional columns. */
+.column-picker {
+  position: relative;
+}
+
+.column-picker__menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  right: 0;
+  z-index: 20;
+  display: grid;
+  gap: 0.15rem;
+  min-width: 12rem;
+  margin: 0;
+  padding: 0.5rem 0.6rem;
+  background: var(--panel-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+}
+
+.column-picker__legend {
+  float: left;
+  width: 100%;
+  margin-bottom: 0.25rem;
+  padding: 0;
+  font-size: 0.7rem;
+  font-weight: 650;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.column-picker__option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.2rem 0.15rem;
+  font-size: 0.84rem;
+  color: var(--ink);
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.column-picker__option input {
+  accent-color: var(--brand);
+  margin: 0;
+}
+
+/*
+ * Site-wide hover tooltip. It replaces the browser's native one, which waits
+ * about a second before showing; see FastTooltip.
+ */
+.fast-tip {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  max-width: min(24rem, calc(100vw - 16px));
+  padding: 0.45rem 0.65rem;
+  font-size: 0.78rem;
+  font-weight: 400;
+  line-height: 1.45;
+  letter-spacing: normal;
+  text-align: left;
+  text-transform: none;
+  white-space: pre-line;
+  color: var(--ink);
+  background: rgba(12, 16, 24, 0.97);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: var(--radius-sm);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+  pointer-events: none;
 }
 
 .links {

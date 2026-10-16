@@ -104,8 +104,8 @@ function pickLeaders(
     }
   }
 
-  // Cheapest among the better half only: the cheapest run overall is usually
-  // the one that barely tried.
+  // Cheapest among entries scoring at or above the median only: the cheapest
+  // run overall is usually the one that barely tried.
   const cutoff = median(scored.map((s) => s.mean_rca_f1 ?? 0))
   const priced = scored
     .filter((s) => (s.mean_rca_f1 ?? 0) >= cutoff)
@@ -115,11 +115,11 @@ function pickLeaders(
     const cheapest = priced.reduce((a, b) => (b.cost < a.cost ? b : a))
     out.push({
       kind: 'cheap',
-      axis: 'Cheapest of the better half',
+      axis: 'Lowest-cost top performer',
       entry: cheapest.s,
       value: formatUsd(cheapest.cost),
-      unit: 'per run',
-      note: `Lowest cost to run the benchmark once among entries scoring at or above the median (${formatScore(cutoff)})`,
+      unit: 'est. per run',
+      note: `Lowest estimated cost to run the benchmark once, at reference token prices, among entries whose RCA F1 score is at or above the median (${formatScore(cutoff)})`,
     })
   }
 
