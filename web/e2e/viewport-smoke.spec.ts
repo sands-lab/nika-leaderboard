@@ -97,7 +97,19 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
       .filter({ hasText: model })
       .filter({ hasText: 'Claude Code' })
     await expect(row).toContainText('Claude Code')
-    await expect(row).toContainText(date)
+    // Released is an optional column: hidden until turned on, then remembered.
+    // Phones get no column menu, as the optional columns never fit there.
+    const columns = page.getByRole('button', { name: /^Columns/ })
+    if (await columns.isVisible()) {
+      if (!(await row.textContent())?.includes(date)) {
+        await columns.click()
+        await page.getByLabel('Released', { exact: true }).check()
+        await columns.click()
+      }
+      await expect(row).toContainText(date)
+    } else {
+      await expect(row).not.toContainText(date)
+    }
     await expect(row.locator('span[title*="One run ="]')).toContainText('$')
     if (model.startsWith('OTel')) {
       // The compact table hides its Provider column on smaller viewports.

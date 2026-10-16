@@ -271,7 +271,7 @@ export function EntryPage() {
           rows={[
             ['Harness', <HarnessCell s={s} />],
             ['NIKA agent', s.agent_type && <code>{s.agent_type}</code>],
-            ['Adaptation', formatAdaptation(s)],
+            ['Agent optimizations', formatAdaptation(s)],
             ['Skills', list(scaffoldTags(s))],
             ['Tools', list(s.tools)],
             ['Tags', list(s.tags)],

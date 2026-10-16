@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
+import { FastTooltip } from './FastTooltip'
 import { SiteFooter } from './SiteFooter'
 
 export function Layout() {
@@ -44,6 +45,7 @@ export function Layout() {
       </main>
 
       <SiteFooter />
+      <FastTooltip />
     </div>
   )
 }

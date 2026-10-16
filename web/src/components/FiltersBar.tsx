@@ -117,7 +117,7 @@ export function FiltersBar({
         onChange={(v) => set('model', v)}
       />
       <Select
-        label="Adaptation"
+        label="Agent optimizations"
         value={filters.optimization_method}
         options={adaptationOptions}
         onChange={(v) => set('optimization_method', v)}

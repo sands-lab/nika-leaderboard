@@ -143,3 +143,34 @@ export const BASIS_LABEL: Record<PriceBasis, string> = {
   hosted_open_weight: 'hosted quote for the same open weights',
   gpu_hour: 'derived from GPU rental and throughput',
 }
+
+const BASIS_GROUP: Record<PriceBasis, string> = {
+  api: 'Proprietary models: vendor API list prices',
+  hosted_open_weight: 'Open-weight models: public hosted-inference quotes',
+  gpu_hour: 'Other models: GPU rental and throughput estimates',
+}
+
+/**
+ * Where the reference prices come from, one line per basis, naming the
+ * providers quoted (most-used first). Read from the pricing file so the
+ * explanation cannot drift from the prices actually applied.
+ */
+export function priceSourceLines(pricing: PricingFile | null): string[] {
+  if (!pricing) return []
+  const byBasis = new Map<PriceBasis, Map<string, number>>()
+  for (const p of Object.values(pricing.models)) {
+    const counts = byBasis.get(p.basis) ?? new Map<string, number>()
+    if (p.provider) counts.set(p.provider, (counts.get(p.provider) ?? 0) + 1)
+    byBasis.set(p.basis, counts)
+  }
+  return (Object.keys(BASIS_GROUP) as PriceBasis[])
+    .filter((basis) => byBasis.has(basis))
+    .map((basis) => {
+      const providers = [...byBasis.get(basis)!.entries()]
+        .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+        .map(([name]) => name)
+      return providers.length
+        ? `${BASIS_GROUP[basis]} (${providers.join(', ')})`
+        : BASIS_GROUP[basis]
+    })
+}
