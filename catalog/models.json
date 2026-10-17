@@ -68,5 +68,10 @@
     "released": "2026-09-22",
     "release_source": "https://www.anthropic.com/claude-opus-5-5",
     "model_page": "https://www.anthropic.com/claude-opus-5-5"
+  },
+  "Claude Haiku 5.5": {
+    "released": "2026-10-07",
+    "release_source": "https://www.anthropic.com/claude-haiku-5-5",
+    "model_page": "https://www.anthropic.com/claude-haiku-5-5"
   }
 }
