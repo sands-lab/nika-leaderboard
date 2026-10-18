@@ -98,5 +98,12 @@
     "released": "2026-10-07",
     "release_source": "https://www.anthropic.com/claude-haiku-5-5",
     "model_page": "https://www.anthropic.com/claude-haiku-5-5"
+  },
+  "gpt-6.1-sol": {
+    "name": "GPT-6.1 Sol",
+    "released": "2026-09-29",
+    "release_source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+    "model_page": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+    "retrieved_via": "models.dev"
   }
 }
