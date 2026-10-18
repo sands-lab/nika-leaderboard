@@ -72,6 +72,16 @@ and `claude-haiku-5-5` are the same model. Each `models.json` entry has a displa
 optionally `hf_repo` (`owner/name`, used to price open weights) and
 `retrieved_via` (the aggregator the date was read from).
 
+`name` is the model's models.dev display name: the vendor's own listing, else
+the name most providers on models.dev use for that ID, else the Hugging Face
+repo name. The data build shows it everywhere a model is named (tables, charts,
+filters, generated entry labels) in place of the submitted string, so
+`claude-sonnet-5-5` and `Claude Opus 5.5` read alike. This applies to every
+entry on each build; a model not yet catalogued shows its submitted string
+until its catalog entry merges. The entry page still shows the original
+spelling, and summaries keep it as `submitted_model` next to the catalog key
+`model_id`.
+
 Each `pricing.json` entry has `basis` (`api` or `hosted_open_weight`),
 `provider`, an optional `note`, and a dated `quotes` list. A quote has positive
 `input` and `output` USD per million tokens, an HTTPS `source` (vendor or

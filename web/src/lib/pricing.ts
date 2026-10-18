@@ -88,6 +88,11 @@ export function catalogEntry<T>(table: Record<string, T> | null | undefined, mod
   return key ? table[key] : null
 }
 
+/** What to look a run's model up by: its catalog key, else the name it was submitted under. */
+export function modelKey(s: { model_id?: string | null; model: string | null }): string | null {
+  return s.model_id ?? s.model
+}
+
 /** ISO date from a package directory's `YYYYMMDD_` prefix. */
 export function packageDate(dirname: string | null | undefined): string | null {
   const m = /^(\d{4})(\d{2})(\d{2})_/.exec(dirname ?? '')
@@ -192,7 +197,7 @@ export function priceFor(
           note: [entry.note, quote.note].filter(Boolean).join(' ') || undefined,
         }
       : null
-  const edit = overrides[model]
+  const edit = catalogEntry(overrides, model)
   if (!base && !edit) return null
   if (!edit) return base
   return {
@@ -231,7 +236,7 @@ export function submissionCost(
   overrides: PriceOverrides,
   mode: PriceMode = 'frozen',
 ): SubmissionCost | null {
-  const price = priceFor(s.model, pricing, overrides, {
+  const price = priceFor(modelKey(s), pricing, overrides, {
     date: packageDate(s.dirname),
     mode,
   })
@@ -252,7 +257,7 @@ export function submissionCost(
     perRun: perCase != null && cases > 0 ? perCase * cases : null,
     perCase,
     price,
-    edited: Boolean(overrides[s.model ?? '']),
+    edited: Boolean(catalogEntry(overrides, modelKey(s))),
   }
 }
 

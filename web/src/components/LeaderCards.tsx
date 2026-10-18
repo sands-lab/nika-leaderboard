@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom'
 import { entryPath, formatScore, SCORE_DIGITS } from '../lib/data'
 import { adaptationMethods, scaffoldTags } from '../lib/metrics'
-import { catalogEntry, formatUsd, submissionCost } from '../lib/pricing'
+import { catalogEntry, formatUsd, modelKey, submissionCost } from '../lib/pricing'
 import type { PriceMode, PriceOverrides, PricingFile } from '../lib/pricing'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import type { SubmissionSummary } from '../lib/types'
@@ -69,7 +69,7 @@ function pickLeaders(
 
   // Open weights are the ones carrying a hosted quote rather than a vendor price.
   const openWeight = scored.filter(
-    (s) => catalogEntry(pricing?.models, s.model)?.basis === 'hosted_open_weight',
+    (s) => catalogEntry(pricing?.models, modelKey(s))?.basis === 'hosted_open_weight',
   )
   if (openWeight.length) {
     const top = openWeight.reduce((a, b) =>

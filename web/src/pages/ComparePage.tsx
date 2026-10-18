@@ -26,7 +26,9 @@ import {
 import { formatScore, loadSubmissionDetails } from '../lib/data'
 import {
   BASIS_LABEL,
+  catalogEntry,
   formatUsd,
+  modelKey,
   priceFor,
   priceStatus,
   submissionCost,
@@ -372,12 +374,18 @@ export function ComparePage() {
   )
 
   const priceRows = useMemo(() => {
-    const models = [...new Set(details.map((d) => d.model).filter(Boolean))] as string[]
-    return models.sort().map((model) => ({
+    // Keyed by catalog ID so edits survive display-name changes; shown by name.
+    const labels = new Map<string, string>()
+    for (const d of details) {
+      const key = modelKey(d)
+      if (key) labels.set(key, d.model ?? key)
+    }
+    return [...labels].sort((a, b) => a[1].localeCompare(b[1])).map(([model, label]) => ({
       model,
+      label,
       price: priceFor(model, pricing, overrides),
       status: priceStatus(model, pricing),
-      edited: Boolean(overrides[model]),
+      edited: Boolean(catalogEntry(overrides, model)),
     }))
   }, [details, pricing, overrides])
 
@@ -768,7 +776,7 @@ export function ComparePage() {
                 <tbody>
                   {priceRows.map((row) => (
                     <tr key={row.model}>
-                      <td>{row.model}</td>
+                      <td>{row.label}</td>
                       <td>
                         <input
                           type="number"

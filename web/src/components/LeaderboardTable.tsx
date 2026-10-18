@@ -32,6 +32,7 @@ import {
   BASIS_LABEL,
   catalogEntry,
   formatUsd,
+  modelKey,
   priceSourceLines,
   priceStatus,
   submissionCost,
@@ -301,7 +302,7 @@ function buildAccessors(
     // Within a shared rank, list the higher point estimate first.
     rank: (s) => (s.rank ?? 0) - (s.mean_rca_f1 ?? 0) / 2,
     model: (s) => s.model,
-    model_release: (s) => modelReleaseDate(s.model)?.getTime() ?? null,
+    model_release: (s) => modelReleaseDate(modelKey(s))?.getTime() ?? null,
     harness: (s) => s.framework,
     optimizations: (s) => formatAdaptation(s),
     user: (s) => submitter(s),
@@ -335,7 +336,7 @@ export function CostCell({
   if (cost?.perRun == null) {
     const hasTokens =
       (s.token_totals?.in_tokens ?? 0) > 0 || (s.token_totals?.out_tokens ?? 0) > 0
-    const status = priceStatus(s.model, pricing)
+    const status = priceStatus(modelKey(s), pricing)
     if (!hasTokens || status === 'priced') {
       return (
         <span className="num" title="This package reports no token accounting">
@@ -343,7 +344,7 @@ export function CostCell({
         </span>
       )
     }
-    const note = catalogEntry(pricing?.models, s.model)?.note
+    const note = catalogEntry(pricing?.models, modelKey(s))?.note
     return status === 'unavailable' ? (
       <span
         className="cost-missing"
@@ -634,7 +635,7 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
         </thead>
         <tbody>
           {sorted.map((s) => {
-            const release = modelReleaseDate(s.model)
+            const release = modelReleaseDate(modelKey(s))
             const adapted = adaptationMethods(s)
             const user = submitter(s)
             return (

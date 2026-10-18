@@ -26,6 +26,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
+from collections import Counter
 from dataclasses import dataclass, field
 from datetime import date
 from pathlib import Path
@@ -353,12 +354,20 @@ def first_weight_commit(sources: Sources, repo: str) -> dict[str, Any] | None:
 
 
 def models_dev_name(sources: Sources, repo: str) -> str | None:
-    owner = repo.split("/")[0].lower()
-    entry = ((sources.models_dev().get(owner) or {}).get("models") or {})
-    for mid, item in entry.items():
-        if model_slug(mid.split("/")[-1]) == model_slug(repo.split("/")[-1]):
-            return item.get("name")
-    return None
+    """Display name models.dev gives these weights.
+
+    The weights' own vendor listing wins; otherwise the name most hosting
+    providers on models.dev use for the same model ID.
+    """
+    owner, slug = repo.split("/")[0].lower(), model_slug(repo.split("/")[-1])
+    names: Counter[str] = Counter()
+    for provider, data in sources.models_dev().items():
+        for mid, item in (data.get("models") or {}).items():
+            if model_slug(mid.split("/")[-1]) == slug and item.get("name"):
+                if provider == owner:
+                    return item["name"]
+                names[item["name"]] += 1
+    return names.most_common(1)[0][0] if names else None
 
 
 def resolve_open_weight(

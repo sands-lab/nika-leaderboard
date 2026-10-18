@@ -38,6 +38,10 @@ SOURCES = {
             }
         },
         "qwen": {"models": {"qwen3.6-35b-a3b": {"name": "Qwen3.6 35B A3B", "open_weights": True}}},
+        # No vendor listing for the FP8 checkpoint: the hosts' majority name wins.
+        "host-a": {"models": {"Qwen/Qwen3.6-35B-A3B-FP8": {"name": "Qwen3.6 35B A3B FP8"}}},
+        "host-b": {"models": {"qwen3.6-35b-a3b-fp8": {"name": "Qwen3.6 35B A3B FP8"}}},
+        "host-c": {"models": {"qwen3.6-35b-a3b-fp8": {"name": "qwen3.6-35b-a3b-fp8"}}},
     },
     OPENROUTER: {
         "data": [
@@ -124,6 +128,7 @@ class ResolveNewModelsTest(unittest.TestCase):
         models, pricing = empty_catalog()
         report = resolve(models, pricing, ["Qwen3.6-35B-A3B-FP8"], Sources(fetch), TODAY)
         entry = models["qwen3.6-35b-a3b-fp8"]
+        self.assertEqual(entry["name"], "Qwen3.6 35B A3B FP8")
         self.assertEqual(entry["released"], "2026-04-15")
         self.assertEqual(
             entry["release_source"], "https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8/commit/c2"

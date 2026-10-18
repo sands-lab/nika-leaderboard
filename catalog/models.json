@@ -12,28 +12,28 @@
     "model_page": "https://developers.openai.com/api/docs/models/gpt-5-mini"
   },
   "gpt-oss-20b": {
-    "name": "gpt-oss-20b",
+    "name": "GPT OSS 20B",
     "released": "2025-08-05",
     "release_source": "https://openai.com/index/introducing-gpt-oss/",
     "model_page": "https://huggingface.co/openai/gpt-oss-20b",
     "hf_repo": "openai/gpt-oss-20b"
   },
   "qwen3.5-27b": {
-    "name": "Qwen3.5-27B",
+    "name": "Qwen3.5 27B",
     "released": "2026-02-24",
     "release_source": "https://github.com/QwenLM/Qwen3.5",
     "model_page": "https://huggingface.co/Qwen/Qwen3.5-27B",
     "hf_repo": "Qwen/Qwen3.5-27B"
   },
   "qwen3.6-27b": {
-    "name": "Qwen3.6-27B",
+    "name": "Qwen3.6 27B",
     "released": "2026-04-22",
     "release_source": "https://qwen.ai/blog?id=qwen3.6-27b",
     "model_page": "https://huggingface.co/Qwen/Qwen3.6-27B",
     "hf_repo": "Qwen/Qwen3.6-27B"
   },
   "qwen3.6-35b-a3b-fp8": {
-    "name": "Qwen3.6-35B-A3B-FP8",
+    "name": "Qwen3.6 35B A3B FP8",
     "released": "2026-04-16",
     "release_source": "https://qwen.ai/blog?id=qwen3.6-35b-a3b",
     "model_page": "https://huggingface.co/Qwen/Qwen3.6-35B-A3B-FP8",
@@ -75,7 +75,7 @@
     "hf_repo": "zai-org/GLM-4.7-Flash"
   },
   "gpt-oss-120b": {
-    "name": "gpt-oss-120b",
+    "name": "GPT OSS 120B",
     "released": "2025-08-05",
     "release_source": "https://openai.com/index/introducing-gpt-oss/",
     "model_page": "https://huggingface.co/openai/gpt-oss-120b",

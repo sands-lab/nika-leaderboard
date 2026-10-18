@@ -30,6 +30,7 @@ import {
   BASIS_LABEL,
   catalogEntry,
   formatUsd,
+  modelKey,
   packageDate,
   priceFor,
   priceStatus,
@@ -171,12 +172,12 @@ export function EntryPage() {
   const cost = submissionCost(s, pricing, overrides, priceMode)
   const price =
     cost?.price ??
-    priceFor(s.model, pricing, overrides, { date: packageDate(s.dirname), mode: priceMode })
-  const status = priceStatus(s.model, pricing)
+    priceFor(modelKey(s), pricing, overrides, { date: packageDate(s.dirname), mode: priceMode })
+  const status = priceStatus(modelKey(s), pricing)
   const missingPrice =
     status === 'unavailable' ? 'n/a' : status === 'pending' ? 'pending' : '—'
   const vendor = resolveProvider(s.llm_provider, s.model)
-  const modelUrl = modelLink(s.model)
+  const modelUrl = modelLink(modelKey(s))
   const tied = tieCount(release, s)
   // Tinted against the rest of the release, as on the leaderboard.
   const ranges = {
@@ -242,6 +243,11 @@ export function EntryPage() {
                 {modelUrl && (
                   <LinkIcon link={{ kind: 'model', label: 'Model page', href: modelUrl }} />
                 )}
+                {s.submitted_model && s.submitted_model !== s.model && (
+                  <small className="entry-sub">
+                    submitted as <code>{s.submitted_model}</code>
+                  </small>
+                )}
               </span>,
             ],
             [
@@ -253,7 +259,7 @@ export function EntryPage() {
                 </span>
               ),
             ],
-            ['Released', modelReleaseDate(s.model) && formatDateUtc(modelReleaseDate(s.model))],
+            ['Released', modelReleaseDate(modelKey(s)) && formatDateUtc(modelReleaseDate(modelKey(s)))],
             ['Served via', servingLabel(s.llm_provider)],
             [
               'Reference price',
@@ -282,7 +288,7 @@ export function EntryPage() {
                 <span>
                   Not available
                   <small className="entry-sub">
-                    {catalogEntry(pricing?.models, s.model)?.note ??
+                    {catalogEntry(pricing?.models, modelKey(s))?.note ??
                       'No public price exists for this model.'}
                   </small>
                 </span>
