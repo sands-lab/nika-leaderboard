@@ -32,7 +32,12 @@ export interface SubmissionSummary {
   /** Hub tree URL for paired trajectories when identity.trajectories_relpath is set. */
   trajectories_url: string | null
   trajectories_relpath?: string | null
+  /** Catalog display name once the model is catalogued, else the submitted string. */
   model: string | null
+  /** Catalog key (runtime model ID); null while the model is not catalogued. */
+  model_id?: string | null
+  /** `agent.model` exactly as the package records it. */
+  submitted_model?: string | null
   framework: string | null
   agent_type: string | null
   llm_provider: string | null

@@ -1,8 +1,8 @@
 import { Link, useLocation } from 'react-router-dom'
 import { entryPath, formatScore, SCORE_DIGITS } from '../lib/data'
 import { adaptationMethods, scaffoldTags } from '../lib/metrics'
-import { formatUsd, submissionCost } from '../lib/pricing'
-import type { PriceOverrides, PricingFile } from '../lib/pricing'
+import { catalogEntry, formatUsd, modelKey, submissionCost } from '../lib/pricing'
+import type { PriceMode, PriceOverrides, PricingFile } from '../lib/pricing'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import type { SubmissionSummary } from '../lib/types'
 import { ProviderIcon } from './LeaderboardTable'
@@ -49,6 +49,7 @@ function pickLeaders(
   rows: SubmissionSummary[],
   pricing: PricingFile | null,
   overrides: PriceOverrides,
+  priceMode: PriceMode,
 ): Leader[] {
   const scored = rows.filter((s) => s.mean_rca_f1 != null)
   if (!scored.length) return []
@@ -68,7 +69,7 @@ function pickLeaders(
 
   // Open weights are the ones carrying a hosted quote rather than a vendor price.
   const openWeight = scored.filter(
-    (s) => pricing?.models?.[s.model ?? '']?.basis === 'hosted_open_weight',
+    (s) => catalogEntry(pricing?.models, modelKey(s))?.basis === 'hosted_open_weight',
   )
   if (openWeight.length) {
     const top = openWeight.reduce((a, b) =>
@@ -91,7 +92,7 @@ function pickLeaders(
   const cutoff = median(scored.map((s) => s.mean_rca_f1 ?? 0))
   const priced = scored
     .filter((s) => (s.mean_rca_f1 ?? 0) >= cutoff)
-    .map((s) => ({ s, cost: submissionCost(s, pricing, overrides)?.perRun ?? null }))
+    .map((s) => ({ s, cost: submissionCost(s, pricing, overrides, priceMode)?.perRun ?? null }))
     .filter((x): x is { s: SubmissionSummary; cost: number } => x.cost != null)
   if (priced.length) {
     const cheapest = priced.reduce((a, b) => (b.cost < a.cost ? b : a))
@@ -160,8 +161,8 @@ function LeaderCard({ leader, index }: { leader: Leader; index: number }) {
 }
 
 export function LeaderCards({ rows }: { rows: SubmissionSummary[] }) {
-  const { pricing, overrides } = useLeaderboardData()
-  const leaders = pickLeaders(rows, pricing, overrides)
+  const { pricing, overrides, priceMode } = useLeaderboardData()
+  const leaders = pickLeaders(rows, pricing, overrides, priceMode)
   if (!leaders.length) return null
 
   return (

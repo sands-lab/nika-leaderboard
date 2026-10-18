@@ -7,6 +7,7 @@ import { familyColor, familyPalette, inferModelFamily } from '../lib/insights'
 import { formatCount, formatPct, formatScore } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { modelReleaseDate } from '../lib/modelMeta'
+import { modelKey } from '../lib/pricing'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import type { SubmissionSummary } from '../lib/types'
 
@@ -239,7 +240,7 @@ export function AnalyzePage() {
   const vsReleaseDate = useMemo((): EChartsOption => {
     const raw = colored
       .map(({ s, family, color }) => {
-        const d = modelReleaseDate(s.model)
+        const d = modelReleaseDate(modelKey(s))
         if (!d) return null
         return {
           name: s.name,
@@ -407,7 +408,7 @@ export function AnalyzePage() {
   const hasTimeout = colored.some(
     ({ s }) => s.case_timeout_sec != null && s.case_timeout_sec > 0,
   )
-  const hasReleaseDates = colored.some(({ s }) => modelReleaseDate(s.model))
+  const hasReleaseDates = colored.some(({ s }) => modelReleaseDate(modelKey(s)))
 
   if (loading) return <p className="status">Loading analyze view…</p>
   if (error) return <p className="status status--error">{error}</p>

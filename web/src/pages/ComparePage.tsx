@@ -26,10 +26,14 @@ import {
 import { formatScore, loadSubmissionDetails } from '../lib/data'
 import {
   BASIS_LABEL,
+  catalogEntry,
   formatUsd,
+  modelKey,
   priceFor,
+  priceStatus,
   submissionCost,
 } from '../lib/pricing'
+import { PriceModeToggle } from '../components/PriceModeToggle'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import type { SubmissionDetail } from '../lib/types'
@@ -77,6 +81,7 @@ export function ComparePage() {
     pricing,
     overrides,
     setOverrides,
+    priceMode,
     loading,
     error,
   } = useLeaderboardData()
@@ -161,7 +166,7 @@ export function ComparePage() {
     // log-scaled cost chart and read on the table as if no price were on file.
     const parsed = Number(raw)
     const usable = raw.trim() !== '' && Number.isFinite(parsed) && parsed >= 0
-    const value = usable ? parsed : (pricing?.models?.[model]?.[field] ?? 0)
+    const value = usable ? parsed : (priceFor(model, pricing, {})?.[field] ?? 0)
     setOverrides({
       ...overrides,
       [model]: {
@@ -347,7 +352,7 @@ export function ComparePage() {
     () =>
       details
         .map((d, i) => {
-          const cost = submissionCost(d, pricing, overrides)
+          const cost = submissionCost(d, pricing, overrides, priceMode)
           return cost?.perRun != null
             ? {
                 id: d.id,
@@ -365,15 +370,22 @@ export function ComparePage() {
             : null
         })
         .filter((p): p is NonNullable<typeof p> => p != null && p.cost > 0),
-    [details, pricing, overrides],
+    [details, pricing, overrides, priceMode],
   )
 
   const priceRows = useMemo(() => {
-    const models = [...new Set(details.map((d) => d.model).filter(Boolean))] as string[]
-    return models.sort().map((model) => ({
+    // Keyed by catalog ID so edits survive display-name changes; shown by name.
+    const labels = new Map<string, string>()
+    for (const d of details) {
+      const key = modelKey(d)
+      if (key) labels.set(key, d.model ?? key)
+    }
+    return [...labels].sort((a, b) => a[1].localeCompare(b[1])).map(([model, label]) => ({
       model,
+      label,
       price: priceFor(model, pricing, overrides),
-      edited: Boolean(overrides[model]),
+      status: priceStatus(model, pricing),
+      edited: Boolean(catalogEntry(overrides, model)),
     }))
   }, [details, pricing, overrides])
 
@@ -409,7 +421,8 @@ export function ComparePage() {
             `<div style="margin-top:6px;opacity:.65;font-size:11px">` +
               `cost = (in × $in + out × $out) ÷ 1M<br/>` +
               `${d.model ?? 'model'} at ${formatUsd(d.price.input)} in / ${formatUsd(d.price.output)} out per 1M · ` +
-              `${d.edited ? 'your edited price' : BASIS_LABEL[d.price.basis]}<br/>` +
+              `${d.edited ? 'your edited price' : BASIS_LABEL[d.price.basis]}` +
+              `${!d.edited && d.price.retrieved ? `, ${d.price.provider ?? 'quote'} retrieved ${d.price.retrieved}` : ''}<br/>` +
               `${
                 d.onFrontier
                   ? 'Pareto-optimal: nothing here is both cheaper and better'
@@ -743,10 +756,13 @@ export function ComparePage() {
             <div className="pricing-panel__body">
               <p className="muted">
                 USD per million tokens, used for the cost axis above. Edits stay in
-                this browser and are not submitted anywhere.
-                {pricing?.as_of &&
-                  ` Defaults were collected on ${pricing.as_of}; prices move, so re-check before citing.`}
+                this browser and are not submitted anywhere. Defaults are each
+                model's latest quote; unless "Current prices" is on, the chart
+                prices every entry with the quote in effect on its submission
+                date.
+                {pricing?.as_of && ` Catalog updated ${pricing.as_of}.`}
               </p>
+              <PriceModeToggle />
               <table className="pricing-table">
                 <thead>
                   <tr>
@@ -760,7 +776,7 @@ export function ComparePage() {
                 <tbody>
                   {priceRows.map((row) => (
                     <tr key={row.model}>
-                      <td>{row.model}</td>
+                      <td>{row.label}</td>
                       <td>
                         <input
                           type="number"
@@ -788,7 +804,9 @@ export function ComparePage() {
                           ? 'edited here'
                           : row.price
                             ? BASIS_LABEL[row.price.basis]
-                            : 'no price on file'}
+                            : row.status === 'unavailable'
+                              ? 'no public price (n/a)'
+                              : 'price pending'}
                         {row.price?.source && !row.edited && (
                           <>
                             {' · '}

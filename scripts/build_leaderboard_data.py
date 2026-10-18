@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import argparse
+import functools
 import json
 import random
 from datetime import datetime, timezone
@@ -14,6 +15,10 @@ from pathlib import Path
 from typing import Any
 
 import yaml
+
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from model_catalog import find_key, validate_catalog  # noqa: E402
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_NIKA_ROOT = REPO_ROOT.parent / "nika"
@@ -346,6 +351,25 @@ def aggregate_trials(
     return out
 
 
+@functools.cache
+def model_catalog(repo_root: Path) -> dict[str, Any]:
+    path = repo_root / "catalog" / "models.json"
+    return load_json(path) if path.is_file() else {}
+
+
+def model_identity(repo_root: Path, submitted: str | None) -> dict[str, str | None]:
+    """Display name and catalog key for a submitted ``agent.model``.
+
+    Submitters spell models freely (``claude-sonnet-5-5``, ``Claude Opus 5.5``).
+    Once the model is catalogued, every page shows the catalog's display name;
+    until then the submitted string stands in.
+    """
+    models = model_catalog(repo_root)
+    key = find_key(models, submitted)
+    name = (models.get(key) or {}).get("name") if key else None
+    return {"model": name or submitted, "model_id": key, "submitted_model": submitted}
+
+
 def package_id(version: str, dirname: str) -> str:
     return f"{version}/{dirname}"
 
@@ -358,7 +382,6 @@ def load_submission(
     repo_root: Path,
     problem_domains: dict[str, str] | None = None,
 ) -> tuple[dict[str, Any], dict[str, Any]]:
-    del repo_root  # reserved for future catalog/sidecar hooks
     metadata = load_yaml(package_dir / "metadata.yaml")
     identity = load_yaml(package_dir / "results" / "identity.yaml")
     metrics = load_json(package_dir / "results" / "metrics.json")
@@ -431,7 +454,7 @@ def load_submission(
         "email": info.get("email"),
         "trajectories_url": trajectories_url,
         "trajectories_relpath": traj_rel if isinstance(traj_rel, str) else None,
-        "model": agent.get("model") or run.get("model"),
+        **model_identity(repo_root, agent.get("model") or run.get("model")),
         "framework": harness_name(agent.get("framework") or run.get("agent_type")),
         "agent_type": run.get("agent_type"),
         "llm_provider": infer_llm_provider(
@@ -868,6 +891,15 @@ def main(argv: list[str] | None = None) -> int:
 
     pricing_path = catalog_dir / "pricing.json"
     if pricing_path.exists():
+        # The site picks each submission's quote by date from this file, so a
+        # malformed catalog would misprice entries rather than fail visibly.
+        errors = validate_catalog(
+            load_json(catalog_dir / "models.json"), load_json(pricing_path)
+        )
+        if errors:
+            for error in errors:
+                print(f"Error: {error}", file=sys.stderr)
+            return 1
         write_json(out_dir / "pricing.json", load_json(pricing_path))
         print("Copied catalog/pricing.json", file=sys.stderr)
     else:
