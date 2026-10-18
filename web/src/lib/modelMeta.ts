@@ -1,4 +1,13 @@
 import modelMetadata from '../../../catalog/models.json'
+import { catalogEntry } from './pricing'
+
+interface CatalogModel {
+  name?: string
+  released?: string
+  model_page?: string
+}
+
+const CATALOG: Record<string, CatalogModel> = modelMetadata
 
 /**
  * Public model release dates for the Released column and "Resolved vs model
@@ -71,17 +80,13 @@ function lookup<T>(table: Record<string, T>, model: string | null | undefined): 
 
 /** Return model release date as Date, or null if unknown. */
 export function modelReleaseDate(model: string | null | undefined): Date | null {
-  const registered = Object.entries(modelMetadata).find(([name]) =>
-    normalizeModelKey(name) === normalizeModelKey(model || ''),
-  )?.[1]
+  const registered = catalogEntry(CATALOG, model)
   const iso = registered?.released || lookup(MODEL_RELEASE_DATES, model)
   return iso ? new Date(`${iso}T00:00:00Z`) : null
 }
 
 /** Official page for the model, or null if none is on file. */
 export function modelLink(model: string | null | undefined): string | null {
-  const registered = Object.entries(modelMetadata).find(([name]) =>
-    normalizeModelKey(name) === normalizeModelKey(model || ''),
-  )?.[1]
+  const registered = catalogEntry(CATALOG, model)
   return registered?.model_page || lookup(MODEL_LINKS, model)
 }

@@ -18,8 +18,8 @@ import {
   filtersToParams,
   qualifyNames,
 } from './metrics'
-import { loadOverrides, saveOverrides } from './pricing'
-import type { PriceOverrides, PricingFile } from './pricing'
+import { loadOverrides, loadPriceMode, saveOverrides, savePriceMode } from './pricing'
+import type { PriceMode, PriceOverrides, PricingFile } from './pricing'
 import type { FilterState, MetaFile, SubmissionSummary } from './types'
 
 interface LeaderboardDataValue {
@@ -34,6 +34,9 @@ interface LeaderboardDataValue {
   pricing: PricingFile | null
   overrides: PriceOverrides
   setOverrides: (next: PriceOverrides) => void
+  /** Frozen per-submission quotes, or every run at its model's latest quote. */
+  priceMode: PriceMode
+  setPriceMode: (next: PriceMode) => void
   loading: boolean
   error: string | null
 }
@@ -53,6 +56,7 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
   const [overrides, setOverridesState] = useState<PriceOverrides>(() =>
     loadOverrides(),
   )
+  const [priceMode, setPriceModeState] = useState<PriceMode>(() => loadPriceMode())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -120,6 +124,11 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
     setOverridesState(next)
   }, [])
 
+  const setPriceMode = useCallback((next: PriceMode) => {
+    savePriceMode(next)
+    setPriceModeState(next)
+  }, [])
+
   const filtered = useMemo(
     () => qualifyNames(applyFilters(submissions, filters)),
     [submissions, filters],
@@ -147,6 +156,8 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
       pricing,
       overrides,
       setOverrides,
+      priceMode,
+      setPriceMode,
       loading,
       error,
     }),
@@ -160,6 +171,8 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
       pricing,
       overrides,
       setOverrides,
+      priceMode,
+      setPriceMode,
       loading,
       error,
     ],

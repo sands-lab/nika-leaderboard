@@ -2536,3 +2536,19 @@ a.model-name:hover {
   font-size: 0.72rem;
   line-height: 1.5;
 }
+
+.price-mode {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.82rem;
+  color: var(--muted);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.cost-missing {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-style: italic;
+}

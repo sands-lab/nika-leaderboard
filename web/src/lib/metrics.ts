@@ -1,6 +1,6 @@
 import { resolveProvider } from './providerMeta'
 import { submissionCost } from './pricing'
-import type { PriceOverrides, PricingFile } from './pricing'
+import type { PriceMode, PriceOverrides, PricingFile } from './pricing'
 import type { FilterState, SubmissionSummary } from './types'
 
 /** Query-string name for each filter, so a filtered view can be linked. */
@@ -235,6 +235,7 @@ export function exportCsv(
   filename: string,
   pricing: PricingFile | null = null,
   overrides: PriceOverrides = {},
+  priceMode: PriceMode = 'frozen',
 ): void {
   const headers = [
     'rank',
@@ -269,7 +270,7 @@ export function exportCsv(
     const record = s as unknown as Record<string, unknown>
     const vals = headers.map((h) => {
       let v: unknown
-      const cost = submissionCost(s, pricing, overrides)
+      const cost = submissionCost(s, pricing, overrides, priceMode)
       if (h === 'adaptation') v = formatAdaptation(s)
       else if (h === 'cost_per_run_usd') v = cost?.perRun ?? ''
       else if (h === 'cost_per_case_usd') v = cost?.perCase ?? ''

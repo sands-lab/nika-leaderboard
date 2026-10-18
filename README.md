@@ -56,43 +56,93 @@ CI builds with `--skip-catalog-refresh` so it only needs the committed catalog +
 ### Submission display metadata
 
 Before accepting a submission, review its public harness name, code and project
-links, official model page, released date, and reference price. Submitters supply
-model identity and sources in their metadata and README. Maintainers register
-model pages, sourced release dates in `catalog/models.json`, and dated input/output
-quotes in `catalog/pricing.json`. Use the submitted model string as the pricing
-key. The [submission guide](https://github.com/sands-lab/nika/blob/dev/docs/benchmarks/leaderboard-submission.md#model-release-dates-prices-and-display-names)
-describes the sources and cost calculation.
+links, and model identity. Submitters provide runs only: they do not supply
+model release dates or prices. Those describe the model, not the run, and this
+repository resolves and maintains them in `catalog/models.json` and
+`catalog/pricing.json`. The [submission guide](https://github.com/sands-lab/nika/blob/dev/docs/benchmarks/leaderboard-submission.md#model-release-dates-prices-and-display-names)
+describes the cost calculation.
 
-The required `model-metadata` PR check validates every submitted model against
-`catalog/models.json` and `catalog/pricing.json`. Use the exact `agent.model`
-string as both catalog keys. A model needs `released` (YYYY-MM-DD), an HTTPS
-`release_source`, and an HTTPS `model_page`. Its price needs positive finite
-`input` and `output` USD per million tokens, `basis` (`api` or
-`hosted_open_weight`), `provider`, an HTTPS `source`, and a `retrieved` date.
-Register a new model in the submission PR or in an earlier catalog PR.
+#### Model catalog
 
-Run the same check locally:
+Catalog keys are lowercase runtime model IDs (`claude-haiku-5-5`,
+`qwen3.6-35b-a3b-fp8`). A submitted `agent.model` matches the key that is equal
+to it after lowercasing and replacing punctuation with `-`, so `Claude Haiku 5.5`
+and `claude-haiku-5-5` are the same model. Each `models.json` entry has a display
+`name`, `released` (YYYY-MM-DD), HTTPS `release_source` and `model_page`, and
+optionally `hf_repo` (`owner/name`, used to price open weights) and
+`retrieved_via` (the aggregator the date was read from).
+
+`name` is the model's models.dev display name: the vendor's own listing, else
+the name most providers on models.dev use for that ID, else the Hugging Face
+repo name. The data build shows it everywhere a model is named (tables, charts,
+filters, generated entry labels) in place of the submitted string, so
+`claude-sonnet-5-5` and `Claude Opus 5.5` read alike. This applies to every
+entry on each build; a model not yet catalogued shows its submitted string
+until its catalog entry merges. The entry page still shows the original
+spelling, and summaries keep it as `submitted_model` next to the catalog key
+`model_id`.
+
+Each `pricing.json` entry has `basis` (`api` or `hosted_open_weight`),
+`provider`, an optional `note`, and a dated `quotes` list. A quote has positive
+`input` and `output` USD per million tokens, an HTTPS `source` (vendor or
+provider page), a `retrieved` date, and optionally `retrieved_via`, `cache_read`
+and prompt-length `tiers` (`[{min_prompt_tokens, input, output}]`). A submission
+is priced with the latest quote retrieved on or before its package date
+(`YYYYMMDD` prefix), or the earliest quote if the model was priced after it
+merged, so a published cost never changes. Quotes are appended only when a rate
+changes. Cost stays a flat `(in × input + out × output) / 1e6`: packages record
+token totals per trial, not per-request prompt lengths, so tiers and cache rates
+are documentation only.
+
+A model has two "no price" states. *Pending*: no entry yet; the resolver keeps
+trying. *N/A*: a curator confirmed no public quote exists and recorded
+`"status": "unavailable"` with a `note` and no quotes; the resolver skips it.
+The website marks both distinctly and leaves cost blank.
+
+#### Checks and the resolver
+
+The `model-metadata` PR check runs the tests and validates the catalog files'
+format (HTTPS sources, valid past dates, positive finite rates, `basis`,
+`provider`, date-ordered quotes). A submitted model missing from the catalog is
+listed as pending and does not block the merge. Run it locally:
 
 ```shell
 uv run python scripts/validate_model_metadata.py
 ```
 
-Missing entries, missing sources, future/invalid dates, and missing, zero,
-negative, or non-finite rates fail the check. The UI reads the same model catalog.
-Maintainers must keep `model-metadata` and `validate` as required status checks
-on `main`, including for administrators. CI checks required fields and format;
-maintainers still review whether sources support the model and quoted prices.
+`scripts/resolve_model_metadata.py` fills the catalog from public sources:
+
+| Models | Rates | Release date |
+|---|---|---|
+| Proprietary | models.dev, cross-checked against OpenRouter and LiteLLM (models.dev wins) | models.dev |
+| Open weights | OpenRouter, joined on `hugging_face_id` (base weights for FP8 and other quantized checkpoints, with a note) | first Hugging Face commit that adds weights |
+
+Citations point at the vendor or provider page from a small provider table in
+the script; the aggregator goes in `retrieved_via`. The
+`resolve-model-metadata.yml` workflow runs it on every push to `main` that
+touches `submissions/**` (new models only) and weekly (also appends changed
+prices), and opens or updates a `bot/model-metadata` pull request with a report
+of every change and what to check. A curator reviews and merges it. Pull
+requests opened with the workflow token do not trigger other workflows, so close
+and reopen the bot PR to run the checks. Try it locally without editing files:
+
+```shell
+uv run python scripts/resolve_model_metadata.py --dry-run
+```
+
+Hugging Face repos can be populated before a model's announcement, so confirm
+open-weight release dates. Models the resolver cannot price (for example quotes
+only on Featherless AI) stay pending until a curator adds a quote by hand or
+marks them unavailable. Open-weight prices estimate hosted inference, including
+any documented precision differences; they do not measure the submitter's GPU
+bill. Prices are editable per model in the UI, and a "current prices" toggle
+re-prices every entry at its model's latest quote for strict cross-model
+comparison.
 
 Trajectory package directories use `YYYYMMDD_<framework>_<model>` with lowercase
 ASCII words separated by underscores, such as
 `20261012_claude_code_gemma_4_31b_it`. The public trajectory link uses this
 canonical directory. Accepted scores package IDs remain fixed.
-
-The website calculates cost from recorded tokens and reviewed reference rates.
-Open-weight prices estimate hosted inference, including any documented precision
-differences; they do not measure the submitter's GPU bill. Missing prices remain
-unknown until a supported quote is available. New submissions require a supported
-quote before merging.
 
 The data builder derives `name` from model, normalized harness, optimization
 methods, and skills. Repeated configurations add split and run identity. It
@@ -139,7 +189,12 @@ The marketing site deploy (`nika-website` → `nika` `gh-pages`) must use `keep_
 
 ```text
 catalog/<version>/cases.json   # release enrich (size, failure category)
+catalog/models.json            # model display names, release dates, model pages
+catalog/pricing.json           # dated reference price quotes
 scripts/build_leaderboard_data.py
+scripts/model_catalog.py       # catalog key matching, quote selection, format rules
+scripts/resolve_model_metadata.py
+scripts/validate_model_metadata.py
 pyproject.toml                 # Python build deps (PyYAML via uv)
 submissions/                   # immutable validated packages
 web/                           # Vite React UI
