@@ -3,12 +3,14 @@ import { ColumnPicker } from '../components/ColumnPicker'
 import { FilterShell } from '../components/FilterShell'
 import { LeaderboardTable, ScoreKey } from '../components/LeaderboardTable'
 import { LeaderCards } from '../components/LeaderCards'
+import { PriceModeToggle } from '../components/PriceModeToggle'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { exportCsv, withRanks } from '../lib/metrics'
 import { useOptionalColumns } from '../lib/optionalColumns'
 
 export function LeaderboardPage() {
-  const { filtered, pricing, overrides, loading, error } = useLeaderboardData()
+  const { filtered, pricing, overrides, priceMode, loading, error } =
+    useLeaderboardData()
   const columns = useOptionalColumns()
 
   const ranked = useMemo(() => withRanks(filtered), [filtered])
@@ -28,12 +30,13 @@ export function LeaderboardPage() {
       {/* The score key sits right above the scores it explains. */}
       <div className="table-toolbar">
         <ScoreKey />
+        <PriceModeToggle />
         <ColumnPicker visible={columns.visible} onToggle={columns.toggle} />
         <button
           type="button"
           className="btn btn--ghost"
           onClick={() =>
-            exportCsv(ranked, 'nika-leaderboard.csv', pricing, overrides)
+            exportCsv(ranked, 'nika-leaderboard.csv', pricing, overrides, priceMode)
           }
         >
           Export CSV

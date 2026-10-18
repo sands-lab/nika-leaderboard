@@ -26,7 +26,15 @@ import {
   withRanks,
 } from '../lib/metrics'
 import { modelLink, modelReleaseDate } from '../lib/modelMeta'
-import { BASIS_LABEL, formatUsd, submissionCost } from '../lib/pricing'
+import {
+  BASIS_LABEL,
+  catalogEntry,
+  formatUsd,
+  packageDate,
+  priceFor,
+  priceStatus,
+  submissionCost,
+} from '../lib/pricing'
 import { providerDisplayName, resolveProvider, servingLabel } from '../lib/providerMeta'
 import type { SubmissionSummary } from '../lib/types'
 
@@ -115,7 +123,8 @@ function extraRows(s: SubmissionSummary): Row[] {
 export function EntryPage() {
   const { version = '', dirname = '' } = useParams()
   const { search } = useLocation()
-  const { submissions, pricing, overrides, loading, error } = useLeaderboardData()
+  const { submissions, pricing, overrides, priceMode, loading, error } =
+    useLeaderboardData()
   const id = `${version}/${dirname}`
   const [readme, setReadme] = useState<string | null>(null)
 
@@ -159,8 +168,13 @@ export function EntryPage() {
     )
   }
 
-  const cost = submissionCost(s, pricing, overrides)
-  const price = cost?.price ?? pricing?.models?.[s.model ?? ''] ?? null
+  const cost = submissionCost(s, pricing, overrides, priceMode)
+  const price =
+    cost?.price ??
+    priceFor(s.model, pricing, overrides, { date: packageDate(s.dirname), mode: priceMode })
+  const status = priceStatus(s.model, pricing)
+  const missingPrice =
+    status === 'unavailable' ? 'n/a' : status === 'pending' ? 'pending' : '—'
   const vendor = resolveProvider(s.llm_provider, s.model)
   const modelUrl = modelLink(s.model)
   const tied = tieCount(release, s)
@@ -213,7 +227,7 @@ export function EntryPage() {
           <ScoreValue value={s.mean_detection_score} range={ranges.detection} />
         </Stat>
         <Stat label="Cost / run">
-          {cost?.perRun != null ? formatUsd(cost.perRun) : '—'}
+          {cost?.perRun != null ? formatUsd(cost.perRun) : missingPrice}
         </Stat>
       </div>
 
@@ -243,13 +257,16 @@ export function EntryPage() {
             ['Served via', servingLabel(s.llm_provider)],
             [
               'Reference price',
-              price && (
+              price ? (
                 <span>
                   {formatUsd(price.input)} in / {formatUsd(price.output)} out per 1M tokens
                   <small className="entry-sub">
                     {cost?.edited ? 'edited in this browser' : BASIS_LABEL[price.basis]}
                     {price.provider ? ` · ${price.provider}` : ''}
                     {price.retrieved ? ` · retrieved ${price.retrieved}` : ''}
+                    {price.retrieved_via ? ` via ${price.retrieved_via}` : ''}
+                    {!cost?.edited &&
+                      (priceMode === 'current' ? ' · latest quote' : ' · quote on submission date')}
                     {price.source && (
                       <>
                         {' · '}
@@ -260,6 +277,22 @@ export function EntryPage() {
                     )}
                   </small>
                   {price.note && <small className="entry-sub">{price.note}</small>}
+                </span>
+              ) : status === 'unavailable' ? (
+                <span>
+                  Not available
+                  <small className="entry-sub">
+                    {catalogEntry(pricing?.models, s.model)?.note ??
+                      'No public price exists for this model.'}
+                  </small>
+                </span>
+              ) : (
+                <span>
+                  Pending
+                  <small className="entry-sub">
+                    Curators add a reference price from public price lists after the
+                    submission is merged.
+                  </small>
                 </span>
               ),
             ],

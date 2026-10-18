@@ -3,6 +3,49 @@ import type { SubmissionSummary } from './types'
 /** How a model's reference price was arrived at. */
 export type PriceBasis = 'api' | 'hosted_open_weight' | 'gpu_hour'
 
+/** Rates that apply once a request's prompt reaches `min_prompt_tokens`. */
+export interface PriceTier {
+  min_prompt_tokens: number
+  input: number
+  output: number
+  cache_read?: number
+}
+
+/** One dated price observation. Quotes are appended, never rewritten. */
+export interface PriceQuote {
+  /** USD per million input tokens. */
+  input: number
+  /** USD per million output tokens. */
+  output: number
+  source: string
+  /** ISO date the quote was collected. */
+  retrieved: string
+  /** Aggregator the rates were read from, when not read by hand. */
+  retrieved_via?: string
+  cache_read?: number
+  /** Recorded for reference; cost stays flat because packages carry token totals, not per-request prompt lengths. */
+  tiers?: PriceTier[]
+  note?: string
+}
+
+export interface ModelPricing {
+  basis: PriceBasis
+  provider?: string
+  note?: string
+  /** A curator confirmed no public quote exists. */
+  status?: 'unavailable'
+  quotes?: PriceQuote[]
+}
+
+export interface PricingFile {
+  as_of: string
+  currency: string
+  unit: string
+  notes?: string
+  models: Record<string, ModelPricing>
+}
+
+/** The rate applied to a run: one quote with its model's basis and provider. */
 export interface ModelPrice {
   /** USD per million input tokens. */
   input: number
@@ -13,15 +56,60 @@ export interface ModelPrice {
   source?: string
   /** ISO date the quote was collected; prices move, so citations need it. */
   retrieved?: string
+  retrieved_via?: string
+  tiers?: PriceTier[]
   note?: string
 }
 
-export interface PricingFile {
-  as_of: string
-  currency: string
-  unit: string
-  notes?: string
-  models: Record<string, ModelPrice>
+/**
+ * `frozen` prices each run with the quote current at its package date, so a
+ * published cost never moves. `current` re-prices every run at its model's
+ * latest quote, for a like-for-like comparison across models.
+ */
+export type PriceMode = 'frozen' | 'current'
+
+/** Why a run has, or lacks, a price. */
+export type PriceStatus = 'priced' | 'pending' | 'unavailable'
+
+/** "Claude Haiku 5.5" and "claude-haiku-5-5" name the same catalog entry. */
+export function modelSlug(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+/** Catalog entry keyed by `model`'s runtime ID, whatever spelling the submitter used. */
+export function catalogEntry<T>(table: Record<string, T> | null | undefined, model: string | null | undefined): T | null {
+  if (!table || !model) return null
+  if (model in table) return table[model]
+  const slug = modelSlug(model)
+  const key = Object.keys(table).find((k) => modelSlug(k) === slug)
+  return key ? table[key] : null
+}
+
+/** ISO date from a package directory's `YYYYMMDD_` prefix. */
+export function packageDate(dirname: string | null | undefined): string | null {
+  const m = /^(\d{4})(\d{2})(\d{2})_/.exec(dirname ?? '')
+  return m ? `${m[1]}-${m[2]}-${m[3]}` : null
+}
+
+/**
+ * Latest quote retrieved on or before `on`; the earliest when the model was
+ * priced only after that date; the latest when no date is given.
+ */
+export function selectQuote(quotes: PriceQuote[] | undefined, on: string | null): PriceQuote | null {
+  if (!quotes?.length) return null
+  const ordered = [...quotes].sort((a, b) => a.retrieved.localeCompare(b.retrieved))
+  if (!on) return ordered[ordered.length - 1]
+  const eligible = ordered.filter((q) => q.retrieved <= on)
+  return eligible.length ? eligible[eligible.length - 1] : ordered[0]
+}
+
+export function priceStatus(model: string | null, pricing: PricingFile | null): PriceStatus {
+  const entry = catalogEntry(pricing?.models, model)
+  if (entry?.status === 'unavailable') return 'unavailable'
+  return entry?.quotes?.length ? 'priced' : 'pending'
 }
 
 /** User edits, keyed by model name, kept in this browser only. */
@@ -57,25 +145,61 @@ export function saveOverrides(overrides: PriceOverrides): void {
   }
 }
 
-/** Effective price for a model, with any local edit applied. */
+const MODE_KEY = 'nika.pricing.mode.v1'
+
+export function loadPriceMode(): PriceMode {
+  try {
+    return localStorage.getItem(MODE_KEY) === 'current' ? 'current' : 'frozen'
+  } catch {
+    return 'frozen'
+  }
+}
+
+export function savePriceMode(mode: PriceMode): void {
+  try {
+    if (mode === 'frozen') localStorage.removeItem(MODE_KEY)
+    else localStorage.setItem(MODE_KEY, mode)
+  } catch {
+    // As with overrides: the choice still holds for this session.
+  }
+}
+
+/**
+ * Effective price for a model, with any local edit applied. `date` picks the
+ * quote a run dated then is frozen at; without it, or in `current` mode, the
+ * latest quote applies.
+ */
 export function priceFor(
   model: string | null,
   pricing: PricingFile | null,
   overrides: PriceOverrides,
+  { date = null, mode = 'frozen' }: { date?: string | null; mode?: PriceMode } = {},
 ): ModelPrice | null {
   if (!model) return null
-  const base = pricing?.models?.[model] ?? null
+  const entry = catalogEntry(pricing?.models, model)
+  const quote = selectQuote(entry?.quotes, mode === 'current' ? null : date)
+  const base: ModelPrice | null =
+    entry && quote
+      ? {
+          input: quote.input,
+          output: quote.output,
+          basis: entry.basis,
+          provider: entry.provider,
+          source: quote.source,
+          retrieved: quote.retrieved,
+          retrieved_via: quote.retrieved_via,
+          tiers: quote.tiers,
+          note: [entry.note, quote.note].filter(Boolean).join(' ') || undefined,
+        }
+      : null
   const edit = overrides[model]
   if (!base && !edit) return null
   if (!edit) return base
   return {
+    ...base,
     input: edit.input,
     output: edit.output,
-    basis: base?.basis ?? 'api',
-    provider: base?.provider,
-    source: base?.source,
-    retrieved: base?.retrieved,
-    note: base?.note,
+    basis: base?.basis ?? entry?.basis ?? 'api',
   }
 }
 
@@ -105,8 +229,12 @@ export function submissionCost(
   s: SubmissionSummary,
   pricing: PricingFile | null,
   overrides: PriceOverrides,
+  mode: PriceMode = 'frozen',
 ): SubmissionCost | null {
-  const price = priceFor(s.model, pricing, overrides)
+  const price = priceFor(s.model, pricing, overrides, {
+    date: packageDate(s.dirname),
+    mode,
+  })
   if (!price) return null
   const inTok = s.token_totals?.in_tokens ?? 0
   const outTok = s.token_totals?.out_tokens ?? 0
@@ -159,6 +287,7 @@ export function priceSourceLines(pricing: PricingFile | null): string[] {
   if (!pricing) return []
   const byBasis = new Map<PriceBasis, Map<string, number>>()
   for (const p of Object.values(pricing.models)) {
+    if (!p.quotes?.length) continue
     const counts = byBasis.get(p.basis) ?? new Map<string, number>()
     if (p.provider) counts.set(p.provider, (counts.get(p.provider) ?? 0) + 1)
     byBasis.set(p.basis, counts)

@@ -15,6 +15,10 @@ from typing import Any
 
 import yaml
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from model_catalog import validate_catalog  # noqa: E402
+
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_NIKA_ROOT = REPO_ROOT.parent / "nika"
 NAME_RE = re.compile(r'root_cause_name(?::\s*\w+)?\s*=\s*"(?P<name>[^"]+)"')
@@ -868,6 +872,15 @@ def main(argv: list[str] | None = None) -> int:
 
     pricing_path = catalog_dir / "pricing.json"
     if pricing_path.exists():
+        # The site picks each submission's quote by date from this file, so a
+        # malformed catalog would misprice entries rather than fail visibly.
+        errors = validate_catalog(
+            load_json(catalog_dir / "models.json"), load_json(pricing_path)
+        )
+        if errors:
+            for error in errors:
+                print(f"Error: {error}", file=sys.stderr)
+            return 1
         write_json(out_dir / "pricing.json", load_json(pricing_path))
         print("Copied catalog/pricing.json", file=sys.stderr)
     else:

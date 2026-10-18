@@ -30,9 +30,12 @@ import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import {
   BASIS_LABEL,
+  catalogEntry,
   formatUsd,
   priceSourceLines,
+  priceStatus,
   submissionCost,
+  type PriceMode,
   type PriceOverrides,
   type PricingFile,
 } from '../lib/pricing'
@@ -292,6 +295,7 @@ export function HarnessCell({ s }: { s: SubmissionSummary }) {
 function buildAccessors(
   pricing: PricingFile | null,
   overrides: PriceOverrides,
+  priceMode: PriceMode,
 ): Record<LbSortKey, (s: SubmissionSummary) => unknown> {
   return {
     // Within a shared rank, list the higher point estimate first.
@@ -304,7 +308,7 @@ function buildAccessors(
     rca: (s) => s.mean_rca_f1,
     loc: (s) => s.mean_localization_f1,
     detection: (s) => s.mean_detection_score,
-    cost: (s) => submissionCost(s, pricing, overrides)?.perRun ?? null,
+    cost: (s) => submissionCost(s, pricing, overrides, priceMode)?.perRun ?? null,
     in_tokens: (s) => tokensPerRun(s, 'in_tokens'),
     out_tokens: (s) => tokensPerRun(s, 'out_tokens'),
   }
@@ -318,33 +322,52 @@ export function CostCell({
   s,
   pricing,
   overrides,
+  priceMode,
 }: {
   s: SubmissionSummary
   pricing: PricingFile | null
   overrides: PriceOverrides
+  priceMode: PriceMode
 }) {
-  const cost = submissionCost(s, pricing, overrides)
+  const cost = submissionCost(s, pricing, overrides, priceMode)
   // A zero cost is a real figure, not a missing one: only a null means the
   // package has no token totals or the model has no price.
   if (cost?.perRun == null) {
-    return (
+    const hasTokens =
+      (s.token_totals?.in_tokens ?? 0) > 0 || (s.token_totals?.out_tokens ?? 0) > 0
+    const status = priceStatus(s.model, pricing)
+    if (!hasTokens || status === 'priced') {
+      return (
+        <span className="num" title="This package reports no token accounting">
+          —
+        </span>
+      )
+    }
+    const note = catalogEntry(pricing?.models, s.model)?.note
+    return status === 'unavailable' ? (
       <span
-        className="num"
-        title={
-          (s.token_totals?.in_tokens ?? 0) > 0 ||
-          (s.token_totals?.out_tokens ?? 0) > 0
-            ? `No price on file for ${s.model ?? 'this model'}`
-            : 'This package reports no token accounting'
-        }
+        className="cost-missing"
+        title={`No public price exists for ${s.model ?? 'this model'}${note ? `:\n${note}` : ''}`}
       >
-        —
+        n/a
+      </span>
+    ) : (
+      <span
+        className="cost-missing"
+        title={`Price pending: ${s.model ?? 'this model'} has no reference price yet. Curators add one from public price lists after the submission is merged.`}
+      >
+        pending
       </span>
     )
   }
   const inTok = s.token_totals?.in_tokens ?? 0
   const outTok = s.token_totals?.out_tokens ?? 0
   const { price } = cost
-  const source = [price.provider, price.retrieved && `retrieved ${price.retrieved}`]
+  const source = [
+    price.provider,
+    price.retrieved && `retrieved ${price.retrieved}`,
+    price.retrieved_via && `via ${price.retrieved_via}`,
+  ]
     .filter(Boolean)
     .join(', ')
   const tip = [
@@ -361,6 +384,11 @@ export function CostCell({
     cost.edited
       ? 'price edited in this browser'
       : `${BASIS_LABEL[price.basis]}${source ? ` (${source})` : ''}`,
+    cost.edited
+      ? null
+      : priceMode === 'current'
+        ? "Current prices: the model's latest quote"
+        : 'Quote in effect on the submission date',
     '',
     `This submission repeated the run ${s.n_trials ?? '?'}x:`,
     `${NUM.format(inTok)} in + ${NUM.format(outTok)} out, ${formatUsd(
@@ -396,7 +424,7 @@ function TokenCell({ s, kind }: { s: SubmissionSummary; kind: TokenKind }) {
 }
 
 export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
-  const { pricing, overrides } = useLeaderboardData()
+  const { pricing, overrides, priceMode } = useLeaderboardData()
   const navigate = useNavigate()
   const { search } = useLocation()
   const { sort, toggle } = useTableSort<LbSortKey>(
@@ -406,8 +434,8 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
     { cost: 'asc', rank: 'asc', in_tokens: 'asc', out_tokens: 'asc' },
   )
   const sorted = useMemo(
-    () => sortByAccessors(rows, sort, buildAccessors(pricing, overrides)),
-    [rows, sort, pricing, overrides],
+    () => sortByAccessors(rows, sort, buildAccessors(pricing, overrides, priceMode)),
+    [rows, sort, pricing, overrides, priceMode],
   )
   const ranges = useMemo(
     () => ({
@@ -422,6 +450,11 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
     '',
     `Reference prices, USD per 1M input/output tokens${pricing?.as_of ? `, as of ${pricing.as_of}` : ''}:`,
     ...priceSourceLines(pricing).map((line) => `• ${line}`),
+    '',
+    priceMode === 'current'
+      ? "Showing current prices: every entry at its model's latest quote."
+      : 'Each entry uses the quote in effect on its submission date, so published costs do not change. Turn on "Current prices" to compare at today\'s rates.',
+    '"pending": no reference price yet. "n/a": no public price exists.',
     '',
     'Hover a cell for the model\'s rate and the per-case figures.',
   ].join('\n')
@@ -663,7 +696,7 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
                   <ScoreValue value={s.mean_detection_score} range={ranges.detection} />
                 </td>
                 <td className="num">
-                  <CostCell s={s} pricing={pricing} overrides={overrides} />
+                  <CostCell s={s} pricing={pricing} overrides={overrides} priceMode={priceMode} />
                 </td>
                 {columns.in_tokens && (
                   <td className="num col-secondary">

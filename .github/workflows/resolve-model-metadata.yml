@@ -1,0 +1,57 @@
+name: Resolve model metadata
+
+# Proposes release dates and reference prices for newly merged models, and
+# appends a dated quote when a tracked price changes. Changes arrive as a pull
+# request from a branch in this repository for a curator to review; nothing
+# is committed to main directly and submission PRs are never touched.
+on:
+  push:
+    branches: [main]
+    paths: ["submissions/**"]
+  schedule:
+    # Mondays 06:00 UTC: price-change check for every catalogued model.
+    - cron: "0 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: resolve-model-metadata
+  cancel-in-progress: false
+
+jobs:
+  resolve:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.12"
+
+      - name: Resolve from public catalogs
+        id: resolve
+        env:
+          # A push only needs the new models; the weekly run also re-checks prices.
+          REFRESH_FLAG: ${{ github.event_name == 'push' && '--no-refresh' || '' }}
+        run: |
+          set -euo pipefail
+          uv run python scripts/resolve_model_metadata.py $REFRESH_FLAG --report "$RUNNER_TEMP/report.md"
+          cat "$RUNNER_TEMP/report.md" >> "$GITHUB_STEP_SUMMARY"
+          printf '\n🤖 Opened by the [resolve-model-metadata](%s) workflow.\n' \
+            "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
+            >> "$RUNNER_TEMP/report.md"
+
+      - name: Open or update the proposal PR
+        uses: peter-evans/create-pull-request@v7
+        with:
+          branch: bot/model-metadata
+          delete-branch: true
+          add-paths: |
+            catalog/models.json
+            catalog/pricing.json
+          commit-message: "chore(catalog): resolve model release dates and reference prices"
+          title: "chore(catalog): resolve model release dates and reference prices"
+          body-path: ${{ runner.temp }}/report.md

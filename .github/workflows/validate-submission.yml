@@ -16,9 +16,12 @@ jobs:
       - uses: astral-sh/setup-uv@v9.0.0
         with:
           python-version: "3.12"
-      - name: Test model requirements
+      - name: Run catalog and data tests
         run: uv run python -m unittest discover -s tests
-      - name: Require release and pricing information
+      # Checks the catalog files' format only. A submitted model with no
+      # release date or price is reported as pending and does not fail the
+      # PR; resolve-model-metadata.yml proposes its entry after merge.
+      - name: Validate model catalog format
         run: uv run python scripts/validate_model_metadata.py
 
   validate:

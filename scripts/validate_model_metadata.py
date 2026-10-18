@@ -1,62 +1,41 @@
-"""Require sourced release dates and reference prices for submitted models."""
+"""Check the format of the model catalog and list submitted models still pending.
+
+A submitted model with no release date or price does not fail this check:
+those are resolved after merge by ``scripts/resolve_model_metadata.py``.
+"""
 
 from __future__ import annotations
 
 import argparse
 import json
-import math
-from datetime import date
+import sys
 from pathlib import Path
-from urllib.parse import urlparse
 
-import yaml
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+
+from model_catalog import find_key, submitted_models, validate_catalog  # noqa: E402
 
 
 def validate_models(repo_root: Path) -> list[str]:
     models = json.loads((repo_root / "catalog/models.json").read_text())
     pricing = json.loads((repo_root / "catalog/pricing.json").read_text())
-    errors = []
-    if pricing.get("currency") != "USD" or pricing.get("unit") != "per_million_tokens":
-        errors.append("catalog/pricing.json must use USD per_million_tokens")
-    submitted = {
-        yaml.safe_load(path.read_text())["agent"]["model"]
-        for path in (repo_root / "submissions").glob("*/*/metadata.yaml")
-    }
-    for model in sorted(submitted):
-        metadata = models.get(model) or {}
-        quote = pricing.get("models", {}).get(model) or {}
-        for field, value in (
-            ("released", metadata.get("released")),
-            ("price.retrieved", quote.get("retrieved")),
-        ):
-            try:
-                parsed = date.fromisoformat(value)
-                if parsed.isoformat() != value or parsed > date.today():
-                    raise ValueError("invalid or future date")
-            except (TypeError, ValueError):
-                errors.append(f"{model}: {field} must be a past/present ISO date")
-        for field, value in (
-            ("release_source", metadata.get("release_source")),
-            ("model_page", metadata.get("model_page")),
-            ("price.source", quote.get("source")),
-        ):
-            parsed = urlparse(value if isinstance(value, str) else "")
-            if parsed.scheme != "https" or not parsed.netloc:
-                errors.append(f"{model}: {field} must be an HTTPS source URL")
-        for field in ("input", "output"):
-            value = quote.get(field)
-            if (
-                isinstance(value, bool)
-                or not isinstance(value, (int, float))
-                or not math.isfinite(value)
-                or value <= 0
-            ):
-                errors.append(f"{model}: price.{field} must be a positive finite rate")
-        if quote.get("basis") not in {"api", "hosted_open_weight"}:
-            errors.append(f"{model}: price.basis must be api or hosted_open_weight")
-        if not isinstance(quote.get("provider"), str) or not quote["provider"].strip():
-            errors.append(f"{model}: price.provider is required")
-    return errors
+    return validate_catalog(models, pricing)
+
+
+def pending_models(repo_root: Path) -> dict[str, list[str]]:
+    """Submitted model -> what the catalog still lacks for it."""
+    models = json.loads((repo_root / "catalog/models.json").read_text())
+    pricing = json.loads((repo_root / "catalog/pricing.json").read_text())
+    out = {}
+    for model in submitted_models(repo_root):
+        missing = [
+            label
+            for label, table in (("release date", models), ("price", pricing["models"]))
+            if find_key(table, model) is None
+        ]
+        if missing:
+            out[model] = missing
+    return out
 
 
 def main() -> int:
@@ -67,10 +46,13 @@ def main() -> int:
     args = parser.parse_args()
     errors = validate_models(args.repo_root)
     for error in errors:
-        print(error)
-    if not errors:
-        print("All submitted models have sourced release dates and reference prices.")
-    return int(bool(errors))
+        print(f"error: {error}")
+    if errors:
+        return 1
+    print("catalog/models.json and catalog/pricing.json are well formed.")
+    for model, missing in sorted(pending_models(args.repo_root).items()):
+        print(f"pending: {model} has no {' or '.join(missing)} yet (resolved after merge)")
+    return 0
 
 
 if __name__ == "__main__":
