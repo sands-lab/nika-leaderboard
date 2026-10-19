@@ -1,12 +1,7 @@
 # Leaderboard web UI
 
-Vite + React + TypeScript app for the NIKA leaderboard. Contributor docs (run, build, Playwright) live in the [repository README](../README.md).
+Vite, React, TypeScript, and ECharts app for the NIKA leaderboard.
 
-```shell
-npm install
-npm run data    # regenerate public/data from submissions/
-npm run dev
-npm run test:e2e
-```
-
-Requires Node.js 20+ (see `.nvmrc`).
+- [Start a local preview](../README.md#preview-the-leaderboard-locally).
+- [Run development checks](../docs/development.md#development-checks).
+- [Build and publish](../docs/development.md#build-and-publish).
