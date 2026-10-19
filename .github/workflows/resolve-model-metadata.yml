@@ -13,9 +13,12 @@ on:
     - cron: "0 6 * * 1"
   workflow_dispatch:
 
+# The PR is opened with a GitHub App installation token, not
+# GITHUB_TOKEN: events created with GITHUB_TOKEN do not trigger other
+# workflows, so the required validate and model-metadata checks would never
+# run on the bot PR. GITHUB_TOKEN itself only needs to read the repository.
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 concurrency:
   group: resolve-model-metadata
@@ -44,9 +47,17 @@ jobs:
             "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" \
             >> "$RUNNER_TEMP/report.md"
 
+      - name: Mint a catalog bot token
+        id: app-token
+        uses: actions/create-github-app-token@v2
+        with:
+          app-id: ${{ vars.CATALOG_BOT_APP_ID }}
+          private-key: ${{ secrets.CATALOG_BOT_PRIVATE_KEY }}
+
       - name: Open or update the proposal PR
         uses: peter-evans/create-pull-request@v7
         with:
+          token: ${{ steps.app-token.outputs.token }}
           branch: bot/model-metadata
           delete-branch: true
           add-paths: |
