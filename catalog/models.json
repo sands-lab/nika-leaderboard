@@ -105,5 +105,13 @@
     "release_source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
     "model_page": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
     "retrieved_via": "models.dev"
+  },
+  "qwen3-coder-next-fp8": {
+    "name": "Qwen3 Coder Next FP8",
+    "released": "2026-02-01",
+    "release_source": "https://huggingface.co/Qwen/Qwen3-Coder-Next-FP8/commit/4121bde68b89342a1e3cd41256e287f7c123ae9d",
+    "model_page": "https://huggingface.co/Qwen/Qwen3-Coder-Next-FP8",
+    "hf_repo": "Qwen/Qwen3-Coder-Next-FP8",
+    "retrieved_via": "huggingface-api"
   }
 }
