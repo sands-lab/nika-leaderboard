@@ -36,6 +36,7 @@ Keep raw traces, packet captures, and full session logs out of this repository. 
 The leaderboard keeps model names, release dates, and reference prices separate from submitted scores. New submissions prompt a lookup for missing model information. A weekly check also looks for price changes; maintainers review every proposed catalog update before publication.
 
 ```mermaid
+%%{init: {"flowchart": {"htmlLabels": false}}}%%
 flowchart TD
     New["Submission merged"] -->|Missing models| Resolve["Look up public sources"]
     Scheduled["Weekly or manual run"] -->|Also check prices| Resolve
