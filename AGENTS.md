@@ -1,5 +1,11 @@
 # Agent Instructions
 
+## Documentation
+
+- Keep the README focused on readers and submitters: purpose, links, the shortest useful commands, and a brief catalog overview.
+- Put site development, catalog maintenance, and deployment details in `docs/development.md`. Keep automation rules and archive-editing constraints in this file rather than repeating them in human-facing guides.
+- Follow the [NIKA documentation guidelines](https://github.com/sands-lab/nika/blob/main/.agents/skills/nika-docs/SKILL.md): explain reader purpose first, use clear sentences and conventional terminology, avoid hype and repetition, and verify commands against current implementation.
+
 ## Repository Purpose
 
 - This repository is the official, append-only archive for NIKA leaderboard **scores** and hosts the static leaderboard web UI. It stores compact, validated result packages; it does not contain the benchmark runner.
