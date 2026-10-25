@@ -1,0 +1,44 @@
+info:
+  name: Claude Code + Ornith-1.5-122B
+  authors: NIKA Team
+  org: null
+  site: https://sands-lab.github.io/nika/
+  report: https://arxiv.org/abs/2512.16381
+  logo: null
+  email: null
+  github: https://github.com/sands-lab/nika
+agent:
+  model: Ornith-1.5-122B
+  framework: Claude Code
+  tools:
+  - containerlab_srl_mcp_server
+  - k8s_mcp_server
+  - kathara_base_mcp_server
+  - pingmesh_mcp_server
+  - packet_capture_mcp_server
+  - kathara_frr_mcp_server
+  - kathara_bmv2_mcp_server
+  - kathara_sdn_mcp_server
+  - kathara_telemetry_mcp_server
+  - task_mcp_server
+  skills: []
+  optimization_methods: []
+  tags: []
+  extra:
+    model_repository: ornith-ai/Ornith-1.5-122B
+    model_revision: 7681ef608624e7532d8164128bcffdbdbaf1b1af
+    served_model_id: ornith-ai/Ornith-1.5-122B
+    serving: self-hosted vLLM 0.24, original BF16 weights, tensor parallel 2 on 2x
+      H200 141GB per server, 262144-token context, qwen3_xml tool parser, qwen3 reasoning
+      parser
+    proxy: local LiteLLM 1.106.2, native Anthropic /v1/messages pass-through to vLLM
+      (no OpenAI translation)
+    claude_code_version: 2.1.280
+    execution: firecracker
+    max_steps: 100
+    max_tokens: 8192
+    agent_timeout_sec: 1800
+    case_timeout_sec: 2400
+    batch_size: 16
+    heavy_batch_size: 1
+    nika_commit: ce0d0ba598ba1a6a09b712f8b52bab6a54c0806d

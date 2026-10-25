@@ -113,5 +113,13 @@
     "model_page": "https://huggingface.co/Qwen/Qwen3-Coder-Next-FP8",
     "hf_repo": "Qwen/Qwen3-Coder-Next-FP8",
     "retrieved_via": "huggingface-api"
+  },
+  "ornith-1.5-122b": {
+    "name": "Ornith-1.5-122B",
+    "released": "2026-10-16",
+    "release_source": "https://huggingface.co/ornith-ai/Ornith-1.5-122B/commit/93c29b58fe613c83a36b2c2fe9cddee37644f0f5",
+    "model_page": "https://huggingface.co/ornith-ai/Ornith-1.5-122B",
+    "hf_repo": "ornith-ai/Ornith-1.5-122B",
+    "retrieved_via": "huggingface-api"
   }
 }
