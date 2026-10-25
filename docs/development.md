@@ -32,7 +32,7 @@ uv run python scripts/validate_model_metadata.py
 uv run python scripts/build_leaderboard_data.py --skip-catalog-refresh
 ```
 
-The validator checks catalog format, including source URLs, dates, rates, and quote ordering. Models missing from the catalogs are reported as pending, not validation failures. The `model-metadata` job runs these tests and the validator on every pull request. A separate `validate` job uses the NIKA CLI to validate changed submission packages.
+The validator checks catalog format, including source URLs, dates, rates, and quote ordering. Models missing from the catalogs are reported as pending, not validation failures. The `model-metadata` job runs these tests and the validator on every pull request. A separate `validate` job uses the NIKA CLI to validate submission packages that the pull request adds or changes. It runs only when a `changes` job finds such a package; on other pull requests it is skipped, and GitHub counts the skipped job as passing.
 
 For web changes, run these commands from `web/`:
 
