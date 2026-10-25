@@ -133,7 +133,7 @@ function LeaderCard({ leader, index }: { leader: Leader; index: number }) {
         <span className="leader-card__unit">{leader.unit}</span>
       </p>
       <div className="leader-card__who">
-        <ProviderIcon llmProvider={entry.llm_provider} model={entry.model} />
+        <ProviderIcon vendor={entry.vendor} model={entry.model_icon} />
         <h2 className="leader-card__name">
           <Link
             to={{ pathname: entryPath(entry.id), search }}

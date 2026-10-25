@@ -1,4 +1,3 @@
-import { resolveProvider } from './providerMeta'
 import { submissionCost } from './pricing'
 import type { PriceMode, PriceOverrides, PricingFile } from './pricing'
 import type { FilterState, SubmissionSummary } from './types'
@@ -158,9 +157,8 @@ export function applyFilters(
     if (filters.framework !== 'all' && s.framework !== filters.framework) {
       return false
     }
-    if (filters.llm_provider !== 'all') {
-      const provider = resolveProvider(s.llm_provider, s.model)
-      if (provider !== filters.llm_provider) return false
+    if (filters.llm_provider !== 'all' && s.vendor?.id !== filters.llm_provider) {
+      return false
     }
     if (filters.model !== 'all' && s.model !== filters.model) return false
     if (filters.optimization_method !== 'all') {
@@ -183,7 +181,7 @@ export function applyFilters(
         s.model,
         s.framework,
         s.llm_provider,
-        resolveProvider(s.llm_provider, s.model),
+        s.vendor?.label,
         formatAdaptation(s),
         ...scaffoldTags(s),
         ...(s.tags || []),
@@ -244,6 +242,7 @@ export function exportCsv(
     'framework',
     'adaptation',
     'skills',
+    'vendor',
     'llm_provider',
     'name',
     'benchmark_version',
@@ -276,6 +275,7 @@ export function exportCsv(
       else if (h === 'cost_per_case_usd') v = cost?.perCase ?? ''
       else if (h === 'cost_total_usd') v = cost?.total ?? ''
       else if (h === 'skills') v = scaffoldTags(s).join('; ')
+      else if (h === 'vendor') v = s.vendor?.label
       else if (h === 'rca_f1_ci_low') v = s.rca_f1_ci?.[0]
       else if (h === 'rca_f1_ci_high') v = s.rca_f1_ci?.[1]
       else v = record[h]

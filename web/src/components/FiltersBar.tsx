@@ -2,12 +2,12 @@ import {
   adaptationFilterOptions,
   defaultFilters,
 } from '../lib/metrics'
-import { providerDisplayName } from '../lib/providerMeta'
-import type { FilterState, MetaFilters } from '../lib/types'
+import type { FilterState, MetaFile, MetaFilters } from '../lib/types'
 
 interface FiltersBarProps {
   filters: FilterState
   metaFilters: MetaFilters
+  vendors?: MetaFile['vendors']
   versions: string[]
   /** Releases that actually have submissions; the rest are flagged as empty. */
   versionsWithData?: Set<string>
@@ -59,6 +59,7 @@ function isDefaultFilters(filters: FilterState): boolean {
 export function FiltersBar({
   filters,
   metaFilters,
+  vendors,
   versions,
   versionsWithData,
   onChange,
@@ -108,7 +109,7 @@ export function FiltersBar({
         value={filters.llm_provider}
         options={metaFilters.llm_provider}
         onChange={(v) => set('llm_provider', v)}
-        formatOption={providerDisplayName}
+        formatOption={(v) => vendors?.[v]?.label ?? v}
       />
       <Select
         label="Model"

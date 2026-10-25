@@ -1,0 +1,48 @@
+{
+  "anthropic": {
+    "org": "Anthropic",
+    "label": "Anthropic",
+    "retrieved": "2026-10-25"
+  },
+  "att": {
+    "org": "att",
+    "label": "AT&T",
+    "icon": "hf/att.webp",
+    "avatar_url": "https://cdn-avatars.huggingface.co/v1/production/uploads/61ac8f8a00d01045fca0ad2f/OH592ZUsPejiLVObR9GAo.png",
+    "retrieved": "2026-10-25"
+  },
+  "google": {
+    "org": "google",
+    "label": "Google",
+    "retrieved": "2026-10-25"
+  },
+  "ku-dfi": {
+    "org": "KU-DFI",
+    "label": "KU Research Institute for Digital Future",
+    "icon": "hf/ku-dfi.webp",
+    "avatar_url": "https://cdn-avatars.huggingface.co/v1/production/uploads/669f33546634993898163061/Hc-JnqDor6HJBQ8AwLSNK.png",
+    "retrieved": "2026-10-25"
+  },
+  "openai": {
+    "org": "openai",
+    "label": "OpenAI",
+    "retrieved": "2026-10-25"
+  },
+  "ornith-ai": {
+    "org": "ornith-ai",
+    "label": "Ornith",
+    "icon": "hf/ornith-ai.webp",
+    "avatar_url": "https://cdn-avatars.huggingface.co/v1/production/uploads/68661bce022667cf9c7534fb/dwzGCqj9B7NGaJRO-NjjP.png",
+    "retrieved": "2026-10-25"
+  },
+  "qwen": {
+    "org": "Qwen",
+    "label": "Qwen",
+    "retrieved": "2026-10-25"
+  },
+  "zai-org": {
+    "org": "zai-org",
+    "label": "Z.ai",
+    "retrieved": "2026-10-25"
+  }
+}

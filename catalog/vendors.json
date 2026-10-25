@@ -1,0 +1,19 @@
+{
+  "att": {
+    "hf_accounts": ["farbodtavakkoli"],
+    "note": "OTel-2.0-LLM is published from a personal account; https://about.att.com/blogs/2026/the-tokenomics-equation.html credits AT&T."
+  },
+  "deepseek-ai": {
+    "llm_providers": ["deepseek"]
+  },
+  "ku-dfi": {
+    "label": "KU-DFI"
+  },
+  "openai": {
+    "models": ["gpt-5", "gpt-5-mini"],
+    "note": "0.1.0 runs recorded neither llm_provider nor a Hugging Face repo."
+  },
+  "ornith-ai": {
+    "label": "Ornith.ai"
+  }
+}

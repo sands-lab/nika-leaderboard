@@ -33,13 +33,13 @@ Keep raw traces, packet captures, and full session logs out of this repository. 
 
 ## How the catalog stays up to date
 
-The leaderboard keeps model names, release dates, and reference prices separate from submitted scores. New submissions prompt a lookup for missing model information. A weekly check also looks for price changes; maintainers review every proposed catalog update before publication.
+The leaderboard keeps model names, release dates, reference prices, and model and vendor icons separate from submitted scores. New submissions prompt a lookup for missing information, with icons from [LobeHub](https://lobehub.com/icons) and Hugging Face. A weekly check also looks for price and icon changes; maintainers review every proposed catalog update before publication.
 
 ```mermaid
 %%{init: {"htmlLabels": false, "flowchart": {"htmlLabels": false}}}%%
 flowchart TD
     New["Submission merged"] -->|Missing models| Resolve["Look up public sources"]
-    Scheduled["Weekly or manual run"] -->|Also check prices| Resolve
+    Scheduled["Weekly or manual run"] -->|Also check prices and icons| Resolve
     Resolve --> Proposal["Bot proposes catalog changes in a PR"]
     Proposal --> Review["Maintainer verifies sources and merges"]
     Review --> Site["Site rebuild uses the updated catalogs"]

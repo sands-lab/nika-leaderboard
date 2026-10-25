@@ -13,8 +13,18 @@ Source order:
 * Open weights: rates from OpenRouter, joined on ``hugging_face_id``; release
   date from the first commit that adds weights to the Hugging Face repo.
 
-The script only edits the two catalog files and writes a Markdown report. A
-scheduled workflow opens a pull request with both for a curator to review.
+Icons for the model column (see ``vendors.py``) come from LobeHub first: each
+submitted model and its vendor are matched against LobeHub's icon index, and
+the matches go to ``catalog/lobehub.json`` with the SVGs under
+``web/public/providers/lobehub/``. The vendor's Hugging Face organization
+supplies its display name, and its avatar when LobeHub has no icon
+(``catalog/hf_orgs.json``, ``web/public/providers/hf/``). The weekly run
+re-matches everything and re-reads every source, so a changed icon, avatar, or
+name shows up in the proposal. Anything set by hand in ``catalog/vendors.json``
+is left alone.
+
+The script only edits those files and writes a Markdown report. A scheduled
+workflow opens a pull request with them for a curator to review.
 """
 
 from __future__ import annotations
@@ -42,6 +52,21 @@ from model_catalog import (  # noqa: E402
     submitted_models,
     validate_catalog,
 )
+from vendors import (  # noqa: E402
+    HF_ICON_DIR,
+    HF_ORGS_FILE,
+    ICON_ROOT,
+    LOBEHUB_FILE,
+    LOBEHUB_ICON_DIR,
+    load_hf_orgs,
+    load_lobehub,
+    load_vendors,
+    lobehub_model_match,
+    lobehub_vendor_match,
+    manual_model_icon,
+    model_key,
+    submitted_vendors,
+)
 
 MODELS_DEV = "https://models.dev/api.json"
 OPENROUTER = "https://openrouter.ai/api/v1/models"
@@ -50,6 +75,18 @@ LITELLM = "https://raw.githubusercontent.com/BerriAI/litellm/main/model_prices_a
 HF_MODEL = "https://huggingface.co/api/models/{repo}"
 HF_COMMITS = "https://huggingface.co/api/models/{repo}/commits/main?p={page}"
 HF_TREE = "https://huggingface.co/api/models/{repo}/tree/{rev}"
+HF_ORG = "https://huggingface.co/api/organizations/{name}/overview"
+HF_USER = "https://huggingface.co/api/users/{name}/overview"
+# LobeHub's icon index lives in its repository; the icons ship as an npm package.
+LOBEHUB_TOC = "https://raw.githubusercontent.com/lobehub/lobe-icons/master/src/toc.json"
+LOBEHUB_NPM = "https://registry.npmjs.org/@lobehub/icons-static-svg/latest"
+LOBEHUB_SVG = "https://unpkg.com/@lobehub/icons-static-svg@{version}/icons/{file}"
+# The site's --ink: single-colour icons are drawn light, for the dark page.
+LIGHT_INK = b"#e8edf5"
+# The disc behind vector icons (--panel-raised). A colour icon none of whose
+# colours reaches WCAG's 3:1 for graphics against it is drawn in ink instead.
+BADGE_BG = "#121722"
+MIN_CONTRAST = 3.0
 
 # Vendors whose own list price is the reference for their proprietary models,
 # keyed by models.dev provider ID. Citations point at the vendor's pages, not
@@ -113,18 +150,33 @@ def http_json(url: str) -> Any:
         return json.load(response)
 
 
+def http_bytes(url: str) -> bytes:
+    request = urllib.request.Request(url, headers={"User-Agent": "nika-leaderboard-resolver"})
+    with urllib.request.urlopen(request, timeout=60) as response:
+        return response.read()
+
+
 class Sources:
     """Cached access to the public catalogs; a failed fetch reads as missing."""
 
-    def __init__(self, fetch: Fetch = http_json):
+    def __init__(self, fetch: Fetch = http_json, fetch_bytes: Callable[[str], bytes] = http_bytes):
         self._fetch = fetch
+        self._fetch_bytes = fetch_bytes
         self._cache: dict[str, Any] = {}
         self.failures: list[str] = []
+        # URLs that answered 404 when asked with ``missing_ok``: an answer, not a failure.
+        self.absent: set[str] = set()
 
-    def get(self, url: str) -> Any:
+    def get(self, url: str, *, missing_ok: bool = False, binary: bool = False) -> Any:
         if url not in self._cache:
             try:
-                self._cache[url] = self._fetch(url)
+                self._cache[url] = (self._fetch_bytes if binary else self._fetch)(url)
+            except urllib.error.HTTPError as exc:
+                if not (missing_ok and exc.code == 404):
+                    self.failures.append(f"{url}: {exc}")
+                else:
+                    self.absent.add(url)
+                self._cache[url] = None
             except (urllib.error.URLError, OSError, ValueError) as exc:
                 self.failures.append(f"{url}: {exc}")
                 self._cache[url] = None
@@ -471,16 +523,26 @@ class Report:
     review: list[str] = field(default_factory=list)
     unresolved: list[str] = field(default_factory=list)
     skipped: list[str] = field(default_factory=list)
+    added_vendors: list[str] = field(default_factory=list)
+    changed_vendors: list[str] = field(default_factory=list)
 
     @property
     def changed(self) -> bool:
-        return bool(self.added_models or self.added_prices or self.changed_prices)
+        return bool(
+            self.added_models
+            or self.added_prices
+            or self.changed_prices
+            or self.added_vendors
+            or self.changed_vendors
+        )
 
     def markdown(self, failures: list[str]) -> str:
         sections = [
             ("New release dates", self.added_models),
             ("New reference prices", self.added_prices),
             ("Price changes (new quote appended)", self.changed_prices),
+            ("New icons", self.added_vendors),
+            ("Icon or name changes", self.changed_vendors),
             ("Check before merging", self.review),
             ("Still pending (needs a curator)", self.unresolved),
             ("Not refreshed automatically", self.skipped),
@@ -568,6 +630,214 @@ def resolve(
     return report
 
 
+def image_ext(data: bytes) -> str | None:
+    """File extension for a raster avatar. SVG is refused: it can carry scripts."""
+    if data[:4] == b"RIFF" and data[8:12] == b"WEBP":
+        return "webp"
+    for magic, ext in ((b"\x89PNG\r\n\x1a\n", "png"), (b"\xff\xd8\xff", "jpg"), (b"GIF8", "gif")):
+        if data.startswith(magic):
+            return ext
+    return None
+
+
+def lobehub_svg(data: bytes, variant: str) -> bytes | None:
+    """A LobeHub SVG ready for the dark page; ``None`` if it is not a plain SVG."""
+    if not data.lstrip().startswith(b"<svg") or b"<script" in data.lower():
+        return None
+    return data.replace(b"currentColor", LIGHT_INK) if variant == "mono" else data
+
+
+def _luminance(hex_color: str) -> float:
+    h = hex_color.lstrip("#")
+    h = "".join(c * 2 for c in h) if len(h) in (3, 4) else h
+    channels = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+    r, g, b = (c / 12.92 if c <= 0.04045 else ((c + 0.055) / 1.055) ** 2.4 for c in channels)
+    return 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+
+def best_contrast(svg: bytes, background: str = BADGE_BG) -> float | None:
+    """Highest WCAG contrast of the SVG's colours against ``background``."""
+    colors = re.findall(rb'(?:fill|stop-color)="(#[0-9a-fA-F]{3,8})"', svg)
+    if not colors:
+        return None
+    bg = _luminance(background)
+    ratios = []
+    for color in colors:
+        lum = _luminance(color.decode())
+        ratios.append((max(lum, bg) + 0.05) / (min(lum, bg) + 0.05))
+    return max(ratios)
+
+
+def _remap(table: dict[str, str], key: str, entry: dict[str, Any] | None, what: str, report: Report) -> None:
+    new, old = (entry["id"].lower() if entry else None), table.get(key)
+    if new == old:
+        return
+    if new:
+        table[key] = new
+        line = f"{what}: LobeHub `{entry['title']}`" + (f" (was `{old}`)" if old else "")
+        (report.changed_vendors if old else report.added_vendors).append(line)
+    else:
+        del table[key]
+        report.changed_vendors.append(f"{what}: no longer matches LobeHub `{old}`")
+
+
+def resolve_lobehub(
+    lobehub: dict[str, Any],
+    vendors: dict[str, Any],
+    hf_orgs: dict[str, Any],
+    in_use: set[tuple[str | None, str | None]],
+    sources: Sources,
+    report: Report,
+    icon_root: Path,
+    refresh: bool = True,
+) -> dict[str, bytes | None]:
+    """Map submitted models and their vendors to LobeHub icons, and fetch those.
+
+    ``in_use`` holds (vendor, submitted model) pairs. Updates ``lobehub`` in
+    place and returns the icon files to write, relative to ``icon_root``;
+    ``None`` deletes an icon nothing uses any more. Without ``refresh`` only
+    unmapped models and vendors are matched, and saved icons are kept.
+    """
+    toc = sources.get(LOBEHUB_TOC)
+    latest = (sources.get(LOBEHUB_NPM) or {}).get("version")
+    if not isinstance(toc, list) or not latest:
+        return {}
+    by_id = {entry["id"].lower(): entry for entry in toc}
+    models_map = lobehub.setdefault("models", {})
+    vendors_map = lobehub.setdefault("vendors", {})
+    icons = lobehub.setdefault("icons", {})
+
+    for vendor, model in sorted(in_use, key=str):
+        key = model_key(model)
+        manual = vendors.get(vendor) or {}
+        # Anything set by hand outranks LobeHub, so it is not matched at all.
+        hand_made = manual_model_icon(vendors, model)[0] or manual.get("icon")
+        if key and not hand_made and (refresh or key not in models_map):
+            _remap(models_map, key, lobehub_model_match(toc, key), f"model `{model}`", report)
+        if vendor and not manual.get("icon") and (refresh or vendor not in vendors_map):
+            # The organization's own name often matches where its ID does not
+            # (``zai-org`` is "Z.ai"); the Hugging Face step reuses this lookup.
+            org = sources.get(HF_ORG.format(name=urlquote(vendor)), missing_ok=True) or {}
+            names = [vendor, manual.get("label"), (hf_orgs.get(vendor) or {}).get("label"), org.get("fullname")]
+            _remap(vendors_map, vendor, lobehub_vendor_match(toc, names), f"vendor `{vendor}`", report)
+
+    if refresh:
+        # Drop mappings for models and vendors no package uses any more.
+        for table, keys in (
+            (models_map, {model_key(m) for _, m in in_use}),
+            (vendors_map, {v for v, _ in in_use}),
+        ):
+            for key in set(table) - keys:
+                del table[key]
+
+    files: dict[str, bytes | None] = {}
+    used = set(models_map.values()) | set(vendors_map.values())
+    for icon_id in sorted(used):
+        known, entry = icons.get(icon_id), by_id.get(icon_id)
+        if not entry or (known and not (refresh and known.get("version") != latest)):
+            continue
+        variant = "color" if (entry.get("param") or {}).get("hasColor") else "mono"
+        name = f"{icon_id}-color.svg" if variant == "color" else f"{icon_id}.svg"
+        data = sources.get(LOBEHUB_SVG.format(version=latest, file=name), binary=True)
+        if variant == "color" and data and (best_contrast(data) or MIN_CONTRAST) < MIN_CONTRAST:
+            variant, name = "mono", f"{icon_id}.svg"
+            data = sources.get(LOBEHUB_SVG.format(version=latest, file=name), binary=True)
+        svg = lobehub_svg(data, variant) if data else None
+        if not svg:
+            if data:
+                report.unresolved.append(f"LobeHub `{name}` is not a plain SVG; not used")
+            continue
+        rel = f"{LOBEHUB_ICON_DIR}/{icon_id}.svg"
+        path = icon_root / rel
+        icons[icon_id] = {"title": entry["title"], "icon": rel, "variant": variant, "version": latest}
+        if not path.is_file() or path.read_bytes() != svg:
+            files[rel] = svg
+            if known:
+                report.changed_vendors.append(f"LobeHub `{entry['title']}`: icon changed in {latest}")
+    for icon_id in sorted(set(icons) - used):
+        files[icons.pop(icon_id)["icon"]] = None
+    return files
+
+
+def resolve_hf_orgs(
+    hf_orgs: dict[str, Any],
+    vendors: dict[str, Any],
+    lobehub: dict[str, Any],
+    in_use: set[str],
+    sources: Sources,
+    today: str,
+    report: Report,
+    refresh: bool = True,
+) -> dict[str, bytes | None]:
+    """Update ``hf_orgs`` in place from each vendor's Hugging Face organization.
+
+    Records the organization's name for every vendor, and downloads its avatar
+    only for a vendor with no hand-made or LobeHub icon. Returns the icon files
+    to write, relative to ``ICON_ROOT``; ``None`` deletes one. Only vendors
+    not yet recorded are looked up unless ``refresh`` is set.
+    """
+    files: dict[str, bytes | None] = {}
+    for vendor in sorted(in_use):
+        manual = vendors.get(vendor) or {}
+        has_icon = bool(manual.get("icon") or vendor in (lobehub.get("vendors") or {}))
+        if manual.get("label") and has_icon:
+            continue
+        known = hf_orgs.get(vendor)
+        if known and not refresh and (has_icon or known.get("icon")):
+            continue
+        url = HF_ORG.format(name=urlquote(vendor))
+        org = sources.get(url, missing_ok=True)
+        if not org:
+            if url not in sources.absent or has_icon:
+                continue  # an unreadable source is listed with the failures
+            if known:
+                report.skipped.append(
+                    f"`{vendor}`: Hugging Face no longer lists the organization; kept the saved icon"
+                )
+            elif sources.get(HF_USER.format(name=urlquote(vendor)), missing_ok=True):
+                report.unresolved.append(
+                    f"`{vendor}`: a personal Hugging Face account, so its avatar is not used; "
+                    "credit its repos to the maker with `hf_accounts` in `catalog/vendors.json`"
+                )
+            else:
+                report.unresolved.append(
+                    f"`{vendor}`: no Hugging Face organization or LobeHub icon; "
+                    "add a label and icon in `catalog/vendors.json`"
+                )
+            continue
+        name = org.get("name") or vendor
+        fresh: dict[str, Any] = {"org": name, "label": org.get("fullname") or name}
+        avatar = None if has_icon else org.get("avatarUrl")
+        if not has_icon and not avatar:
+            report.unresolved.append(f"`{vendor}`: the Hugging Face organization has no avatar")
+        if avatar and known and known.get("avatar_url") == avatar:
+            fresh.update(icon=known["icon"], avatar_url=avatar)
+        elif avatar:
+            data = sources.get(avatar, binary=True)
+            ext = image_ext(data) if data else None
+            if ext:
+                fresh.update(icon=f"{HF_ICON_DIR}/{vendor}.{ext}", avatar_url=avatar)
+                files[fresh["icon"]] = data
+            elif data:
+                report.unresolved.append(f"`{vendor}`: avatar {avatar} is not a PNG, JPEG, GIF, or WEBP image")
+        old = {k: v for k, v in (known or {}).items() if k != "retrieved"}
+        if old == fresh:
+            continue
+        if old.get("icon") and old["icon"] != fresh.get("icon"):
+            files[old["icon"]] = None
+        hf_orgs[vendor] = {**fresh, "retrieved": today}
+        page = f"https://huggingface.co/{name}"
+        what = "avatar" if fresh.get("icon") else "name"
+        if not known:
+            report.added_vendors.append(f"vendor `{vendor}`: {fresh['label']}, Hugging Face {what} ([organization]({page}))")
+        elif old.get("avatar_url") != fresh.get("avatar_url"):
+            change = "new avatar" if fresh.get("icon") else "avatar no longer used"
+            report.changed_vendors.append(f"vendor `{vendor}` ({fresh['label']}): {change} ([organization]({page}))")
+        else:
+            report.changed_vendors.append(f"vendor `{vendor}`: name was {old.get('label')}, now {fresh['label']}")
+    return files
+
+
 def write_json(path: Path, data: Any) -> None:
     path.write_text(json.dumps(data, indent=2, ensure_ascii=False) + "\n")
 
@@ -584,15 +854,28 @@ def main() -> int:
     pricing_path = args.repo_root / "catalog/pricing.json"
     models = json.loads(models_path.read_text())
     pricing = json.loads(pricing_path.read_text())
+    hf_orgs = load_hf_orgs(args.repo_root)
+    lobehub = load_lobehub(args.repo_root)
+    vendors = load_vendors(args.repo_root)
     sources = Sources()
+    today = date.today().isoformat()
     report = resolve(
         models,
         pricing,
         list(submitted_models(args.repo_root)),
         sources,
-        date.today().isoformat(),
+        today,
         refresh=not args.no_refresh,
     )
+    # After the models: a newly catalogued hf_repo names the vendor. LobeHub
+    # before Hugging Face, which only supplies avatars LobeHub lacks.
+    in_use = set(submitted_vendors(args.repo_root, models).values())
+    refresh = not args.no_refresh
+    icon_root = args.repo_root / ICON_ROOT
+    files = resolve_lobehub(lobehub, vendors, hf_orgs, in_use, sources, report, icon_root, refresh)
+    files.update(resolve_hf_orgs(
+        hf_orgs, vendors, lobehub, {v for v, _ in in_use if v}, sources, today, report, refresh
+    ))
     errors = validate_catalog(models, pricing)
     if errors:
         print("Resolved catalog failed validation; nothing written:", file=sys.stderr)
@@ -606,6 +889,18 @@ def main() -> int:
     if report.changed and not args.dry_run:
         write_json(models_path, models)
         write_json(pricing_path, pricing)
+        write_json(args.repo_root / HF_ORGS_FILE, dict(sorted(hf_orgs.items())))
+        write_json(
+            args.repo_root / LOBEHUB_FILE,
+            {k: dict(sorted(lobehub.get(k, {}).items())) for k in ("icons", "models", "vendors")},
+        )
+        for rel, data in files.items():
+            path = args.repo_root / ICON_ROOT / rel
+            if data is None:
+                path.unlink(missing_ok=True)
+            else:
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_bytes(data)
     return 0
 
 

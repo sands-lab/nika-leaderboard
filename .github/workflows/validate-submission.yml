@@ -139,3 +139,33 @@ jobs:
             echo -e "$SUMMARY"
           } >> "$GITHUB_STEP_SUMMARY"
           exit "$FAILED"
+
+  # Not a required check, by design: an entry shown without a model or vendor
+  # icon is a display gap, so the maintainer decides whether to merge. Runs
+  # only where icons can change: on PRs that add or change a submission
+  # package (checking those packages), and on the catalog bot's proposals
+  # from resolve-model-metadata.yml (checking every package). Other
+  # maintenance PRs skip it.
+  vendor-icons:
+    name: vendor-icons
+    needs: changes
+    if: ${{ needs.changes.outputs.packages != '' || github.head_ref == 'bot/model-metadata' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.12"
+      - name: Check model and vendor icons
+        env:
+          PACKAGES: ${{ needs.changes.outputs.packages }}
+          CATALOG_BOT: ${{ github.head_ref == 'bot/model-metadata' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$CATALOG_BOT" == "true" ]]; then
+            ARGS=(--all)
+          else
+            mapfile -t ARGS <<< "$PACKAGES"
+          fi
+          uv run python scripts/check_vendor_icons.py --summary "$GITHUB_STEP_SUMMARY" "${ARGS[@]}"

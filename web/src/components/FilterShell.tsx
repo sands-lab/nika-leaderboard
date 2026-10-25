@@ -55,6 +55,7 @@ export function FilterShell() {
         <FiltersBar
           filters={filters}
           metaFilters={meta.filters}
+          vendors={meta.vendors}
           versions={meta.versions}
           versionsWithData={versionsWithData}
           onChange={setFilters}

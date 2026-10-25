@@ -114,7 +114,7 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
     if (model.startsWith('OTel')) {
       // The vendor logo sits beside the model name at every viewport.
       await expect(row.getByRole('img', { name: 'AT&T' }))
-        .toHaveAttribute('src', /providers\/att\.svg$/)
+        .toHaveAttribute('src', /providers\/hf\/att\.webp$/)
     }
     await row.locator('td').first().click()
     await expect(page.locator('.lede')).toContainText(entry.name)

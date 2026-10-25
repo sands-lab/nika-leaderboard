@@ -9,6 +9,18 @@ export interface StepsTotals {
   tool_errors?: number | null
 }
 
+/** A label and an icon path under `public/providers/`. */
+export interface IconMark {
+  label: string
+  icon: string | null
+}
+
+/** Who made the model, resolved at build time (see scripts/vendors.py). */
+export interface Vendor extends IconMark {
+  /** Hugging Face organization, lowercased (`qwen`, `ornith-ai`). */
+  id: string
+}
+
 export interface SubmissionSummary {
   id: string
   dirname: string
@@ -42,7 +54,11 @@ export interface SubmissionSummary {
   reasoning_effort?: string | null
   framework: string | null
   agent_type: string | null
+  /** `run.llm_provider` as recorded: how the run reached the model. */
   llm_provider: string | null
+  vendor: Vendor | null
+  /** The model's own icon (Claude, Qwen), when it has one; shown before the vendor's. */
+  model_icon?: IconMark | null
   tools: string[]
   skills: string[]
   optimization_methods: string[]
@@ -138,6 +154,7 @@ export interface LeaderboardIndex {
 
 export interface MetaFilters {
   framework: string[]
+  /** Vendor IDs, ordered by label. */
   llm_provider: string[]
   model: string[]
   optimization_methods: string[]
@@ -149,6 +166,8 @@ export interface MetaFilters {
 export interface MetaFile {
   versions: string[]
   filters: MetaFilters
+  /** Label and icon for every vendor in `filters.llm_provider`. */
+  vendors?: Record<string, Omit<Vendor, 'id'>>
   primary_metric: string
   /** ISO timestamp of the build that produced this data. */
   generated_at?: string
