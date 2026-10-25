@@ -326,6 +326,29 @@ def aggregate_trials(
     return out
 
 
+def task_tokens(trials: list[dict[str, Any]]) -> list[list[int]] | None:
+    """Mean [in, out] tokens per case over its repeats; None without per-trial counts.
+
+    The site prices each pair and takes the median, so one runaway case does
+    not set the cost of a typical task.
+    """
+    sums: dict[str, list[float]] = {}
+    for t in trials:
+        in_tok, out_tok = t.get("in_tokens"), t.get("out_tokens")
+        if in_tok is None and out_tok is None:
+            continue
+        acc = sums.setdefault(str(t.get("case_key")), [0.0, 0.0, 0])
+        acc[0] += float(in_tok or 0)
+        acc[1] += float(out_tok or 0)
+        acc[2] += 1
+    if not sums:
+        return None
+    return [
+        [round(acc[0] / acc[2]), round(acc[1] / acc[2])]
+        for _, acc in sorted(sums.items())
+    ]
+
+
 @functools.cache
 def model_catalog(repo_root: Path) -> dict[str, Any]:
     path = repo_root / "catalog" / "models.json"
@@ -492,6 +515,7 @@ def load_submission(
         "mean_tokens": round(mean_tokens, 3) if mean_tokens is not None else None,
         "mean_steps": round(mean_steps, 3) if mean_steps is not None else None,
         "total_tokens": int(in_tokens + out_tokens),
+        "task_tokens": task_tokens(trials),
         "max_steps": run.get("max_steps"),
         "case_timeout_sec": run.get("case_timeout_sec"),
         "created_at": identity.get("created_at"),

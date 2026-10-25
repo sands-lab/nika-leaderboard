@@ -9,8 +9,8 @@ export const OPTIONAL_COLUMNS = [
   { key: 'released', label: 'Released' },
   { key: 'optimizations', label: 'Agent optimizations' },
   { key: 'user', label: 'User' },
-  { key: 'in_tokens', label: 'Input tokens' },
-  { key: 'out_tokens', label: 'Output tokens' },
+  { key: 'in_tokens', label: 'Input tokens / task' },
+  { key: 'out_tokens', label: 'Output tokens / task' },
 ] as const
 
 export type OptionalColumn = (typeof OPTIONAL_COLUMNS)[number]['key']

@@ -110,7 +110,7 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
     } else {
       await expect(row).not.toContainText(date)
     }
-    await expect(row.locator('span[title*="One run ="]')).toContainText('$')
+    await expect(row.locator('span[title*="cost of one task"]')).toContainText('$')
     if (model.startsWith('OTel')) {
       // The vendor logo sits beside the model name at every viewport.
       await expect(row.getByRole('img', { name: 'AT&T' }))

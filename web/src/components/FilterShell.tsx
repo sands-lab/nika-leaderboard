@@ -63,7 +63,7 @@ export function FilterShell() {
       )}
       {/* The count is what the controls above produced, so it reads after them. */}
       <p className="muted analytics-filters__count">
-        {filtered.length} / {submissions.length} submissions match filters
+        {filtered.length} / {submissions.length} entries match filters
       </p>
     </div>
   )

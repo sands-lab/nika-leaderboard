@@ -7,7 +7,15 @@ import { familyColor, familyPalette, inferModelFamily } from '../lib/insights'
 import { formatCount, formatPct, formatScore } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { modelReleaseDate } from '../lib/modelMeta'
-import { modelKey } from '../lib/pricing'
+import {
+  formatUsd,
+  modelKey,
+  submissionCost,
+  TASK_STAT_LABEL,
+  taskCost,
+  taskTokens,
+} from '../lib/pricing'
+import { TaskStatSelect } from '../components/TaskStatSelect'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import type { SubmissionSummary } from '../lib/types'
 
@@ -20,7 +28,7 @@ type AnalyzeSortKey =
   | 'rca'
   | 'success'
   | 'avg_tokens'
-  | 'total_tokens'
+  | 'median_tokens'
   | 'max_steps'
   | 'timeout'
 
@@ -35,7 +43,7 @@ const ANALYZE_ACCESSORS: Record<
   rca: (s) => s.mean_rca_f1,
   success: (s) => s.success_rate,
   avg_tokens: (s) => s.mean_tokens,
-  total_tokens: (s) => s.total_tokens,
+  median_tokens: (s) => taskTokens(s, 'median'),
   max_steps: (s) => s.max_steps,
   timeout: (s) => s.case_timeout_sec,
 }
@@ -47,7 +55,7 @@ function resolvedValue(s: SubmissionSummary, metric: ResolvedMetric): number {
 }
 
 function resolvedLabel(metric: ResolvedMetric): string {
-  return metric === 'success' ? 'Success %' : 'Mean RCA F1'
+  return metric === 'success' ? 'Diagnosis submitted (%)' : 'Mean RCA F1'
 }
 
 function scatterOption(args: {
@@ -61,10 +69,12 @@ function scatterOption(args: {
   xName: string
   yName: string
   xIsDate?: boolean
+  /** Dollar amounts spanning orders of magnitude: log axis, USD labels. */
+  xIsUsd?: boolean
   yMax?: number
   yAsPercent?: boolean
 }): EChartsOption {
-  const { points, xName, yName, xIsDate, yMax, yAsPercent } = args
+  const { points, xName, yName, xIsDate, xIsUsd, yMax, yAsPercent } = args
   const xs = points.map((p) => p.x)
   const ys = points.map((p) => p.y)
   const xPad = xIsDate
@@ -101,7 +111,15 @@ function scatterOption(args: {
           min: xPad.min,
           max: xPad.max,
         }
-      : {
+      : xIsUsd
+        ? {
+            type: 'log',
+            name: xName,
+            nameLocation: 'middle',
+            nameGap: 36,
+            axisLabel: { formatter: (v: number) => formatUsd(v) },
+          }
+        : {
           type: 'value',
           name: xName,
           nameLocation: 'middle',
@@ -142,7 +160,9 @@ function scatterOption(args: {
           value: [pt.x, pt.y],
           xLabel: xIsDate
             ? new Date(pt.x).toISOString().slice(0, 10)
-            : undefined,
+            : xIsUsd
+              ? formatUsd(pt.x)
+              : undefined,
           itemStyle: { color: pt.color },
           label: {
             show: points.length <= 20,
@@ -184,8 +204,9 @@ function paddedExtent(
 }
 
 export function AnalyzePage() {
-  const { submissions, filtered, loading, error } = useLeaderboardData()
-  const [resolvedMetric, setResolvedMetric] = useState<ResolvedMetric>('success')
+  const { submissions, filtered, pricing, overrides, priceMode, taskStat, loading, error } =
+    useLeaderboardData()
+  const [resolvedMetric, setResolvedMetric] = useState<ResolvedMetric>('rca')
   const { sort, toggle } = useTableSort<AnalyzeSortKey>({
     key: 'rca',
     dir: 'desc',
@@ -218,24 +239,37 @@ export function AnalyzePage() {
   const yAsPercent = resolvedMetric === 'success'
   const yMax = 1
 
+  // Per task rather than per run: a full run's cost scales with how many
+  // cases the release has, which says nothing about the agent.
+  const costed = useMemo(
+    () =>
+      colored
+        .map((c) => ({
+          ...c,
+          cost: taskCost(submissionCost(c.s, pricing, overrides, priceMode), taskStat),
+        }))
+        .filter((c): c is typeof c & { cost: number } => c.cost != null && c.cost > 0),
+    [colored, pricing, overrides, priceMode, taskStat],
+  )
+  const costLabel = `${TASK_STAT_LABEL[taskStat]} cost per task, USD`
+
   const vsCost = useMemo((): EChartsOption => {
-    const points = colored
-      .filter(({ s }) => (s.total_tokens ?? 0) > 0)
-      .map(({ s, family, color }) => ({
-        name: s.name,
-        family,
-        x: s.total_tokens ?? 0,
-        y: resolvedValue(s, resolvedMetric),
-        color,
-      }))
+    const points = costed.map(({ s, family, color, cost }) => ({
+      name: s.name,
+      family,
+      x: cost,
+      y: resolvedValue(s, resolvedMetric),
+      color,
+    }))
     return scatterOption({
       points,
-      xName: 'Total tokens',
+      xName: `${costLabel} (log)`,
+      xIsUsd: true,
       yName,
       yMax,
       yAsPercent,
     })
-  }, [colored, resolvedMetric, yName, yAsPercent])
+  }, [costed, costLabel, resolvedMetric, yName, yAsPercent])
 
   const vsReleaseDate = useMemo((): EChartsOption => {
     const raw = colored
@@ -281,7 +315,7 @@ export function AnalyzePage() {
       }))
     return scatterOption({
       points,
-      xName: 'Avg tokens / case',
+      xName: 'Avg tokens / task',
       yName,
       yMax,
       yAsPercent,
@@ -300,7 +334,7 @@ export function AnalyzePage() {
       }))
     return scatterOption({
       points,
-      xName: 'Case timeout (s)',
+      xName: 'Task timeout (s)',
       yName,
       yMax,
       yAsPercent,
@@ -418,10 +452,16 @@ export function AnalyzePage() {
       <div className="page__header">
         <div>
           <h1>Score Trends</h1>
-          <p className="lede">Resolved rate against tokens and run limits.</p>
+          <p className="lede">RCA F1 or diagnosis submissions against cost, tokens, and run limits.</p>
         </div>
         <div className="analyze-controls">
-          <label className="filter">
+          <label
+            className="filter"
+            title={
+              'Mean RCA F1: how well the submitted fault types match the injected ones, from 0 to 1, averaged over trials. A trial with no submission scores 0.\n\n' +
+              'Diagnosis submitted (%): share of trials in which the agent produced a structured answer that could be scored, right or wrong.'
+            }
+          >
             <span>Y-axis</span>
             <select
               value={resolvedMetric}
@@ -429,8 +469,8 @@ export function AnalyzePage() {
                 setResolvedMetric(e.target.value as ResolvedMetric)
               }
             >
-              <option value="success">Success %</option>
               <option value="rca">Mean RCA F1</option>
+              <option value="success">Diagnosis submitted (%)</option>
             </select>
           </label>
         </div>
@@ -440,10 +480,19 @@ export function AnalyzePage() {
 
       <div className="chart-grid chart-grid--stack">
         <ChartPanel
-          title={`${yName} vs total tokens`}
+          title={`${yName} vs cost per task`}
+          description={
+            costed.length < scoped.length
+              ? `${scoped.length - costed.length} of ${scoped.length} entries have no ${
+                  taskStat === 'p95' ? 'per-task token counts' : 'token totals'
+                } or no price and are not plotted.`
+              : undefined
+          }
+          controls={<TaskStatSelect />}
           option={vsCost}
           filename="nika-resolved-vs-cost"
-          empty={!scoped.length}
+          empty={!costed.length}
+          emptyMessage="No entry here has both token counts and a model price."
           height={520}
         />
         <ChartPanel
@@ -455,7 +504,7 @@ export function AnalyzePage() {
           height={520}
         />
         <ChartPanel
-          title={`${yName} vs avg tokens / case`}
+          title={`${yName} vs avg tokens / task`}
           option={vsAvgCost}
           filename="nika-resolved-vs-avg-cost"
           empty={!scoped.length}
@@ -463,7 +512,7 @@ export function AnalyzePage() {
         />
         {hasTimeout && (
           <ChartPanel
-            title={`${yName} vs case timeout`}
+            title={`${yName} vs task timeout`}
             option={vsCostLimit}
             filename="nika-resolved-vs-timeout"
             height={520}
@@ -523,20 +572,20 @@ export function AnalyzePage() {
               <SortableTh label="Model" sortKey="model" sort={sort} onSort={toggle} />
               <SortableTh label="RCA F1" sortKey="rca" sort={sort} onSort={toggle} />
               <SortableTh
-                label="Success"
+                label="Diagnosis submitted"
                 sortKey="success"
                 sort={sort}
                 onSort={toggle}
               />
               <SortableTh
-                label="Avg tokens"
+                label="Mean tokens / task"
                 sortKey="avg_tokens"
                 sort={sort}
                 onSort={toggle}
               />
               <SortableTh
-                label="Total tokens"
-                sortKey="total_tokens"
+                label="Median tokens / task"
+                sortKey="median_tokens"
                 sort={sort}
                 onSort={toggle}
               />
@@ -567,7 +616,7 @@ export function AnalyzePage() {
                   {formatCount(s.mean_tokens)}
                 </td>
                 <td className="num">
-                  {formatCount(s.total_tokens)}
+                  {formatCount(taskTokens(s, 'median'))}
                 </td>
                 <td className="num">{s.max_steps ?? '—'}</td>
                 <td className="num">{s.case_timeout_sec ?? '—'}</td>

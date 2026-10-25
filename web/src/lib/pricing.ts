@@ -68,6 +68,17 @@ export interface ModelPrice {
  */
 export type PriceMode = 'frozen' | 'current'
 
+/**
+ * Which per-task figure the analytics charts plot: the typical task, or the
+ * expensive tail (the 95th percentile over the release's cases).
+ */
+export type TaskStat = 'median' | 'p95'
+
+export const TASK_STAT_LABEL: Record<TaskStat, string> = {
+  median: 'Median',
+  p95: 'p95',
+}
+
 /** Why a run has, or lacks, a price. */
 export type PriceStatus = 'priced' | 'pending' | 'unavailable'
 
@@ -151,6 +162,24 @@ export function saveOverrides(overrides: PriceOverrides): void {
 }
 
 const MODE_KEY = 'nika.pricing.mode.v1'
+const STAT_KEY = 'nika.pricing.task-stat.v1'
+
+export function loadTaskStat(): TaskStat {
+  try {
+    return localStorage.getItem(STAT_KEY) === 'p95' ? 'p95' : 'median'
+  } catch {
+    return 'median'
+  }
+}
+
+export function saveTaskStat(stat: TaskStat): void {
+  try {
+    if (stat === 'median') localStorage.removeItem(STAT_KEY)
+    else localStorage.setItem(STAT_KEY, stat)
+  } catch {
+    // As with overrides: the choice still holds for this session.
+  }
+}
 
 export function loadPriceMode(): PriceMode {
   try {
@@ -218,8 +247,17 @@ export interface SubmissionCost {
    * designed trial is still quoted as a full pass rather than a cheap one.
    */
   perRun: number | null
-  /** USD for a single case attempted once. */
+  /** USD for a single case attempted once: the mean over every attempt. */
   perCase: number | null
+  /**
+   * USD for a typical task: the median over cases of each case's mean cost
+   * across its repeats. Falls back to `perCase` when the package reports no
+   * per-trial tokens; `perTaskStat` says which one applies.
+   */
+  perTask: number | null
+  perTaskStat: 'median' | 'mean'
+  /** 95th percentile of per-case cost; null without per-trial tokens. */
+  perTaskP95: number | null
   price: ModelPrice
   /** True once the viewer has edited this model's price. */
   edited: boolean
@@ -252,13 +290,64 @@ export function submissionCost(
   const attempts = s.n_trials_present ?? s.n_trials_expected ?? 0
   const cases = s.case_count ?? 0
   const perCase = attempts > 0 ? total / attempts : null
+  const taskCosts = (s.task_tokens ?? []).map(
+    ([i, o]) => (i * price.input + o * price.output) / 1_000_000,
+  )
+  const medianTask = quantile(taskCosts, 0.5)
   return {
     total,
     perRun: perCase != null && cases > 0 ? perCase * cases : null,
     perCase,
+    perTask: medianTask ?? perCase,
+    perTaskStat: medianTask != null ? 'median' : 'mean',
+    perTaskP95: quantile(taskCosts, 0.95),
     price,
     edited: Boolean(catalogEntry(overrides, modelKey(s))),
   }
+}
+
+/** Cost of one task under `stat`; the median may be the mean fallback. */
+export function taskCost(cost: SubmissionCost | null, stat: TaskStat): number | null {
+  if (!cost) return null
+  return stat === 'p95' ? cost.perTaskP95 : cost.perTask
+}
+
+/** Which tokens to count: input, output, or both. */
+export type TokenKind = 'in_tokens' | 'out_tokens' | 'all'
+
+/**
+ * Tokens of one task under `stat`, over the per-case means. Without per-trial
+ * counts the median falls back to the mean per trial and p95 is null.
+ */
+export function taskTokens(
+  s: SubmissionSummary,
+  stat: TaskStat,
+  kind: TokenKind = 'all',
+): number | null {
+  const pick = ([i, o]: [number, number]) =>
+    kind === 'in_tokens' ? i : kind === 'out_tokens' ? o : i + o
+  const values = (s.task_tokens ?? []).map(pick)
+  if (values.length) return quantile(values, stat === 'p95' ? 0.95 : 0.5)
+  return stat === 'median' ? meanTaskTokens(s, kind) : null
+}
+
+/** Mean tokens per trial, over the trials the package reported. */
+export function meanTaskTokens(s: SubmissionSummary, kind: TokenKind = 'all'): number | null {
+  const inTok = s.token_totals?.in_tokens ?? 0
+  const outTok = s.token_totals?.out_tokens ?? 0
+  const total = kind === 'in_tokens' ? inTok : kind === 'out_tokens' ? outTok : inTok + outTok
+  const attempts = s.n_trials_present ?? s.n_trials_expected ?? 0
+  return total > 0 && attempts > 0 ? total / attempts : null
+}
+
+/** Linearly interpolated quantile, as numpy's default; null for no values. */
+export function quantile(values: number[], q: number): number | null {
+  if (!values.length) return null
+  const v = [...values].sort((a, b) => a - b)
+  const pos = (v.length - 1) * q
+  const lo = Math.floor(pos)
+  const hi = Math.ceil(pos)
+  return v[lo] + (v[hi] - v[lo]) * (pos - lo)
 }
 
 /** $0.0042 -> "$0.0042", $1.37 -> "$1.37", $1234 -> "$1,234". */

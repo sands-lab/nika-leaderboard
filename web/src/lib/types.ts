@@ -86,6 +86,8 @@ export interface SubmissionSummary {
   mean_steps: number | null
   /** Total in+out tokens across the run. */
   total_tokens: number | null
+  /** Mean [in, out] tokens per case over its repeats; null without per-trial counts. */
+  task_tokens?: [number, number][] | null
   max_steps: number | null
   case_timeout_sec: number | null
   /** Package identity created_at (ISO-8601). */

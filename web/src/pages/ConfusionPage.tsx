@@ -306,7 +306,7 @@ export function ConfusionPage() {
                   onChange={(e) => setLevel(e.target.value as ConfusionLevel)}
                 >
                   <option value="category">Failure domain</option>
-                  <option value="problem">RCA problem name</option>
+                  <option value="problem">Failure</option>
                 </select>
               </label>
               <label>
@@ -320,7 +320,7 @@ export function ConfusionPage() {
                 </select>
               </label>
               <p className="muted insights-controls__status">
-                {matrix.edgeCount} true→pred pairs · {matrix.trialCount} case attempts
+                {matrix.edgeCount} true→pred pairs · {matrix.trialCount} trials
                 with predictions · {matrix.missingPredictionCount} missing
               </p>
             </div>
@@ -337,7 +337,7 @@ export function ConfusionPage() {
                 title={
                   level === 'category'
                     ? 'Failure domain confusion'
-                    : 'Problem-name confusion'
+                    : 'Failure confusion'
                 }
                 description={
                   `Rows = true, columns = predicted; the diagonal is correct. Cells are ${
