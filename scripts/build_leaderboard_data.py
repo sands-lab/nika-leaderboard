@@ -52,9 +52,24 @@ def harness_name(value: str | None) -> str | None:
     return aliases.get(value.strip().lower(), value.strip()) if value else None
 
 
+def reasoning_effort(run: dict[str, Any], extra: dict[str, Any]) -> str | None:
+    """Return the reasoning effort recorded for this evaluation, if any.
+
+    NIKA records the effective value in `identity.yaml` `run.reasoning_effort`;
+    older packages may carry it only in `agent.extra`. Missing values stay
+    missing: historical runs must not inherit today's default.
+    """
+    for value in (run.get("reasoning_effort"), extra.get("reasoning_effort")):
+        if value is not None and str(value).strip():
+            return str(value).strip()
+    return None
+
+
 def entry_name(summary: dict[str, Any]) -> str:
     """Compose chart labels from recorded model, harness and adaptations."""
-    parts = [summary.get("model"), summary.get("framework")]
+    model = summary.get("model")
+    effort = summary.get("reasoning_effort")
+    parts = [f"{model} ({effort})" if model and effort else model, summary.get("framework")]
     extra = summary.get("extra") or {}
     for method in summary.get("optimization_methods") or []:
         variant = extra.get(f"{str(method).lower()}_variant")
@@ -456,6 +471,7 @@ def load_submission(
         "optimization_methods": agent.get("optimization_methods") or [],
         "tags": agent.get("tags") or [],
         "extra": agent.get("extra") or {},
+        "reasoning_effort": reasoning_effort(run, agent.get("extra") or {}),
         "benchmark_version": bench.get("version") or version,
         "split": bench.get("split"),
         "case_count": bench.get("case_count"),

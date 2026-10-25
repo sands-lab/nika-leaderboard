@@ -1,6 +1,6 @@
 import unittest
 
-from scripts.build_leaderboard_data import disambiguate_names
+from scripts.build_leaderboard_data import disambiguate_names, entry_name, reasoning_effort
 
 
 def entry(id_, version, name, tags=(), created_at=""):
@@ -64,6 +64,32 @@ class EntryNameTest(unittest.TestCase):
             [e["name"] for e in entries], ["M · ReAct · run 2", "M · ReAct · run 1"]
         )
 
+
+    def test_reasoning_effort_follows_the_model_in_parentheses(self):
+        summary = {
+            "model": "GPT-6.1 Sol",
+            "framework": "Codex",
+            "reasoning_effort": reasoning_effort({"reasoning_effort": "medium"}, {}),
+        }
+        self.assertEqual(entry_name(summary), "GPT-6.1 Sol (medium) · Codex")
+
+    def test_identity_reasoning_effort_wins_over_agent_extra(self):
+        self.assertEqual(
+            reasoning_effort({"reasoning_effort": "medium"}, {"reasoning_effort": "high"}),
+            "medium",
+        )
+        self.assertEqual(
+            reasoning_effort({"reasoning_effort": None}, {"reasoning_effort": "high"}),
+            "high",
+        )
+
+    def test_missing_or_blank_reasoning_effort_is_omitted(self):
+        self.assertIsNone(reasoning_effort({}, {}))
+        self.assertIsNone(reasoning_effort({"reasoning_effort": None}, {"reasoning_effort": "  "}))
+        self.assertEqual(
+            entry_name({"model": "M", "framework": "ReAct", "reasoning_effort": None}),
+            "M · ReAct",
+        )
 
 if __name__ == "__main__":
     unittest.main()

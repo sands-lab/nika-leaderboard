@@ -38,7 +38,7 @@ uv run python scripts/validate_model_metadata.py
 uv run python scripts/build_leaderboard_data.py --skip-catalog-refresh
 ```
 
-The validator checks catalog format, including source URLs, dates, rates, quote ordering, and that every icon file exists. Models missing from the catalogs are reported as pending, not validation failures. The `model-metadata` job runs these tests and the validator on every pull request. A separate `validate` job uses the NIKA CLI to validate changed submission packages.
+The validator checks catalog format, including source URLs, dates, rates, quote ordering, and that every icon file exists. Models missing from the catalogs are reported as pending, not validation failures. The `model-metadata` job runs these tests and the validator on every pull request. A separate `validate` job uses the NIKA CLI to validate submission packages that the pull request adds or changes. It runs only when a `changes` job finds such a package; on other pull requests it is skipped, and GitHub counts the skipped job as passing.
 
 The `vendor-icons` job reports packages that the site would show without a model or vendor icon, with the `catalog/vendors.json` entry that would fix each one. A package passes when it has a saved icon, or when LobeHub or the vendor's Hugging Face organization has one that the resolver will download after merge. The job checks the packages a pull request adds or changes, or all packages when the pull request edits `catalog/vendors.json`, `catalog/lobehub.json`, or `catalog/hf_orgs.json`. It is deliberately not a required check: a failure marks a display gap, and the maintainer decides whether to merge anyway. To run it locally:
 
@@ -176,7 +176,7 @@ For an ordinary site build, use `--skip-catalog-refresh` instead. This uses comm
 
 ### Names and links
 
-The builder derives entry labels from the catalog model name, normalized harness name, optimization methods, and skills. Repeated configurations include split and run identity. The detail page retains the submitted title as `submission_name` and original model spelling as `submitted_model`, alongside the resolved `model_id`.
+The builder derives entry labels from the catalog model name, reasoning effort, normalized harness name, optimization methods, and skills. Reasoning effort comes from `run.reasoning_effort` in `results/identity.yaml`, falling back to `agent.extra.reasoning_effort` for older packages; when neither records it, the site shows none rather than assuming a default. Repeated configurations include split and run identity. The detail page retains the submitted title as `submission_name` and original model spelling as `submitted_model`, alongside the resolved `model_id`.
 
 Entry links use hash routes such as `#/entry/<release>/<package>`. When an identity includes `trajectories_relpath`, the site links to the corresponding Hugging Face folder. Public trajectory directories use `YYYYMMDD_<framework>_<model>` with lowercase ASCII words separated by underscores; accepted scores package IDs stay fixed.
 

@@ -140,6 +140,7 @@ function LeaderCard({ leader, index }: { leader: Leader; index: number }) {
             title={`${entry.name}: view details`}
           >
             {entry.model || entry.name}
+            {entry.model && entry.reasoning_effort ? ` (${entry.reasoning_effort})` : ''}
           </Link>
         </h2>
         <p className="leader-card__stack">
