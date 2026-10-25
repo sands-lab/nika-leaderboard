@@ -30,7 +30,7 @@ DOMAIN_RE = re.compile(
 )
 
 
-KNOWN_VENDORS = {"openai", "anthropic", "google", "deepseek", "qwen", "meta", "mistral", "att", "ku-dfi", "zai"}
+KNOWN_VENDORS = {"openai", "anthropic", "google", "deepseek", "qwen", "meta", "mistral", "att", "ku-dfi", "zai", "ornith"}
 
 
 def harness_name(value: str | None) -> str | None:
@@ -102,6 +102,8 @@ def vendor_from_model(model: str | None) -> str | None:
         return "ku-dfi"
     if key.startswith("glm-") or key.startswith("zai-org/"):
         return "zai"
+    if key.startswith("ornith"):
+        return "ornith"
     if "otel-2.0-llm" in key:
         # https://about.att.com/blogs/2026/the-tokenomics-equation.html
         return "att"
