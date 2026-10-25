@@ -127,7 +127,7 @@ For an ordinary site build, use `--skip-catalog-refresh` instead. This uses comm
 
 ### Names and links
 
-The builder derives entry labels from the catalog model name, normalized harness name, optimization methods, and skills. Repeated configurations include split and run identity. The detail page retains the submitted title as `submission_name` and original model spelling as `submitted_model`, alongside the resolved `model_id`.
+The builder derives entry labels from the catalog model name, reasoning effort, normalized harness name, optimization methods, and skills. Reasoning effort comes from `run.reasoning_effort` in `results/identity.yaml`, falling back to `agent.extra.reasoning_effort` for older packages; when neither records it, the site shows none rather than assuming a default. Repeated configurations include split and run identity. The detail page retains the submitted title as `submission_name` and original model spelling as `submitted_model`, alongside the resolved `model_id`.
 
 Entry links use hash routes such as `#/entry/<release>/<package>`. When an identity includes `trajectories_relpath`, the site links to the corresponding Hugging Face folder. Public trajectory directories use `YYYYMMDD_<framework>_<model>` with lowercase ASCII words separated by underscores; accepted scores package IDs stay fixed.
 
