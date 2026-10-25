@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, type MouseEvent, type ReactNode } from 'rea
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { EntryLinks } from './EntryLinks'
 import { SortableTh } from './SortableTh'
-import type { SubmissionSummary } from '../lib/types'
+import type { IconMark, SubmissionSummary, Vendor } from '../lib/types'
 import {
   dash,
   entryLinks,
@@ -21,11 +21,7 @@ import {
   tieCount,
 } from '../lib/metrics'
 import { modelReleaseDate } from '../lib/modelMeta'
-import {
-  providerDisplayName,
-  providerIconSrc,
-  resolveProvider,
-} from '../lib/providerMeta'
+import { vendorIconSrc } from '../lib/providerMeta'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import {
@@ -249,26 +245,32 @@ export function RcaCell({
   )
 }
 
+/**
+ * The model's icon when it has one, else its vendor's. Vector icons are drawn
+ * light on the dark page; raster avatars keep their own backing.
+ */
 export function ProviderIcon({
-  llmProvider,
+  vendor,
   model,
 }: {
-  llmProvider: string | null | undefined
-  model: string | null | undefined
+  vendor: Vendor | null | undefined
+  model?: IconMark | null
 }) {
-  const provider = resolveProvider(llmProvider, model)
-  if (!provider) return <span className="muted">—</span>
-  const src = providerIconSrc(provider)
-  const label = providerDisplayName(provider)
+  const mark = model?.icon ? model : vendor
+  if (!mark) return <span className="muted">—</span>
+  const src = vendorIconSrc(mark.icon)
+  const label = mark.label
+  const title = vendor && vendor.label !== label ? `${label} · ${vendor.label}` : label
   if (!src) {
     return (
-      <span className="provider-fallback" title={label}>
+      <span className="provider-fallback" title={title}>
         {label}
       </span>
     )
   }
+  const kind = /\.svg$/i.test(src) ? 'glyph' : 'avatar'
   return (
-    <span className="provider-icon" title={label}>
+    <span className={`provider-icon provider-icon--${kind}`} title={title}>
       <img src={src} alt={label} width={18} height={18} loading="lazy" />
       <span className="visually-hidden">{label}</span>
     </span>
@@ -655,7 +657,7 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
                 </td>
                 <td className="model-td sticky-model">
                   <span className="model-cell">
-                    <ProviderIcon llmProvider={s.llm_provider} model={s.model} />
+                    <ProviderIcon vendor={s.vendor} model={s.model_icon} />
                     <Link
                       className="model-name"
                       to={{ pathname: entryPath(s.id), search }}

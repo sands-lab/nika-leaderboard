@@ -36,7 +36,7 @@ import {
   priceStatus,
   submissionCost,
 } from '../lib/pricing'
-import { providerDisplayName, resolveProvider, servingLabel } from '../lib/providerMeta'
+import { servingLabel } from '../lib/providerMeta'
 import type { SubmissionSummary } from '../lib/types'
 
 const NIKA_REPO = 'https://github.com/sands-lab/nika'
@@ -176,7 +176,6 @@ export function EntryPage() {
   const status = priceStatus(modelKey(s), pricing)
   const missingPrice =
     status === 'unavailable' ? 'n/a' : status === 'pending' ? 'pending' : '—'
-  const vendor = resolveProvider(s.llm_provider, s.model)
   const modelUrl = modelLink(modelKey(s))
   const tied = tieCount(release, s)
   // Tinted against the rest of the release, as on the leaderboard.
@@ -252,10 +251,10 @@ export function EntryPage() {
             ],
             [
               'Vendor',
-              vendor && (
+              s.vendor && (
                 <span className="entry-inline">
-                  <ProviderIcon llmProvider={s.llm_provider} model={s.model} />
-                  {providerDisplayName(vendor)}
+                  <ProviderIcon vendor={s.vendor} />
+                  {s.vendor.label}
                 </span>
               ),
             ],

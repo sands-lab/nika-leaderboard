@@ -1,13 +1,16 @@
 name: Resolve model metadata
 
 # Proposes release dates and reference prices for newly merged models, and
-# appends a dated quote when a tracked price changes. Changes arrive as a pull
+# appends a dated quote when a tracked price changes. It also matches models
+# and vendors to LobeHub icons, falling back to Hugging Face organization
+# avatars, and the weekly run picks up changed ones (catalog/vendors.json
+# overrides them by hand). Changes arrive as a pull
 # request from a branch in this repository for a curator to review; nothing
 # is committed to main directly and submission PRs are never touched.
 on:
   push:
     branches: [main]
-    paths: ["submissions/**"]
+    paths: ["submissions/**", "catalog/vendors.json"]
   schedule:
     # Mondays 06:00 UTC: price-change check for every catalogued model.
     - cron: "0 6 * * 1"
@@ -63,6 +66,10 @@ jobs:
           add-paths: |
             catalog/models.json
             catalog/pricing.json
+            catalog/hf_orgs.json
+            catalog/lobehub.json
+            web/public/providers/hf/**
+            web/public/providers/lobehub/**
           commit-message: "chore(catalog): resolve model release dates and reference prices"
           title: "chore(catalog): resolve model release dates and reference prices"
           body-path: ${{ runner.temp }}/report.md

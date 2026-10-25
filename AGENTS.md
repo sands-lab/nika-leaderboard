@@ -44,6 +44,7 @@ Do not add raw traces, per-case session artifacts, credentials, caches, or sourc
 - Do not fabricate scores, trial coverage, benchmark identities, release versions, or hashes. Packages must originate from a completed official release run (`run.official: true`).
 - Submission paths must remain `submissions/<release_version>/<YYYYMMDD>_<slug>/`; the slug is derived from `metadata.info.name` as lowercase ASCII words joined with underscores.
 - Add a new submission directory rather than overwriting or deleting an accepted historical entry unless the task explicitly calls for a correction and explains its provenance.
+- `catalog/lobehub.json`, `catalog/hf_orgs.json`, `web/public/providers/lobehub/`, and `web/public/providers/hf/` are written by the resolver workflow. Do not hand-edit them; put icon and vendor overrides in `catalog/vendors.json`, with hand-made images directly under `web/public/providers/`.
 - Keep unrelated submissions byte-for-byte unchanged. Avoid repository-wide formatting or key reordering of YAML/JSON.
 - Never commit secrets or local absolute filesystem paths. Validation scans package text for API keys, bearer tokens, private-key material, and machine-specific paths.
 

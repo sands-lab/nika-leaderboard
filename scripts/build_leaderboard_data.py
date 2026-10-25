@@ -19,6 +19,15 @@ import yaml
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from model_catalog import find_key, validate_catalog  # noqa: E402
+from vendors import (  # noqa: E402
+    load_hf_orgs,
+    load_lobehub,
+    load_vendors,
+    model_display,
+    model_hf_repo,
+    vendor_display,
+    vendor_id,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_NIKA_ROOT = REPO_ROOT.parent / "nika"
@@ -28,9 +37,6 @@ NAME_RE = re.compile(r'root_cause_name(?::\s*\w+)?\s*=\s*"(?P<name>[^"]+)"')
 DOMAIN_RE = re.compile(
     r"failure_domain(?::\s*[\w.]+)?\s*=\s*FailureDomain\.(?P<dom>[A-Z_]+)"
 )
-
-
-KNOWN_VENDORS = {"openai", "anthropic", "google", "deepseek", "qwen", "meta", "mistral", "att", "ku-dfi", "zai"}
 
 
 def harness_name(value: str | None) -> str | None:
@@ -59,56 +65,10 @@ def entry_name(summary: dict[str, Any]) -> str:
     ) or "Unknown model · Unknown harness"
 
 
-def infer_llm_provider(model: str | None, explicit: str | None) -> str | None:
-    """Prefer explicit run.llm_provider; otherwise infer from model id."""
+def serving_provider(explicit: str | None) -> str | None:
+    """``run.llm_provider`` as recorded: how the run reached the model."""
     if explicit and str(explicit).strip():
         return str(explicit).strip().lower().replace(" ", "-").replace("_", "-")
-    return vendor_from_model(model)
-
-
-def model_vendor(model: str | None, llm_provider: str | None) -> str | None:
-    """Who made the model, as the UI's Provider column and filter show it.
-
-    ``custom`` (an OpenAI-compatible base_url) names the serving route rather
-    than a vendor, so any value outside the known vendors defers to the model id.
-    """
-    if llm_provider in KNOWN_VENDORS:
-        return llm_provider
-    return vendor_from_model(model) or llm_provider
-
-
-def vendor_from_model(model: str | None) -> str | None:
-    if not model:
-        return None
-    key = str(model).strip().lower().replace("_", "-")
-    if (
-        key.startswith("gpt-")
-        or key.startswith("gpt")
-        or key.startswith("o1")
-        or key.startswith("o3")
-        or key.startswith("o4")
-        or "gpt-oss" in key
-    ):
-        return "openai"
-    if "claude" in key:
-        return "anthropic"
-    if "gemini" in key or "gemma" in key:
-        return "google"
-    if "deepseek" in key:
-        return "deepseek"
-    if "qwen" in key:
-        return "qwen"
-    if "telecomgpt-r1" in key or key.startswith("ku-dfi/"):
-        return "ku-dfi"
-    if key.startswith("glm-") or key.startswith("zai-org/"):
-        return "zai"
-    if "otel-2.0-llm" in key:
-        # https://about.att.com/blogs/2026/the-tokenomics-equation.html
-        return "att"
-    if "llama" in key or key.startswith("meta-"):
-        return "meta"
-    if "mistral" in key or "mixtral" in key:
-        return "mistral"
     return None
 
 
@@ -370,6 +330,38 @@ def model_identity(repo_root: Path, submitted: str | None) -> dict[str, str | No
     return {"model": name or submitted, "model_id": key, "submitted_model": submitted}
 
 
+@functools.cache
+def vendor_tables(repo_root: Path) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    return load_vendors(repo_root), load_hf_orgs(repo_root), load_lobehub(repo_root)
+
+
+def model_vendor(
+    repo_root: Path, agent: dict[str, Any], run: dict[str, Any]
+) -> dict[str, str | None] | None:
+    """Who made the model, with the label and icon the site shows for them."""
+    vendors, hf_orgs, lobehub = vendor_tables(repo_root)
+    model = agent.get("model") or run.get("model")
+    repo = model_hf_repo(
+        model_catalog(repo_root),
+        model,
+        agent.get("extra"),
+        run.get("model"),
+        run.get("llm_provider"),
+    )
+    vendor = vendor_id(
+        vendors, model=model, hf_repo=repo, llm_provider=run.get("llm_provider")
+    )
+    return vendor_display(vendor, vendors, hf_orgs, lobehub) if vendor else None
+
+
+def model_icon(
+    repo_root: Path, model: str | None, vendor: dict[str, Any] | None
+) -> dict[str, str] | None:
+    """The model's own icon (Claude, Qwen); the site falls back to the vendor's."""
+    vendors, _, lobehub = vendor_tables(repo_root)
+    return model_display(model, vendors, lobehub, vendor["id"] if vendor else None)
+
+
 def package_id(version: str, dirname: str) -> str:
     return f"{version}/{dirname}"
 
@@ -457,10 +449,8 @@ def load_submission(
         **model_identity(repo_root, agent.get("model") or run.get("model")),
         "framework": harness_name(agent.get("framework") or run.get("agent_type")),
         "agent_type": run.get("agent_type"),
-        "llm_provider": infer_llm_provider(
-            agent.get("model") or run.get("model"),
-            run.get("llm_provider"),
-        ),
+        "llm_provider": serving_provider(run.get("llm_provider")),
+        "vendor": model_vendor(repo_root, agent, run),
         "tools": agent.get("tools") or [],
         "skills": agent.get("skills") or [],
         "optimization_methods": agent.get("optimization_methods") or [],
@@ -494,6 +484,9 @@ def load_submission(
         "nika_git_commit": run.get("nika_git_commit"),
     }
 
+    summary["model_icon"] = model_icon(
+        repo_root, agent.get("model") or run.get("model"), summary["vendor"]
+    )
     summary["name"] = entry_name(summary)
     readme_path = package_dir / "README.md"
     readme = readme_path.read_text(encoding="utf-8").strip() if readme_path.is_file() else None
@@ -684,7 +677,7 @@ def build_leaderboard(
     versions: set[str] = set(catalogs)
 
     frameworks: set[str] = set()
-    providers: set[str] = set()
+    vendors: dict[str, dict[str, str | None]] = {}
     models: set[str] = set()
     methods: set[str] = set()
     tags: set[str] = set()
@@ -722,9 +715,8 @@ def build_leaderboard(
             details[summary["id"]] = detail
 
             frameworks.add(summary.get("framework"))
-            providers.add(
-                model_vendor(summary.get("model"), summary.get("llm_provider"))
-            )
+            if vendor := summary.get("vendor"):
+                vendors[vendor["id"]] = {"label": vendor["label"], "icon": vendor["icon"]}
             models.add(summary.get("model"))
             methods.update(summary.get("optimization_methods") or [])
             tags.update(summary.get("tags") or [])
@@ -779,13 +771,14 @@ def build_leaderboard(
             "versions": sorted(versions, key=_version_sort_key),
             "filters": {
                 "framework": unique_sorted(frameworks),
-                "llm_provider": unique_sorted(providers),
+                "llm_provider": sorted(vendors, key=lambda v: str(vendors[v]["label"]).lower()),
                 "model": unique_sorted(models),
                 "optimization_methods": unique_sorted(methods),
                 "tags": unique_sorted(tags),
                 "org": unique_sorted(orgs),
                 "split": unique_sorted(splits),
             },
+            "vendors": dict(sorted(vendors.items())),
             "primary_metric": "mean_rca_f1",
             "ranking": {
                 "method": "paired cluster bootstrap over cases",

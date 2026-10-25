@@ -24,6 +24,37 @@ jobs:
       - name: Validate model catalog format
         run: uv run python scripts/validate_model_metadata.py
 
+  # Not a required check, by design: an entry shown without a model or vendor
+  # icon is a display gap, so the maintainer decides whether to merge. Checks the
+  # packages this PR adds or changes, or all of them when it edits the vendor
+  # catalog.
+  vendor-icons:
+    name: vendor-icons
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 0
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.12"
+      - name: Check model and vendor icons
+        env:
+          BASE: ${{ github.event.pull_request.base.sha }}
+          HEAD: ${{ github.event.pull_request.head.sha }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          CHANGED=$(git diff --name-only --diff-filter=ACMR "$BASE"..."$HEAD")
+          if grep -qE '^catalog/(vendors|hf_orgs|lobehub)\.json$' <<< "$CHANGED"; then
+            ARGS=(--all)
+          else
+            mapfile -t ARGS < <(
+              awk -F/ 'NF>=4 && $1=="submissions" { print $1"/"$2"/"$3 }' <<< "$CHANGED" | sort -u
+            )
+          fi
+          uv run python scripts/check_vendor_icons.py --summary "$GITHUB_STEP_SUMMARY" "${ARGS[@]}"
+
   validate:
     runs-on: ubuntu-latest
     steps:
