@@ -38,6 +38,8 @@ export interface SubmissionSummary {
   model_id?: string | null
   /** `agent.model` exactly as the package records it. */
   submitted_model?: string | null
+  /** Recorded reasoning effort: identity `run.reasoning_effort`, else `agent.extra`. */
+  reasoning_effort?: string | null
   framework: string | null
   agent_type: string | null
   llm_provider: string | null

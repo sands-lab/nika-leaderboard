@@ -114,7 +114,8 @@ function Readme({ text }: { text: string }) {
 
 function extraRows(s: SubmissionSummary): Row[] {
   return Object.entries(s.extra ?? {})
-    .filter(([key]) => key !== 'retry_policy')
+    // Reasoning effort has its own row in the Model facts.
+    .filter(([key]) => key !== 'retry_policy' && key !== 'reasoning_effort')
     .map(([k, v]) => [
       k.replace(/_/g, ' ').replace(/^./, (letter) => letter.toUpperCase()),
       typeof v === 'string' ? v : JSON.stringify(v),
@@ -202,6 +203,7 @@ export function EntryPage() {
                 {s.model ?? s.name}
               </a>
             ) : s.model ?? s.name}
+            {s.model && s.reasoning_effort ? ` (${s.reasoning_effort})` : ''}
             <VerifiedMark official={s.official} />
           </h1>
           <p className="lede">
@@ -250,6 +252,7 @@ export function EntryPage() {
                 )}
               </span>,
             ],
+            ['Reasoning effort', s.reasoning_effort],
             [
               'Vendor',
               vendor && (

@@ -662,6 +662,7 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
                       title={`${s.name}: view details`}
                     >
                       {dash(s.model)}
+                      {s.model && s.reasoning_effort ? ` (${s.reasoning_effort})` : ''}
                     </Link>
                     <VerifiedMark official={s.official} />
                   </span>
