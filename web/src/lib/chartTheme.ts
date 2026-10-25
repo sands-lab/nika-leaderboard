@@ -22,8 +22,58 @@ export const CHART_MUTED = '#97a3b8'
  */
 export const CHART_FOCUS = '#ffffff'
 
-/** Grid, axis and frame lines: recessive by design. */
+/** Grid lines: recessive by design. */
 export const CHART_LINE = 'rgba(255, 255, 255, 0.08)'
+/** Axis baselines and ticks: firm enough to frame the plot. */
+export const CHART_AXIS_LINE = 'rgba(255, 255, 255, 0.32)'
+
+/**
+ * Chart type scale, in canvas pixels. Ticks, axis names and legends carry the
+ * reading of every chart, so they are set at body-text size or larger; labels
+ * drawn inside the plot stay smaller so they do not crowd the marks. Dense
+ * category axes (dozens of rows) get a smaller floor so rows do not collide.
+ */
+export const CHART_FONT = {
+  tick: 14,
+  denseTick: 12,
+  axisName: 15,
+  legend: 14,
+  tooltip: 13,
+  /** Floor for value labels on bars, which carry the figure's numbers. */
+  dataLabel: 12,
+  /** Sankey and graph node names, which stand in for category ticks. */
+  nodeLabel: 13,
+} as const
+
+/** The site's typeface, set on every chart so canvas text matches the page. */
+export const CHART_FONT_FAMILY = 'Inter, system-ui, sans-serif'
+
+/**
+ * Category axes with more entries than this get the dense tick floor: at the
+ * full size their rows or columns would run into each other.
+ */
+export const DENSE_CATEGORIES = 24
+
+/** Tick label size the chart panel gives a category axis of `count` entries. */
+export function categoryTickSize(count: number): number {
+  return count > DENSE_CATEGORIES ? CHART_FONT.denseTick : CHART_FONT.tick
+}
+
+let measureCtx: CanvasRenderingContext2D | null = null
+
+/** Rendered width of `text` in the chart typeface, for laying out margins. */
+export function measureText(text: string, size: number, weight = 400): number {
+  if (!measureCtx) measureCtx = document.createElement('canvas').getContext('2d')
+  if (!measureCtx) return text.length * size * 0.6
+  measureCtx.font = `${weight} ${size}px ${CHART_FONT_FAMILY}`
+  return measureCtx.measureText(text).width
+}
+
+/** Line widths: series read as the figure's subject, axes as its frame. */
+export const CHART_STROKE = {
+  series: 3,
+  axis: 1.5,
+} as const
 
 /**
  * Categorical slots, assigned in fixed order and never cycled, so a colour
@@ -78,7 +128,7 @@ export const CHART_TOOLTIP = {
   borderColor: 'rgba(255, 255, 255, 0.14)',
   borderWidth: 1,
   padding: [8, 11] as [number, number],
-  textStyle: { color: CHART_TEXT, fontSize: 12 },
+  textStyle: { color: CHART_TEXT, fontSize: 13 },
   extraCssText: 'border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.45);',
 }
 

@@ -92,7 +92,7 @@ function pickLeaders(
   const cutoff = median(scored.map((s) => s.mean_rca_f1 ?? 0))
   const priced = scored
     .filter((s) => (s.mean_rca_f1 ?? 0) >= cutoff)
-    .map((s) => ({ s, cost: submissionCost(s, pricing, overrides, priceMode)?.perRun ?? null }))
+    .map((s) => ({ s, cost: submissionCost(s, pricing, overrides, priceMode)?.perTask ?? null }))
     .filter((x): x is { s: SubmissionSummary; cost: number } => x.cost != null)
   if (priced.length) {
     const cheapest = priced.reduce((a, b) => (b.cost < a.cost ? b : a))
@@ -101,8 +101,8 @@ function pickLeaders(
       axis: 'Lowest-cost top performer',
       entry: cheapest.s,
       value: formatUsd(cheapest.cost),
-      unit: 'est. per run',
-      note: `Lowest estimated cost to run the benchmark once, at reference token prices, among entries whose RCA F1 score is at or above the median (${formatScore(cutoff, SCORE_DIGITS)})`,
+      unit: 'est. per task',
+      note: `Lowest estimated median cost per task, at reference token prices, among entries whose RCA F1 score is at or above the median (${formatScore(cutoff, SCORE_DIGITS)})`,
     })
   }
 

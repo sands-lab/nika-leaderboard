@@ -32,8 +32,12 @@ import {
   priceFor,
   priceStatus,
   submissionCost,
+  TASK_STAT_LABEL,
+  taskCost,
+  taskTokens,
 } from '../lib/pricing'
 import { PriceModeToggle } from '../components/PriceModeToggle'
+import { TaskStatSelect } from '../components/TaskStatSelect'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import { sortByAccessors, useTableSort } from '../lib/tableSort'
 import type { SubmissionDetail } from '../lib/types'
@@ -82,6 +86,7 @@ export function ComparePage() {
     overrides,
     setOverrides,
     priceMode,
+    taskStat,
     loading,
     error,
   } = useLeaderboardData()
@@ -229,7 +234,7 @@ export function ComparePage() {
       { name: 'Detection score', max: 1 },
       { name: 'Localization F1', max: 1 },
       { name: 'RCA F1', max: 1 },
-      { name: 'Success rate', max: 1 },
+      { name: 'Diagnosis submitted', max: 1 },
       { name: 'Token efficiency', max: 1 },
       { name: 'Step efficiency', max: 1 },
     ]
@@ -247,8 +252,8 @@ export function ComparePage() {
             null,
             null,
             null,
-            a.tokens > 0 ? `${NUM.format(a.tokens)} / case` : 'not reported',
-            a.steps > 0 ? `${a.steps.toFixed(1)} / case` : 'not reported',
+            a.tokens > 0 ? `${NUM.format(a.tokens)} / task` : 'not reported',
+            a.steps > 0 ? `${a.steps.toFixed(1)} / task` : 'not reported',
           ]
           const lines = indicators.map((ind, k) => {
             const v = p.value![k]
@@ -308,13 +313,13 @@ export function ComparePage() {
       tooltip: {
         formatter: (p: unknown) => {
           const item = p as { seriesName: string; value: number[] }
-          return `${item.seriesName}<br/>tokens / case: ${Math.round(item.value[0])}<br/>mean RCA F1: ${formatScore(item.value[1])}`
+          return `${item.seriesName}<br/>tokens / task: ${Math.round(item.value[0])}<br/>mean RCA F1: ${formatScore(item.value[1])}`
         },
       },
       legend: { data: details.map((d) => d.name) },
       grid: { left: 56, right: 28, top: 28, bottom: 64, containLabel: true },
       xAxis: {
-        name: 'Mean tokens / case',
+        name: 'Mean tokens / task',
         nameLocation: 'middle',
         nameGap: 30,
         type: 'value',
@@ -347,19 +352,27 @@ export function ComparePage() {
     }
   }, [details])
 
-  /** Cost of one full benchmark run, from token counts x the reference price. */
+  /**
+   * Cost of one task, from token counts x the reference price. A full run's
+   * cost would scale with how many cases the release has, so it is not used.
+   */
   const costPoints = useMemo(
     () =>
       details
         .map((d, i) => {
           const cost = submissionCost(d, pricing, overrides, priceMode)
-          return cost?.perRun != null
+          const perTask = taskCost(cost, taskStat)
+          return cost && perTask != null
             ? {
                 id: d.id,
                 name: d.name,
                 model: d.model,
-                cost: cost.perRun,
-                totalCost: cost.total,
+                cost: perTask,
+                median: cost.perTask,
+                medianIsMean: cost.perTaskStat === 'mean',
+                p95: cost.perTaskP95,
+                mean: cost.perCase,
+                cases: d.task_tokens?.length ?? 0,
                 score: d.mean_rca_f1 ?? 0,
                 meanTokens: d.mean_tokens,
                 price: cost.price,
@@ -370,7 +383,7 @@ export function ComparePage() {
             : null
         })
         .filter((p): p is NonNullable<typeof p> => p != null && p.cost > 0),
-    [details, pricing, overrides, priceMode],
+    [details, pricing, overrides, priceMode, taskStat],
   )
 
   const priceRows = useMemo(() => {
@@ -413,10 +426,17 @@ export function ComparePage() {
           return [
             `<strong>${d.name}</strong>`,
             `RCA F1: ${formatScore(d.value[1])}`,
-            `Cost / run: ${formatUsd(d.cost)}`,
-            `Submission total: ${formatUsd(d.totalCost)}`,
+            d.median != null
+              ? d.medianIsMean
+                ? `Mean cost / task: ${formatUsd(d.median)} (no per-task token counts)`
+                : `Median cost / task: ${formatUsd(d.median)} over ${NUM.format(d.cases)} tasks`
+              : null,
+            d.p95 != null ? `p95 cost / task: ${formatUsd(d.p95)}` : null,
+            d.mean != null && !d.medianIsMean
+              ? `Mean cost / task: ${formatUsd(d.mean)}`
+              : null,
             d.meanTokens != null
-              ? `Tokens / case: ${NUM.format(d.meanTokens)}`
+              ? `Tokens / task: ${NUM.format(d.meanTokens)} on average`
               : null,
             `<div style="margin-top:6px;opacity:.65;font-size:11px">` +
               `cost = (in × $in + out × $out) ÷ 1M<br/>` +
@@ -436,7 +456,7 @@ export function ComparePage() {
       legend: { data: [...points.map((p) => p.name), 'Pareto frontier'] },
       grid: { left: 56, right: 36, top: 24, bottom: 56, containLabel: true },
       xAxis: {
-        name: 'Cost per benchmark run, USD (log)',
+        name: `${TASK_STAT_LABEL[taskStat]} cost per task, USD (log)`,
         type: 'log',
         min: xMin,
         max: xMax,
@@ -494,7 +514,7 @@ export function ComparePage() {
         },
       ] as EChartsOption['series'],
     }
-  }, [costPoints])
+  }, [costPoints, taskStat])
 
   const tokenBarOption = useMemo((): EChartsOption => {
     const colorById = new Map(
@@ -502,9 +522,10 @@ export function ComparePage() {
     )
     // Largest at the top. Names sit on the vertical axis, where they read
     // horizontally at any length instead of rotating into each other.
-    const rows = [...details].sort(
-      (a, b) => (a.total_tokens ?? 0) - (b.total_tokens ?? 0),
-    )
+    const tokens = new Map(details.map((d) => [d.id, taskTokens(d, taskStat)]))
+    const rows = details
+      .filter((d) => (tokens.get(d.id) ?? 0) > 0)
+      .sort((a, b) => (tokens.get(a.id) ?? 0) - (tokens.get(b.id) ?? 0))
     return {
       tooltip: {
         trigger: 'axis',
@@ -517,11 +538,18 @@ export function ComparePage() {
           const p = list[0]
           if (!p) return ''
           const d = rows[p.dataIndex]
+          const perCase = Boolean(d?.task_tokens?.length)
+          const p95 = d ? taskTokens(d, 'p95') : null
           return [
             `<strong>${p.name}</strong>`,
-            `Total tokens: ${Math.round(p.value).toLocaleString()}`,
+            perCase
+              ? `Median tokens / task: ${NUM.format(taskTokens(d, 'median') ?? 0)}`
+              : null,
+            p95 != null ? `p95 tokens / task: ${NUM.format(p95)}` : null,
             d?.mean_tokens != null
-              ? `Avg / case: ${Math.round(d.mean_tokens).toLocaleString()}`
+              ? `Mean tokens / task: ${NUM.format(d.mean_tokens)}${
+                  perCase ? '' : ' (no per-task token counts)'
+                }`
               : null,
             d?.mean_rca_f1 != null
               ? `RCA F1: ${formatScore(d.mean_rca_f1)}`
@@ -540,7 +568,7 @@ export function ComparePage() {
       },
       xAxis: {
         type: 'value',
-        name: 'Total tokens',
+        name: `${TASK_STAT_LABEL[taskStat]} tokens per task`,
         nameLocation: 'middle',
         nameGap: 28,
         axisLabel: { formatter: (v: number) => compactCount(v) },
@@ -551,7 +579,7 @@ export function ComparePage() {
           barMaxWidth: 22,
           itemStyle: { borderRadius: [0, 4, 4, 0] },
           data: rows.map((d) => ({
-            value: d.total_tokens ?? 0,
+            value: tokens.get(d.id) ?? 0,
             itemStyle: { color: colorById.get(d.id) || seriesColor(0) },
           })),
           label: {
@@ -569,7 +597,9 @@ export function ComparePage() {
         },
       ],
     }
-  }, [details])
+  }, [details, taskStat])
+
+  const tokenEntries = details.filter((d) => (taskTokens(d, taskStat) ?? 0) > 0).length
 
   const cdfOption = useMemo((): EChartsOption => {
     return {
@@ -577,7 +607,7 @@ export function ComparePage() {
       legend: { data: details.map((d) => d.name) },
       grid: { left: 56, right: 28, top: 28, bottom: 64, containLabel: true },
       xAxis: {
-        name: 'Mean RCA F1 (per case)',
+        name: 'Mean RCA F1 (per task)',
         nameLocation: 'middle',
         nameGap: 30,
         type: 'value',
@@ -733,9 +763,12 @@ export function ComparePage() {
           title="Cost–performance Pareto frontier (upper left is better)"
           description={
             details.length > costPoints.length
-              ? `${details.length - costPoints.length} of ${details.length} selected entries have no token totals or no price and are not plotted.`
+              ? `${details.length - costPoints.length} of ${details.length} selected entries have no ${
+                  taskStat === 'p95' ? 'per-task token counts' : 'token totals'
+                } or no price and are not plotted.`
               : undefined
           }
+          controls={<TaskStatSelect />}
           option={paretoOption}
           filename="nika-pareto-frontier"
           empty={!costPoints.length}
@@ -840,23 +873,28 @@ export function ComparePage() {
           zoomable={false}
         />
         <ChartPanel
-          title="Tokens vs RCA F1, one dot per case"
+          title="Tokens vs RCA F1, one dot per task"
           option={scatterOption}
           filename="nika-scatter"
           empty={!details.length}
           height={520}
         />
         <ChartPanel
-          title="Total tokens per entry"
+          title="Tokens per task"
+          controls={<TaskStatSelect />}
           option={tokenBarOption}
-          filename="nika-total-tokens"
-          empty={!details.length || details.every((d) => !(d.total_tokens && d.total_tokens > 0))}
-          emptyMessage="No token totals available for the selected entries."
-          height={Math.max(160, 64 + details.length * 30)}
+          filename="nika-tokens-per-task"
+          empty={!tokenEntries}
+          emptyMessage={
+            taskStat === 'p95'
+              ? 'No selected entry reports per-task token counts.'
+              : 'No token totals available for the selected entries.'
+          }
+          height={Math.max(160, 64 + tokenEntries * 30)}
           zoomable={false}
         />
         <ChartPanel
-          title="CDF of per-case mean RCA F1"
+          title="CDF of per-task mean RCA F1"
           option={cdfOption}
           filename="nika-cdf"
           empty={!details.length}
@@ -873,7 +911,7 @@ export function ComparePage() {
       </div>
 
       <section className="pairwise">
-        <h2>Pairwise case comparison</h2>
+        <h2>Pairwise task comparison</h2>
         <div className="pairwise__controls">
           <label>
             A
@@ -899,7 +937,7 @@ export function ComparePage() {
         {pairwise ? (
           <>
             <p className="muted">
-              Compared {pairwise.compared} cases · {pairwise.aName} wins{' '}
+              Compared {pairwise.compared} tasks · {pairwise.aName} wins{' '}
               {pairwise.aWins} · {pairwise.bName} wins {pairwise.bWins} · ties{' '}
               {pairwise.ties}
             </p>
@@ -908,13 +946,13 @@ export function ComparePage() {
                 <thead>
                   <tr>
                     <SortableTh
-                      label="Scenario"
+                      label="Environment"
                       sortKey="scenario"
                       sort={pairSort}
                       onSort={togglePairSort}
                     />
                     <SortableTh
-                      label="Problem"
+                      label="Failure"
                       sortKey="problem"
                       sort={pairSort}
                       onSort={togglePairSort}

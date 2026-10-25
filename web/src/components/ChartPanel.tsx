@@ -11,12 +11,20 @@ import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import type { EChartsType } from 'echarts'
 import {
+  CHART_AXIS_LINE,
   CHART_AXIS_NAME,
   CHART_FOCUS,
+  CHART_FONT,
   CHART_LINE,
   CHART_MUTED,
   CHART_RAISED,
+  CHART_STROKE,
+  CHART_SURFACE,
+  CHART_TEXT,
   CHART_TOOLTIP,
+  CHART_FONT_FAMILY,
+  categoryTickSize,
+  measureText,
 } from '../lib/chartTheme'
 import { downloadPdf, downloadPng } from '../lib/export'
 
@@ -34,6 +42,8 @@ interface ChartPanelProps {
   /** Show zoom sliders for both axes (bottom for x, right for y). */
   zoomSlider?: boolean
   onEvents?: Record<string, (params: unknown) => void>
+  /** Inputs that change what the chart plots, shown beside its actions. */
+  controls?: ReactNode
   /** Overlay rendered above the chart canvas (same size box). */
   overlay?: ReactNode
   onChartReady?: (chart: EChartsType | null) => void
@@ -70,11 +80,11 @@ function withDarkTheme(option: EChartsOption): EChartsOption {
       : option.tooltip,
     textStyle: {
       color: CHART_MUTED,
+      fontFamily: CHART_FONT_FAMILY,
       ...existingText,
     },
     radar: existingRadar
       ? {
-          axisName: { color: CHART_AXIS_NAME, fontSize: 12 },
           axisLine: { lineStyle: { color: CHART_LINE } },
           splitLine: { lineStyle: { color: CHART_LINE } },
           splitArea: {
@@ -83,13 +93,20 @@ function withDarkTheme(option: EChartsOption): EChartsOption {
             },
           },
           ...existingRadar,
+          axisName: {
+            color: CHART_TEXT,
+            fontWeight: 600,
+            ...objectOr(existingRadar.axisName),
+            fontSize: CHART_FONT.axisName,
+          },
         }
       : option.radar,
+    visualMap: patchVisualMap(option.visualMap) as EChartsOption['visualMap'],
     legend: existingLegend
       ? {
           ...existingLegend,
           textStyle: {
-            color: CHART_MUTED,
+            color: CHART_TEXT,
             ...(typeof existingLegend.textStyle === 'object'
               ? existingLegend.textStyle
               : {}),
@@ -99,9 +116,83 @@ function withDarkTheme(option: EChartsOption): EChartsOption {
   }
 }
 
-function patchAxis(axis: unknown): unknown {
+function objectOr(value: unknown): Record<string, unknown> {
+  return typeof value === 'object' && value && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {}
+}
+
+/** A colour scale's end labels read like tick labels. */
+function patchVisualMap(visualMap: unknown): unknown {
+  if (!visualMap) return visualMap
+  if (Array.isArray(visualMap)) return visualMap.map(patchVisualMap)
+  const v = objectOr(visualMap)
+  return {
+    ...v,
+    textStyle: {
+      ...objectOr(v.textStyle),
+      color: CHART_AXIS_NAME,
+      fontSize: CHART_FONT.tick,
+    },
+  }
+}
+
+function tickFloor(a: Record<string, unknown>): number {
+  return a.type === 'category' && Array.isArray(a.data)
+    ? categoryTickSize(a.data.length)
+    : CHART_FONT.tick
+}
+
+/**
+ * Series stand out against the frame: lines and radar outlines are drawn at
+ * the series width, and scatter markers are scaled up to match. Labels drawn
+ * inside the plot keep their own, smaller size.
+ */
+function patchSeries(series: unknown): unknown {
+  if (Array.isArray(series)) return series.map(patchSeries)
+  const s = objectOr(series)
+  if (!series || typeof series !== 'object') return series
+  const widen = (style: unknown) => {
+    const st = objectOr(style)
+    const width = typeof st.width === 'number' ? st.width : 2
+    return { ...st, width: Math.max(width, CHART_STROKE.series) }
+  }
+  if (s.type === 'line') {
+    return { ...s, lineStyle: widen(s.lineStyle) }
+  }
+  if (s.type === 'radar') {
+    return {
+      ...s,
+      symbolSize: typeof s.symbolSize === 'number' ? s.symbolSize : 8,
+      lineStyle: widen(s.lineStyle),
+      data: Array.isArray(s.data)
+        ? s.data.map((d) => {
+            const item = objectOr(d)
+            return item.lineStyle ? { ...item, lineStyle: widen(item.lineStyle) } : d
+          })
+        : s.data,
+    }
+  }
+  if (s.type === 'sankey' || s.type === 'graph') {
+    const label = objectOr(s.label)
+    const size = typeof label.fontSize === 'number' ? label.fontSize : 0
+    return { ...s, label: { ...label, fontSize: Math.max(size, CHART_FONT.nodeLabel) } }
+  }
+  if (s.type === 'bar') {
+    const label = objectOr(s.label)
+    if (!label.show) return s
+    const size = typeof label.fontSize === 'number' ? label.fontSize : 0
+    return { ...s, label: { ...label, fontSize: Math.max(size, CHART_FONT.dataLabel) } }
+  }
+  if (s.type === 'scatter' && typeof s.symbolSize === 'number') {
+    return { ...s, symbolSize: Math.round(s.symbolSize * 1.25) }
+  }
+  return s
+}
+
+function patchAxis(axis: unknown, inPlot = false): unknown {
   if (!axis) return axis
-  if (Array.isArray(axis)) return axis.map((item) => patchAxis(item))
+  if (Array.isArray(axis)) return axis.map((item) => patchAxis(item, inPlot))
   if (typeof axis !== 'object') return axis
   const a = axis as Record<string, unknown>
   const axisLine =
@@ -123,23 +214,47 @@ function patchAxis(axis: unknown): unknown {
       ? (splitLine.lineStyle as Record<string, unknown>)
       : {}
 
+  // Ticks and axis names are the chart's scale: never below the type floor,
+  // and the name moves out to clear the larger tick labels.
+  // A polar radius axis is drawn across the bars, so its ticks take the
+  // smaller floor and a halo in the panel colour to stay legible over them.
+  const tickSize = Math.max(
+    typeof axisLabel.fontSize === 'number' ? axisLabel.fontSize : 0,
+    inPlot ? CHART_FONT.denseTick : tickFloor(a),
+  )
+  const halo = inPlot ? { textBorderColor: CHART_SURFACE, textBorderWidth: 3 } : {}
+  const centredName = a.nameLocation === 'middle' || a.nameLocation === 'center'
+  const axisTick = objectOr(a.axisTick)
   return {
     ...a,
+    ...(centredName && typeof a.nameGap === 'number' ? { nameGap: a.nameGap + 10 } : {}),
     axisLine: {
       ...axisLine,
-      lineStyle: { color: CHART_LINE, ...axisLineStyle },
+      lineStyle: { color: CHART_AXIS_LINE, width: CHART_STROKE.axis, ...axisLineStyle },
+    },
+    axisTick: {
+      ...axisTick,
+      lineStyle: { color: CHART_AXIS_LINE, width: CHART_STROKE.axis, ...objectOr(axisTick.lineStyle) },
     },
     axisLabel: {
-      color: CHART_MUTED,
+      color: CHART_AXIS_NAME,
+      fontWeight: 500,
+      ...halo,
       ...axisLabel,
+      fontSize: tickSize,
+      ...(typeof axisLabel.lineHeight === 'number'
+        ? { lineHeight: Math.max(axisLabel.lineHeight, Math.round(tickSize * 1.25)) }
+        : {}),
     },
     splitLine: {
       ...splitLine,
       lineStyle: { color: CHART_LINE, ...splitLineStyle },
     },
     nameTextStyle: {
-      color: CHART_AXIS_NAME,
+      color: CHART_TEXT,
+      fontWeight: 600,
       ...nameTextStyle,
+      fontSize: CHART_FONT.axisName,
     },
   }
 }
@@ -149,8 +264,9 @@ function withDarkAxes(option: EChartsOption): EChartsOption {
     ...option,
     xAxis: patchAxis(option.xAxis) as EChartsOption['xAxis'],
     yAxis: patchAxis(option.yAxis) as EChartsOption['yAxis'],
-    radiusAxis: patchAxis(option.radiusAxis) as EChartsOption['radiusAxis'],
+    radiusAxis: patchAxis(option.radiusAxis, true) as EChartsOption['radiusAxis'],
     angleAxis: patchAxis(option.angleAxis) as EChartsOption['angleAxis'],
+    series: patchSeries(option.series) as EChartsOption['series'],
   }
 }
 
@@ -166,30 +282,24 @@ const SLIDER_SIZE = 16
  * scrolling legend in one chart, a vertical column in another, a bottom row
  * colliding with rotated labels in a third - is what this replaces.
  */
-const LEGEND_FONT = 'Inter, system-ui, sans-serif'
-const LEGEND_FONT_SIZE = 12
-const LEGEND_ICON_W = 14
-const LEGEND_ICON_H = 10
-const LEGEND_ICON_GAP = 5
-const LEGEND_ITEM_GAP = 14
+const LEGEND_FONT = CHART_FONT_FAMILY
+const LEGEND_FONT_SIZE = CHART_FONT.legend
+const LEGEND_ICON_W = 18
+const LEGEND_ICON_H = 12
+const LEGEND_ICON_GAP = 6
+const LEGEND_ITEM_GAP = 18
 /** ECharts spaces wrapped rows by the item gap too. */
 const LEGEND_ROW_GAP = LEGEND_ITEM_GAP
 /** Fixed via textStyle.lineHeight, so a row is this tall whatever its icon. */
-const LEGEND_ROW_H = 14
+const LEGEND_ROW_H = 18
 const LEGEND_TOP = 6
 /** ECharts' default legend padding, included in the box it reports. */
 const LEGEND_PADDING = 5
 /** Width the toolbox's icons take in the top-right corner. */
-const TOOLBOX_RESERVE = 96
+const TOOLBOX_RESERVE = 124
 
-let measureCtx: CanvasRenderingContext2D | null = null
 function textWidth(text: string): number {
-  if (!measureCtx) {
-    measureCtx = document.createElement('canvas').getContext('2d')
-  }
-  if (!measureCtx) return text.length * 7
-  measureCtx.font = `${LEGEND_FONT_SIZE}px ${LEGEND_FONT}`
-  return measureCtx.measureText(text).width
+  return measureText(text, LEGEND_FONT_SIZE)
 }
 
 function legendNames(option: EChartsOption): string[] {
@@ -273,11 +383,12 @@ function layoutChart(
       itemHeight: LEGEND_ICON_H,
       itemGap: LEGEND_ITEM_GAP,
       textStyle: {
-        color: CHART_MUTED,
+        color: CHART_TEXT,
+        ...(typeof legend.textStyle === 'object' ? legend.textStyle : {}),
+        // The layout above measured rows at this size; a chart cannot shrink it.
         fontSize: LEGEND_FONT_SIZE,
         fontFamily: LEGEND_FONT,
         lineHeight: LEGEND_ROW_H,
-        ...(typeof legend.textStyle === 'object' ? legend.textStyle : {}),
       },
     }
   }
@@ -359,7 +470,7 @@ function layoutChart(
       ...existingToolbox,
       right: 12,
       top: 2,
-      itemSize: 14,
+      itemSize: 16,
       iconStyle: {
         borderColor: CHART_MUTED,
         ...(typeof existingToolbox.iconStyle === 'object' ? existingToolbox.iconStyle : {}),
@@ -519,6 +630,7 @@ export function ChartPanel({
   zoomable = true,
   zoomSlider = true,
   onEvents,
+  controls,
   overlay,
   onChartReady,
 }: ChartPanelProps) {
@@ -605,7 +717,14 @@ export function ChartPanel({
               <p className="chart-panel__description muted">{description}</p>
             )}
           </div>
-          {actions}
+          {controls ? (
+            <div className="chart-panel__tools">
+              {controls}
+              {actions}
+            </div>
+          ) : (
+            actions
+          )}
         </header>
         {empty ? (
           <div className="chart-panel__empty" style={{ height }}>

@@ -18,8 +18,15 @@ import {
   filtersToParams,
   qualifyNames,
 } from './metrics'
-import { loadOverrides, loadPriceMode, saveOverrides, savePriceMode } from './pricing'
-import type { PriceMode, PriceOverrides, PricingFile } from './pricing'
+import {
+  loadOverrides,
+  loadPriceMode,
+  loadTaskStat,
+  saveOverrides,
+  savePriceMode,
+  saveTaskStat,
+} from './pricing'
+import type { PriceMode, PriceOverrides, PricingFile, TaskStat } from './pricing'
 import type { FilterState, MetaFile, SubmissionSummary } from './types'
 
 interface LeaderboardDataValue {
@@ -37,6 +44,9 @@ interface LeaderboardDataValue {
   /** Frozen per-submission quotes, or every run at its model's latest quote. */
   priceMode: PriceMode
   setPriceMode: (next: PriceMode) => void
+  /** Per-task figure the analytics cost charts plot. */
+  taskStat: TaskStat
+  setTaskStat: (next: TaskStat) => void
   loading: boolean
   error: string | null
 }
@@ -57,6 +67,7 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
     loadOverrides(),
   )
   const [priceMode, setPriceModeState] = useState<PriceMode>(() => loadPriceMode())
+  const [taskStat, setTaskStatState] = useState<TaskStat>(() => loadTaskStat())
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -129,6 +140,11 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
     setPriceModeState(next)
   }, [])
 
+  const setTaskStat = useCallback((next: TaskStat) => {
+    saveTaskStat(next)
+    setTaskStatState(next)
+  }, [])
+
   const filtered = useMemo(
     () => qualifyNames(applyFilters(submissions, filters)),
     [submissions, filters],
@@ -158,6 +174,8 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
       setOverrides,
       priceMode,
       setPriceMode,
+      taskStat,
+      setTaskStat,
       loading,
       error,
     }),
@@ -173,6 +191,8 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
       setOverrides,
       priceMode,
       setPriceMode,
+      taskStat,
+      setTaskStat,
       loading,
       error,
     ],

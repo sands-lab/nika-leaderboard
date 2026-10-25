@@ -4,7 +4,7 @@ import { FilterShell } from '../components/FilterShell'
 const ANALYTICS_LINKS = [
   { to: 'insights', label: 'Performance Bubbles' },
   { to: 'compare', label: 'Compare Entries' },
-  { to: 'matrix', label: 'Case Matrix' },
+  { to: 'matrix', label: 'Task Matrix' },
   { to: 'confusion', label: 'RCA Confusion' },
   { to: 'analyze', label: 'Score Trends' },
 ] as const

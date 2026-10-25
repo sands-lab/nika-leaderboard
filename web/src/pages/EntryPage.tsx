@@ -35,6 +35,7 @@ import {
   priceFor,
   priceStatus,
   submissionCost,
+  taskTokens,
 } from '../lib/pricing'
 import { servingLabel } from '../lib/providerMeta'
 import type { SubmissionSummary } from '../lib/types'
@@ -188,6 +189,13 @@ export function EntryPage() {
   const inTok = s.token_totals?.in_tokens ?? 0
   const outTok = s.token_totals?.out_tokens ?? 0
   const hasTokens = inTok > 0 || outTok > 0
+  const trials = s.n_trials_present ?? s.n_trials_expected
+  const runSize = [
+    `${formatInt(trials)} trials`,
+    s.case_count && s.n_trials
+      ? ` (${formatInt(s.case_count)} tasks × ${s.n_trials} trials each)`
+      : '',
+  ].join('')
   const links = entryLinks(s)
 
   return (
@@ -228,8 +236,8 @@ export function EntryPage() {
         <Stat label="Detection">
           <ScoreValue value={s.mean_detection_score} range={ranges.detection} />
         </Stat>
-        <Stat label="Cost / run">
-          {cost?.perRun != null ? formatUsd(cost.perRun) : missingPrice}
+        <Stat label={cost?.perTaskStat === 'mean' ? 'Mean cost / task' : 'Median cost / task'}>
+          {cost?.perTask != null ? formatUsd(cost.perTask) : missingPrice}
         </Stat>
       </div>
 
@@ -299,7 +307,7 @@ export function EntryPage() {
                   Pending
                   <small className="entry-sub">
                     Curators add a reference price from public price lists after the
-                    submission is merged.
+                    entry's pull request is merged.
                   </small>
                 </span>
               ),
@@ -327,7 +335,7 @@ export function EntryPage() {
             [
               'Design',
               s.case_count != null &&
-                `${formatInt(s.case_count)} cases × ${s.n_trials ?? '?'} trials`,
+                `${formatInt(s.case_count)} tasks × ${s.n_trials ?? '?'} trials each`,
             ],
             [
               'Trials scored',
@@ -335,13 +343,13 @@ export function EntryPage() {
                 `${formatInt(s.n_trials_present)} of ${formatInt(s.n_trials_expected)}`,
             ],
             [
-              'Completed',
+              'Diagnosis submitted',
               s.n_success != null &&
                 `${formatInt(s.n_success)} (${formatPct(s.success_rate)})`,
             ],
             ['Agent failures', s.n_agent_failed != null && formatInt(s.n_agent_failed)],
             ['Max steps', s.max_steps != null && formatInt(s.max_steps)],
-            ['Case timeout', seconds(s.case_timeout_sec)],
+            ['Task timeout', seconds(s.case_timeout_sec)],
             ['Run ID', s.run_id && <code>{s.run_id}</code>],
             [
               'NIKA commit',
@@ -366,9 +374,15 @@ export function EntryPage() {
         <Facts
           title="Usage and cost"
           rows={[
-            ['Input tokens', hasTokens && formatInt(inTok)],
-            ['Output tokens', hasTokens && formatInt(outTok)],
-            ['Tokens / case', hasTokens && formatCount(s.mean_tokens)],
+            [
+              'Median tokens / task',
+              hasTokens && Boolean(s.task_tokens?.length) && formatCount(taskTokens(s, 'median')),
+            ],
+            [
+              'p95 tokens / task',
+              taskTokens(s, 'p95') != null && formatCount(taskTokens(s, 'p95')),
+            ],
+            ['Mean tokens / task', hasTokens && formatCount(s.mean_tokens)],
             [
               'Avg steps / trial',
               formatCount(s.mean_steps) !== '—' && (
@@ -388,16 +402,16 @@ export function EntryPage() {
               'Tool errors',
               (s.steps_totals?.tool_calls ?? 0) > 0 && formatInt(s.steps_totals?.tool_errors),
             ],
-            ['Cost / case', cost?.perCase != null && formatUsd(cost.perCase)],
             [
-              'Cost / run',
-              cost?.perRun != null &&
-                `${formatUsd(cost.perRun)} (every case once)`,
+              'Median cost / task',
+              cost?.perTaskStat === 'median' && cost.perTask != null && formatUsd(cost.perTask),
             ],
-            [
-              'Total spent',
-              cost && `${formatUsd(cost.total)} across ${s.n_trials ?? '?'} repeats`,
-            ],
+            ['p95 cost / task', cost?.perTaskP95 != null && formatUsd(cost.perTaskP95)],
+            ['Mean cost / task', cost?.perCase != null && formatUsd(cost.perCase)],
+            ['Run total, input tokens', hasTokens && formatInt(inTok)],
+            ['Run total, output tokens', hasTokens && formatInt(outTok)],
+            ['Run total, cost', cost && formatUsd(cost.total)],
+            ['Run size', hasTokens && runSize],
             [
               'Accounting',
               !hasTokens && 'This package reports no token counts, so no cost',
@@ -406,7 +420,7 @@ export function EntryPage() {
         />
 
         <Facts
-          title="Submission"
+          title="Result package"
           rows={[
             ['Submitted name', s.submission_name],
             ['Display name', s.name],

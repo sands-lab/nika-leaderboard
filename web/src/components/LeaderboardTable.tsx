@@ -32,6 +32,8 @@ import {
   priceSourceLines,
   priceStatus,
   submissionCost,
+  taskTokens,
+  meanTaskTokens,
   type PriceMode,
   type PriceOverrides,
   type PricingFile,
@@ -99,16 +101,12 @@ function submitter(s: SubmissionSummary): string | null {
 }
 
 /**
- * Tokens for one complete pass over the benchmark's cases, scaled from the
- * trials the package reported the same way the cost is, so packages with
- * different repeat counts compare like for like.
+ * Tokens for a typical task, as the cost column: the median over cases, else
+ * the mean per trial. A full pass would scale with the release's case count.
  */
-function tokensPerRun(s: SubmissionSummary, kind: TokenKind): number | null {
-  const total = s.token_totals?.[kind] ?? 0
-  const attempts = s.n_trials_present ?? s.n_trials_expected ?? 0
-  const cases = s.case_count ?? 0
-  if (!(total > 0) || attempts <= 0 || cases <= 0) return null
-  return (total / attempts) * cases
+function tokensPerTask(s: SubmissionSummary, kind: TokenKind): number | null {
+  const v = taskTokens(s, 'median', kind)
+  return v != null && v > 0 ? v : null
 }
 
 /**
@@ -232,7 +230,7 @@ export function RcaCell({
       className="rca-cell"
       title={
         ci
-          ? `On a fresh set of cases, this score would land between ${formatScore(ci[0], SCORE_DIGITS)} and ${formatScore(ci[1], SCORE_DIGITS)} 95% of the time`
+          ? `On a fresh set of tasks, this score would land between ${formatScore(ci[0], SCORE_DIGITS)} and ${formatScore(ci[1], SCORE_DIGITS)} 95% of the time`
           : 'No per-trial results, so no uncertainty estimate'
       }
     >
@@ -311,9 +309,9 @@ function buildAccessors(
     rca: (s) => s.mean_rca_f1,
     loc: (s) => s.mean_localization_f1,
     detection: (s) => s.mean_detection_score,
-    cost: (s) => submissionCost(s, pricing, overrides, priceMode)?.perRun ?? null,
-    in_tokens: (s) => tokensPerRun(s, 'in_tokens'),
-    out_tokens: (s) => tokensPerRun(s, 'out_tokens'),
+    cost: (s) => submissionCost(s, pricing, overrides, priceMode)?.perTask ?? null,
+    in_tokens: (s) => tokensPerTask(s, 'in_tokens'),
+    out_tokens: (s) => tokensPerTask(s, 'out_tokens'),
   }
 }
 
@@ -335,7 +333,7 @@ export function CostCell({
   const cost = submissionCost(s, pricing, overrides, priceMode)
   // A zero cost is a real figure, not a missing one: only a null means the
   // package has no token totals or the model has no price.
-  if (cost?.perRun == null) {
+  if (cost?.perTask == null) {
     const hasTokens =
       (s.token_totals?.in_tokens ?? 0) > 0 || (s.token_totals?.out_tokens ?? 0) > 0
     const status = priceStatus(modelKey(s), pricing)
@@ -357,7 +355,7 @@ export function CostCell({
     ) : (
       <span
         className="cost-missing"
-        title={`Price pending: ${s.model ?? 'this model'} has no reference price yet. Curators add one from public price lists after the submission is merged.`}
+        title={`Price pending: ${s.model ?? 'this model'} has no reference price yet. Curators add one from public price lists after the entry's pull request is merged.`}
       >
         pending
       </span>
@@ -375,12 +373,17 @@ export function CostCell({
     .join(', ')
   const tip = [
     'Estimate from token counts and a reference price, not the submitter\'s spend',
-    s.case_count
-      ? `One run = all ${NUM.format(s.case_count)} cases once`
-      : 'One run = every case once',
+    cost.perTaskStat === 'median'
+      ? `${formatUsd(cost.perTask)}: median cost of one task, over ${NUM.format(
+          s.task_tokens?.length ?? 0,
+        )} tasks`
+      : `${formatUsd(cost.perTask)}: mean cost of one task (no per-task token counts)`,
+    cost.perTaskP95 != null ? `${formatUsd(cost.perTaskP95)} at the 95th percentile` : null,
+    cost.perTaskStat === 'median' && cost.perCase != null
+      ? `${formatUsd(cost.perCase)} per task on average`
+      : null,
+    `${formatCount(s.mean_tokens)} tokens per task on average`,
     '',
-    `${formatCount(s.mean_tokens)} tokens per case`,
-    cost.perCase != null ? `${formatUsd(cost.perCase)} per case` : null,
     `${s.model ?? 'model'} at ${formatUsd(price.input)} in / ${formatUsd(
       price.output,
     )} out per 1M tokens`,
@@ -393,20 +396,20 @@ export function CostCell({
         ? "Current prices: the model's latest quote"
         : 'Quote in effect on the submission date',
     '',
-    `This submission repeated the run ${s.n_trials ?? '?'}x:`,
+    `This entry ran each task ${s.n_trials ?? '?'} times (trials):`,
     `${NUM.format(inTok)} in + ${NUM.format(outTok)} out, ${formatUsd(
       cost.total,
     )} in total`,
   ]
     .filter((l) => l !== null)
     .join('\n')
-  return <span title={tip}>{formatUsd(cost.perRun)}</span>
+  return <span title={tip}>{formatUsd(cost.perTask)}</span>
 }
 
-/** Tokens per complete run, compact on screen, exact in the tooltip. */
+/** Tokens per task, compact on screen, exact in the tooltip. */
 function TokenCell({ s, kind }: { s: SubmissionSummary; kind: TokenKind }) {
-  const perRun = tokensPerRun(s, kind)
-  if (perRun == null) {
+  const perTask = tokensPerTask(s, kind)
+  if (perTask == null) {
     return (
       <span className="num" title="This package reports no token accounting">
         —
@@ -414,16 +417,23 @@ function TokenCell({ s, kind }: { s: SubmissionSummary; kind: TokenKind }) {
     )
   }
   const word = kind === 'in_tokens' ? 'input' : 'output'
+  const perCase = Boolean(s.task_tokens?.length)
+  const p95 = taskTokens(s, 'p95', kind)
+  const mean = meanTaskTokens(s, kind)
   const tip = [
-    `${NUM.format(perRun)} ${word} tokens per run`,
-    s.case_count
-      ? `One run = all ${NUM.format(s.case_count)} cases once`
-      : 'One run = every case once',
+    perCase
+      ? `${NUM.format(perTask)} ${word} tokens: median per task, over ${NUM.format(
+          s.task_tokens?.length ?? 0,
+        )} tasks`
+      : `${NUM.format(perTask)} ${word} tokens: mean per task (no per-task token counts)`,
+    p95 != null ? `${NUM.format(p95)} at the 95th percentile` : null,
+    perCase && mean != null ? `${NUM.format(mean)} per task on average` : null,
     '',
-    `This submission repeated the run ${s.n_trials ?? '?'}x:`,
-    `${NUM.format(s.token_totals?.[kind] ?? 0)} ${word} tokens in total`,
-  ].join('\n')
-  return <span title={tip}>{COMPACT.format(perRun)}</span>
+    `${NUM.format(s.token_totals?.[kind] ?? 0)} ${word} tokens in total over the run`,
+  ]
+    .filter((l) => l !== null)
+    .join('\n')
+  return <span title={tip}>{COMPACT.format(perTask)}</span>
 }
 
 export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
@@ -449,7 +459,7 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
     [rows],
   )
   const costTitle = [
-    'Estimated USD to run the whole benchmark once, computed from the entry\'s token counts and reference prices. Submitters do not report costs, and this is not what they paid.',
+    'Estimated USD per task: the median over the benchmark\'s tasks of one trial\'s cost, computed from the entry\'s token counts and reference prices. Packages without per-task token counts show the mean instead. Submitters do not report costs, and this is not what they paid.',
     '',
     `Reference prices, USD per 1M input/output tokens${pricing?.as_of ? `, as of ${pricing.as_of}` : ''}:`,
     ...priceSourceLines(pricing).map((line) => `• ${line}`),
@@ -459,7 +469,7 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
       : 'Each entry uses the quote in effect on its submission date, so published costs do not change. Turn on "Current prices" to compare at today\'s rates.',
     '"pending": no reference price yet. "n/a": no public price exists.',
     '',
-    'Hover a cell for the model\'s rate and the per-case figures.',
+    'Hover a cell for the model\'s rate and the p95 and mean cost per task.',
   ].join('\n')
   // Always-on columns: rank, model, harness, three scores, cost, links.
   const columnCount = 8 + Object.values(columns).filter(Boolean).length
@@ -601,11 +611,11 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
               sortKey="detection"
               sort={sort}
               onSort={toggle}
-              title="Fault detection: share of cases where the agent correctly said whether a fault is present (accuracy, 0 to 1)"
+              title="Fault detection: share of trials in which the agent correctly said whether a failure is present (accuracy, 0 to 1)"
               className="w-score col-secondary"
             />
             <SortableTh
-              label="Est. Cost"
+              label="Cost / task"
               sortKey="cost"
               sort={sort}
               onSort={toggle}
@@ -614,21 +624,21 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
             />
             {columns.in_tokens && (
               <SortableTh
-                label="Input tokens"
+                label="Input tokens / task"
                 sortKey="in_tokens"
                 sort={sort}
                 onSort={toggle}
-                title="Input tokens to run the whole benchmark once. Hover a cell for the exact count and the submission's total."
+                title="Input tokens per task: the median over the benchmark's tasks, or the mean where a package has no per-task counts. Hover a cell for the p95, the mean, and the run's total."
                 className="w-tokens col-secondary"
               />
             )}
             {columns.out_tokens && (
               <SortableTh
-                label="Output tokens"
+                label="Output tokens / task"
                 sortKey="out_tokens"
                 sort={sort}
                 onSort={toggle}
-                title="Output tokens to run the whole benchmark once. Hover a cell for the exact count and the submission's total."
+                title="Output tokens per task: the median over the benchmark's tasks, or the mean where a package has no per-task counts. Hover a cell for the p95, the mean, and the run's total."
                 className="w-tokens col-secondary"
               />
             )}

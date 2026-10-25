@@ -3,31 +3,86 @@ import { Link, useSearchParams } from 'react-router-dom'
 import type { EChartsOption } from 'echarts'
 import { ChartPanel } from '../components/ChartPanel'
 import { EntryPicker } from '../components/EntryPicker'
-import { SortableTh } from '../components/SortableTh'
 import { aggregateByCase } from '../lib/compare'
+import { categoryLabel } from '../lib/confusion'
 import { formatPct, formatScore, loadSubmissionDetails } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
-import { compareSortValues, useTableSort } from '../lib/tableSort'
+import { compareSortValues } from '../lib/tableSort'
 import type { CaseAggregate } from '../lib/compare'
 import type { SubmissionDetail } from '../lib/types'
 import {
+  categoryTickSize,
+  CHART_FOCUS,
   CHART_MUTED,
   CHART_SURFACE,
   CHART_TEXT,
   DIVERGING_RAMP,
   divergingColor,
   heatInk,
+  measureText,
 } from '../lib/chartTheme'
 
 type AggregateMode = 'problem' | 'category' | 'scenario' | 'size'
 type MetricMode = 'success' | 'rca'
-type MatrixSortKey = 'key' | 'avg' | `col:${number}`
+/**
+ * Rows sort by the Average column and columns by the Average row, best or
+ * worst first; columns start in the order the entries were selected.
+ */
+type AverageSort = 'desc' | 'asc'
+
+const METRIC_LABEL: Record<MetricMode, string> = {
+  rca: 'Mean RCA F1',
+  success: 'Diagnosis submitted (%)',
+}
+
+/** What each metric measures, for the control's tooltip and the chart. */
+const METRIC_HELP: Record<MetricMode, string> = {
+  rca: 'Mean RCA F1: how well the submitted fault types match the injected ones, from 0 to 1, averaged over trials. A trial with no submission scores 0.',
+  success:
+    'Diagnosis submitted (%): share of trials in which the agent produced a structured answer that could be scored, right or wrong.',
+}
+
+const AGGREGATE_LABEL: Record<AggregateMode, string> = {
+  problem: 'Failure',
+  category: 'Failure domain',
+  scenario: 'Network environment',
+  size: 'Topology size',
+}
+
+/** Sort marks as on the leaderboard's sortable headers. */
+const SORT_MARK: Record<AverageSort | 'none', string> = { desc: '▼', asc: '▲', none: '⇅' }
+
+/**
+ * The average sits in its own column after an empty spacer, outlined and
+ * labelled apart from the entries, so it never reads as one more entry.
+ */
+const SPACER = ' '
+const AVERAGE = 'Average'
 
 function rowKey(c: CaseAggregate, mode: AggregateMode): string {
   if (mode === 'category') return c.root_cause_category || 'unknown'
   if (mode === 'scenario') return c.scenario
-  if (mode === 'size') return c.topo_size || 'null'
+  if (mode === 'size') return c.topo_size ?? ''
   return c.problem
+}
+
+/** Topology sizes in their natural order, the size view's default row order. */
+const SIZE_ORDER = ['s', 'm', 'l']
+const SIZE_LABEL: Record<string, string> = { s: 'Small (S)', m: 'Medium (M)', l: 'Large (L)' }
+
+/**
+ * Failure domains read as names ("Routing"), not keys (routing_control_plane);
+ * topology sizes as Small (S), Medium (M), Large (L). Node counts per size are not in the packages yet.
+ */
+function rowLabel(key: string, mode: AggregateMode): string {
+  if (mode === 'category') return categoryLabel(key)
+  if (mode === 'size') return SIZE_LABEL[key] ?? key.toUpperCase()
+  return key
+}
+
+function mean(values: (number | null)[]): number | null {
+  const present = values.filter((v): v is number => v != null)
+  return present.length ? present.reduce((a, b) => a + b, 0) / present.length : null
 }
 
 export function MatrixPage() {
@@ -37,11 +92,11 @@ export function MatrixPage() {
   const details = useMemo(() => withLabels(rawDetails), [rawDetails, withLabels])
   const [selected, setSelected] = useState<string[]>([])
   const [mode, setMode] = useState<AggregateMode>('problem')
-  const [metric, setMetric] = useState<MetricMode>('success')
-  const { sort, toggle } = useTableSort<MatrixSortKey>({
-    key: 'avg',
-    dir: 'desc',
-  })
+  const [metric, setMetric] = useState<MetricMode>('rca')
+  // Null keeps the rows' natural order: the size view lists S, M, L until
+  // the Average header is clicked.
+  const [rowSort, setRowSort] = useState<AverageSort | null>('desc')
+  const [colSort, setColSort] = useState<AverageSort | null>(null)
   const [detailError, setDetailError] = useState<string | null>(null)
   const [initialized, setInitialized] = useState(false)
 
@@ -105,14 +160,29 @@ export function MatrixPage() {
   }
 
   const matrix = useMemo(() => {
-    const perEntry = details.map((d) => {
-      const cases = aggregateByCase(d.trials)
+    const value = (c: CaseAggregate) => (metric === 'success' ? c.success_rate : c.mean_rca_f1)
+    // Some environments have no topology size; the size view leaves their
+    // tasks out of every figure rather than showing an "unknown" row.
+    const perCaseAll = details.map((d) =>
+      aggregateByCase(d.trials).filter((c) => mode !== 'size' || Boolean(c.topo_size)),
+    )
+    // The Average row is each entry's mean over all its tasks, not over the
+    // rows above: rows group different numbers of tasks.
+    const columnAvgAll = perCaseAll.map((cases) => mean(cases.map(value)))
+    const cols = details.map((_, i) => i)
+    if (colSort) {
+      cols.sort((a, b) => compareSortValues(columnAvgAll[a], columnAvgAll[b], colSort))
+    }
+    const names = cols.map((i) => details[i].name)
+    const columnAvg = cols.map((i) => columnAvgAll[i])
+    const taskCounts = cols.map((i) => perCaseAll[i].length)
+    const overall = mean(columnAvg)
+    const perEntry = cols.map((i) => {
       const buckets = new Map<string, { sum: number; n: number }>()
-      for (const c of cases) {
+      for (const c of perCaseAll[i]) {
         const key = rowKey(c, mode)
-        const value = metric === 'success' ? c.success_rate : c.mean_rca_f1
         const cur = buckets.get(key) || { sum: 0, n: 0 }
-        cur.sum += value
+        cur.sum += value(c)
         cur.n += 1
         buckets.set(key, cur)
       }
@@ -126,35 +196,79 @@ export function MatrixPage() {
 
     const rows = [...keys].map((key) => {
       const values = perEntry.map((m) => m.get(key) ?? null)
-      const present = values.filter((v): v is number => v != null)
-      const avg =
-        present.length > 0
-          ? present.reduce((a, b) => a + b, 0) / present.length
-          : 0
-      return { key, values, avg }
+      return { key, label: rowLabel(key, mode), values, avg: mean(values) ?? 0 }
     })
+    const sizeRank = (key: string) => {
+      const i = SIZE_ORDER.indexOf(key)
+      return i < 0 ? SIZE_ORDER.length : i
+    }
+    rows.sort((a, b) =>
+      rowSort
+        ? compareSortValues(a.avg, b.avg, rowSort) || compareSortValues(a.label, b.label, 'asc')
+        : sizeRank(a.key) - sizeRank(b.key) || compareSortValues(a.label, b.label, 'asc'),
+    )
 
-    rows.sort((a, b) => {
-      if (sort.key === 'key') return compareSortValues(a.key, b.key, sort.dir)
-      if (sort.key === 'avg') return compareSortValues(a.avg, b.avg, sort.dir)
-      if (sort.key.startsWith('col:')) {
-        const i = Number(sort.key.slice(4))
-        return compareSortValues(a.values[i], b.values[i], sort.dir)
-      }
-      return 0
-    })
+    return { rows, names, columnAvg, overall, taskCounts }
+  }, [details, mode, metric, rowSort, colSort])
 
-    return rows
-  }, [details, mode, metric, sort])
+  /**
+   * Margins and row pitch from the measured labels. ECharts' own estimate
+   * (containLabel) undersizes a long category axis and clipped the longest
+   * problem names, so the grid is laid out here instead.
+   */
+  const frame = useMemo(() => {
+    const yLabels = [...matrix.rows.map((r) => r.label), SPACER, AVERAGE]
+    const entryLabels = matrix.names
+    const xLabels = [...entryLabels, SPACER, AVERAGE]
+    const tilted = entryLabels.length > 8
+    const yTick = categoryTickSize(yLabels.length)
+    const xTick = categoryTickSize(xLabels.length)
+    // The Average labels carry a sort mark and bold type: measure them so.
+    const shown = (l: string) => (l === AVERAGE ? `${AVERAGE} ${SORT_MARK.none}` : l)
+    const yLabelW = Math.max(0, ...yLabels.map((l) => measureText(shown(l), yTick, l === AVERAGE ? 800 : 500)))
+    const xLabelW = Math.max(0, ...xLabels.map((l) => measureText(shown(l), xTick, 800)))
+    const firstXW = entryLabels.length ? measureText(entryLabels[0], xTick, 500) : 0
+    const left = 16 + Math.ceil(Math.max(yLabelW + 8, tilted ? firstXW * Math.SQRT1_2 : 0))
+    const top = tilted
+      ? Math.ceil(xLabelW * Math.SQRT1_2 + xTick) + 16
+      : 2 * Math.round(xTick * 1.25) + 20
+    const bottom = 16
+    // A fixed row pitch, so every row keeps a readable label and value
+    // however many problems there are.
+    const pitch = yTick + 10
+    // Tall enough for the colour scale beside it, however few rows there are.
+    const plot = Math.max(yLabels.length * pitch, 180)
+    return {
+      yLabels,
+      entryLabels,
+      xLabels,
+      tilted,
+      left,
+      top,
+      bottom,
+      plot,
+      height: top + bottom + plot,
+    }
+  }, [matrix])
 
   const heatOption = useMemo((): EChartsOption => {
-    const yLabels = matrix.map((r) => r.key)
-    const xLabels = details.map((d) => d.name)
-    const tilted = xLabels.length > 8
+    const { yLabels, entryLabels, xLabels, tilted } = frame
+    const avgX = xLabels.length - 1
+    const avgY = yLabels.length - 1
+    // Same colour scale as the cells, but outlined and set in heavier type.
+    const averageCell = (x: number, y: number, v: number) => ({
+      value: [x, y, Number(v.toFixed(4))] as [number, number, number],
+      label: { color: heatInk(divergingColor(v)), fontWeight: 800, fontSize: 12 },
+      itemStyle: { borderColor: CHART_FOCUS, borderWidth: 1.5 },
+    })
     // Each cell's label takes white or dark ink by its own fill, so the
     // number stays legible from the darkest step of the ramp to the lightest.
-    const data: Array<{ value: [number, number, number]; label: { color: string } }> = []
-    matrix.forEach((row, yi) => {
+    const data: Array<{
+      value: [number, number, number]
+      label: Record<string, unknown>
+      itemStyle?: Record<string, unknown>
+    }> = []
+    matrix.rows.forEach((row, yi) => {
       row.values.forEach((v, xi) => {
         if (v != null) {
           data.push({
@@ -163,27 +277,52 @@ export function MatrixPage() {
           })
         }
       })
+      if (row.values.some((v) => v != null)) data.push(averageCell(avgX, yi, row.avg))
     })
+    matrix.columnAvg.forEach((v, xi) => {
+      if (v != null) data.push(averageCell(xi, avgY, v))
+    })
+    if (matrix.overall != null) data.push(averageCell(avgX, avgY, matrix.overall))
+    const entries = (n: number) => `${n} selected ${n === 1 ? 'entry' : 'entries'}`
     return {
       tooltip: {
         formatter: (p: unknown) => {
           const item = p as { value: number[] }
-          const v = item.value[2]
-          // Success is a share of cases; RCA F1 is a score, not a percentage.
-          const shown = metric === 'success' ? formatPct(v) : `RCA F1 ${formatScore(v)}`
-          return `${xLabels[item.value[0]]}<br/>${yLabels[item.value[1]]}<br/>${shown}`
+          const [x, y, v] = item.value
+          // A submission share is a percentage; RCA F1 is a score.
+          const shown =
+            metric === 'success' ? `${formatPct(v)} diagnosis submitted` : `RCA F1 ${formatScore(v)}`
+          if (x === avgX && y === avgY) {
+            return `Overall average<br/>Each entry's mean over all its tasks, averaged over ${entries(entryLabels.length)}<br/>${shown}`
+          }
+          if (y === avgY) {
+            return `${xLabels[x]}<br/>Average over all ${matrix.taskCounts[x]} tasks<br/>${shown}`
+          }
+          const column = x === avgX ? `Average over ${entries(entryLabels.length)}` : xLabels[x]
+          return `${column}<br/>${yLabels[y]}<br/>${shown}`
         },
       },
-      grid: { left: 16, right: 88, top: 16, bottom: 16, containLabel: true },
+      grid: { left: frame.left, right: 88, top: frame.top, bottom: frame.bottom, containLabel: false },
       xAxis: {
         type: 'category',
         data: xLabels,
         position: 'top',
+        // Axis labels are clickable: the Average ones sort the matrix.
+        triggerEvent: true,
+        axisLine: { show: false },
+        axisTick: { show: false },
         axisLabel: {
-          // Model on one line, harness and qualifiers on the next; a wide
-          // selection tilts them, but every column keeps its label.
-          formatter: (v: string) => v.replace(' · ', '\n'),
-          rotate: tilted ? 30 : 0,
+          // Model on one line, harness and qualifiers on the next. A wide
+          // selection's columns are too narrow for two lines, so each label
+          // goes on one line at 45 degrees; every column keeps its label.
+          formatter: (v: string) =>
+            v === AVERAGE
+              ? `{avg|${AVERAGE} ${SORT_MARK[rowSort ?? 'none']}}`
+              : tilted
+                ? v
+                : v.replace(' · ', '\n'),
+          rich: { avg: { color: CHART_FOCUS, fontWeight: 800 } },
+          rotate: tilted ? 45 : 0,
           interval: 0,
           fontSize: 11,
           lineHeight: 14,
@@ -194,7 +333,18 @@ export function MatrixPage() {
         type: 'category',
         data: yLabels,
         inverse: true,
-        axisLabel: { fontSize: 11, color: CHART_TEXT },
+        triggerEvent: true,
+        axisLine: { show: false },
+        axisTick: { show: false },
+        // Every row is labelled.
+        axisLabel: {
+          fontSize: 11,
+          color: CHART_TEXT,
+          interval: 0,
+          formatter: (v: string) =>
+            v === AVERAGE ? `{avg|${AVERAGE} ${SORT_MARK[colSort ?? 'none']}}` : v,
+          rich: { avg: { color: CHART_FOCUS, fontWeight: 800 } },
+        },
       },
       visualMap: {
         min: 0,
@@ -202,8 +352,10 @@ export function MatrixPage() {
         calculable: true,
         orient: 'vertical',
         right: 8,
-        top: 'middle',
-        itemHeight: 140,
+        // Level with the plot and no taller than it, so a short matrix does
+        // not push the scale into the toolbox above.
+        top: frame.top + 4,
+        itemHeight: Math.min(140, frame.plot - 56),
         text: ['High', 'Low'],
         textGap: 8,
         textStyle: { color: CHART_MUTED },
@@ -227,7 +379,29 @@ export function MatrixPage() {
         },
       ],
     }
-  }, [matrix, details, metric])
+  }, [matrix, frame, metric, rowSort, colSort])
+
+  // Clicking the Average column's header sorts the rows by it; clicking the
+  // Average row's label sorts the entry columns. Each click flips the order.
+  const onEvents = useMemo(
+    () => ({
+      click: (params: unknown) => {
+        const p = params as { componentType?: string; value?: unknown }
+        if (p.value !== AVERAGE) return
+        if (p.componentType === 'xAxis') setRowSort((s) => (s === 'desc' ? 'asc' : 'desc'))
+        if (p.componentType === 'yAxis') setColSort((s) => (s === 'desc' ? 'asc' : 'desc'))
+      },
+    }),
+    [],
+  )
+
+  const description = [
+    METRIC_HELP[metric],
+    "The Average column is the mean across the selected entries; the Average row is each entry's mean over all its tasks. Click either Average label to sort by it.",
+    mode === 'size' ? 'Tasks whose network environment has no topology size are left out.' : null,
+  ]
+    .filter(Boolean)
+    .join(' ')
 
   if (loading) return <p className="status">Loading matrix…</p>
   if (error || detailError) {
@@ -247,10 +421,10 @@ export function MatrixPage() {
     <div className="page">
       <div className="page__header">
         <div>
-          <h1>Case Matrix</h1>
+          <h1>Task Matrix</h1>
           <p className="lede">
-            Solve rate or RCA F1 by problem, category, scenario, or size. Click
-            column headers to sort.
+            RCA F1 or diagnosis submissions per failure, failure domain, network
+            environment, or topology size, with averages across entries and tasks.
           </p>
         </div>
         <Link className="btn btn--ghost" to="/">
@@ -270,95 +444,49 @@ export function MatrixPage() {
           Aggregate
           <select
             value={mode}
-            onChange={(e) => setMode(e.target.value as AggregateMode)}
+            onChange={(e) => {
+              const next = e.target.value as AggregateMode
+              setMode(next)
+              setRowSort(next === 'size' ? null : 'desc')
+            }}
           >
-            <option value="problem">Problem / failure</option>
-            <option value="category">Failure domain</option>
-            <option value="scenario">Scenario</option>
-            <option value="size">Topo size</option>
+            {(Object.keys(AGGREGATE_LABEL) as AggregateMode[]).map((m) => (
+              <option key={m} value={m}>
+                {AGGREGATE_LABEL[m]}
+              </option>
+            ))}
           </select>
         </label>
-        <label>
+        <label title={`${METRIC_HELP.rca}\n\n${METRIC_HELP.success}`}>
           Metric
           <select
             value={metric}
             onChange={(e) => setMetric(e.target.value as MetricMode)}
           >
-            <option value="success">Success %</option>
-            <option value="rca">Mean RCA F1</option>
+            {(['rca', 'success'] as const).map((m) => (
+              <option key={m} value={m}>
+                {METRIC_LABEL[m]}
+              </option>
+            ))}
           </select>
         </label>
       </div>
 
       <ChartPanel
-        title="Heatmap"
+        title={`${METRIC_LABEL[metric]} by ${AGGREGATE_LABEL[mode].toLowerCase()}`}
+        description={description}
         option={heatOption}
         filename="nika-matrix"
-        // A fixed row pitch, so every row keeps a readable label and value
-        // however many problems there are.
-        height={(details.length > 8 ? 160 : 100) + matrix.length * 22}
-        empty={!details.length || !matrix.length}
+        height={frame.height}
+        onEvents={onEvents}
+        empty={!details.length || !matrix.rows.length}
         emptyMessage={
           !details.length
             ? 'Select entries to plot.'
-            : 'The selected packages carry no per-trial results, so there is nothing to break down by case.'
+            : 'The selected packages carry no per-trial results, so there is nothing to break down by task.'
         }
         zoomSlider={false}
       />
-
-      <div className="table-wrap">
-        <table className="data-table matrix-table">
-          <thead>
-            <tr>
-              <SortableTh
-                label={mode}
-                sortKey="key"
-                sort={sort}
-                onSort={toggle}
-              />
-              {details.map((d, i) => (
-                <SortableTh
-                  key={d.id}
-                  label={d.name}
-                  sortKey={`col:${i}`}
-                  sort={sort}
-                  onSort={toggle}
-                />
-              ))}
-              <SortableTh label="Avg" sortKey="avg" sort={sort} onSort={toggle} />
-            </tr>
-          </thead>
-          <tbody>
-            {matrix.map((row) => (
-              <tr key={row.key}>
-                <td>{row.key}</td>
-                {row.values.map((v, i) => (
-                  <td
-                    key={`${row.key}-${i}`}
-                    className="num heat-cell"
-                    style={
-                      v == null
-                        ? undefined
-                        : { background: divergingColor(v), color: heatInk(divergingColor(v)) }
-                    }
-                  >
-                    {v == null
-                      ? '—'
-                      : metric === 'success'
-                        ? formatPct(v)
-                        : formatScore(v)}
-                  </td>
-                ))}
-                <td className="num">
-                  {metric === 'success'
-                    ? formatPct(row.avg)
-                    : formatScore(row.avg)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
     </div>
   )
 }

@@ -124,8 +124,8 @@ export const BUBBLE_AXIS_OPTIONS: BubbleAxisOption[] = [
   { key: 'detection', label: 'Detection', asPercent: false, score: true, max: 1 },
   { key: 'localization', label: 'Localization', asPercent: false, score: true, max: 1 },
   { key: 'rca', label: 'RCA F1', asPercent: false, score: true, max: 1 },
-  { key: 'success_rate', label: 'Success', asPercent: true, max: 100 },
-  { key: 'cases', label: 'Cases', asPercent: false },
+  { key: 'success_rate', label: 'Diagnosis submitted', asPercent: true, max: 100 },
+  { key: 'cases', label: 'Tasks', asPercent: false },
   { key: 'mean_tokens', label: 'Avg tokens', asPercent: false },
   { key: 'mean_steps', label: 'Avg steps', asPercent: false },
 ]
@@ -255,13 +255,13 @@ export type BubbleEncodeKey = BubbleAxisKey | 'fixed'
 
 export const BUBBLE_SIZE_OPTIONS: Array<{ key: BubbleEncodeKey; label: string }> =
   [
-    { key: 'cases', label: 'Cases' },
+    { key: 'cases', label: 'Tasks' },
     { key: 'mean_tokens', label: 'Avg tokens' },
     { key: 'mean_steps', label: 'Avg steps' },
     { key: 'rca', label: 'RCA F1' },
     { key: 'detection', label: 'Detection' },
     { key: 'localization', label: 'Localization' },
-    { key: 'success_rate', label: 'Success' },
+    { key: 'success_rate', label: 'Diagnosis submitted' },
     { key: 'fixed', label: 'Fixed' },
   ]
 
@@ -272,8 +272,8 @@ export const BUBBLE_OPACITY_OPTIONS: Array<{
   { key: 'rca', label: 'RCA F1' },
   { key: 'detection', label: 'Detection' },
   { key: 'localization', label: 'Localization' },
-  { key: 'success_rate', label: 'Success' },
-  { key: 'cases', label: 'Cases' },
+  { key: 'success_rate', label: 'Diagnosis submitted' },
+  { key: 'cases', label: 'Tasks' },
   { key: 'mean_tokens', label: 'Avg tokens' },
   { key: 'mean_steps', label: 'Avg steps' },
   { key: 'fixed', label: 'Fixed' },

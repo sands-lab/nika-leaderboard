@@ -1,4 +1,6 @@
-import { submissionCost } from './pricing'
+import { entryLinks } from './data'
+import { modelReleaseDate } from './modelMeta'
+import { modelKey, submissionCost, taskTokens } from './pricing'
 import type { PriceMode, PriceOverrides, PricingFile } from './pricing'
 import type { FilterState, SubmissionSummary } from './types'
 
@@ -228,6 +230,10 @@ export function tieCount(rows: SubmissionSummary[], s: SubmissionSummary): numbe
   ).length
 }
 
+function roundOrNull(v: number | null): number | null {
+  return v == null ? null : Math.round(v)
+}
+
 export function exportCsv(
   rows: SubmissionSummary[],
   filename: string,
@@ -235,50 +241,42 @@ export function exportCsv(
   overrides: PriceOverrides = {},
   priceMode: PriceMode = 'frozen',
 ): void {
-  const headers = [
-    'rank',
-    'model',
-    'created_at',
-    'framework',
-    'adaptation',
-    'skills',
-    'vendor',
-    'llm_provider',
-    'name',
-    'benchmark_version',
-    'split',
-    'mean_detection_score',
-    'mean_localization_f1',
-    'mean_rca_f1',
-    'rca_f1_ci_low',
-    'rca_f1_ci_high',
-    'success_rate',
-    'n_success',
-    'n_trials_expected',
-    'mean_tokens',
-    'cost_per_run_usd',
-    'cost_per_case_usd',
-    'cost_total_usd',
-    'mean_steps',
-    'github',
-    'site',
-    'report',
+  // The leaderboard table's columns, optional ones included, with the same
+  // figures: scores as shown, cost and tokens per task, entry-specific links.
+  const columns: [string, (s: SubmissionSummary) => unknown][] = [
+    ['rank', (s) => s.rank],
+    ['tied', (s) => (s.rca_f1_ci && tieCount(rows, s) > 1 ? 'yes' : 'no')],
+    ['release', (s) => s.benchmark_version],
+    ['model', (s) => (s.model && s.reasoning_effort ? `${s.model} (${s.reasoning_effort})` : s.model)],
+    ['verified', (s) => (s.official ? 'yes' : 'no')],
+    ['model_released', (s) => modelReleaseDate(modelKey(s))?.toISOString().slice(0, 10)],
+    ['harness', (s) => s.framework],
+    ['harness_tags', (s) => scaffoldTags(s).join('; ')],
+    ['agent_optimizations', (s) => adaptationMethods(s).join('; ')],
+    ['user', (s) => s.authors?.trim() || 'anonymous'],
+    ['rca_f1', (s) => s.mean_rca_f1],
+    ['rca_f1_ci_low', (s) => s.rca_f1_ci?.[0]],
+    ['rca_f1_ci_high', (s) => s.rca_f1_ci?.[1]],
+    ['localization_f1', (s) => s.mean_localization_f1],
+    ['detection', (s) => s.mean_detection_score],
+    ['cost_per_task_usd', (s) => submissionCost(s, pricing, overrides, priceMode)?.perTask],
+    [
+      'cost_per_task_stat',
+      (s) => submissionCost(s, pricing, overrides, priceMode)?.perTaskStat,
+    ],
+    ['input_tokens_per_task', (s) => roundOrNull(taskTokens(s, 'median', 'in_tokens'))],
+    ['output_tokens_per_task', (s) => roundOrNull(taskTokens(s, 'median', 'out_tokens'))],
+    ...(['trajectories', 'github', 'report', 'site'] as const).map(
+      (kind): [string, (s: SubmissionSummary) => unknown] => [
+        `${kind}_url`,
+        (s) => entryLinks(s).find((l) => l.kind === kind)?.href,
+      ],
+    ),
   ]
-  const lines = [headers.join(',')]
+  const lines = [columns.map(([h]) => h).join(',')]
   for (const s of rows) {
-    const record = s as unknown as Record<string, unknown>
-    const vals = headers.map((h) => {
-      let v: unknown
-      const cost = submissionCost(s, pricing, overrides, priceMode)
-      if (h === 'adaptation') v = formatAdaptation(s)
-      else if (h === 'cost_per_run_usd') v = cost?.perRun ?? ''
-      else if (h === 'cost_per_case_usd') v = cost?.perCase ?? ''
-      else if (h === 'cost_total_usd') v = cost?.total ?? ''
-      else if (h === 'skills') v = scaffoldTags(s).join('; ')
-      else if (h === 'vendor') v = s.vendor?.label
-      else if (h === 'rca_f1_ci_low') v = s.rca_f1_ci?.[0]
-      else if (h === 'rca_f1_ci_high') v = s.rca_f1_ci?.[1]
-      else v = record[h]
+    const vals = columns.map(([, get]) => {
+      const v = get(s)
       const str = v == null ? '' : String(v)
       return `"${str.replace(/"/g, '""')}"`
     })

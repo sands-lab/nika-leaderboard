@@ -15,7 +15,7 @@ The site combines reviewed score packages with shared model and benchmark inform
 | `catalog/lobehub.json`, `web/public/providers/lobehub/` | Model and vendor icons matched on LobeHub by the resolver |
 | `catalog/hf_orgs.json`, `web/public/providers/hf/` | Vendor names, and avatars where LobeHub has no icon, from Hugging Face |
 | `web/public/providers/` | Icons; hand-made ones sit beside the resolver's `lobehub/` and `hf/` folders |
-| `catalog/<release>/cases.json` | Benchmark task metadata: network size and incident category |
+| `catalog/<release>/cases.json` | Benchmark task metadata: topology size and failure domain |
 | `scripts/build_leaderboard_data.py` | Generate site data from packages and catalogs |
 | `scripts/model_catalog.py` | Match model identities, select quotes, and validate catalog format |
 | `scripts/vendors.py` | Decide each entry's vendor, its labels and icons, and validate the icon files |
@@ -160,7 +160,7 @@ Put hand-made images directly under `web/public/providers/`, outside the `hf/` a
 
 ### Benchmark task metadata
 
-`catalog/<release>/cases.json` supplies network sizes and incident categories for the result breakdowns. It is not updated by the model resolver.
+`catalog/<release>/cases.json` supplies topology sizes and failure domains for the result breakdowns. It is not updated by the model resolver.
 
 To regenerate it from a local checkout of public NIKA `main`, run from this repository's root:
 
@@ -191,6 +191,10 @@ The builder uses a paired cluster bootstrap over benchmark tasks (`case_key`): 1
 By default, each submission uses the latest quote retrieved on or before its package date (`YYYYMMDD` prefix). If all quotes are newer, it uses the earliest quote. The resolver appends a quote only when recorded rates change and leaves older quotes intact, so later price refreshes preserve historical estimates.
 
 The calculation is `(input_tokens × input_rate + output_tokens × output_rate) / 1,000,000`. Tiers and cache rates are retained as reference information but are not applied: packages contain per-trial token totals, not per-request prompt lengths. Open-weight quotes estimate hosted inference, not the submitter's GPU bill.
+
+The leaderboard's cost column shows the cost of one task: the median over the release's tasks, where each task is the mean of its trials. The builder writes those per-task token means as `task_tokens` (see `task_tokens` in [the data builder](../scripts/build_leaderboard_data.py)), and the browser prices them. Packages without per-trial token counts fall back to the mean cost per trial. The cell's tooltip also gives the 95th percentile and the mean. The optional input and output token columns use the same per-task median. Comparisons never use a full run, because that figure scales with the number of tasks in a release. Each entry page lists the run's totals (tokens, cost, and trial count) alongside its per-task figures. The leaderboard's CSV export has the table's columns, optional ones included, with the same per-task figures.
+
+The analytics cost and token charts on the Compare and Score Trends pages offer a Median or p95 per-task choice, shared across pages and saved in the browser. Under p95, packages without per-trial token counts are left out.
 
 The UI's current-prices toggle uses each model's latest quote for comparison. Readers can also override prices in the UI; those changes do not edit the repository catalog. See [quote selection](../scripts/model_catalog.py) and [browser-side pricing](../web/src/lib/pricing.ts).
 
