@@ -14,12 +14,14 @@ import { loadSubmissionDetails } from '../lib/data'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import type { SubmissionDetail } from '../lib/types'
 import {
+  CHART_FONT,
   CHART_MUTED,
   CHART_SURFACE,
   CHART_TEXT,
   HEAT_RAMP,
   heatColor,
   heatInk,
+  measureText,
 } from '../lib/chartTheme'
 
 type ValueMode = 'rate' | 'count'
@@ -129,6 +131,11 @@ export function ConfusionPage() {
     }))
     const isProblem = level === 'problem'
     const n = matrix.labels.length
+    const scaleLabel = (v: unknown) =>
+      valueMode === 'rate' ? `${Number(v).toFixed(0)}%` : `${Number(v).toFixed(0)}`
+    // The scale's end labels sit on its plot side, at tick size: keep the
+    // last column clear of them.
+    const scaleRight = 72 + Math.ceil(measureText(scaleLabel(scaleMax), CHART_FONT.tick, 500))
     return {
       tooltip: {
         position: 'top',
@@ -148,7 +155,7 @@ export function ConfusionPage() {
       },
       grid: {
         left: isProblem ? 120 : 88,
-        right: 72,
+        right: scaleRight,
         top: 40,
         bottom: isProblem ? 110 : 72,
       },
@@ -187,10 +194,7 @@ export function ConfusionPage() {
         text: valueMode === 'rate' ? ['%', ''] : ['count', ''],
         textStyle: { color: CHART_MUTED },
         inRange: { color: [...HEAT_RAMP] },
-        formatter: (v: unknown) =>
-          valueMode === 'rate'
-            ? `${Number(v).toFixed(0)}%`
-            : `${Number(v).toFixed(0)}`,
+        formatter: scaleLabel,
       },
       series: [
         {

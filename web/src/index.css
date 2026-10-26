@@ -1899,6 +1899,8 @@ a.model-name:hover {
 
 .chart-panel__actions {
   display: flex;
+  flex-wrap: wrap;
+  align-items: center;
   gap: 0.35rem;
 }
 
@@ -1922,6 +1924,43 @@ a.model-name:hover {
 .task-stat select {
   padding: 0.3rem 0.5rem;
   font-size: 0.78rem;
+}
+
+.chart-panel__export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.export-tone {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+
+.export-tone input {
+  margin: 0;
+  cursor: pointer;
+}
+
+.export-tone select {
+  font: inherit;
+  font-size: 0.78rem;
+  color: var(--ink);
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.3rem 0.5rem;
+}
+
+.export-tone select:focus {
+  outline: none;
+  border-color: rgb(var(--brand-rgb) / 0.45);
+  box-shadow: 0 0 0 3px rgb(var(--brand-rgb) / 0.15);
 }
 
 .chart-panel__actions .btn {
