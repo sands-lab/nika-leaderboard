@@ -210,10 +210,27 @@ export function heatInk(background: string): string {
 }
 
 /**
- * Background a downloaded figure is meant for. Exports are always
- * transparent; the tone picks ink that reads on the page or slide behind them.
+ * Background a downloaded figure is meant for: the tone picks ink that reads
+ * on it. A transparent figure leaves the background to the page or slide;
+ * otherwise the figure is filled with `EXPORT_BACKGROUND` for its tone.
  */
 export type ExportTone = 'light' | 'dark'
+
+export interface ExportStyle {
+  tone: ExportTone
+  transparent: boolean
+}
+
+/** Fill behind an opaque figure: white paper, or the site's own panel. */
+export const EXPORT_BACKGROUND: Record<ExportTone, string> = {
+  light: '#ffffff',
+  dark: CHART_SURFACE,
+}
+
+/** Background colour an export is drawn on, `transparent` when it has none. */
+export function exportBackground(style: ExportStyle): string {
+  return style.transparent ? 'transparent' : EXPORT_BACKGROUND[style.tone]
+}
 
 /**
  * Ink for figures placed on a light background. Each entry replaces the

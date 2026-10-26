@@ -27,7 +27,7 @@ import {
   measureText,
 } from '../lib/chartTheme'
 import { downloadPdf, downloadPng } from '../lib/export'
-import { useExportTone } from '../lib/exportTone'
+import { useExportStyle } from '../lib/exportStyle'
 
 interface ChartPanelProps {
   title: string
@@ -640,7 +640,7 @@ export function ChartPanel({
   const [ready, setReady] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [exporting, setExporting] = useState(false)
-  const [tone, setTone] = useExportTone()
+  const [exportStyle, setExportStyle] = useExportStyle()
 
   useEffect(() => {
     setReady(true)
@@ -672,7 +672,7 @@ export function ChartPanel({
   const onPdf = async () => {
     setExporting(true)
     try {
-      await downloadPdf(getChart(true), filename, tone)
+      await downloadPdf(getChart(true), filename, exportStyle)
     } finally {
       setExporting(false)
     }
@@ -683,27 +683,41 @@ export function ChartPanel({
       <label
         className="export-tone"
         title={
-          'Downloads have a transparent background.\n' +
           'Light: dark text and axes, for white pages and light slides.\n' +
           'Dark: light text and axes, as on this site, for dark slides.'
         }
       >
         <span>Export for</span>
         <select
-          value={tone}
+          value={exportStyle.tone}
           disabled={disabled}
-          onChange={(e) => setTone(e.target.value === 'dark' ? 'dark' : 'light')}
+          onChange={(e) => setExportStyle({ tone: e.target.value === 'dark' ? 'dark' : 'light' })}
         >
           <option value="light">Light background</option>
           <option value="dark">Dark background</option>
         </select>
       </label>
+      <label
+        className="export-tone"
+        title={
+          'On: no background, so the figure sits on your page or slide.\n' +
+          'Off: filled white (light) or with the site\'s panel colour (dark).'
+        }
+      >
+        <input
+          type="checkbox"
+          checked={exportStyle.transparent}
+          disabled={disabled}
+          onChange={(e) => setExportStyle({ transparent: e.target.checked })}
+        />
+        Transparent
+      </label>
       <button
         type="button"
         className="btn btn--ghost"
         disabled={disabled}
-        onClick={() => downloadPng(getChart(true), filename, tone)}
-        title="Transparent PNG at twice screen resolution"
+        onClick={() => downloadPng(getChart(true), filename, exportStyle)}
+        title="PNG at twice screen resolution"
       >
         PNG
       </button>
@@ -712,7 +726,7 @@ export function ChartPanel({
         className="btn btn--ghost"
         disabled={disabled || exporting}
         onClick={() => void onPdf()}
-        title="Transparent vector PDF (SVG → PDF)"
+        title="Vector PDF (SVG → PDF)"
       >
         {exporting ? 'PDF…' : 'PDF'}
       </button>

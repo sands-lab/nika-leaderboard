@@ -1,5 +1,5 @@
 import { init, type EChartsOption, type EChartsType } from 'echarts'
-import { LIGHT_EXPORT_INK, type ExportTone } from './chartTheme'
+import { LIGHT_EXPORT_INK, exportBackground, type ExportStyle } from './chartTheme'
 import { jsPDF } from 'jspdf'
 import { svg2pdf } from 'svg2pdf.js'
 
@@ -29,19 +29,19 @@ function recolor(value: unknown, ink: Record<string, string>): unknown {
 }
 
 /**
- * The chart's current option, made into a figure: transparent, without the
- * zoom toolbox and sliders (the zoom window itself is kept), and recoloured
- * for a light background when asked.
+ * The chart's current option, made into a figure: on the chosen background
+ * (or none), without the zoom toolbox and sliders (the zoom window itself is
+ * kept), and recoloured for a light background when asked.
  */
-function exportOption(chart: EChartsType, tone: ExportTone): EChartsOption {
+function exportOption(chart: EChartsType, style: ExportStyle): EChartsOption {
   const option = chart.getOption() as EChartsOption
   const dataZoom = Array.isArray(option.dataZoom)
     ? option.dataZoom.map((dz) => ({ ...dz, show: false }))
     : option.dataZoom
   const figure: EChartsOption = { ...option, toolbox: [], dataZoom }
   return {
-    ...(tone === 'light' ? (recolor(figure, LIGHT_EXPORT_INK) as EChartsOption) : figure),
-    backgroundColor: 'transparent',
+    ...(style.tone === 'light' ? (recolor(figure, LIGHT_EXPORT_INK) as EChartsOption) : figure),
+    backgroundColor: exportBackground(style),
     animation: false,
   }
 }
@@ -49,7 +49,7 @@ function exportOption(chart: EChartsType, tone: ExportTone): EChartsOption {
 /** Re-render the chart off screen, at the same size and zoom, as a figure. */
 function renderCopy(
   chart: EChartsType,
-  tone: ExportTone,
+  style: ExportStyle,
   renderer: 'canvas' | 'svg',
 ): { copy: EChartsType; host: HTMLElement; dispose: () => void } {
   const host = document.createElement('div')
@@ -60,7 +60,7 @@ function renderCopy(
     width: chart.getWidth(),
     height: chart.getHeight(),
   })
-  copy.setOption(exportOption(chart, tone))
+  copy.setOption(exportOption(chart, style))
   return {
     copy,
     host,
@@ -71,10 +71,10 @@ function renderCopy(
   }
 }
 
-function pngUrl(chart: EChartsType, tone: ExportTone): string {
-  const { copy, dispose } = renderCopy(chart, tone, 'canvas')
+function pngUrl(chart: EChartsType, style: ExportStyle): string {
+  const { copy, dispose } = renderCopy(chart, style, 'canvas')
   try {
-    return copy.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: 'transparent' })
+    return copy.getDataURL({ type: 'png', pixelRatio: 2, backgroundColor: exportBackground(style) })
   } finally {
     dispose()
   }
@@ -83,13 +83,13 @@ function pngUrl(chart: EChartsType, tone: ExportTone): string {
 export function downloadPng(
   chart: EChartsType | undefined,
   filename: string,
-  tone: ExportTone,
+  style: ExportStyle,
 ): void {
   if (!chart) return
-  triggerDownload(pngUrl(chart, tone), filename.endsWith('.png') ? filename : `${filename}.png`)
+  triggerDownload(pngUrl(chart, style), filename.endsWith('.png') ? filename : `${filename}.png`)
 }
 
-function cloneSvgForExport(svg: SVGSVGElement): SVGSVGElement {
+function cloneSvgForExport(svg: SVGSVGElement, background: string): SVGSVGElement {
   const clone = svg.cloneNode(true) as SVGSVGElement
   // Ensure explicit size so svg2pdf can scale predictably.
   const bbox = svg.getBoundingClientRect()
@@ -100,17 +100,28 @@ function cloneSvgForExport(svg: SVGSVGElement): SVGSVGElement {
   if (!clone.getAttribute('viewBox')) {
     clone.setAttribute('viewBox', `0 0 ${width} ${height}`)
   }
+  if (background !== 'transparent') {
+    // An explicit fill, so svg2pdf paints the page behind an opaque figure.
+    const bg = document.createElementNS('http://www.w3.org/2000/svg', 'rect')
+    bg.setAttribute('x', '0')
+    bg.setAttribute('y', '0')
+    bg.setAttribute('width', '100%')
+    bg.setAttribute('height', '100%')
+    bg.setAttribute('fill', background)
+    clone.insertBefore(bg, clone.firstChild)
+  }
   return clone
 }
 
 /**
- * Export chart as a vector PDF via an SVG rendering of it, with no page
- * fill behind it. Falls back to embedding a PNG if no SVG root is available.
+ * Export chart as a vector PDF via an SVG rendering of it, with no fill
+ * behind it unless the style asks for one. Falls back to embedding a PNG if
+ * no SVG root is available.
  */
 export async function downloadPdf(
   chart: EChartsType | undefined,
   filename: string,
-  tone: ExportTone,
+  style: ExportStyle,
 ): Promise<void> {
   if (!chart) return
   const outName = filename.endsWith('.pdf') ? filename : `${filename}.pdf`
@@ -121,10 +132,10 @@ export async function downloadPdf(
   const maxW = pageW - margin * 2
   const maxH = pageH - margin * 2
 
-  const rendered = renderCopy(chart, tone, 'svg')
+  const rendered = renderCopy(chart, style, 'svg')
   const svg = rendered.host.querySelector('svg')
   if (svg instanceof SVGSVGElement) {
-    const clone = cloneSvgForExport(svg)
+    const clone = cloneSvgForExport(svg, exportBackground(style))
     const vb = clone.viewBox.baseVal
     const srcW = vb.width || Number(clone.getAttribute('width')) || maxW
     const srcH = vb.height || Number(clone.getAttribute('height')) || maxH
@@ -150,6 +161,6 @@ export async function downloadPdf(
   rendered.dispose()
 
   // Canvas fallback (raster).
-  pdf.addImage(pngUrl(chart, tone), 'PNG', margin, margin, maxW, maxH)
+  pdf.addImage(pngUrl(chart, style), 'PNG', margin, margin, maxW, maxH)
   pdf.save(outName)
 }

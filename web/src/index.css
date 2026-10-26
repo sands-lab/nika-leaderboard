@@ -1928,6 +1928,7 @@ a.model-name:hover {
 
 .chart-panel__export {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.35rem;
 }
@@ -1939,6 +1940,11 @@ a.model-name:hover {
   font-size: 0.78rem;
   color: var(--muted);
   white-space: nowrap;
+}
+
+.export-tone input {
+  margin: 0;
+  cursor: pointer;
 }
 
 .export-tone select {
