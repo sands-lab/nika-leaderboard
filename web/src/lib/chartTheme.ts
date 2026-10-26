@@ -161,7 +161,9 @@ export const DIVERGING_RAMP = ['#de6677', '#8e3d48', '#232a2c', '#025d6b', '#179
 
 /** Dark ink for text on the light end of the ramp. */
 const HEAT_INK_DARK = '#0b1220'
-const HEAT_INK_LIGHT = '#ffffff'
+// Spelled apart from CHART_FOCUS: light exports recolour by exact colour
+// string, and labels on dark cells must stay white while focus rings darken.
+const HEAT_INK_LIGHT = '#fff'
 
 function hexToRgb(hex: string): [number, number, number] {
   const n = parseInt(hex.slice(1), 16)
@@ -205,4 +207,29 @@ export function heatInk(background: string): string {
   const onWhite = 1.05 / (l + 0.05)
   const onDark = (l + 0.05) / (luminance(HEAT_INK_DARK) + 0.05)
   return onWhite >= onDark ? HEAT_INK_LIGHT : HEAT_INK_DARK
+}
+
+/**
+ * Background a downloaded figure is meant for. Exports are always
+ * transparent; the tone picks ink that reads on the page or slide behind them.
+ */
+export type ExportTone = 'light' | 'dark'
+
+/**
+ * Ink for figures placed on a light background. Each entry replaces the
+ * on-screen colour named by its key, matched as an exact string anywhere in
+ * the chart's option; translucent white turns to translucent black. Series
+ * colours and heat ramps stay as they are, so a figure encodes data the same
+ * way as the site.
+ */
+export const LIGHT_EXPORT_INK: Record<string, string> = {
+  [CHART_TEXT]: '#111827',
+  [CHART_AXIS_NAME]: '#1f2937',
+  [CHART_MUTED]: '#4b5563',
+  [CHART_LINE]: 'rgba(0, 0, 0, 0.12)',
+  [CHART_AXIS_LINE]: 'rgba(0, 0, 0, 0.55)',
+  // Summary outlines and labels, focus rings.
+  [CHART_FOCUS]: '#000000',
+  // Heatmap cell borders and label halos keep apart from the paper, not the panel.
+  [CHART_SURFACE]: '#ffffff',
 }

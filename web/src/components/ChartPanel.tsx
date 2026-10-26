@@ -27,6 +27,7 @@ import {
   measureText,
 } from '../lib/chartTheme'
 import { downloadPdf, downloadPng } from '../lib/export'
+import { useExportTone } from '../lib/exportTone'
 
 interface ChartPanelProps {
   title: string
@@ -639,6 +640,7 @@ export function ChartPanel({
   const [ready, setReady] = useState(false)
   const [expanded, setExpanded] = useState(false)
   const [exporting, setExporting] = useState(false)
+  const [tone, setTone] = useExportTone()
 
   useEffect(() => {
     setReady(true)
@@ -670,11 +672,52 @@ export function ChartPanel({
   const onPdf = async () => {
     setExporting(true)
     try {
-      await downloadPdf(getChart(true), filename)
+      await downloadPdf(getChart(true), filename, tone)
     } finally {
       setExporting(false)
     }
   }
+
+  const downloads = (disabled: boolean) => (
+    <div className="chart-panel__export">
+      <label
+        className="export-tone"
+        title={
+          'Downloads have a transparent background.\n' +
+          'Light: dark text and axes, for white pages and light slides.\n' +
+          'Dark: light text and axes, as on this site, for dark slides.'
+        }
+      >
+        <span>Export for</span>
+        <select
+          value={tone}
+          disabled={disabled}
+          onChange={(e) => setTone(e.target.value === 'dark' ? 'dark' : 'light')}
+        >
+          <option value="light">Light background</option>
+          <option value="dark">Dark background</option>
+        </select>
+      </label>
+      <button
+        type="button"
+        className="btn btn--ghost"
+        disabled={disabled}
+        onClick={() => downloadPng(getChart(true), filename, tone)}
+        title="Transparent PNG at twice screen resolution"
+      >
+        PNG
+      </button>
+      <button
+        type="button"
+        className="btn btn--ghost"
+        disabled={disabled || exporting}
+        onClick={() => void onPdf()}
+        title="Transparent vector PDF (SVG → PDF)"
+      >
+        {exporting ? 'PDF…' : 'PDF'}
+      </button>
+    </div>
+  )
 
   const actions = (
     <div className="chart-panel__actions">
@@ -687,23 +730,7 @@ export function ChartPanel({
       >
         Enlarge
       </button>
-      <button
-        type="button"
-        className="btn btn--ghost"
-        disabled={empty}
-        onClick={() => downloadPng(getChart(true), filename)}
-      >
-        PNG
-      </button>
-      <button
-        type="button"
-        className="btn btn--ghost"
-        disabled={empty || exporting}
-        onClick={() => void onPdf()}
-        title="Vector PDF (SVG → PDF)"
-      >
-        {exporting ? 'PDF…' : 'PDF'}
-      </button>
+      {downloads(empty)}
     </div>
   )
 
@@ -766,21 +793,7 @@ export function ChartPanel({
             <header className="chart-panel__header">
               <h3>{title}</h3>
               <div className="chart-panel__actions">
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  onClick={() => downloadPng(getChart(true), filename)}
-                >
-                  PNG
-                </button>
-                <button
-                  type="button"
-                  className="btn btn--ghost"
-                  disabled={exporting}
-                  onClick={() => void onPdf()}
-                >
-                  {exporting ? 'PDF…' : 'PDF'}
-                </button>
+                {downloads(false)}
                 <button
                   type="button"
                   className="btn"
