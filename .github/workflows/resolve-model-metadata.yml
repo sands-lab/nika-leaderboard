@@ -75,4 +75,4 @@ jobs:
           body-path: ${{ runner.temp }}/report.md
           # Marks the PR for auto-merge-catalog-bot.yml, which merges it once
           # it has been idle for two days.
-          labels: catalog-bot
+          labels: catalog

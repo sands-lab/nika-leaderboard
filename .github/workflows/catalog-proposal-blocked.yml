@@ -1,0 +1,29 @@
+name: Catalog proposal needs attention
+
+# Runs only when auto-merge-catalog-bot.yml could not merge an idle catalog
+# proposal, so a Slack subscription to this workflow posts just those cases:
+#   /github subscribe sands-lab/nika-leaderboard workflows:{name:"Catalog proposal needs attention" event:"repository_dispatch"}
+# The run title carries the PR number and reason into the Slack message.
+on:
+  repository_dispatch:
+    types: [catalog-proposal-blocked]
+
+run-name: "Catalog PR #${{ github.event.client_payload.pr }} not merged: ${{ github.event.client_payload.reason }}"
+
+permissions:
+  contents: read
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report the blocked proposal
+        env:
+          PR: ${{ github.event.client_payload.pr }}
+          REASON: ${{ github.event.client_payload.reason }}
+          PR_URL: ${{ github.event.client_payload.url }}
+        run: |
+          printf '### Catalog PR #%s was not auto-merged\n\n%s.\n\n%s\n' \
+            "$PR" "$REASON" "$PR_URL" >> "$GITHUB_STEP_SUMMARY"
+          # Fail so the Slack message shows the run in red.
+          exit 1

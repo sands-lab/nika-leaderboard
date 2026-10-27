@@ -1,10 +1,12 @@
 name: Auto-merge catalog proposals
 
-# Merges catalog proposals from resolve-model-metadata.yml (label
-# `catalog-bot`) once they have been idle for two days. Any comment, review,
-# commit, or label change resets the clock, so a curator who wants to hold a
-# proposal only needs to comment on it. Proposals with requested changes,
-# drafts, merge conflicts, or failing checks are left for a curator.
+# Merges catalog proposals from resolve-model-metadata.yml (label `catalog`)
+# once they have been idle for two days. Any comment, review, commit, or label
+# change resets the clock, so a curator who wants to hold a proposal only
+# needs to comment on it. Drafts and proposals with requested changes are
+# left alone. When an idle proposal cannot be merged because of conflicts or
+# failing checks, this workflow comments on the PR and triggers
+# catalog-proposal-blocked.yml, which is the only run Slack is subscribed to.
 on:
   schedule:
     # Every six hours.
@@ -13,7 +15,8 @@ on:
 
 # Merging uses the catalog bot's installation token, not GITHUB_TOKEN:
 # a push to main made with GITHUB_TOKEN would not trigger the Pages deploy,
-# and a branch update would not trigger the required checks.
+# a branch update would not trigger the required checks, and a
+# repository_dispatch would not start the notification workflow.
 permissions:
   contents: read
 
@@ -22,7 +25,7 @@ concurrency:
   cancel-in-progress: false
 
 env:
-  LABEL: catalog-bot
+  LABEL: catalog
   IDLE_SECONDS: "172800" # two days
 
 jobs:
@@ -41,8 +44,22 @@ jobs:
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
           GH_REPO: ${{ github.repository }}
           BOT_LOGIN: app/${{ steps.app-token.outputs.app-slug }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         run: |
           set -euo pipefail
+
+          # Comment on the PR and start the Slack-subscribed notification
+          # workflow. The comment also resets the idle clock, so a stuck
+          # proposal is reported again only after two more quiet days.
+          blocked() {
+            local pr=$1 reason=$2
+            echo "#$pr: not merged, $reason." | tee -a "$GITHUB_STEP_SUMMARY"
+            gh pr comment "$pr" --body "Auto-merge skipped: $reason. A curator needs to resolve this; the proposal will be retried after two more days without activity. ([run]($RUN_URL))"
+            jq -n --arg pr "$pr" --arg reason "$reason" \
+              --arg url "${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/pull/$pr" \
+              '{event_type: "catalog-proposal-blocked", client_payload: {pr: $pr, reason: $reason, url: $url}}' \
+              | gh api "repos/$GH_REPO/dispatches" --input -
+          }
 
           # Open, non-draft PRs from the bot that carry the label and have
           # had no activity for IDLE_SECONDS.
@@ -73,20 +90,37 @@ jobs:
             # to date and wait for the required checks on the new head.
             if [ "$merge_state" = "BEHIND" ]; then
               echo "#$pr: behind main; updating branch."
-              gh pr update-branch "$pr"
+              if ! gh pr update-branch "$pr"; then
+                blocked "$pr" "the branch could not be updated with main (merge conflicts)"
+                continue
+              fi
               sleep 30
               head=$(gh pr view "$pr" --json headRefOid --jq .headRefOid)
               if ! gh pr checks "$pr" --required --watch --fail-fast --interval 30; then
-                echo "#$pr: required checks failed after updating; skipping." | tee -a "$GITHUB_STEP_SUMMARY"
+                blocked "$pr" "required checks failed after updating the branch with main"
                 continue
               fi
               merge_state=$(gh pr view "$pr" --json mergeStateStatus --jq .mergeStateStatus)
             fi
 
-            if [ "$merge_state" != "CLEAN" ]; then
-              echo "#$pr: merge state is $merge_state; skipping." | tee -a "$GITHUB_STEP_SUMMARY"
-              continue
-            fi
+            case "$merge_state" in
+              CLEAN) ;;
+              DIRTY)
+                blocked "$pr" "the branch has merge conflicts with main"
+                continue ;;
+              BLOCKED)
+                # Exit code 8 means checks are still pending; retry next run.
+                rc=0; gh pr checks "$pr" --required >/dev/null || rc=$?
+                if [ "$rc" -eq 8 ]; then
+                  echo "#$pr: required checks pending; retrying next run."
+                else
+                  blocked "$pr" "required checks failed"
+                fi
+                continue ;;
+              *)
+                echo "#$pr: merge state is $merge_state; retrying next run." | tee -a "$GITHUB_STEP_SUMMARY"
+                continue ;;
+            esac
 
             # --match-head-commit refuses the merge if the bot pushed again
             # after the checks above.
