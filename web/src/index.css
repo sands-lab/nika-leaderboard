@@ -702,11 +702,10 @@ code {
   font-weight: 600;
 }
 
-.filter input,
+.filter input:not([type='checkbox']),
 .filter select,
 .toolbar select,
 .pairwise__controls select,
-.picker input,
 .insights-controls input,
 .insights-controls select,
 .task-stat select {
@@ -1441,6 +1440,156 @@ code {
   margin: 0;
 }
 
+/* A dropdown of checkboxes that sits where a <select> would. */
+.multi-select {
+  position: relative;
+}
+
+.multi-select__button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  width: 100%;
+  min-width: 8.5rem;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  text-align: left;
+  color: var(--ink);
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.5rem 0.65rem;
+  cursor: pointer;
+  transition: border-color var(--transition), box-shadow var(--transition);
+}
+
+.multi-select__button:hover {
+  border-color: var(--line-strong);
+}
+
+.multi-select__button:focus-visible,
+.multi-select__button[aria-expanded='true'] {
+  outline: none;
+  border-color: rgb(var(--brand-rgb) / 0.45);
+  box-shadow: 0 0 0 3px rgb(var(--brand-rgb) / 0.15);
+}
+
+.multi-select__summary {
+  overflow: hidden;
+  max-width: 16rem;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.multi-select__chevron {
+  color: var(--muted);
+  font-size: 0.8em;
+}
+
+.multi-select__menu {
+  position: absolute;
+  top: calc(100% + 0.35rem);
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: max(100%, 15rem);
+  max-width: min(26rem, calc(100vw - 2rem));
+  padding: 0.5rem;
+  font-size: 0.86rem;
+  font-weight: 500;
+  letter-spacing: normal;
+  text-transform: none;
+  color: var(--ink);
+  background: var(--panel-raised);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+}
+
+.multi-select__menu--end {
+  left: auto;
+  right: 0;
+}
+
+.multi-select__search {
+  font: inherit;
+  color: var(--ink);
+  background: var(--panel-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 0.4rem 0.55rem;
+}
+
+.multi-select__search:focus {
+  outline: none;
+  border-color: rgb(var(--brand-rgb) / 0.45);
+}
+
+.multi-select__actions {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.multi-select__actions .btn {
+  padding: 0.25rem 0.55rem;
+  font-size: 0.78rem;
+}
+
+.multi-select__list {
+  display: grid;
+  gap: 0.05rem;
+  max-height: min(22rem, 55vh);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.multi-select__option {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.3rem 0.35rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.multi-select__option:hover {
+  background: rgb(var(--brand-rgb) / 0.08);
+}
+
+.multi-select__option input {
+  flex-shrink: 0;
+  margin: 0.2rem 0 0;
+  accent-color: var(--brand);
+}
+
+.multi-select__text {
+  flex: 1;
+}
+
+.multi-select__count {
+  margin-left: 0.75rem;
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.multi-select__option small {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+
+.multi-select__empty {
+  margin: 0.3rem 0.35rem;
+}
+
 /*
  * Site-wide hover tooltip. It replaces the browser's native one, which waits
  * about a second before showing; see FastTooltip.
@@ -1715,23 +1864,56 @@ a.model-name:hover {
   font-size: 0.8rem;
 }
 
-/* The shared filter bar is kept slim: it sits above every page's content. */
+/*
+ * The shared filter bar is kept slim: it sits above every page's content.
+ * It narrows everything below it, so it takes the brand tint and gradient
+ * border rather than the neutral panel every chart uses.
+ */
 .analytics-filters .filters {
   margin-bottom: 0.25rem;
   padding: 0.55rem 0.75rem;
   gap: 0.6rem;
-  box-shadow: none;
+  border-color: transparent;
+  background:
+    linear-gradient(120deg, rgb(var(--brand-rgb) / 0.14), rgb(var(--brand-2-rgb) / 0.1)) padding-box,
+    linear-gradient(var(--panel-raised), var(--panel-raised)) padding-box,
+    linear-gradient(120deg, rgb(var(--brand-rgb) / 0.6), rgb(var(--brand-2-rgb) / 0.5)) border-box;
+  box-shadow: 0 10px 28px -16px rgb(var(--brand-rgb) / 0.45);
 }
 
 .analytics-filters .filter {
   gap: 0.2rem;
+  color: var(--brand-ink);
 }
 
-.analytics-filters .filter input,
-.analytics-filters .filter select {
+/* Fields stay dark so they read as inputs on the tinted bar. */
+.analytics-filters .filter input:not([type='checkbox']),
+.analytics-filters .filter select,
+.analytics-filters .multi-select__button {
+  background: var(--bg);
+  border-color: rgb(var(--brand-rgb) / 0.25);
+}
+
+/* A narrowed facet shows it is active without opening it. */
+.analytics-filters .multi-select__button--active {
+  border-color: rgb(var(--brand-rgb) / 0.7);
+  background: rgb(var(--brand-rgb) / 0.12);
+}
+
+.analytics-filters .filter input:not([type='checkbox']):focus,
+.analytics-filters .filter select:focus,
+.analytics-filters .multi-select__button:focus-visible,
+.analytics-filters .multi-select__button[aria-expanded='true'] {
+  border-color: rgb(var(--brand-rgb) / 0.8);
+}
+
+.analytics-filters .filter input:not([type='checkbox']),
+.analytics-filters .filter select,
+.analytics-filters .multi-select__button {
   padding: 0.36rem 0.6rem;
   font-size: 0.86rem;
 }
+
 
 .analytics-filters .filter--action .btn {
   height: 1.95rem;
@@ -1783,81 +1965,21 @@ a.model-name:hover {
   padding: 1rem 1.1rem;
 }
 
-.picker__header {
+.picker {
   display: flex;
-  justify-content: space-between;
-  gap: 0.75rem;
-  align-items: flex-start;
-  margin-bottom: 0.75rem;
   flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.4rem 1rem;
 }
 
-.picker__header h2 {
-  margin: 0;
+.picker__control {
+  flex: 0 1 26rem;
+  min-width: min(100%, 16rem);
 }
 
 .picker__meta {
-  margin: 0.25rem 0 0;
+  margin: 0 0 0.45rem;
   font-size: 0.82rem;
-}
-
-.picker__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.4rem;
-}
-
-.picker__actions .btn {
-  padding: 0.35rem 0.65rem;
-  font-size: 0.78rem;
-}
-
-.picker__empty {
-  grid-column: 1 / -1;
-  margin: 0.5rem 0;
-}
-
-.picker .filters {
-  margin-bottom: 0.85rem;
-  padding: 0.7rem;
-  box-shadow: none;
-}
-
-.picker__grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 0.55rem;
-}
-
-.picker__item {
-  display: flex;
-  gap: 0.6rem;
-  align-items: flex-start;
-  padding: 0.7rem 0.75rem;
-  border: 1px solid var(--line);
-  border-radius: var(--radius-sm);
-  background: var(--panel-soft);
-  transition: border-color var(--transition), background var(--transition);
-}
-
-.picker__item:hover {
-  border-color: rgb(var(--brand-rgb) / 0.35);
-  background: rgb(var(--brand-rgb) / 0.06);
-}
-
-.picker__item strong,
-.picker__item small {
-  display: block;
-}
-
-.picker__item strong {
-  color: var(--ink);
-}
-
-.picker__item small {
-  color: var(--muted);
-  margin-top: 0.15rem;
-  font-size: 0.8rem;
 }
 
 .chart-grid {
@@ -2200,9 +2322,8 @@ a.model-name:hover {
 
 .confusion-layout {
   display: grid;
-  grid-template-columns: minmax(240px, 300px) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr);
   gap: 1rem;
-  align-items: start;
 }
 
 .confusion-main {

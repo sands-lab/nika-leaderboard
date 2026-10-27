@@ -2,7 +2,7 @@ import { entryLinks } from './data'
 import { modelReleaseDate } from './modelMeta'
 import { modelKey, submissionCost, taskTokens } from './pricing'
 import type { PriceMode, PriceOverrides, PricingFile } from './pricing'
-import type { FilterState, SubmissionSummary } from './types'
+import type { FilterState, MultiFilterKey, SubmissionSummary } from './types'
 
 /** Query-string name for each filter, so a filtered view can be linked. */
 const FILTER_PARAMS: Record<keyof FilterState, string> = {
@@ -28,15 +28,21 @@ export const FILTER_PARAM_KEYS = [
   ...Object.values(LEGACY_FILTER_PARAMS),
 ]
 
-/** Filters as a query string, omitting anything left at its default. */
+/**
+ * Filters as a query string, omitting anything left at its default. A facet
+ * with several values repeats its parameter, e.g. `?model=A&model=B`.
+ */
 export function filtersToParams(filters: FilterState): URLSearchParams {
   const params = new URLSearchParams()
   for (const [key, param] of Object.entries(FILTER_PARAMS) as Array<
     [keyof FilterState, string]
   >) {
     const value = filters[key]
-    const isDefault = key === 'query' ? value === '' : value === 'all'
-    if (!isDefault) params.set(param, String(value))
+    if (Array.isArray(value)) {
+      for (const v of value) params.append(param, v)
+    } else if (key === 'query' ? value !== '' : value !== 'all') {
+      params.set(param, value)
+    }
   }
   return params
 }
@@ -51,8 +57,16 @@ export function filtersFromParams(
     [keyof FilterState, string]
   >) {
     const legacy = LEGACY_FILTER_PARAMS[key]
-    const raw = params.get(param) ?? (legacy ? params.get(legacy) : null)
-    if (raw != null) next[key] = raw
+    if (Array.isArray(base[key])) {
+      let values = params.getAll(param)
+      if (!values.length && legacy) values = params.getAll(legacy)
+      // 'all' was how a single-value link said "no filter".
+      values = values.filter((v) => v && v !== 'all')
+      if (values.length) next[key as MultiFilterKey] = [...new Set(values)]
+    } else {
+      const raw = params.get(param) ?? (legacy ? params.get(legacy) : null)
+      if (raw != null) (next as Record<string, unknown>)[key] = raw
+    }
   }
   return next
 }
@@ -62,15 +76,19 @@ const SCAFFOLD_EXTRA_METHODS = new Set(['skills', 'multi-agent', 'multiagent'])
 
 export const defaultFilters = (version: string | 'all' = 'all'): FilterState => ({
   version,
-  split: 'all',
-  framework: 'all',
-  llm_provider: 'all',
-  model: 'all',
-  optimization_method: 'all',
-  tag: 'all',
-  org: 'all',
+  split: [],
+  framework: [],
+  llm_provider: [],
+  model: [],
+  optimization_method: [],
+  tag: [],
+  org: [],
   query: '',
 })
+
+/** True when a multi-value facet is unset or contains `value`. */
+const allows = (chosen: string[], value: string | null | undefined) =>
+  chosen.length === 0 || (value != null && chosen.includes(value))
 
 /**
  * Filter options for Adaptation: only methods some submission actually used,
@@ -146,6 +164,45 @@ export function qualifyNames(rows: SubmissionSummary[]): SubmissionSummary[] {
   )
 }
 
+/** The values one entry has for a multi-value facet. */
+function facetValues(s: SubmissionSummary, key: MultiFilterKey): string[] {
+  switch (key) {
+    case 'llm_provider':
+      return s.vendor?.id ? [s.vendor.id] : []
+    case 'optimization_method': {
+      const methods = adaptationMethods(s)
+      return methods.length ? methods : ['None']
+    }
+    case 'tag':
+      return s.tags || []
+    case 'org':
+      return [s.org || '']
+    default: {
+      const v = s[key]
+      return v ? [v] : []
+    }
+  }
+}
+
+/**
+ * How many entries each value of a facet would show, given every other
+ * filter. A value missing here would empty the view, e.g. a model that has
+ * no entries in the chosen release.
+ */
+export function facetCounts(
+  rows: SubmissionSummary[],
+  filters: FilterState,
+  key: MultiFilterKey,
+): Map<string, number> {
+  const counts = new Map<string, number>()
+  for (const s of applyFilters(rows, { ...filters, [key]: [] })) {
+    for (const v of new Set(facetValues(s, key))) {
+      counts.set(v, (counts.get(v) ?? 0) + 1)
+    }
+  }
+  return counts
+}
+
 export function applyFilters(
   rows: SubmissionSummary[],
   filters: FilterState,
@@ -155,26 +212,25 @@ export function applyFilters(
     if (filters.version !== 'all' && s.benchmark_version !== filters.version) {
       return false
     }
-    if (filters.split !== 'all' && s.split !== filters.split) return false
-    if (filters.framework !== 'all' && s.framework !== filters.framework) {
-      return false
-    }
-    if (filters.llm_provider !== 'all' && s.vendor?.id !== filters.llm_provider) {
-      return false
-    }
-    if (filters.model !== 'all' && s.model !== filters.model) return false
-    if (filters.optimization_method !== 'all') {
+    // Values within one facet are alternatives; facets narrow each other.
+    if (!allows(filters.split, s.split)) return false
+    if (!allows(filters.framework, s.framework)) return false
+    if (!allows(filters.llm_provider, s.vendor?.id)) return false
+    if (!allows(filters.model, s.model)) return false
+    if (filters.optimization_method.length) {
       const methods = adaptationMethods(s)
-      if (filters.optimization_method === 'None') {
-        if (methods.length > 0) return false
-      } else if (!methods.includes(filters.optimization_method)) {
-        return false
-      }
+      const matches = filters.optimization_method.some((m) =>
+        m === 'None' ? methods.length === 0 : methods.includes(m),
+      )
+      if (!matches) return false
     }
-    if (filters.tag !== 'all' && !(s.tags || []).includes(filters.tag)) {
+    if (
+      filters.tag.length &&
+      !filters.tag.some((t) => (s.tags || []).includes(t))
+    ) {
       return false
     }
-    if (filters.org !== 'all' && (s.org || '') !== filters.org) return false
+    if (!allows(filters.org, s.org || '')) return false
     if (q) {
       const hay = [
         s.name,

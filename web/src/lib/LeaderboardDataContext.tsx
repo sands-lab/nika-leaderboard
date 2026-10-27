@@ -121,7 +121,7 @@ export function LeaderboardDataProvider({ children }: { children: ReactNode }) {
         (prev) => {
           const merged = new URLSearchParams(prev)
           for (const key of FILTER_PARAM_KEYS) merged.delete(key)
-          for (const [k, v] of filtersToParams(next)) merged.set(k, v)
+          for (const [k, v] of filtersToParams(next)) merged.append(k, v)
           return merged
         },
         { replace: true },

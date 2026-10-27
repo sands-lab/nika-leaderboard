@@ -10,23 +10,34 @@
       "ReAct"
     ],
     "llm_provider": [
+      "anthropic",
       "att",
       "google",
       "ku-dfi",
       "openai",
-      "qwen"
+      "ornith-ai",
+      "qwen",
+      "zai-org"
     ],
     "model": [
+      "Claude Haiku 5.5",
+      "Claude Opus 5.5",
+      "Claude Sonnet 5.5",
+      "GLM-4.7-Flash",
+      "GPT OSS 120B",
+      "GPT OSS 20B",
       "GPT-5",
-      "GPT-5-mini",
-      "GPT-OSS-20B",
+      "GPT-5 Mini",
+      "GPT-6.1 Sol",
+      "Gemma 4 31B IT",
       "OTel-2.0-LLM-31B-IT",
-      "Qwen3.5-27B",
-      "Qwen3.6-27B",
-      "Qwen3.6-35B-A3B-FP8",
+      "Ornith-1.5-122B",
+      "Qwen3 Coder Next FP8",
+      "Qwen3.5 27B",
+      "Qwen3.6 27B",
+      "Qwen3.6 35B A3B FP8",
       "Qwen3.8-27B-FP8",
-      "TelecomGPT-R1",
-      "gemma-4-31B-it"
+      "TelecomGPT-R1"
     ],
     "optimization_methods": [
       "GEPA",
@@ -41,6 +52,40 @@
       "test"
     ]
   },
+  "vendors": {
+    "anthropic": {
+      "label": "Anthropic",
+      "icon": "lobehub/anthropic.svg"
+    },
+    "att": {
+      "label": "AT&T",
+      "icon": "hf/att.webp"
+    },
+    "google": {
+      "label": "Google",
+      "icon": "lobehub/google.svg"
+    },
+    "ku-dfi": {
+      "label": "KU-DFI",
+      "icon": "hf/ku-dfi.webp"
+    },
+    "openai": {
+      "label": "OpenAI",
+      "icon": "lobehub/openai.svg"
+    },
+    "ornith-ai": {
+      "label": "Ornith.ai",
+      "icon": "hf/ornith-ai.webp"
+    },
+    "qwen": {
+      "label": "Qwen",
+      "icon": "lobehub/qwen.svg"
+    },
+    "zai-org": {
+      "label": "Z.ai",
+      "icon": "lobehub/zai.svg"
+    }
+  },
   "primary_metric": "mean_rca_f1",
   "ranking": {
     "method": "paired cluster bootstrap over cases",
@@ -48,5 +93,5 @@
     "seed": 0,
     "confidence": 0.95
   },
-  "generated_at": "2026-10-14T10:27:38+00:00"
+  "generated_at": "2026-10-27T07:35:47+00:00"
 }

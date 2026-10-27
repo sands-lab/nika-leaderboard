@@ -156,3 +156,31 @@ test('labels repeated across releases gain the release only in a mixed view', as
   await expect(table).toContainText('Qwen3.5 27B · ReAct · v0.2.0')
   await expect(table).not.toContainText('GPT-5 · ReAct · v0.1.0')
 })
+
+test('a filter takes several values, each kept in the link', async ({ page }) => {
+  await page.goto('/#/analytics/insights', { waitUntil: 'domcontentloaded' })
+  // The bar renders once data loads; only then is its phone toggle there.
+  const count = page.locator('.analytics-filters__count')
+  await expect(count).toBeVisible()
+  const showFilters = page.getByRole('button', { name: 'Show filters' })
+  if (await showFilters.isVisible()) await showFilters.click()
+  const before = await count.textContent()
+
+  await page.getByRole('button', { name: 'Model', exact: true }).click()
+  const options = page.locator('.multi-select__option')
+  const first = (await options.nth(0).locator('.multi-select__text').textContent())!.trim()
+  const second = (await options.nth(1).locator('.multi-select__text').textContent())!.trim()
+  await options.nth(0).locator('input').check()
+  await options.nth(1).locator('input').check()
+
+  await expect(page.getByRole('button', { name: 'Model', exact: true })).toContainText('2 models')
+  await expect(count).not.toHaveText(before!)
+  const params = new URLSearchParams(page.url().split('?')[1])
+  expect(params.getAll('model').sort()).toEqual([first, second].sort())
+
+  // Escape closes the menu; Clear filters empties the list again.
+  await page.keyboard.press('Escape')
+  await expect(page.locator('.multi-select__menu')).toHaveCount(0)
+  await page.getByRole('button', { name: 'Clear filters' }).click()
+  await expect(page.getByRole('button', { name: 'Model', exact: true })).toContainText('All')
+})

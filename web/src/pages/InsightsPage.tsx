@@ -576,6 +576,7 @@ export function InsightsPage() {
             filename="nika-performance-bubbles"
             height={560}
             empty={!points.length}
+            emptyMessage="No entries match the filters."
             zoomable
             zoomSlider={false}
             onChartReady={onChartReady}
