@@ -11,10 +11,17 @@
   "email": null,
   "trajectories_url": null,
   "trajectories_relpath": null,
-  "model": "Qwen3.5-27B",
+  "model": "Qwen3.5 27B",
+  "model_id": "qwen3.5-27b",
+  "submitted_model": "Qwen3.5-27B",
   "framework": "ReAct",
   "agent_type": "ReACT",
-  "llm_provider": "qwen",
+  "llm_provider": null,
+  "vendor": {
+    "id": "qwen",
+    "label": "Qwen",
+    "icon": "lobehub/qwen.svg"
+  },
   "tools": [],
   "skills": [],
   "optimization_methods": [
@@ -26,6 +33,7 @@
   "extra": {
     "gepa_variant": "d+s"
   },
+  "reasoning_effort": null,
   "benchmark_version": "0.1.0",
   "split": "test",
   "case_count": 150,
@@ -51,13 +59,18 @@
   "mean_tokens": 0.0,
   "mean_steps": 0.0,
   "total_tokens": 0,
+  "task_tokens": null,
   "max_steps": null,
   "case_timeout_sec": null,
   "created_at": "2026-09-10T12:00:00+00:00",
   "run_id": "preview-qwen3_5_27b_react_gepa_d_s",
   "official": false,
   "nika_git_commit": null,
-  "name": "Qwen3.5-27B · ReAct · GEPA (d+s)",
+  "model_icon": {
+    "label": "Qwen",
+    "icon": "lobehub/qwen.svg"
+  },
+  "name": "Qwen3.5 27B · ReAct · GEPA (d+s)",
   "readme": "# Qwen3.5-27B ReACT+GEPA (d+s)\n\nSlide-reported results on NIKA release 0.1.0. Aggregate metrics only; no per-trial results.",
   "trials": [],
   "rca_confusion": {

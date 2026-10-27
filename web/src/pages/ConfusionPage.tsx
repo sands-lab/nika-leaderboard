@@ -286,12 +286,6 @@ export function ConfusionPage() {
       <div className="confusion-layout">
         <EntryPicker
           selected={selected}
-          onToggle={(id) => {
-            const next = selected.includes(id)
-              ? selected.filter((x) => x !== id)
-              : [...selected, id]
-            syncUrl(next)
-          }}
           onSetSelected={syncUrl}
           subtitle={(s) => s.model || '—'}
         />

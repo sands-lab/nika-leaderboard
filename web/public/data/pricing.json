@@ -1,5 +1,5 @@
 {
-  "as_of": "2026-10-17",
+  "as_of": "2026-10-19",
   "currency": "USD",
   "unit": "per_million_tokens",
   "notes": "Reference token prices used to turn a submission's token counts into a monetary cost on the leaderboard's cost-performance chart. Proprietary models use the vendor's list API price. Open-weight models have no vendor price, so they carry a public hosted-inference quote for the same weights as a reference rate; that is a market price for someone else's serving, not the submitter's own cost. Each model keeps a dated list of `quotes`, appended only when a rate changes; a submission is priced with the latest quote retrieved on or before its package date (the earliest quote if it predates them all), so published costs never move. Entries with `status: unavailable` record that no public quote exists. Prices are editable in the UI without changing this file.",
@@ -50,6 +50,14 @@
           "output": 2.6,
           "source": "https://openrouter.ai/qwen/qwen3.5-27b",
           "retrieved": "2026-10-08"
+        },
+        {
+          "input": 0.27,
+          "output": 2.16,
+          "cache_read": 0.27,
+          "source": "https://openrouter.ai/qwen/qwen3.5-27b",
+          "retrieved": "2026-10-19",
+          "retrieved_via": "openrouter-api"
         }
       ]
     },
@@ -75,6 +83,14 @@
           "output": 2.0,
           "source": "https://openrouter.ai/qwen/qwen3.6-27b",
           "retrieved": "2026-10-08"
+        },
+        {
+          "input": 0.25,
+          "output": 2.0,
+          "cache_read": 0.025,
+          "source": "https://openrouter.ai/qwen/qwen3.6-27b",
+          "retrieved": "2026-10-19",
+          "retrieved_via": "openrouter-api"
         }
       ]
     },
@@ -88,6 +104,14 @@
           "output": 2.55,
           "source": "https://openrouter.ai/qwen/qwen3.8-27b",
           "retrieved": "2026-10-10"
+        },
+        {
+          "input": 0.24,
+          "output": 2.2,
+          "cache_read": 0.05,
+          "source": "https://openrouter.ai/qwen/qwen3.8-27b",
+          "retrieved": "2026-10-19",
+          "retrieved_via": "openrouter-api"
         }
       ]
     },
@@ -114,6 +138,13 @@
           "output": 0.34,
           "source": "https://openrouter.ai/google/gemma-4-31b-it",
           "retrieved": "2026-10-12"
+        },
+        {
+          "input": 0.2,
+          "output": 0.4,
+          "source": "https://openrouter.ai/google/gemma-4-31b-it",
+          "retrieved": "2026-10-19",
+          "retrieved_via": "openrouter-api"
         }
       ]
     },
@@ -201,6 +232,49 @@
           ]
         }
       ]
+    },
+    "gpt-6.1-sol": {
+      "basis": "api",
+      "provider": "OpenAI",
+      "quotes": [
+        {
+          "input": 2.0,
+          "output": 10.0,
+          "cache_read": 0.1,
+          "tiers": [
+            {
+              "min_prompt_tokens": 272000,
+              "input": 4,
+              "output": 15,
+              "cache_read": 0.2
+            }
+          ],
+          "source": "https://developers.openai.com/api/docs/pricing",
+          "retrieved": "2026-10-18",
+          "retrieved_via": "models.dev"
+        }
+      ]
+    },
+    "qwen3-coder-next-fp8": {
+      "basis": "hosted_open_weight",
+      "provider": "OpenRouter",
+      "note": "Quote for Qwen/Qwen3-Coder-Next; the run used the Qwen3-Coder-Next-FP8 checkpoint of the same weights. Hosted reference estimate, not the self-hosted GPU bill; provider serving precision is not specified by this quote.",
+      "quotes": [
+        {
+          "input": 0.12,
+          "output": 0.8,
+          "cache_read": 0.07,
+          "source": "https://openrouter.ai/qwen/qwen3-coder-next",
+          "retrieved": "2026-10-19",
+          "retrieved_via": "openrouter-api"
+        }
+      ]
+    },
+    "ornith-1.5-122b": {
+      "basis": "hosted_open_weight",
+      "provider": "none",
+      "status": "unavailable",
+      "note": "This run used self-hosted vLLM on ORIX GPUs. No verified, currently available public per-token price was established for this model. Token pricing is unavailable, not zero, and does not represent the compute cost of this run."
     }
   }
 }

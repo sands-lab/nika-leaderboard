@@ -206,14 +206,18 @@ export interface CatalogFile {
   cases: CatalogCase[]
 }
 
-export interface FilterState {
+/** Facets that take several values; an empty list means "all". */
+export type MultiFilterKey =
+  | 'split'
+  | 'framework'
+  | 'llm_provider'
+  | 'model'
+  | 'optimization_method'
+  | 'tag'
+  | 'org'
+
+export type FilterState = {
+  /** The release sets the scope, so it takes one value or 'all'. */
   version: string | 'all'
-  split: string | 'all'
-  framework: string | 'all'
-  llm_provider: string | 'all'
-  model: string | 'all'
-  optimization_method: string | 'all'
-  tag: string | 'all'
-  org: string | 'all'
   query: string
-}
+} & Record<MultiFilterKey, string[]>

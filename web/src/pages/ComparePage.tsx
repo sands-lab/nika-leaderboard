@@ -191,13 +191,6 @@ export function ComparePage() {
     setParams(next, { replace: true })
   }
 
-  const toggleId = (id: string) => {
-    const next = selected.includes(id)
-      ? selected.filter((x) => x !== id)
-      : [...selected, id]
-    syncUrl(next)
-  }
-
   const pairwise = useMemo(() => {
     const a = details.find((d) => d.id === pairA)
     const b = details.find((d) => d.id === pairB)
@@ -754,7 +747,6 @@ export function ComparePage() {
 
       <EntryPicker
         selected={selected}
-        onToggle={toggleId}
         onSetSelected={syncUrl}
       />
 

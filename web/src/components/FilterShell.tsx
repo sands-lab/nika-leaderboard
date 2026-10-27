@@ -54,6 +54,7 @@ export function FilterShell() {
       {(open || !narrow) && (
         <FiltersBar
           filters={filters}
+          submissions={submissions}
           metaFilters={meta.filters}
           vendors={meta.vendors}
           versions={meta.versions}

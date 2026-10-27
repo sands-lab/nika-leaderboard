@@ -410,13 +410,6 @@ export function MatrixPage() {
     )
   }
 
-  const toggleId = (id: string) => {
-    const next = selected.includes(id)
-      ? selected.filter((x) => x !== id)
-      : [...selected, id]
-    syncUrl(next)
-  }
-
   return (
     <div className="page">
       <div className="page__header">
@@ -434,7 +427,6 @@ export function MatrixPage() {
 
       <EntryPicker
         selected={selected}
-        onToggle={toggleId}
         onSetSelected={syncUrl}
         subtitle={(s) => s.model || '—'}
       />
