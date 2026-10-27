@@ -83,6 +83,25 @@ export function InsightsPage() {
     setChart(instance)
   }, [])
 
+  /**
+   * Opacity never repeats a metric already on an axis. When an axis takes the
+   * opacity metric, opacity takes the metric that axis gave up, or else the
+   * first metric on neither axis.
+   */
+  const setAxis = (axis: 'x' | 'y', next: BubbleAxisKey) => {
+    const prev = axis === 'x' ? xAxisKey : yAxisKey
+    const other = axis === 'x' ? yAxisKey : xAxisKey
+    if (axis === 'x') setXAxisKey(next)
+    else setYAxisKey(next)
+    if (opacityKey !== next) return
+    const free = (k: BubbleEncodeKey) => k !== next && k !== other
+    setOpacityKey(
+      free(prev)
+        ? prev
+        : (BUBBLE_OPACITY_OPTIONS.find((o) => free(o.key))?.key ?? 'fixed'),
+    )
+  }
+
   const swapAxes = () => {
     setXAxisKey(yAxisKey)
     setYAxisKey(xAxisKey)
@@ -455,7 +474,7 @@ export function InsightsPage() {
             X axis
             <select
               value={xAxisKey}
-              onChange={(e) => setXAxisKey(e.target.value as BubbleAxisKey)}
+              onChange={(e) => setAxis('x', e.target.value as BubbleAxisKey)}
             >
               {BUBBLE_AXIS_OPTIONS.map((o) => (
                 <option key={o.key} value={o.key}>
@@ -477,7 +496,7 @@ export function InsightsPage() {
             Y axis
             <select
               value={yAxisKey}
-              onChange={(e) => setYAxisKey(e.target.value as BubbleAxisKey)}
+              onChange={(e) => setAxis('y', e.target.value as BubbleAxisKey)}
             >
               {BUBBLE_AXIS_OPTIONS.map((o) => (
                 <option key={o.key} value={o.key}>
@@ -507,7 +526,11 @@ export function InsightsPage() {
               onChange={(e) => setOpacityKey(e.target.value as BubbleEncodeKey)}
             >
               {BUBBLE_OPACITY_OPTIONS.map((o) => (
-                <option key={o.key} value={o.key}>
+                <option
+                  key={o.key}
+                  value={o.key}
+                  disabled={o.key === xAxisKey || o.key === yAxisKey}
+                >
                   {o.label}
                 </option>
               ))}
