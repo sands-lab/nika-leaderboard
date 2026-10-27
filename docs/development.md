@@ -78,7 +78,9 @@ The resolver reads submitted `agent.model` values and queries public sources:
 
 Display names use models.dev: the vendor's listing first, otherwise the most common provider name for those weights, then the Hugging Face repository name as a fallback. Source links point to vendor or provider pages; `retrieved_via` identifies the service used for the lookup.
 
-New records and changed price quotes go into `catalog/models.json` and `catalog/pricing.json`, and model and vendor icons into `catalog/lobehub.json`, `catalog/hf_orgs.json`, and `web/public/providers/` (see [Model and vendor icons](#model-and-vendor-icons)). The workflow opens or updates `bot/model-metadata` with a report of changes, review notes, unresolved models, and source failures. If there are no catalog changes to propose, it creates no new proposal. It never merges its own updates or edits score packages.
+New records and changed price quotes go into `catalog/models.json` and `catalog/pricing.json`, and model and vendor icons into `catalog/lobehub.json`, `catalog/hf_orgs.json`, and `web/public/providers/` (see [Model and vendor icons](#model-and-vendor-icons)). The workflow opens or updates `bot/model-metadata` with a report of changes, review notes, unresolved models, and source failures. If there are no catalog changes to propose, it creates no new proposal. It never edits score packages.
+
+Proposals carry the `catalog-bot` label. The auto-merge workflow (`.github/workflows/auto-merge-catalog-bot.yml`) runs every six hours and merges a labelled proposal after two days without activity, bringing it up to date with `main` first if needed. Any comment, review, commit, or label change restarts the two days, so commenting is enough to hold a proposal for review. To stop a merge, request changes or convert the PR to a draft. Proposals with merge conflicts or failing checks are left open for a curator.
 
 The bot uses a GitHub App installation token, so its PRs trigger validation workflows automatically. There is no need to close and reopen them to start checks. Repository configuration requires the `CATALOG_BOT_APP_ID` Actions variable and `CATALOG_BOT_PRIVATE_KEY` secret.
 

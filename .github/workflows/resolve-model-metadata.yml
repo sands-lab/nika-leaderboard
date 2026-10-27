@@ -73,3 +73,6 @@ jobs:
           commit-message: "chore(catalog): resolve model release dates and reference prices"
           title: "chore(catalog): resolve model release dates and reference prices"
           body-path: ${{ runner.temp }}/report.md
+          # Marks the PR for auto-merge-catalog-bot.yml, which merges it once
+          # it has been idle for two days.
+          labels: catalog-bot
