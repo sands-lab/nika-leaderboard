@@ -1,0 +1,35 @@
+{
+  "case_key": "isp_di-yuan__link_capacity_b__h3f527f20073c",
+  "gt_fault_types": [
+    "link_capacity_bottleneck"
+  ],
+  "metrics": {
+    "detection_score": 0.0,
+    "fault_type_f1": 0.0,
+    "fault_type_precision": 0.0,
+    "fault_type_recall": 0.0,
+    "in_tokens": 229388,
+    "localization_accuracy": 0.0,
+    "localization_f1": 0.0,
+    "localization_precision": 0.0,
+    "localization_recall": 0.0,
+    "out_tokens": 2578,
+    "rca_accuracy": 0.0,
+    "rca_f1": 0.0,
+    "rca_precision": 0.0,
+    "rca_recall": 0.0,
+    "steps": 12,
+    "tool_calls": 26,
+    "tool_errors": 0
+  },
+  "outcome": "agent_failed",
+  "predicted_fault_types": null,
+  "problem": "link_capacity_bottleneck",
+  "scenario": "isp_di-yuan",
+  "score_status": "no_submission",
+  "trial_id": "isp_di-yuan__link_capacity_b__h3f527f20073c__t03",
+  "trial_index": 3,
+  "validity_flags": [
+    "no_submission"
+  ]
+}

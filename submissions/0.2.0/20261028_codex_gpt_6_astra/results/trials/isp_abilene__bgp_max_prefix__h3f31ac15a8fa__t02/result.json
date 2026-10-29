@@ -1,0 +1,35 @@
+{
+  "case_key": "isp_abilene__bgp_max_prefix__h3f31ac15a8fa",
+  "gt_fault_types": [
+    "bgp_max_prefix_exceeded"
+  ],
+  "metrics": {
+    "detection_score": 1.0,
+    "fault_type_f1": 1.0,
+    "fault_type_precision": 1.0,
+    "fault_type_recall": 1.0,
+    "in_tokens": 235270,
+    "localization_accuracy": 0.5,
+    "localization_f1": 0.6667,
+    "localization_precision": 1.0,
+    "localization_recall": 0.5,
+    "out_tokens": 2752,
+    "rca_accuracy": 0.5,
+    "rca_f1": 0.6667,
+    "rca_precision": 1.0,
+    "rca_recall": 0.5,
+    "steps": 9,
+    "tool_calls": 29,
+    "tool_errors": 0
+  },
+  "outcome": "success",
+  "predicted_fault_types": [
+    "bgp_max_prefix_exceeded"
+  ],
+  "problem": "bgp_max_prefix_exceeded",
+  "scenario": "isp_abilene",
+  "score_status": "scored",
+  "trial_id": "isp_abilene__bgp_max_prefix__h3f31ac15a8fa__t02",
+  "trial_index": 2,
+  "validity_flags": []
+}
