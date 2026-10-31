@@ -121,5 +121,12 @@
     "model_page": "https://huggingface.co/ornith-ai/Ornith-1.5-122B",
     "hf_repo": "ornith-ai/Ornith-1.5-122B",
     "retrieved_via": "huggingface-api"
+  },
+  "gpt-6-astra": {
+    "name": "GPT-6 Astra",
+    "released": "2026-09-04",
+    "release_source": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+    "model_page": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+    "retrieved_via": "models.dev"
   }
 }
