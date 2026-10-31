@@ -71,6 +71,10 @@ jobs:
           echo "Found packages:"
           printf '  - %s\n' "${PACKAGES[@]}"
 
+  # Validates each package with the NIKA CLI and explains the result in one
+  # comment on the PR, which is edited on every push (found by the
+  # `<!-- nika-validate -->` marker). The same report goes to the run summary.
+  # PRs from forks get only the summary: their GITHUB_TOKEN cannot comment.
   validate:
     needs: changes
     # Also run when discovery did not succeed, so a broken `changes` job fails
@@ -78,14 +82,16 @@ jobs:
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.packages != '') }}
     runs-on: ubuntu-latest
     steps:
+      # First, so the report step below can explain any later failure.
+      - name: Checkout PR
+        uses: actions/checkout@v7
+
       - name: Require package discovery
+        id: discovery
         if: needs.changes.result != 'success'
         run: |
           echo "::error::Submission package discovery did not succeed (${{ needs.changes.result }}); see the changes job."
           exit 1
-
-      - name: Checkout PR
-        uses: actions/checkout@v7
 
       - name: Set up uv
         uses: astral-sh/setup-uv@v9.0.0
@@ -93,14 +99,17 @@ jobs:
           python-version: "3.12"
 
       - name: Install NIKA
+        id: nika
         env:
           # Override with repo variable NIKA_REF to pin a branch/tag/commit.
           NIKA_REF: ${{ vars.NIKA_REF }}
         run: |
           set -euo pipefail
           REF="${NIKA_REF:-main}"
+          echo "ref=$REF" >> "$GITHUB_OUTPUT"
           # Editable clone keeps benchmark/releases on disk (needed by validate).
           git clone --depth 1 --branch "$REF" https://github.com/sands-lab/nika.git "$HOME/nika"
+          echo "sha=$(git -C "$HOME/nika" rev-parse HEAD)" >> "$GITHUB_OUTPUT"
           # uv sync, not pip: the CLI imports the default `labs` dependency group
           # (docker, kathara), which pip does not install.
           uv sync --project "$HOME/nika" --no-dev
@@ -113,32 +122,87 @@ jobs:
           fi
           echo "Using NIKA ref: ${REF}"
           nika leaderboard --help
+          # Older NIKA versions print plain-text errors only.
+          if COLUMNS=200 nika leaderboard validate --help | grep -- '--format' > /dev/null; then
+            echo "format=markdown" >> "$GITHUB_OUTPUT"
+          else
+            echo "format=text" >> "$GITHUB_OUTPUT"
+          fi
 
+      # Saves each package's validator output for the report step.
       - name: Validate packages
+        id: validate
+        if: steps.nika.outcome == 'success'
         env:
           PACKAGES: ${{ needs.changes.outputs.packages }}
+          FORMAT: ${{ steps.nika.outputs.format }}
+        shell: bash
+        run: |
+          set -uo pipefail
+          RESULTS="$RUNNER_TEMP/validation"
+          FAILED=0
+          N=0
+          while IFS= read -r pkg; do
+            [[ -z "$pkg" ]] && continue
+            N=$((N + 1))
+            out="$RESULTS/$(printf '%03d' "$N")"
+            mkdir -p "$out"
+            printf '%s\n' "$pkg" > "$out/package"
+            printf '%s\n' "$FORMAT" > "$out/format"
+            ARGS=()
+            [[ "$FORMAT" == "markdown" ]] && ARGS=(--format markdown)
+            echo "::group::validate $pkg"
+            # Absolute path: NIKA resolves relative ones against its own checkout.
+            # The report shortens it back to the repository path.
+            nika leaderboard validate "${ARGS[@]}" "$GITHUB_WORKSPACE/$pkg" > "$out/stdout" 2> "$out/stderr"
+            code=$?
+            echo "$code" > "$out/exit_code"
+            cat "$out/stderr" "$out/stdout"
+            echo "::endgroup::"
+            [[ "$code" -ne 0 ]] && FAILED=1
+          done <<< "$PACKAGES"
+          exit "$FAILED"
+
+      - name: Build report
+        if: ${{ !cancelled() }}
+        env:
+          DISCOVERY: ${{ steps.discovery.outcome }}
+          NIKA: ${{ steps.nika.outcome }}
+          NIKA_REF: ${{ steps.nika.outputs.ref }}
+          NIKA_SHA: ${{ steps.nika.outputs.sha }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
         shell: bash
         run: |
           set -euo pipefail
-          FAILED=0
-          SUMMARY=""
-          while IFS= read -r pkg; do
-            [[ -z "$pkg" ]] && continue
-            echo "::group::validate $pkg"
-            if nika leaderboard validate "$GITHUB_WORKSPACE/$pkg"; then
-              SUMMARY+="- ✅ \`$pkg\`\n"
-            else
-              SUMMARY+="- ❌ \`$pkg\`\n"
-              FAILED=1
-            fi
-            echo "::endgroup::"
-          done <<< "$PACKAGES"
-          {
-            echo "## Leaderboard validation"
-            echo ""
-            echo -e "$SUMMARY"
-          } >> "$GITHUB_STEP_SUMMARY"
-          exit "$FAILED"
+          ARGS=()
+          if [[ "$DISCOVERY" == "failure" ]]; then
+            ARGS=(--ci-error "CI could not work out which submission packages this pull request changes")
+          elif [[ "$NIKA" != "success" ]]; then
+            ARGS=(--ci-error "CI could not install the NIKA validator")
+          fi
+          python3 scripts/validation_report.py --results "$RUNNER_TEMP/validation" \
+            --nika-ref "$NIKA_REF" --nika-sha "$NIKA_SHA" --run-url "$RUN_URL" \
+            --summary "$GITHUB_STEP_SUMMARY" --comment "$RUNNER_TEMP/comment.md" "${ARGS[@]}"
+
+      - name: Post or update PR comment
+        if: ${{ !cancelled() && github.event.pull_request.head.repo.full_name == github.repository }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR: ${{ github.event.pull_request.number }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          [[ -f "$RUNNER_TEMP/comment.md" ]] || exit 0
+          id=$(gh api --paginate "repos/$GITHUB_REPOSITORY/issues/$PR/comments" \
+            --jq '.[] | select(.user.login == "github-actions[bot]" and (.body | startswith("<!-- nika-validate -->"))) | .id' \
+            | sed -n 1p)
+          if [[ -n "$id" ]]; then
+            gh api -X PATCH "repos/$GITHUB_REPOSITORY/issues/comments/$id" -F body=@"$RUNNER_TEMP/comment.md" > /dev/null
+            echo "Updated comment $id."
+          else
+            gh api "repos/$GITHUB_REPOSITORY/issues/$PR/comments" -F body=@"$RUNNER_TEMP/comment.md" > /dev/null
+            echo "Posted a new comment."
+          fi
 
   # Not a required check, by design: an entry shown without a model or vendor
   # icon is a display gap, so the maintainer decides whether to merge. Runs
