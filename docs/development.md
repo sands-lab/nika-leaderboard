@@ -192,7 +192,7 @@ Entry links use hash routes such as `#/entry/<release>/<package>`. When an ident
 
 ### Ranking and uncertainty
 
-Entries are compared within a benchmark release and split. Rank is one plus the number of entries with a significantly higher mean RCA F1, allowing ties when differences are not statistically distinguishable. Filtering recomputes ranks over the visible entries.
+Entries are compared within a benchmark release and split. Entries that are statistically indistinguishable share a rank, and the next group takes the next integer, so a tie at 1 is followed by 2. Filtering recomputes ranks over the visible entries.
 
 The builder uses a paired cluster bootstrap over benchmark tasks (`case_key`): 10,000 resamples, seed 0, and 95% confidence intervals. All trials of a task stay together, and compared entries use the same resampled tasks. The displayed margin is half the width of the percentile interval; the tooltip shows the full interval. Entries without usable per-trial results fall back to point-estimate comparison. See `rank_statistics` in [the data builder](../scripts/build_leaderboard_data.py) and [statistics tests](../tests/test_statistics.py).
 

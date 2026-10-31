@@ -576,11 +576,11 @@ def rank_statistics(
     summaries: list[dict[str, Any]],
     scores: dict[str, dict[str, float] | None],
 ) -> None:
-    """Annotate summaries with bootstrap CIs, ``beaten_by`` and ex-aequo ranks.
+    """Annotate summaries with bootstrap CIs, ``beaten_by`` and consecutive ranks.
 
-    ``rank = 1 + |beaten_by|``: an entry only drops below those that are
-    significantly better on the paired difference, so neighbours that are
-    statistically indistinguishable share a rank. Entries without per-trial
+    An entry only drops below those that are significantly better on the paired
+    difference, so statistically indistinguishable neighbours share a rank.
+    The next distinct group takes the next integer. Entries without per-trial
     data fall back to point-estimate comparison.
     """
     alpha = (1.0 - CONFIDENCE) / 2.0
@@ -631,7 +631,10 @@ def rank_statistics(
                 if better:
                     s["beaten_by"].append(other["id"])
             s["beaten_by"].sort()
-            s["rank"] = 1 + len(s["beaten_by"])
+        levels = sorted({len(s["beaten_by"]) for s in members})
+        rank_of = {n: i + 1 for i, n in enumerate(levels)}
+        for s in members:
+            s["rank"] = rank_of[len(s["beaten_by"])]
 
 
 def unique_sorted(values: set[Any]) -> list[Any]:
