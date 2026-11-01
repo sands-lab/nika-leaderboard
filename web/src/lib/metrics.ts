@@ -254,16 +254,34 @@ export function applyFilters(
 }
 
 /**
- * Ex-aequo rank among the visible rows: 1 + the number of visible entries of
- * the same release that are significantly better (precomputed `beaten_by`).
- * Entries that are statistically indistinguishable therefore share a rank,
- * and ranks never compare across releases with different case sets.
+ * Consecutive rank among the visible rows of the same release.
+ * Count how many visible same-release entries are significantly better
+ * (`beaten_by`), then number those counts 1, 2, 3 so ties share a rank and
+ * the next group is one higher. Ranks never compare across releases.
  */
 export function withRanks(rows: SubmissionSummary[]): SubmissionSummary[] {
   const visible = new Set(rows.map((s) => s.id))
+  const groups = new Map<string, SubmissionSummary[]>()
+  for (const s of rows) {
+    const key = `${s.benchmark_version}\0${s.split ?? ''}`
+    const list = groups.get(key)
+    if (list) list.push(s)
+    else groups.set(key, [s])
+  }
+  const rankById = new Map<string, number>()
+  for (const members of groups.values()) {
+    const beaten = members.map(
+      (s) => (s.beaten_by ?? []).filter((id) => visible.has(id)).length,
+    )
+    const levels = [...new Set(beaten)].sort((a, b) => a - b)
+    const rankOf = new Map(levels.map((n, i) => [n, i + 1]))
+    for (const [i, s] of members.entries()) {
+      rankById.set(s.id, rankOf.get(beaten[i]) ?? 1)
+    }
+  }
   const ranked = rows.map((s) => ({
     ...s,
-    rank: 1 + (s.beaten_by ?? []).filter((id) => visible.has(id)).length,
+    rank: rankById.get(s.id) ?? 1,
   }))
   return ranked.sort((a, b) => {
     if (a.benchmark_version !== b.benchmark_version) {
@@ -282,7 +300,10 @@ export function withRanks(rows: SubmissionSummary[]): SubmissionSummary[] {
 /** How many visible rows share this row's rank (ties are ex aequo). */
 export function tieCount(rows: SubmissionSummary[], s: SubmissionSummary): number {
   return rows.filter(
-    (o) => o.benchmark_version === s.benchmark_version && o.rank === s.rank,
+    (o) =>
+      o.benchmark_version === s.benchmark_version &&
+      o.split === s.split &&
+      o.rank === s.rank,
   ).length
 }
 
