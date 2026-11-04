@@ -4,43 +4,43 @@
       "title": "Anthropic",
       "icon": "lobehub/anthropic.svg",
       "variant": "mono",
-      "version": "1.99.0"
+      "version": "1.102.0"
     },
     "claude": {
       "title": "Claude",
       "icon": "lobehub/claude.svg",
       "variant": "color",
-      "version": "1.99.0"
+      "version": "1.102.0"
     },
     "gemma": {
       "title": "Gemma",
       "icon": "lobehub/gemma.svg",
       "variant": "color",
-      "version": "1.99.0"
+      "version": "1.102.0"
     },
     "google": {
       "title": "Google",
       "icon": "lobehub/google.svg",
       "variant": "color",
-      "version": "1.99.0"
+      "version": "1.102.0"
     },
     "openai": {
       "title": "OpenAI",
       "icon": "lobehub/openai.svg",
       "variant": "mono",
-      "version": "1.99.0"
+      "version": "1.102.0"
     },
     "qwen": {
       "title": "Qwen",
       "icon": "lobehub/qwen.svg",
       "variant": "mono",
-      "version": "1.99.0"
+      "version": "1.102.0"
     },
     "zai": {
       "title": "Z.ai",
       "icon": "lobehub/zai.svg",
       "variant": "mono",
-      "version": "1.99.0"
+      "version": "1.102.0"
     }
   },
   "models": {
