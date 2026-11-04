@@ -22,6 +22,7 @@ The site combines reviewed score packages with shared model and benchmark inform
 | `scripts/resolve_model_metadata.py` | Propose missing model metadata, changed prices, and model and vendor icons |
 | `scripts/validate_model_metadata.py` | Check catalog format and report pending models |
 | `scripts/check_vendor_icons.py` | Report packages that would show without a model or vendor icon |
+| `scripts/validation_report.py` | Build the submission validation comment from NIKA's validator output |
 | `web/src/` | Site components, pages, and browser-side calculations |
 | `web/public/data/` | Generated site data |
 | `tests/`, `web/e2e/` | Python tests and Playwright viewport checks |
@@ -39,6 +40,20 @@ uv run python scripts/build_leaderboard_data.py --skip-catalog-refresh
 ```
 
 The validator checks catalog format, including source URLs, dates, rates, quote ordering, and that every icon file exists. Models missing from the catalogs are reported as pending, not validation failures. The `model-metadata` job runs these tests and the validator on every pull request. A separate `validate` job uses the NIKA CLI to validate submission packages that the pull request adds or changes. It runs only when a `changes` job finds such a package; on other pull requests it is skipped, and GitHub counts the skipped job as passing.
+
+The `validate` job explains its result in a comment on the pull request, so submitters do not need to open the Actions log. [`scripts/validation_report.py`](../scripts/validation_report.py) builds the comment from the output of `nika leaderboard validate --format markdown`. It has one section per package, and each error gives its `ERROR_*` code, the likely cause, the fix, the affected trials or files, and a link to the matching section of the [submission guide](https://github.com/sands-lab/nika/blob/main/docs/benchmarks/leaderboard-submission.md). A footer names the NIKA ref and commit used for validation and links to the run. Headings mark the result as `[ x ]` (valid) or `[ ]` (not accepted). The job posts one comment per pull request, found by the hidden `<!-- nika-validate -->` marker, and edits it on every push. The same report goes to the run summary. If CI fails before it can check a package, for example because NIKA does not install, the comment says the problem is in CI, not in the submission. Pull requests from forks get only the run summary, because their token cannot comment. A NIKA ref without `--format` gets the validator's plain output in a code block.
+
+The `NIKA_REF` repository variable selects the NIKA branch, tag, or commit to validate with (default `main`). By default, NIKA compares packages with the release's `v<version>` tag in `sands-lab/nika`, so every release that accepts submissions needs that tag. To preview a comment locally, save each package's validator output and run the script:
+
+```shell
+mkdir -p /tmp/validation/001
+echo submissions/<release>/<package> > /tmp/validation/001/package
+echo markdown > /tmp/validation/001/format
+nika leaderboard validate --format markdown "$PWD/submissions/<release>/<package>" \
+  > /tmp/validation/001/stdout 2> /tmp/validation/001/stderr
+echo $? > /tmp/validation/001/exit_code
+python3 scripts/validation_report.py --results /tmp/validation --workspace "$PWD"
+```
 
 The `vendor-icons` job reports packages that the site would show without a model or vendor icon, with the `catalog/vendors.json` entry that would fix each one. A package passes when it has a saved icon, or when LobeHub or the vendor's Hugging Face organization has one that the resolver will download after merge. The job runs only on pull requests that add or change a submission package, checking those packages, and on the resolver bot's catalog proposals, checking every package. Other maintenance pull requests skip it. It is deliberately not a required check: a failure marks a display gap, and the maintainer decides whether to merge anyway. To run it locally:
 
