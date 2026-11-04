@@ -1,0 +1,112 @@
+name: Triage submission label
+
+# The `leaderboard-submit` label marks pull requests that add or change a
+# leaderboard submission package, and nothing else. A package is a
+# `submissions/<release>/<dir>/` directory that the PR touches and that has
+# `metadata.yaml` and `results/identity.yaml` at the PR head, the same rule
+# the `changes` job in validate-submission.yml uses. How the PR was created
+# does not matter; whether the package is valid is that workflow's job.
+#
+# This workflow adds the label to submission PRs that lack it, removes it from
+# other PRs, and removes it from issues. PRs are checked again on new commits
+# and whenever the label is added or removed by hand.
+#
+# pull_request_target is used so the label can also be changed on PRs opened
+# from forks, where the pull_request token is read-only. The job never checks
+# out or runs PR code; it reads the file list and file existence through the
+# API.
+on:
+  issues:
+    types: [opened, reopened, labeled, transferred]
+  pull_request_target:
+    types: [opened, reopened, synchronize, edited, labeled, unlabeled]
+
+permissions:
+  contents: read
+  issues: write
+  pull-requests: write
+
+# `opened` and `labeled` fire together when a PR is created with labels; run
+# one check per issue or PR at a time.
+concurrency:
+  group: triage-submission-label-${{ github.event.issue.number || github.event.pull_request.number }}
+  cancel-in-progress: false
+
+env:
+  LABEL: leaderboard-submit
+
+jobs:
+  issue:
+    if: github.event_name == 'issues' && contains(github.event.issue.labels.*.name, 'leaderboard-submit')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Remove label from issue
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.issue.number }}
+        run: |
+          set -euo pipefail
+          if ! gh issue view "$NUMBER" --json labels --jq '.labels[].name' | grep -qx "$LABEL"; then
+            exit 0
+          fi
+          gh issue edit "$NUMBER" --remove-label "$LABEL"
+          gh issue comment "$NUMBER" --body "Removed the \`$LABEL\` label: it is reserved for pull requests that add or change a leaderboard submission package."
+          echo "#$NUMBER: removed \`$LABEL\` from an issue." >> "$GITHUB_STEP_SUMMARY"
+
+  pull-request:
+    # Changes to other labels cannot affect the outcome.
+    if: >-
+      github.event_name == 'pull_request_target' &&
+      ((github.event.action != 'labeled' && github.event.action != 'unlabeled') ||
+       github.event.label.name == 'leaderboard-submit')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add or remove label
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          set -euo pipefail
+
+          # Package directories the PR touches, from added, changed, renamed,
+          # and removed paths alike.
+          dirs=$(gh api --paginate "repos/$GH_REPO/pulls/$NUMBER/files" \
+              --jq '.[] | .filename, (.previous_filename // empty)' \
+            | awk -F/ 'NF>=4 && $1=="submissions" { print $1"/"$2"/"$3 }' \
+            | sort -u)
+
+          exists() {
+            gh api "repos/$GH_REPO/contents/$1?ref=$HEAD_SHA" --silent 2>/dev/null
+          }
+
+          packages=()
+          for dir in $dirs; do
+            if exists "$dir/metadata.yaml" && exists "$dir/results/identity.yaml"; then
+              packages+=("$dir")
+            fi
+          done
+
+          labelled=false
+          if gh pr view "$NUMBER" --json labels --jq '.labels[].name' | grep -qx "$LABEL"; then
+            labelled=true
+          fi
+
+          if [[ ${#packages[@]} -gt 0 ]]; then
+            if [[ "$labelled" == false ]]; then
+              gh pr edit "$NUMBER" --add-label "$LABEL"
+              echo "#$NUMBER: added \`$LABEL\`." >> "$GITHUB_STEP_SUMMARY"
+            fi
+            {
+              echo "#$NUMBER is a submission PR. Packages:"
+              printf -- '- `%s`\n' "${packages[@]}"
+            } >> "$GITHUB_STEP_SUMMARY"
+          elif [[ "$labelled" == true ]]; then
+            gh pr edit "$NUMBER" --remove-label "$LABEL"
+            gh pr comment "$NUMBER" --body "Removed the \`$LABEL\` label: this pull request does not add or change a submission package. The label is reserved for pull requests that touch a \`submissions/<release>/<dir>/\` directory containing \`metadata.yaml\` and \`results/identity.yaml\`."
+            echo "#$NUMBER: not a submission PR; removed \`$LABEL\`." >> "$GITHUB_STEP_SUMMARY"
+          else
+            echo "#$NUMBER: not a submission PR." >> "$GITHUB_STEP_SUMMARY"
+          fi

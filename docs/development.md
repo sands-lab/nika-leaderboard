@@ -46,6 +46,8 @@ The `vendor-icons` job reports packages that the site would show without a model
 uv run python scripts/check_vendor_icons.py --all
 ```
 
+The `leaderboard-submit` label marks pull requests that add or change a submission package, whether `nika leaderboard submit` opened them or not. A package is a `submissions/<release>/<dir>/` directory that the pull request touches and that has `metadata.yaml` and `results/identity.yaml`, the same rule the `changes` job uses. The [label triage workflow](../.github/workflows/triage-submission-label.yml) adds the label to such pull requests and removes it, with an explanatory comment, from other pull requests and from issues. It checks pull requests again on new commits and when someone adds or removes the label. It does not check whether a package is valid; the `validate` job does.
+
 For web changes, run these commands from `web/`:
 
 ```shell
