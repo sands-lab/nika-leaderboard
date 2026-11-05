@@ -7,6 +7,14 @@ nears), a one-shot coverage reminder before a no-fault verdict and context compa
 digesting the oldest large tool outputs). Before submission, the fault types the layer recalls for the written report are
 appended to it as candidates (type aid). The model is claude-opus-5-5 (reasoning effort medium, at most 40 steps per case).
 
+## Profile
+
+This is the API-model profile of the layer: the model is reached through its provider's API with the benchmark's standard
+client, reasoning effort medium, at most 40 steps per case. The same layer runs in an open-weight profile for self-hosted
+models: a local vLLM server and the client settings a local model needs (the served model pinned, the context budget measured
+with the server's tokenizer and, for Gemma 4, the model card's sampling values with the model's reasoning text returned on
+tool-call turns). The profile changes how the model is reached and driven, not what the layer holds or how it recalls.
+
 ## What the layer holds (disclosed in full)
 
 The seed the agent recalls from has 200 active rows:

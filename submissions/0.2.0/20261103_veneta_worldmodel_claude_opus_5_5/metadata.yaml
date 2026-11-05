@@ -30,6 +30,8 @@ agent:
   - single-run
   - dev-derived-seed
   extra:
+    "governed memory & self-improvement layer_variant": "API-model profile"
+    model_profile: "API-model profile: the model is reached through its provider's API with the benchmark's standard client; the open-weight profile of the same layer (self-hosted models) differs in serving and local-model client settings only"
     runs: 1
     run_note: 'Single official run (85 cases x 3 trials); the leaderboard''s within-run
       bootstrap interval applies. A confirming run of the same stack scored 0.830
