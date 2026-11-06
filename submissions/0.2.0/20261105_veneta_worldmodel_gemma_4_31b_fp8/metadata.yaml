@@ -1,0 +1,80 @@
+info:
+  name: VENETA WorldModel, Telco edition
+  authors: VENETA Inc.
+  org: VENETA Inc.
+  site: https://veneta.ai
+  report: null
+  logo: null
+  email: null
+  github: null
+agent:
+  model: gemma-4-31b-fp8
+  framework: VENETA WorldModel
+  tools:
+  - containerlab_srl_mcp_server
+  - k8s_mcp_server
+  - kathara_base_mcp_server
+  - pingmesh_mcp_server
+  - packet_capture_mcp_server
+  - kathara_frr_mcp_server
+  - kathara_bmv2_mcp_server
+  - kathara_sdn_mcp_server
+  - kathara_telemetry_mcp_server
+  - task_mcp_server
+  skills: []
+  optimization_methods:
+  - governed memory & self-improvement layer
+  - coverage reminder
+  tags:
+  - memory
+  - single-run
+  - dev-derived-seed
+  extra:
+    governed memory & self-improvement layer_variant: open-weight profile
+    model_profile: 'open-weight profile: the model is self-hosted on vLLM with local-model
+      client settings; the API-model profile of the same layer (models reached through
+      a provider''s API) differs in serving and client only'
+    runs: 1
+    run_note: Single official run (85 cases x 3 trials); the leaderboard's within-run
+      bootstrap interval applies. No confirming run. Pre-registered on the dev-split
+      result of the same stack (dev rca_f1 0.415).
+    layer: 'VENETA WorldModel governed memory & self-improvement layer: seed of 74
+      fault-signature rows written from the public dev split (one per dev fault type,
+      no test content) plus rows adapted from the SADE community skills; recall by
+      task text and by evidence; outcomes of earlier cases in the same run written
+      back and recalled with same-case exclusion'
+    harness_controls: step-budget guard (one closing reminder); one-shot coverage
+      reminder before a no-fault verdict; context compaction only when the prompt
+      exceeds the window; type aid appended to the report before submission
+    trajectories: not included in this submission; to be published with the write-up
+    model_repository: RedHatAI/gemma-4-31B-it-FP8-dynamic
+    serving: vLLM, self-hosted on one DGX Spark; served name gemma-4-31b-fp8; max-model-len
+      131072; reasoning parser gemma4; tool-call parser gemma4; speculative decoding
+      MTP with google/gemma-4-31B-it-assistant (3 tokens)
+    client_settings: reasoning text sent back on tool-call turns of the current step;
+      sampling temperature 1.0, top-p 0.95, top-k 64 (Google's recommended values)
+      instead of temperature 0; context budget 131072 tokens measured with the server
+      tokenizer
+    recall_exception: '1 of 255 trials (k8s_lab__healthy__t03) ran without the memory
+      block: the embedding service answered HTTP 500 to its recall call during a host
+      incident at 06:31 on 2026-11-04; scored as is (1.0, healthy case reported healthy);
+      the other 254 trials recalled normally; the recall-integrity script reports
+      FAIL for this single infrastructure serving error, disclosed, not re-run'
+    environment_note: two environment variables of an unrelated tool were present
+      in the harness process and unused; every model call went to the local vLLM endpoint
+    llm_provider: custom
+    reasoning_effort: medium
+    max_tokens: 16384
+    max_steps: 100
+    nika_agent_id: veneta_agent_v12:VenetaScopedAgentV12
+    seed_active_rows: 200
+    seed_sade_skill_rows: 121
+    seed_contract_rows: 5
+    seed_fault_signature_rows: 74
+    seed_fault_signature_rows_with_outputs_clause: 10
+    seed_archived_rows_never_recalled: 74
+    seed_fault_signature_text_sha256: 743b1f4ab883b1e84f986215aa5a25b889f2f155b266051739a03e3f046ed297
+    seed_fault_signature_text_sha256_method: SHA-256 over the 74 active fault-signature
+      texts, sorted, one per line; exact command available to the maintainers on request
+    seed_source_split: dev (nika-bench 0.2.0 dev split); no test content
+    seed_hash_matches_submitted_run_memory: true
