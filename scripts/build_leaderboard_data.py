@@ -18,7 +18,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from model_catalog import find_key, validate_catalog  # noqa: E402
+from model_catalog import find_key, model_display_name, validate_catalog  # noqa: E402
 from vendors import (  # noqa: E402
     load_hf_orgs,
     load_lobehub,
@@ -366,13 +366,16 @@ def model_identity(repo_root: Path, submitted: str | None) -> dict[str, str | No
     """Display name and catalog key for a submitted ``agent.model``.
 
     Submitters spell models freely (``claude-sonnet-5-5``, ``Claude Opus 5.5``).
-    Once the model is catalogued, every page shows the catalog's display name;
-    until then the submitted string stands in.
+    Once the model is catalogued, every page shows the catalog's display name.
+    Until then, format the submitted ID without inventing catalog metadata.
     """
     models = model_catalog(repo_root)
     key = find_key(models, submitted)
-    name = (models.get(key) or {}).get("name") if key else None
-    return {"model": name or submitted, "model_id": key, "submitted_model": submitted}
+    return {
+        "model": model_display_name(submitted, models),
+        "model_id": key,
+        "submitted_model": submitted,
+    }
 
 
 @functools.cache

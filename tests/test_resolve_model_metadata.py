@@ -1,7 +1,13 @@
 import copy
+import contextlib
+import io
+import json
+import tempfile
 import unittest
 import urllib.error
 from datetime import date
+from pathlib import Path
+from unittest.mock import patch
 
 from scripts.model_catalog import validate_catalog
 from scripts.resolve_model_metadata import (
@@ -12,6 +18,7 @@ from scripts.resolve_model_metadata import (
     MODELS_DEV,
     OPENROUTER,
     Sources,
+    main,
     resolve,
 )
 
@@ -150,6 +157,76 @@ class ResolveNewModelsTest(unittest.TestCase):
         self.assertEqual(report.unresolved, ["`Mystery-7B`: no release date or price"])
         self.assertFalse(report.changed)
         self.assertEqual(pricing["as_of"], "2026-10-01")
+
+    def test_declared_repository_resolves_an_alias_without_catalog_or_host_listing(
+        self,
+    ):
+        models, pricing = empty_catalog()
+        repo = "Publisher/new-model-7B-FP8-dynamic"
+        data = {
+            HF_COMMITS.format(repo=repo, page=0): [
+                {"id": "weights", "date": "2026-04-15T09:00:00Z"}
+            ],
+            HF_TREE.format(repo=repo, rev="weights"): [{"path": "model.safetensors"}],
+        }
+        sources = Sources(
+            lambda url: copy.deepcopy(data[url]) if url in data else fetch(url)
+        )
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            (root / "catalog").mkdir()
+            for name, content in {
+                "models": models,
+                "pricing": pricing,
+                "vendors": {},
+                "hf_orgs": {},
+                "lobehub": {},
+            }.items():
+                (root / "catalog" / f"{name}.json").write_text(json.dumps(content))
+            package = root / "submissions/0.2.0/20261105_test"
+            (package / "results").mkdir(parents=True)
+            (package / "metadata.yaml").write_text(
+                f"agent:\n  model: local-alias\n  extra:\n    model_repository: {repo}\n"
+            )
+            (package / "results/identity.yaml").write_text("run: {}\n")
+            with (
+                patch(
+                    "sys.argv", ["resolve", "--repo-root", str(root), "--no-refresh"]
+                ),
+                patch("scripts.resolve_model_metadata.Sources", return_value=sources),
+                contextlib.redirect_stdout(io.StringIO()),
+            ):
+                self.assertEqual(main(), 0)
+            models = json.loads((root / "catalog/models.json").read_text())
+            pricing = json.loads((root / "catalog/pricing.json").read_text())
+        self.assertEqual(models["local-alias"]["hf_repo"], repo)
+        self.assertEqual(models["local-alias"]["name"], "New Model 7B FP8 Dynamic")
+        self.assertEqual(pricing["models"], {})
+        self.assertEqual(validate_catalog(models, pricing), [])
+
+    def test_conflicting_declared_repositories_need_review(self):
+        models, pricing = empty_catalog()
+        report = resolve(
+            models,
+            pricing,
+            ["local-alias"],
+            Sources(fetch),
+            TODAY,
+            repositories={"local-alias": {"org/one", "org/two"}},
+        )
+        self.assertEqual(models, {})
+        self.assertIn("conflicting declared repositories", report.review[0])
+
+    def test_reviewed_repository_wins_over_declared_repositories(self):
+        models, pricing = empty_catalog()
+        resolve(models, pricing, ["Qwen3.6-35B-A3B-FP8"], Sources(fetch), TODAY)
+        pricing["models"].clear()
+        report = resolve(
+            models, pricing, ["Qwen3.6-35B-A3B-FP8"], Sources(fetch), TODAY,
+            repositories={"Qwen3.6-35B-A3B-FP8": {"org/one", "org/two"}},
+        )
+        self.assertIn("qwen3.6-35b-a3b-fp8", pricing["models"])
+        self.assertFalse(any("conflicting" in line for line in report.review))
 
 
 class RefreshPricesTest(unittest.TestCase):

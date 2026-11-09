@@ -48,6 +48,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 from model_catalog import (  # noqa: E402
     UNAVAILABLE,
     find_key,
+    model_display_name,
     model_slug,
     submitted_models,
     validate_catalog,
@@ -65,6 +66,7 @@ from vendors import (  # noqa: E402
     lobehub_vendor_match,
     manual_model_icon,
     model_key,
+    submission_vendor,
     submitted_vendors,
 )
 
@@ -573,6 +575,7 @@ def resolve(
     sources: Sources,
     today: str,
     refresh: bool = True,
+    repositories: dict[str, set[str]] | None = None,
 ) -> Report:
     """Update ``models`` and ``pricing`` in place; describe the changes."""
     report = Report()
@@ -583,11 +586,22 @@ def resolve(
         if model_key and price_key:
             continue
         repo = (models.get(model_key) or {}).get("hf_repo") if model_key else None
+        declared = (repositories or {}).get(model) or set()
+        if not repo and len(declared) > 1:
+            report.review.append(
+                f"`{model}`: conflicting declared repositories: {', '.join(sorted(declared))}"
+            )
+            report.unresolved.append(f"`{model}`: repository needs review")
+            continue
+        repo = repo or next(iter(declared), None)
         res = None if repo else resolve_proprietary(sources, model, today)
         if res is None:
             res = resolve_open_weight(sources, model, today, repo)
         key = model_key or price_key or res.key
         if not model_key and res.model:
+            # Keep sourced display names; normalize a raw Hugging Face basename.
+            if res.model["name"] == res.model.get("hf_repo", "").rsplit("/", 1)[-1]:
+                res.model["name"] = model_display_name(res.model["name"], models)
             models[key] = res.model
             report.added_models.append(
                 f"`{key}` ({res.model['name']}): released {res.model['released']} "
@@ -859,13 +873,21 @@ def main() -> int:
     vendors = load_vendors(args.repo_root)
     sources = Sources()
     today = date.today().isoformat()
+    submitted = submitted_models(args.repo_root)
+    repositories: dict[str, set[str]] = {}
+    for model, packages in submitted.items():
+        for package in packages:
+            _, repo, _ = submission_vendor(args.repo_root / "submissions" / package, models, vendors)
+            if repo:
+                repositories.setdefault(model, set()).add(repo)
     report = resolve(
         models,
         pricing,
-        list(submitted_models(args.repo_root)),
+        list(submitted),
         sources,
         today,
         refresh=not args.no_refresh,
+        repositories=repositories,
     )
     # After the models: a newly catalogued hf_repo names the vendor. LobeHub
     # before Hugging Face, which only supplies avatars LobeHub lacks.
