@@ -89,7 +89,7 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
     ['Qwen3.8-27B-FP8', '2026-08-13', 'https://huggingface.co/Qwen/Qwen3.8-27B-FP8'],
     ['OTel-2.0-LLM-31B-IT', '2026-07-23', 'https://huggingface.co/farbodtavakkoli/OTel-2.0-LLM-31B-IT'],
   ]) {
-    const entry = submissions.find((s: { model: string }) => s.model === model)
+    const entry = submissions.find((s: { model: string; framework: string }) => s.model === model && s.framework === 'Claude Code')
     expect(entry.name).toBe(`${model} · Claude Code`)
     expect(entry.submission_name).toBeTruthy()
     const row = page
@@ -116,7 +116,8 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
       await expect(row.getByRole('img', { name: 'AT&T' }))
         .toHaveAttribute('src', /providers\/hf\/att\.webp$/)
     }
-    await row.locator('td').first().click()
+    await row.locator('.model-name').focus()
+    await row.locator('.model-name').press('Enter')
     await expect(page.locator('.lede')).toContainText(entry.name)
     for (const label of ['Trajectories on Hugging Face', 'Model page']) {
       await expect(page.getByRole('link', { name: label, exact: true }).first()).toBeVisible()

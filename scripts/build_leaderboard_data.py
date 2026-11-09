@@ -438,6 +438,18 @@ def load_submission(
     agent = metadata.get("agent") or {}
     bench = identity.get("benchmark") or {}
     run = identity.get("run") or {}
+    reviews_path = repo_root / "catalog" / "unverified.json"
+    reviews = load_json(reviews_path) if reviews_path.is_file() else {}
+    review = reviews.get(pid)
+    if pid in reviews and (
+        not isinstance(review, dict)
+        or not isinstance(review.get("reason"), str)
+        or not review["reason"].strip()
+    ):
+        raise ValueError(f"Unverified entry {pid} requires a reason")
+    verification_status = (
+        "unverified" if review is not None or not run.get("official") else "verified"
+    )
 
     n_expected = int(metrics.get("n_trials_expected") or 0) or len(trials)
     raw_n_success = metrics.get("n_success")
@@ -459,7 +471,7 @@ def load_submission(
     original_traj_rel = identity.get("trajectories_relpath")
     traj_rel = original_traj_rel
     trajectories_url = None
-    if isinstance(traj_rel, str) and traj_rel.strip():
+    if review is None and isinstance(traj_rel, str) and traj_rel.strip():
         framework = harness_name(agent.get("framework") or run.get("agent_type"))
         model = agent.get("model") or run.get("model")
         date = dirname.split("_", 1)[0]
@@ -521,6 +533,8 @@ def load_submission(
         "created_at": identity.get("created_at"),
         "run_id": run.get("run_id"),
         "official": run.get("official"),
+        "verification_status": verification_status,
+        "verification_reason": review["reason"] if review else None,
         "nika_git_commit": run.get("nika_git_commit"),
     }
 

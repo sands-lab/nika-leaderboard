@@ -6,6 +6,9 @@
   "deepseek-ai": {
     "llm_providers": ["deepseek"]
   },
+  "google": {
+    "models": ["gemma-4-31b-fp8"]
+  },
   "ku-dfi": {
     "label": "KU-DFI"
   },

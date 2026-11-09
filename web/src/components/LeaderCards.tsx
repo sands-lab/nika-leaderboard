@@ -145,6 +145,9 @@ function LeaderCard({ leader, index }: { leader: Leader; index: number }) {
         </h2>
         <p className="leader-card__stack">
           <span>{entry.framework || '—'}</span>
+          {entry.verification_status === 'unverified' && (
+            <span title={entry.verification_reason || 'Scores are self-reported'}>Unverified</span>
+          )}
           {skills.map((t) => (
             <span key={t} className="scaffold-tag">
               {t}
