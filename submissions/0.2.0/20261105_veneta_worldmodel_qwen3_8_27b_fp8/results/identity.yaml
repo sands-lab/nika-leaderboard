@@ -1,0 +1,22 @@
+created_at: '2026-11-05T21:15:16+00:00'
+benchmark:
+  id: nika-bench
+  version: 0.2.0
+  ref: nika-bench@0.2.0
+  split: test
+  case_count: 85
+  n_trials: 3
+  scoring_id: rule-based
+  leaderboard_primary: rca_f1
+run:
+  run_id: 5e0b1a4f7db41079
+  official: true
+  agent_type: veneta_agent_v15s:VenetaDirectedSignOffAgentV15S
+  model: qwen3.8-27b-fp8
+  llm_provider: custom
+  max_steps: 100
+  case_timeout_sec: 15000
+  nika_git_commit: ac4422d8a4a03be2b905e28edf72993d467e1b81
+  source_result_dir: results/official-qwen-v15s-2026-11-04-b15r1
+trajectories_relpath: trajectories/0.2.0/20261105_veneta_worldmodel_qwen3_8_27b_fp8
+scores_package: null
