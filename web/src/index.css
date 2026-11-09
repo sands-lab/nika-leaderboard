@@ -342,11 +342,7 @@ code {
   line-height: 1.55;
 }
 
-/*
- * Leader tiles: a compact stat tile each - label, number, then who - sized to
- * content rather than stretched to a quarter of the page, which had left the
- * name and its number at opposite ends of a wide card. The group is centred.
- */
+/* Centre the cards; keep each value beside its model information. */
 .leaders {
   display: flex;
   flex-wrap: wrap;
@@ -358,11 +354,15 @@ code {
 /* Compact on purpose: the tiles are a summary; the table is the page. */
 .leader-card {
   --accent: var(--muted);
-  flex: 0 1 19rem;
+  flex: 0 1 23rem;
   min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 0.28rem;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "axis axis"
+    "who value";
+  column-gap: 0.75rem;
+  row-gap: 0.5rem;
   padding: 0.6rem 0.95rem 0.65rem;
   background: var(--panel);
   border: 1px solid var(--line);
@@ -400,6 +400,7 @@ code {
 }
 
 .leader-card__axis {
+  grid-area: axis;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -423,9 +424,13 @@ code {
 }
 
 .leader-card__value {
+  grid-area: value;
+  align-self: center;
+  justify-self: end;
   display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
   margin: 0;
 }
 
@@ -455,10 +460,11 @@ code {
 
 /* Keep the model above its harness and verification status. */
 .leader-card__who {
+  grid-area: who;
   min-width: 0;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  align-items: center;
+  align-items: start;
   gap: 0.4rem;
 }
 
@@ -468,6 +474,7 @@ code {
 }
 
 .leader-card__name a {
+  min-width: 0;
   color: inherit;
 }
 
@@ -476,7 +483,11 @@ code {
 }
 
 .leader-card__name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
   min-width: 0;
+  min-height: 2.5em;
   margin: 0;
   font-size: 0.84rem;
   font-weight: 550;
@@ -484,6 +495,11 @@ code {
   line-height: 1.25;
   color: #c9d2df;
   overflow-wrap: anywhere;
+}
+
+.leader-card__name .verified-mark {
+  flex: none;
+  margin-left: 0;
 }
 
 .leader-card__stack {
@@ -499,10 +515,7 @@ code {
   overflow-wrap: anywhere;
 }
 
-/*
- * Phones: four slim full-width rows - label and who on the left, the number
- * on the right - so the summary stays short and the table starts on screen.
- */
+/* Use full-width cards on phones. */
 @media (max-width: 620px) {
   .leaders {
     gap: 0.6rem;
@@ -510,31 +523,12 @@ code {
 
   .leader-card {
     flex: 1 1 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "axis value"
-      "who value";
-    column-gap: 0.75rem;
     row-gap: 0.3rem;
     padding: 0.7rem 0.9rem;
   }
 
-  .leader-card__axis {
-    grid-area: axis;
-  }
-
   .leader-card__who {
-    grid-area: who;
     row-gap: 0.1rem;
-  }
-
-  .leader-card__value {
-    grid-area: value;
-    align-self: center;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0;
   }
 
   .leader-card__number {
