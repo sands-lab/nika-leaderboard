@@ -192,6 +192,8 @@ test('leader cards contain readable model names and exclude unknown costs', asyn
   await expect(astra).toBeVisible()
   await expect(astra).toContainText('None')
   await expect(page.locator('.leader-card--cheap')).not.toContainText('GPT-6 Astra')
+  await expect(page.locator('.leaders').getByText('Unverified', { exact: true })).toHaveCount(0)
+  await expect(page.locator('.leader-card--best').getByLabel('unverified', { exact: true })).toBeVisible()
   const response = await page.request.get('/data/index.json')
   const { submissions } = await response.json()
   const entry = submissions.find((s: { model_id: string }) => s.model_id === 'gpt-6-astra')

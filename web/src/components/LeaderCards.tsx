@@ -4,7 +4,7 @@ import { catalogEntry, formatUsd, modelKey, submissionCost } from '../lib/pricin
 import type { PriceMode, PriceOverrides, PricingFile } from '../lib/pricing'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
 import type { SubmissionSummary } from '../lib/types'
-import { ProviderIcon } from './LeaderboardTable'
+import { ProviderIcon, VerifiedMark } from './LeaderboardTable'
 
 type LeaderKind = 'best' | 'open' | 'cheap'
 
@@ -139,12 +139,12 @@ function LeaderCard({ leader, index }: { leader: Leader; index: number }) {
             {entry.model || entry.name}
             {entry.model && entry.reasoning_effort ? ` (${entry.reasoning_effort})` : ''}
           </Link>
+          {entry.verification_status === 'unverified' && (
+            <VerifiedMark official={entry.official} status={entry.verification_status} reason={entry.verification_reason} />
+          )}
         </h2>
         <p className="leader-card__stack">
           <span>{entry.framework || '—'}</span>
-          {entry.verification_status === 'unverified' && (
-            <span title={entry.verification_reason || 'Scores are self-reported'}>Unverified</span>
-          )}
         </p>
       </div>
     </article>
