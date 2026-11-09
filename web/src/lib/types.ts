@@ -79,6 +79,8 @@ export interface SubmissionSummary {
   n_agent_failed: number | null
   success_rate: number | null
   token_totals: TokenTotals
+  /** False when some trials lack usage; partial counts cannot estimate cost. */
+  token_usage_complete?: boolean
   steps_totals: StepsTotals
   /** Mean (in+out) tokens per expected trial. */
   mean_tokens: number | null

@@ -80,3 +80,4 @@ Every figure should state its result plainly and read at a glance; do not make r
 - Maintainers may accept self-reported entries through `catalog/unverified.json`, with an entry ID, reason, and source PR. This path requires scores-package validation and displays unverified status separately from `run.official`. Keep generated scores and identities unchanged. Merge only after the user's confirmation.
 - Preserve `submissions/.gitkeep` while the archive is empty.
 - Before handing off, run `git status --short` here and confirm that only the intended package, UI, catalog, or documentation files changed.
+- Before merging, review the final diff for bugs and remove unused helpers, temporary artifacts, abandoned variants, and unnecessary hash calculations. Keep regression tests for user-visible behavior and the normal leaderboard workflow. Require passing CI before an authorized merge, then verify the deployed site.

@@ -274,6 +274,7 @@ export function submissionCost(
   overrides: PriceOverrides,
   mode: PriceMode = 'frozen',
 ): SubmissionCost | null {
+  if (s.token_usage_complete === false) return null
   const price = priceFor(modelKey(s), pricing, overrides, {
     date: packageDate(s.dirname),
     mode,
@@ -324,6 +325,7 @@ export function taskTokens(
   stat: TaskStat,
   kind: TokenKind = 'all',
 ): number | null {
+  if (s.token_usage_complete === false) return null
   const pick = ([i, o]: [number, number]) =>
     kind === 'in_tokens' ? i : kind === 'out_tokens' ? o : i + o
   const values = (s.task_tokens ?? []).map(pick)
@@ -333,6 +335,7 @@ export function taskTokens(
 
 /** Mean tokens per trial, over the trials the package reported. */
 export function meanTaskTokens(s: SubmissionSummary, kind: TokenKind = 'all'): number | null {
+  if (s.token_usage_complete === false) return null
   const inTok = s.token_totals?.in_tokens ?? 0
   const outTok = s.token_totals?.out_tokens ?? 0
   const total = kind === 'in_tokens' ? inTok : kind === 'out_tokens' ? outTok : inTok + outTok

@@ -336,10 +336,10 @@ export function CostCell({
     const hasTokens =
       (s.token_totals?.in_tokens ?? 0) > 0 || (s.token_totals?.out_tokens ?? 0) > 0
     const status = priceStatus(modelKey(s), pricing)
-    if (!hasTokens || status === 'priced') {
+    if (s.token_usage_complete === false || !hasTokens || status === 'priced') {
       return (
-        <span className="num" title="This package reports no token accounting">
-          —
+        <span className="num" title="Token accounting is incomplete or unavailable; cost is unknown">
+          None
         </span>
       )
     }
