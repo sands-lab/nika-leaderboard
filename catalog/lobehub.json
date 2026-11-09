@@ -47,6 +47,7 @@
     "claude-haiku-5-5": "claude",
     "claude-opus-5-5": "claude",
     "claude-sonnet-5-5": "claude",
+    "gemma-4-31b-fp8": "gemma",
     "gemma-4-31b-it": "gemma",
     "qwen3-5-27b": "qwen",
     "qwen3-6-27b": "qwen",
