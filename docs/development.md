@@ -38,7 +38,11 @@ uv run python scripts/validate_model_metadata.py
 uv run python scripts/build_leaderboard_data.py --skip-catalog-refresh
 ```
 
-The validator checks catalog format, including source URLs, dates, rates, quote ordering, and that every icon file exists. Models missing from the catalogs are reported as pending, not validation failures. The `model-metadata` job runs these tests and the validator on every pull request. A separate `validate` job uses the NIKA CLI to validate submission packages that the pull request adds or changes. It runs only when a `changes` job finds such a package; on other pull requests it is skipped, and GitHub counts the skipped job as passing.
+The catalog validator checks source URLs, dates, rates, quote ordering, and icon files. Missing models remain pending. The `model-metadata` job runs these checks on each pull request.
+
+The required `validate` check runs when `changes` finds a new or changed scores package. It delegates package validation and trajectory auditing to NIKA’s reusable workflow, then requires that audit to succeed. Blocking findings and incomplete audits fail validation. Other maintenance PRs skip this check.
+
+The reusable workflow uses `NIKA_REF`, with its pinned auditor commit as the default. The selected revision must provide `leaderboard validate --fetch-trajectories`. It downloads the paired trajectories at an immutable Hub revision and publishes JSON reports with cited evidence. The PR comment links those reports; warnings require maintainer review. Forks with read-only comment tokens retain their reports in Actions artifacts and the job summary.
 
 The `vendor-icons` job reports packages that the site would show without a model or vendor icon, with the `catalog/vendors.json` entry that would fix each one. A package passes when it has a saved icon, or when LobeHub or the vendor's Hugging Face organization has one that the resolver will download after merge. The job runs only on pull requests that add or change a submission package, checking those packages, and on the resolver bot's catalog proposals, checking every package. Other maintenance pull requests skip it. It is deliberately not a required check: a failure marks a display gap, and the maintainer decides whether to merge anyway. To run it locally:
 

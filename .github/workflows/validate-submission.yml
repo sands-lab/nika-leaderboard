@@ -34,6 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       packages: ${{ steps.discover.outputs.packages }}
+      audit_matrix: ${{ steps.discover.outputs.audit_matrix }}
     steps:
       - name: Checkout PR
         uses: actions/checkout@v7
@@ -68,11 +69,29 @@ jobs:
             printf '%s\n' "${PACKAGES[@]}"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
+          python3 - "${PACKAGES[@]}" <<'PYTHON' >> "$GITHUB_OUTPUT"
+          import json, sys
+          print("audit_matrix=" + json.dumps({"include": [{"package": p, "artifact": "submission-audit-" + p.replace("/", "-")} for p in sys.argv[1:]]}))
+          PYTHON
           echo "Found packages:"
           printf '  - %s\n' "${PACKAGES[@]}"
 
-  validate:
+  trajectory-audit:
     needs: changes
+    if: needs.changes.outputs.packages != ''
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.changes.outputs.audit_matrix) }}
+    uses: sands-lab/nika/.github/workflows/submission-audit.yml@f5fd56e9a699b10e4d9e27d8acb1e8f40738dcfe
+    with:
+      package: ${{ matrix.package }}
+      artifact_name: ${{ matrix.artifact }}
+      scores_repository: ${{ github.repository }}
+      scores_ref: ${{ github.event.pull_request.head.sha }}
+      nika_ref: ${{ vars.NIKA_REF || 'f5fd56e9a699b10e4d9e27d8acb1e8f40738dcfe' }}
+
+  validate:
+    needs: [changes, trajectory-audit]
     # Also run when discovery did not succeed, so a broken `changes` job fails
     # this required check instead of skipping it.
     if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.packages != '') }}
@@ -84,61 +103,60 @@ jobs:
           echo "::error::Submission package discovery did not succeed (${{ needs.changes.result }}); see the changes job."
           exit 1
 
-      - name: Checkout PR
-        uses: actions/checkout@v7
+      - name: Require trajectory audit
+        if: needs.trajectory-audit.result != 'success'
+        run: |
+          echo "::error::Trajectory audit did not pass (${{ needs.trajectory-audit.result }}); inspect its evidence artifacts."
+          exit 1
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+
+  audit-report:
+    needs: [changes, trajectory-audit]
+    if: ${{ !cancelled() && needs.changes.outputs.packages != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
+    steps:
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
-          python-version: "3.12"
-
-      - name: Install NIKA
+          pattern: submission-audit-*
+          path: audit-reports
+      - name: Report the audit on the pull request
+        uses: actions/github-script@v7
+        continue-on-error: true
         env:
-          # Override with repo variable NIKA_REF to pin a branch/tag/commit.
-          NIKA_REF: ${{ vars.NIKA_REF }}
-        run: |
-          set -euo pipefail
-          REF="${NIKA_REF:-main}"
-          # Editable clone keeps benchmark/releases on disk (needed by validate).
-          git clone --depth 1 --branch "$REF" https://github.com/sands-lab/nika.git "$HOME/nika"
-          # uv sync, not pip: the CLI imports the default `labs` dependency group
-          # (docker, kathara), which pip does not install.
-          uv sync --project "$HOME/nika" --no-dev
-          echo "$HOME/nika/.venv/bin" >> "$GITHUB_PATH"
-          export PATH="$HOME/nika/.venv/bin:$PATH"
-          if ! nika --help 2>&1 | grep -q leaderboard; then
-            echo "::error::Installed NIKA from ref '${REF}' has no 'nika leaderboard' command."
-            nika --help || true
-            exit 1
-          fi
-          echo "Using NIKA ref: ${REF}"
-          nika leaderboard --help
+          AUDIT_RESULT: ${{ needs.trajectory-audit.result }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const marker = '<!-- nika-trajectory-audit -->';
+            const rows = [];
+            if (fs.existsSync('audit-reports')) {
+              for (const name of fs.readdirSync('audit-reports')) {
+                const file = path.join('audit-reports', name, 'audit.json');
+                if (!fs.existsSync(file)) continue;
+                const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+                const slug = String(report.package?.slug || '').replace(/[^a-zA-Z0-9_.-]/g, '');
+                const verdict = ['pass', 'warn', 'block'].includes(report.verdict) ? report.verdict : 'unknown';
+                const trials = Number.isSafeInteger(report.package?.n_trials) ? report.package.n_trials : '?';
+                rows.push('| ' + slug + ' | ' + verdict + ' | ' + trials + ' |');
+              }
+            }
+            const runUrl = context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId;
+            const body = marker + '\n## Trajectory audit\n\n' +
+              'Audit job: **' + process.env.AUDIT_RESULT + '**. [Reports and cited evidence](' + runUrl + ').\n\n' +
+              (rows.length ? '| Entry | Verdict | Trials |\n| --- | --- | --- |\n' + rows.join('\n') + '\n\n' : 'No completed audit report. Inspect the job failure before accepting this entry.\n\n') +
+              'Warnings require review. The audit preserves recorded trajectories and scores.';
+            await core.summary.addRaw(body).write();
+            const comments = await github.paginate(github.rest.issues.listComments, {...context.repo, issue_number: context.issue.number});
+            const previous = comments.find(c => c.user?.login === 'github-actions[bot]' && c.body?.includes(marker));
+            if (previous) await github.rest.issues.updateComment({...context.repo, comment_id: previous.id, body});
+            else await github.rest.issues.createComment({...context.repo, issue_number: context.issue.number, body});
 
-      - name: Validate packages
-        env:
-          PACKAGES: ${{ needs.changes.outputs.packages }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          FAILED=0
-          SUMMARY=""
-          while IFS= read -r pkg; do
-            [[ -z "$pkg" ]] && continue
-            echo "::group::validate $pkg"
-            if nika leaderboard validate "$GITHUB_WORKSPACE/$pkg"; then
-              SUMMARY+="- ✅ \`$pkg\`\n"
-            else
-              SUMMARY+="- ❌ \`$pkg\`\n"
-              FAILED=1
-            fi
-            echo "::endgroup::"
-          done <<< "$PACKAGES"
-          {
-            echo "## Leaderboard validation"
-            echo ""
-            echo -e "$SUMMARY"
-          } >> "$GITHUB_STEP_SUMMARY"
-          exit "$FAILED"
 
   # Not a required check, by design: an entry shown without a model or vendor
   # icon is a display gap, so the maintainer decides whether to merge. Runs

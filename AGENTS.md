@@ -31,6 +31,7 @@ Each submission package must have exactly the generated shape:
 ```text
 README.md
 metadata.yaml
+audit.json             # optional generated integrity report; no full trajectories
 results/
   identity.yaml          # may include trajectories_relpath
   metrics.json
