@@ -418,7 +418,9 @@ export function EntryPage() {
             ['Run size', hasTokens && runSize],
             [
               'Accounting',
-              !hasTokens && 'This package reports no token counts, so no cost',
+              s.token_usage_complete === false
+                ? 'Token accounting is incomplete; cost is unavailable.'
+                : !hasTokens && 'This package reports no token counts, so no cost',
             ],
           ]}
         />

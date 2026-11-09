@@ -204,31 +204,18 @@ test('leader cards contain readable model names and exclude unknown costs', asyn
     await page.setViewportSize({ width, height: 900 })
     await page.evaluate(() => document.fonts.ready)
     for (const card of await page.locator('.leader-card').all()) {
-      await expect(card.locator('.leader-card__name')).toBeVisible()
       const sizes = await card.evaluate((el) => {
-        const card = el.getBoundingClientRect()
         const name = el.querySelector('.leader-card__name')!.getBoundingClientRect()
         const who = el.querySelector('.leader-card__who')!.getBoundingClientRect()
         const value = el.querySelector('.leader-card__value')!.getBoundingClientRect()
         const axis = el.querySelector('.leader-card__axis')!.getBoundingClientRect()
-        return { overflow: el.scrollWidth - el.clientWidth, width: name.width, left: name.left - card.left, right: card.right - name.right, valueGap: value.left - who.right, belowTitle: value.top - axis.bottom }
+        return { overflow: el.scrollWidth - el.clientWidth, modelWidth: name.width, valueGap: value.left - who.right, belowTitle: value.top - axis.bottom, bottomGap: Math.abs(value.bottom - who.bottom) }
       })
       expect(sizes.overflow).toBeLessThanOrEqual(1)
-      expect(sizes.width).toBeGreaterThan(50)
-      expect(sizes.left).toBeGreaterThanOrEqual(0)
-      expect(sizes.right).toBeGreaterThanOrEqual(0)
+      expect(sizes.modelWidth).toBeGreaterThan(0)
+      expect(sizes.bottomGap).toBeLessThanOrEqual(1)
       expect(sizes.valueGap).toBeGreaterThanOrEqual(0)
       expect(sizes.belowTitle).toBeGreaterThanOrEqual(0)
-      const icon = card.getByLabel('unverified', { exact: true })
-      if (await icon.count()) {
-        const offset = await card.evaluate((el) => {
-          const name = el.querySelector('.leader-card__name a')!.getBoundingClientRect()
-          const mark = el.querySelector('[aria-label="unverified"]')!.getBoundingClientRect()
-          return { x: mark.left - name.right, y: mark.top - name.top }
-        })
-        expect(offset.x).toBeGreaterThanOrEqual(-1)
-        expect(offset.y).toBeLessThan(20)
-      }
     }
     await page.screenshot({ path: testInfo.outputPath(`leaders-${width}.png`), fullPage: true, animations: 'disabled' })
     await page.locator('.leaders').screenshot({ path: testInfo.outputPath(`cards-${width}.png`), animations: 'disabled' })

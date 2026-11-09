@@ -468,7 +468,6 @@ code {
 }
 
 .leader-card__who .provider-icon {
-  flex: none;
   margin: 0;
 }
 
@@ -503,10 +502,6 @@ code {
 .leader-card__stack {
   grid-column: 2;
   min-width: 0;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.28rem;
   margin: 0;
   font-size: 0.76rem;
   color: var(--muted);
