@@ -82,13 +82,15 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.changes.outputs.audit_matrix) }}
-    uses: sands-lab/nika/.github/workflows/submission-audit.yml@f5fd56e9a699b10e4d9e27d8acb1e8f40738dcfe
+    uses: sands-lab/nika/.github/workflows/submission-audit.yml@0c19638a49f41a90f9103bbf0928e9301d50fe53
+    secrets:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
     with:
       package: ${{ matrix.package }}
       artifact_name: ${{ matrix.artifact }}
       scores_repository: ${{ github.repository }}
       scores_ref: ${{ github.event.pull_request.head.sha }}
-      nika_ref: ${{ vars.NIKA_REF || 'f5fd56e9a699b10e4d9e27d8acb1e8f40738dcfe' }}
+      nika_ref: ${{ vars.NIKA_REF || '0c19638a49f41a90f9103bbf0928e9301d50fe53' }}
 
   validate:
     needs: [changes, trajectory-audit]

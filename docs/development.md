@@ -44,6 +44,8 @@ The required `validate` check runs when `changes` finds a new or changed scores 
 
 The reusable workflow uses `NIKA_REF`, with its pinned auditor commit as the default. The selected revision must provide `leaderboard validate --fetch-trajectories`. It downloads the paired trajectories at an immutable Hub revision and publishes JSON reports with cited evidence. The PR comment links those reports; warnings require maintainer review. Forks with read-only comment tokens retain their reports in Actions artifacts and the job summary.
 
+For restricted trajectories, configure a read token as the repository secret `HF_TOKEN`. Fork pull requests do not receive repository secrets and cannot download restricted trajectories through this workflow.
+
 The `vendor-icons` job reports packages that the site would show without a model or vendor icon, with the `catalog/vendors.json` entry that would fix each one. A package passes when it has a saved icon, or when LobeHub or the vendor's Hugging Face organization has one that the resolver will download after merge. The job runs only on pull requests that add or change a submission package, checking those packages, and on the resolver bot's catalog proposals, checking every package. Other maintenance pull requests skip it. It is deliberately not a required check: a failure marks a display gap, and the maintainer decides whether to merge anyway. To run it locally:
 
 ```shell
