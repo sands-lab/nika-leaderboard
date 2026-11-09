@@ -342,28 +342,22 @@ code {
   line-height: 1.55;
 }
 
-/* Centre the cards; keep each value beside its model information. */
+/* Equal-width cards with model information and values aligned at the bottom. */
 .leaders {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  margin: 0.6rem 0 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.1rem;
 }
 
 /* Compact on purpose: the tiles are a summary; the table is the page. */
 .leader-card {
   --accent: var(--muted);
-  flex: 0 1 23rem;
   min-width: 0;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
-  grid-template-areas:
-    "axis axis"
-    "who value";
-  column-gap: 0.75rem;
-  row-gap: 0.5rem;
-  padding: 0.6rem 0.95rem 0.65rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -400,7 +394,6 @@ code {
 }
 
 .leader-card__axis {
-  grid-area: axis;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -424,18 +417,24 @@ code {
 }
 
 .leader-card__value {
-  grid-area: value;
-  align-self: center;
-  justify-self: end;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
   gap: 0;
   margin: 0;
+  flex-shrink: 0;
+}
+
+.leader-card__body {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.6rem;
 }
 
 .leader-card__number {
-  font-size: 1.45rem;
+  font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
@@ -451,7 +450,7 @@ code {
 }
 
 .leader-card__unit {
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
@@ -460,12 +459,12 @@ code {
 
 /* Keep the model above its harness and verification status. */
 .leader-card__who {
-  grid-area: who;
   min-width: 0;
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
   gap: 0.4rem;
+  row-gap: 0.2rem;
 }
 
 .leader-card__who .provider-icon {
@@ -482,17 +481,16 @@ code {
   color: var(--brand-ink);
 }
 
-.leader-card__name {
+.leader-card .leader-card__name {
   display: flex;
   align-items: baseline;
   gap: 0.25rem;
   min-width: 0;
-  min-height: 2.5em;
   margin: 0;
-  font-size: 0.84rem;
-  font-weight: 550;
+  font-size: 0.98rem;
+  font-weight: 650;
   letter-spacing: -0.02em;
-  line-height: 1.25;
+  line-height: 1.2;
   color: #c9d2df;
   overflow-wrap: anywhere;
 }
@@ -515,24 +513,17 @@ code {
   overflow-wrap: anywhere;
 }
 
+@media (max-width: 1100px) {
+  .leaders {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
 /* Use full-width cards on phones. */
 @media (max-width: 620px) {
   .leaders {
+    grid-template-columns: 1fr;
     gap: 0.6rem;
-  }
-
-  .leader-card {
-    flex: 1 1 100%;
-    row-gap: 0.3rem;
-    padding: 0.7rem 0.9rem;
-  }
-
-  .leader-card__who {
-    row-gap: 0.1rem;
-  }
-
-  .leader-card__number {
-    font-size: 1.3rem;
   }
 
   /* CSV downloads and extra columns are desk tasks; on a phone the row keeps

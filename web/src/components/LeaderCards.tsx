@@ -118,33 +118,34 @@ function LeaderCard({ leader, index }: { leader: Leader; index: number }) {
       style={{ animationDelay: `${index * 70}ms` }}
       title={leader.note}
     >
-      {/* A stat tile, read top to bottom: the question, the answer, who. */}
       <p className="leader-card__axis">
         <svg className="leader-card__icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d={LEADER_ICONS[leader.kind]} />
         </svg>
         {leader.axis}
       </p>
-      <p className="leader-card__value">
-        <span className="leader-card__number">{leader.value}</span>
-        <span className="leader-card__unit">{leader.unit}</span>
-      </p>
-      <div className="leader-card__who">
-        <ProviderIcon vendor={entry.vendor} model={entry.model_icon} />
-        <h2 className="leader-card__name">
-          <Link
-            to={{ pathname: entryPath(entry.id), search }}
-            title={`${entry.name}: view details`}
-          >
-            {entry.model || entry.name}
-            {entry.model && entry.reasoning_effort ? ` (${entry.reasoning_effort})` : ''}
-          </Link>
-          {entry.verification_status === 'unverified' && (
-            <VerifiedMark official={entry.official} status={entry.verification_status} reason={entry.verification_reason} />
-          )}
-        </h2>
-        <p className="leader-card__stack">
-          <span>{entry.framework || '—'}</span>
+      <div className="leader-card__body">
+        <div className="leader-card__who">
+          <ProviderIcon vendor={entry.vendor} model={entry.model_icon} />
+          <h2 className="leader-card__name">
+            <Link
+              to={{ pathname: entryPath(entry.id), search }}
+              title={`${entry.name}: view details`}
+            >
+              {entry.model || entry.name}
+              {entry.model && entry.reasoning_effort ? ` (${entry.reasoning_effort})` : ''}
+            </Link>
+            {entry.verification_status === 'unverified' && (
+              <VerifiedMark official={entry.official} status={entry.verification_status} reason={entry.verification_reason} />
+            )}
+          </h2>
+          <p className="leader-card__stack">
+            <span>{entry.framework || '—'}</span>
+          </p>
+        </div>
+        <p className="leader-card__value">
+          <span className="leader-card__number">{leader.value}</span>
+          <span className="leader-card__unit">{leader.unit}</span>
         </p>
       </div>
     </article>

@@ -231,5 +231,6 @@ test('leader cards contain readable model names and exclude unknown costs', asyn
       }
     }
     await page.screenshot({ path: testInfo.outputPath(`leaders-${width}.png`), fullPage: true, animations: 'disabled' })
+    await page.locator('.leaders').screenshot({ path: testInfo.outputPath(`cards-${width}.png`), animations: 'disabled' })
   }
 })
