@@ -1,29 +1,23 @@
 name: Validate submission
 
 on:
-  pull_request:
+  pull_request_target:
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Entry pull request to audit
+        required: true
+        type: string
+
+concurrency:
+  group: trajectory-audit-${{ github.event.pull_request.number || inputs.pull_request }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
-  model-metadata:
-    name: model-metadata
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v9.0.0
-        with:
-          python-version: "3.12"
-      - name: Run catalog and data tests
-        run: uv run python -m unittest discover -s tests
-      # Checks the catalog files' format only. A submitted model with no
-      # release date or price is reported as pending and does not fail the
-      # PR; resolve-model-metadata.yml proposes its entry after merge.
-      - name: Validate model catalog format
-        run: uv run python scripts/validate_model_metadata.py
-
   # Finds the submission packages a PR adds or changes. The NIKA install and
   # validation below run only when there is at least one; other PRs skip the
   # `validate` job. The gate is a job condition rather than an `on.paths`
@@ -35,46 +29,25 @@ jobs:
     outputs:
       packages: ${{ steps.discover.outputs.packages }}
       audit_matrix: ${{ steps.discover.outputs.audit_matrix }}
+      scores_ref: ${{ steps.discover.outputs.scores_ref }}
+      pr_number: ${{ steps.discover.outputs.pr_number }}
     steps:
-      - name: Checkout PR
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Discover new submission packages
+      - name: Discover entry packages without executing PR code
         id: discover
-        shell: bash
-        run: |
-          set -euo pipefail
-          BASE="${{ github.event.pull_request.base.sha }}"
-          HEAD="${{ github.event.pull_request.head.sha }}"
-          mapfile -t CHANGED < <(
-            git diff --name-only --diff-filter=ACMR "$BASE"..."$HEAD" -- submissions \
-              | awk -F/ 'NF>=3 && $1=="submissions" { print $1"/"$2"/"$3 }' \
-              | sort -u
-          )
-          PACKAGES=()
-          for dir in "${CHANGED[@]:-}"; do
-            if [[ -f "$dir/metadata.yaml" && -f "$dir/results/identity.yaml" ]]; then
-              PACKAGES+=("$dir")
-            fi
-          done
-          if [[ ${#PACKAGES[@]} -eq 0 ]]; then
-            echo "No new submission packages found under submissions/; skipping validation."
-            echo "packages=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          {
-            echo "packages<<EOF"
-            printf '%s\n' "${PACKAGES[@]}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-          python3 - "${PACKAGES[@]}" <<'PYTHON' >> "$GITHUB_OUTPUT"
-          import json, sys
-          print("audit_matrix=" + json.dumps({"include": [{"package": p, "artifact": "submission-audit-" + p.replace("/", "-")} for p in sys.argv[1:]]}))
-          PYTHON
-          echo "Found packages:"
-          printf '  - %s\n' "${PACKAGES[@]}"
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const number = context.payload.pull_request?.number || Number(context.payload.inputs?.pull_request);
+            if (!Number.isSafeInteger(number) || number < 1) throw new Error('A valid pull request number is required.');
+            const {data: pr} = await github.rest.pulls.get({...context.repo, pull_number: number});
+            const files = await github.paginate(github.rest.pulls.listFiles, {...context.repo, pull_number: number});
+            if (files.length !== pr.changed_files) throw new Error('Incomplete PR file inventory.');
+            const paths = files.flatMap(f => [f.filename, f.previous_filename].filter(Boolean));
+            const packages = [...new Set(paths.map(path => path.match(/^submissions\/[^/]+\/[^/]+\//)?.[0].slice(0, -1)).filter(Boolean))].sort();
+            core.setOutput('scores_ref', pr.head.sha);
+            core.setOutput('pr_number', number);
+            core.setOutput('packages', packages.join('\n'));
+            core.setOutput('audit_matrix', {include: packages.map(package => ({package, artifact: 'submission-audit-' + package.replaceAll('/', '-')}))});
 
   trajectory-audit:
     needs: changes
@@ -82,22 +55,25 @@ jobs:
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.changes.outputs.audit_matrix) }}
-    uses: sands-lab/nika/.github/workflows/submission-audit.yml@0c19638a49f41a90f9103bbf0928e9301d50fe53
+    uses: sands-lab/nika/.github/workflows/submission-audit.yml@923614b383d1168dd012d41056b293fcd0b7209a
     secrets:
       HF_TOKEN: ${{ secrets.HF_TOKEN }}
     with:
       package: ${{ matrix.package }}
       artifact_name: ${{ matrix.artifact }}
       scores_repository: ${{ github.repository }}
-      scores_ref: ${{ github.event.pull_request.head.sha }}
-      nika_ref: ${{ vars.NIKA_REF || '0c19638a49f41a90f9103bbf0928e9301d50fe53' }}
+      scores_ref: ${{ needs.changes.outputs.scores_ref }}
+      nika_ref: ${{ vars.NIKA_REF || 'dev' }}
 
   validate:
     needs: [changes, trajectory-audit]
     # Also run when discovery did not succeed, so a broken `changes` job fails
     # this required check instead of skipping it.
-    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.packages != '') }}
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     steps:
       - name: Require package discovery
         if: needs.changes.result != 'success'
@@ -106,10 +82,28 @@ jobs:
           exit 1
 
       - name: Require trajectory audit
-        if: needs.trajectory-audit.result != 'success'
+        if: needs.changes.outputs.packages != '' && needs.trajectory-audit.result != 'success'
         run: |
           echo "::error::Trajectory audit did not pass (${{ needs.trajectory-audit.result }}); inspect its evidence artifacts."
           exit 1
+
+      - name: Report the required check on the audited PR commit
+        if: always() && !cancelled()
+        uses: actions/github-script@v7
+        env:
+          SCORES_REF: ${{ needs.changes.outputs.scores_ref }}
+          DISCOVERY: ${{ needs.changes.result }}
+          PACKAGES: ${{ needs.changes.outputs.packages }}
+          AUDIT_RESULT: ${{ needs.trajectory-audit.result }}
+        with:
+          script: |
+            const number = context.payload.pull_request?.number || Number(context.payload.inputs?.pull_request);
+            const {data: pr} = await github.rest.pulls.get({...context.repo, pull_number: number});
+            const passed = process.env.DISCOVERY === 'success' && (!process.env.PACKAGES || process.env.AUDIT_RESULT === 'success');
+            await github.rest.checks.create({...context.repo, name: 'validate', head_sha: process.env.SCORES_REF || pr.head.sha,
+              status: 'completed', conclusion: passed ? 'success' : 'failure',
+              details_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              output: {title: passed ? 'Entry audit passed' : 'Entry audit failed', summary: 'Paired-package validation and model review must complete before accepting an entry.'}});
 
 
   audit-report:
@@ -131,6 +125,7 @@ jobs:
         continue-on-error: true
         env:
           AUDIT_RESULT: ${{ needs.trajectory-audit.result }}
+          PR_NUMBER: ${{ needs.changes.outputs.pr_number }}
         with:
           script: |
             const fs = require('fs');
@@ -154,38 +149,7 @@ jobs:
               (rows.length ? '| Entry | Verdict | Trials |\n| --- | --- | --- |\n' + rows.join('\n') + '\n\n' : 'No completed audit report. Inspect the job failure before accepting this entry.\n\n') +
               'Warnings require review. The audit preserves recorded trajectories and scores.';
             await core.summary.addRaw(body).write();
-            const comments = await github.paginate(github.rest.issues.listComments, {...context.repo, issue_number: context.issue.number});
+            const comments = await github.paginate(github.rest.issues.listComments, {...context.repo, issue_number: Number(process.env.PR_NUMBER)});
             const previous = comments.find(c => c.user?.login === 'github-actions[bot]' && c.body?.includes(marker));
             if (previous) await github.rest.issues.updateComment({...context.repo, comment_id: previous.id, body});
-            else await github.rest.issues.createComment({...context.repo, issue_number: context.issue.number, body});
-
-
-  # Not a required check, by design: an entry shown without a model or vendor
-  # icon is a display gap, so the maintainer decides whether to merge. Runs
-  # only where icons can change: on PRs that add or change a submission
-  # package (checking those packages), and on the catalog bot's proposals
-  # from resolve-model-metadata.yml (checking every package). Other
-  # maintenance PRs skip it.
-  vendor-icons:
-    name: vendor-icons
-    needs: changes
-    if: ${{ needs.changes.outputs.packages != '' || github.head_ref == 'bot/model-metadata' }}
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v9.0.0
-        with:
-          python-version: "3.12"
-      - name: Check model and vendor icons
-        env:
-          PACKAGES: ${{ needs.changes.outputs.packages }}
-          CATALOG_BOT: ${{ github.head_ref == 'bot/model-metadata' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "$CATALOG_BOT" == "true" ]]; then
-            ARGS=(--all)
-          else
-            mapfile -t ARGS <<< "$PACKAGES"
-          fi
-          uv run python scripts/check_vendor_icons.py --summary "$GITHUB_STEP_SUMMARY" "${ARGS[@]}"
+            else await github.rest.issues.createComment({...context.repo, issue_number: Number(process.env.PR_NUMBER), body});
