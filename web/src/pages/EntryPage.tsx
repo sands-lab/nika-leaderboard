@@ -367,7 +367,7 @@ export function EntryPage() {
               'Official run',
               s.official == null ? null : s.official ? 'Yes' : 'No, self-reported',
             ],
-            ['Verification', s.verification_status === 'unverified'
+            ['Verification', (s.verification_status ?? (s.official ? 'verified' : 'unverified')) === 'unverified'
               ? `Unverified: ${s.verification_reason || 'scores are self-reported'}`
               : 'Verified: packaged from an official release run'],
             ['Submitted', s.created_at && formatDateUtc(s.created_at)],

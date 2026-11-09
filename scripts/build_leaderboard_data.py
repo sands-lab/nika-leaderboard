@@ -441,7 +441,7 @@ def load_submission(
     reviews_path = repo_root / "catalog" / "unverified.json"
     reviews = load_json(reviews_path) if reviews_path.is_file() else {}
     review = reviews.get(pid)
-    if review is not None and (
+    if pid in reviews and (
         not isinstance(review, dict)
         or not isinstance(review.get("reason"), str)
         or not review["reason"].strip()

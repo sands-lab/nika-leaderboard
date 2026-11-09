@@ -14,8 +14,9 @@ PACKAGE = "submissions/0.2.0/example"
 
 
 class EntryRoutingTest(unittest.TestCase):
-    def route(self, files, policy, changed_files=None):
+    def route(self, files, policy, changed_files=None, updated_head=False):
         fixture = {
+            "updated_head": updated_head,
             "files": files,
             "policy": policy,
             "changed_files": len(files) if changed_files is None else changed_files,
@@ -26,8 +27,10 @@ const output = {};
 const context = {repo: {owner: 'sands-lab', repo: 'nika-leaderboard'},
   sha: 'trusted-workflow-sha', payload: {pull_request: {number: 87}}};
 const core = {setOutput: (key, value) => {output[key] = value}};
+let reads = 0;
 const github = {rest: {pulls: {get: async () => ({data: {
-  head: {sha: 'entry-pr-sha'}, changed_files: fixture.changed_files}}), listFiles: {}},
+  head: {sha: reads++ && fixture.updated_head ? 'updated-pr-sha' : 'entry-pr-sha'},
+  changed_files: fixture.changed_files}}), listFiles: {}},
   repos: {getContent: async (args) => {
     if (args.ref !== 'trusted-workflow-sha') throw new Error('Untrusted policy revision');
     if (args.path !== 'catalog/unverified.json') throw new Error('Unexpected policy path');
@@ -81,3 +84,10 @@ const github = {rest: {pulls: {get: async () => ({data: {
                 [{"filename": PACKAGE + "/metadata.yaml"}], policy, changed_files
             )
             self.assertNotEqual(result.returncode, 0)
+
+    def test_changing_pr_head_rejects_discovery(self):
+        result = self.route(
+            [{"filename": PACKAGE + "/metadata.yaml"}], {}, updated_head=True
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("PR changed during package discovery", result.stderr)

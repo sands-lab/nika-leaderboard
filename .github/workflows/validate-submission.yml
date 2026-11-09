@@ -44,6 +44,8 @@ jobs:
             const {data: pr} = await github.rest.pulls.get({...context.repo, pull_number: number});
             const files = await github.paginate(github.rest.pulls.listFiles, {...context.repo, pull_number: number});
             if (files.length !== pr.changed_files) throw new Error('Incomplete PR file inventory.');
+            const {data: current} = await github.rest.pulls.get({...context.repo, pull_number: number});
+            if (current.head.sha !== pr.head.sha || current.changed_files !== pr.changed_files) throw new Error('PR changed during package discovery; retry validation.');
             const paths = files.flatMap(f => [f.filename, f.previous_filename].filter(Boolean));
             const packages = [...new Set(paths.map(path => path.match(/^submissions\/[^/]+\/[^/]+\//)?.[0].slice(0, -1)).filter(Boolean))].sort();
             // Read policy from the trusted workflow revision, never from the entry PR.
@@ -88,6 +90,8 @@ jobs:
           path: scores
           sparse-checkout: submissions
           persist-credentials: false
+          # Read fork scores as data; execute only the trusted NIKA validator.
+          allow-unsafe-pr-checkout: true
       - uses: astral-sh/setup-uv@v9.0.0
         with:
           python-version: "3.12"
@@ -122,7 +126,7 @@ jobs:
       artifact_name: ${{ matrix.artifact }}
       scores_repository: ${{ github.repository }}
       scores_ref: ${{ needs.changes.outputs.scores_ref }}
-      nika_ref: ${{ vars.NIKA_REF || 'dev' }}
+      nika_ref: 923614b383d1168dd012d41056b293fcd0b7209a
 
   validate:
     needs: [changes, trajectory-audit, unverified-scores]

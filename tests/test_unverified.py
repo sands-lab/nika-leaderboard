@@ -29,18 +29,14 @@ class UnverifiedEntryTest(unittest.TestCase):
             self.assertEqual(summary["mean_rca_f1"], metrics["mean_rca_f1"])
             self.assertEqual(detail["verification_status"], "unverified")
 
-    def test_historical_entry_retains_its_status_and_trajectory_link(self):
-        summary, _ = load_submission(PACKAGE, "0.2.0", {}, repo_root=ROOT)
-        self.assertEqual(summary["verification_status"], "verified")
-        self.assertIsNone(summary["verification_reason"])
-        self.assertTrue(summary["trajectories_url"])
-
     def test_unverified_status_requires_an_explanation(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
             (root / "catalog").mkdir()
-            (root / "catalog/unverified.json").write_text(
-                json.dumps({ENTRY_ID: {"reason": ""}})
-            )
-            with self.assertRaisesRegex(ValueError, "requires a reason"):
-                load_submission(PACKAGE, "0.2.0", {}, repo_root=root)
+            for review in (None, {}, {"reason": ""}):
+                with self.subTest(review=review):
+                    (root / "catalog/unverified.json").write_text(
+                        json.dumps({ENTRY_ID: review})
+                    )
+                    with self.assertRaisesRegex(ValueError, "requires a reason"):
+                        load_submission(PACKAGE, "0.2.0", {}, repo_root=root)

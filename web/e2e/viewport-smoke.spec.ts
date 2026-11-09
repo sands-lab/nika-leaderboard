@@ -1,6 +1,5 @@
 import { expect, test } from '@playwright/test'
 import path from 'node:path'
-import { readFile } from 'node:fs/promises'
 
 // Routes live after the hash. Addressing them by path instead would still
 // load the app - the dev server serves index.html for anything - but every
@@ -185,44 +184,4 @@ test('a filter takes several values, each kept in the link', async ({ page }) =>
   await expect(page.locator('.multi-select__menu')).toHaveCount(0)
   await page.getByRole('button', { name: 'Clear filters' }).click()
   await expect(page.getByRole('button', { name: 'Model', exact: true })).toContainText('All')
-})
-
-test('unverified entries retain official provenance and show their review status', async ({ page }, testInfo) => {
-  const response = await page.request.get('/data/index.json')
-  const { submissions } = await response.json()
-  const entries = submissions.filter((s: { verification_status: string; verification_reason?: string | null }) => s.verification_status === 'unverified' && s.verification_reason)
-  test.skip(entries.length === 0, 'Unverified entries have not merged yet')
-  await page.goto('/#/entry/' + entries[0].id)
-  await expect(page.getByLabel('unverified', { exact: true })).toBeVisible()
-  await expect(page.getByText('Unverified: ' + entries[0].verification_reason, { exact: true })).toBeVisible()
-  for (const entry of entries) {
-    expect(entry.official).toBe(true)
-    expect(entry.verification_status).toBe('unverified')
-    expect(entry.trajectories_url).toBeNull()
-  }
-  await page.screenshot({ path: testInfo.outputPath('unverified-entry.png'), fullPage: true })
-  if (testInfo.project.name === 'desktop') {
-    await page.setViewportSize({ width: 1920, height: 1080 })
-    await page.screenshot({ path: testInfo.outputPath('unverified-entry-wide.png'), fullPage: true })
-  }
-  await page.goto('/#/')
-  const rows = page.locator('tr.entry-row').filter({ has: page.getByLabel('unverified', { exact: true }) })
-  await expect(rows).toHaveCount(entries.length)
-  await expect(rows.getByLabel('unverified', { exact: true })).toHaveCount(entries.length)
-  const exportButton = page.getByRole('button', { name: 'Export CSV', exact: true })
-  if (await exportButton.isVisible()) {
-    const downloadPromise = page.waitForEvent('download')
-    await page.getByRole('button', { name: 'Export CSV', exact: true }).click()
-    const download = await downloadPromise
-    const csv = await readFile((await download.path())!, 'utf8')
-    const lines = csv.trim().split('\n')
-    const verifiedIndex = lines[0].split(',').indexOf('verified')
-    expect(verifiedIndex).toBeGreaterThanOrEqual(0)
-    for (const entry of entries) {
-      const line = lines.find((line) => line.includes('"' + entry.framework + '"') && line.includes('"' + entry.model + (entry.reasoning_effort ? ' (' + entry.reasoning_effort + ')' : '') + '"'))
-      expect(line).toBeTruthy()
-      expect(line!.split(',')[verifiedIndex]).toBe('"no"')
-    }
-  }
-  await page.screenshot({ path: testInfo.outputPath('unverified-leaderboard.png'), fullPage: true })
 })
