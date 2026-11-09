@@ -1,0 +1,14 @@
+{
+  "0.2.0/20261103_veneta_worldmodel_claude_opus_5_5": {
+    "reason": "Trajectories were not provided. Scores and memory-isolation claims have not been independently verified.",
+    "source_pr": "https://github.com/sands-lab/nika-leaderboard/pull/87"
+  },
+  "0.2.0/20261105_veneta_worldmodel_qwen3_8_27b_fp8": {
+    "reason": "Trajectories were not provided. Scores and memory-isolation claims have not been independently verified.",
+    "source_pr": "https://github.com/sands-lab/nika-leaderboard/pull/88"
+  },
+  "0.2.0/20261105_veneta_worldmodel_gemma_4_31b_fp8": {
+    "reason": "Trajectories were not provided. Scores and memory-isolation claims have not been independently verified.",
+    "source_pr": "https://github.com/sands-lab/nika-leaderboard/pull/89"
+  }
+}
