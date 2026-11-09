@@ -46,15 +46,14 @@ const COMPACT = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 1,
 })
 
-/**
- * Whether the package came from an official release run. The archive requires
- * `run.official: true`, so an unofficial entry is the notable case and is
- * marked as plainly as a verified one.
- */
-export function VerifiedMark({ official }: { official: boolean | null }) {
+export function VerifiedMark({ official, status, reason }: {
+  official: boolean | null
+  status?: 'verified' | 'unverified'
+  reason?: string | null
+}) {
   // Icon only: a word here widens the busiest column enough to push the table
   // off screen. The label lives in the tooltip and the column header.
-  return official ? (
+  return (status ? status === 'verified' : official) ? (
     <span
       className="verified-mark verified-mark--yes"
       title="Verified: packaged from an official release run"
@@ -65,7 +64,7 @@ export function VerifiedMark({ official }: { official: boolean | null }) {
   ) : (
     <span
       className="verified-mark verified-mark--no"
-      title="Not from an official release run; scores are self-reported"
+      title={`Unverified: ${reason || 'scores are self-reported'}`}
       aria-label="unverified"
     >
       ?
@@ -676,7 +675,7 @@ export function LeaderboardTable({ rows, columns }: LeaderboardTableProps) {
                       {dash(s.model)}
                       {s.model && s.reasoning_effort ? ` (${s.reasoning_effort})` : ''}
                     </Link>
-                    <VerifiedMark official={s.official} />
+                    <VerifiedMark official={s.official} status={s.verification_status} reason={s.verification_reason} />
                   </span>
                 </td>
                 {columns.released && (
