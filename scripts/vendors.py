@@ -99,12 +99,13 @@ def model_hf_repo(
     """The Hugging Face repo a submission ran, from the best record available.
 
     The model catalog's ``hf_repo`` is reviewed, so it comes first. A package
-    may also pin it in ``agent.extra.hf_repo``; a self-hosted run often records
-    the repo itself as its model ID (``ornith-ai/Ornith-1.5-122B``).
+    may also declare it in ``agent.extra.hf_repo`` or ``model_repository``.
+    A self-hosted run often records the repo itself as its model ID
+    (``ornith-ai/Ornith-1.5-122B``).
     """
     key = find_key(models, model) or find_key(models, run_model)
     repo = (models.get(key) or {}).get("hf_repo") if key else None
-    repo = repo or (extra or {}).get("hf_repo")
+    repo = repo or (extra or {}).get("hf_repo") or (extra or {}).get("model_repository")
     if not repo and (llm_provider or "").strip().lower() == "custom":
         repo = run_model
     return repo if isinstance(repo, str) and HF_REPO_RE.match(repo) else None
