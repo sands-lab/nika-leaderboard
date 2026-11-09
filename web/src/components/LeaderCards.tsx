@@ -1,6 +1,5 @@
 import { Link, useLocation } from 'react-router-dom'
 import { entryPath, formatScore, SCORE_DIGITS } from '../lib/data'
-import { adaptationMethods, scaffoldTags } from '../lib/metrics'
 import { catalogEntry, formatUsd, modelKey, submissionCost } from '../lib/pricing'
 import type { PriceMode, PriceOverrides, PricingFile } from '../lib/pricing'
 import { useLeaderboardData } from '../lib/LeaderboardDataContext'
@@ -112,8 +111,6 @@ function pickLeaders(
 function LeaderCard({ leader, index }: { leader: Leader; index: number }) {
   const { entry } = leader
   const { search } = useLocation()
-  const skills = scaffoldTags(entry)
-  const adaptations = adaptationMethods(entry)
 
   return (
     <article
@@ -148,16 +145,6 @@ function LeaderCard({ leader, index }: { leader: Leader; index: number }) {
           {entry.verification_status === 'unverified' && (
             <span title={entry.verification_reason || 'Scores are self-reported'}>Unverified</span>
           )}
-          {skills.map((t) => (
-            <span key={t} className="scaffold-tag">
-              {t}
-            </span>
-          ))}
-          {adaptations.map((m) => (
-            <span key={m} className="scaffold-tag scaffold-tag--adapt">
-              {m}
-            </span>
-          ))}
         </p>
       </div>
     </article>

@@ -278,6 +278,13 @@ def aggregate_trials(
         problem = t.get("problem") or ""
         meta = catalog_lookup.get(f"{scenario}__{problem}", {})
         metrics = t.get("metrics") or {}
+        in_tokens = metrics.get("in_tokens")
+        out_tokens = metrics.get("out_tokens")
+        # Treat zero usage on active trials as missing accounting.
+        if in_tokens == out_tokens == 0 and (
+            metrics.get("steps") or metrics.get("tool_calls")
+        ):
+            in_tokens = out_tokens = None
 
         if "predicted_fault_types" in t:
             predicted = normalize_name_list(t.get("predicted_fault_types"))
@@ -316,8 +323,8 @@ def aggregate_trials(
                 "detection_score": score_or_zero(metrics.get("detection_score")),
                 "localization_f1": score_or_zero(metrics.get("localization_f1")),
                 "rca_f1": score_or_zero(metrics.get("rca_f1")),
-                "in_tokens": metrics.get("in_tokens"),
-                "out_tokens": metrics.get("out_tokens"),
+                "in_tokens": in_tokens,
+                "out_tokens": out_tokens,
                 "steps": metrics.get("steps"),
                 "tool_calls": metrics.get("tool_calls"),
                 "tool_errors": metrics.get("tool_errors"),
@@ -327,7 +334,7 @@ def aggregate_trials(
 
 
 def task_tokens(trials: list[dict[str, Any]]) -> list[list[int]] | None:
-    """Mean [in, out] tokens per case over its repeats; None without per-trial counts.
+    """Mean [in, out] tokens per case; None when any trial lacks counts.
 
     The site prices each pair and takes the median, so one runaway case does
     not set the cost of a typical task.
@@ -335,11 +342,11 @@ def task_tokens(trials: list[dict[str, Any]]) -> list[list[int]] | None:
     sums: dict[str, list[float]] = {}
     for t in trials:
         in_tok, out_tok = t.get("in_tokens"), t.get("out_tokens")
-        if in_tok is None and out_tok is None:
-            continue
+        if in_tok is None or out_tok is None:
+            return None
         acc = sums.setdefault(str(t.get("case_key")), [0.0, 0.0, 0])
-        acc[0] += float(in_tok or 0)
-        acc[1] += float(out_tok or 0)
+        acc[0] += float(in_tok)
+        acc[1] += float(out_tok)
         acc[2] += 1
     if not sums:
         return None
@@ -460,12 +467,17 @@ def load_submission(
         n_success = int(raw_n_success)
         success_rate = (n_success / n_expected) if n_expected else 0.0
     token_totals = metrics.get("token_totals") or {}
+    token_usage_complete = bool(trials) and all(
+        t["in_tokens"] is not None and t["out_tokens"] is not None for t in trials
+    )
     steps_totals = metrics.get("steps_totals") or {}
     in_tokens = float(token_totals.get("in_tokens") or 0)
     out_tokens = float(token_totals.get("out_tokens") or 0)
     steps = float(steps_totals.get("steps") or 0)
     denom = float(n_expected) if n_expected else 0.0
-    mean_tokens = ((in_tokens + out_tokens) / denom) if denom else None
+    mean_tokens = (
+        (in_tokens + out_tokens) / denom if denom and token_usage_complete else None
+    )
     mean_steps = (steps / denom) if denom else None
 
     original_traj_rel = identity.get("trajectories_relpath")
@@ -523,10 +535,11 @@ def load_submission(
             round(success_rate, 6) if success_rate is not None else None
         ),
         "token_totals": token_totals,
+        "token_usage_complete": token_usage_complete,
         "steps_totals": steps_totals,
         "mean_tokens": round(mean_tokens, 3) if mean_tokens is not None else None,
         "mean_steps": round(mean_steps, 3) if mean_steps is not None else None,
-        "total_tokens": int(in_tokens + out_tokens),
+        "total_tokens": int(in_tokens + out_tokens) if token_usage_complete else None,
         "task_tokens": task_tokens(trials),
         "max_steps": run.get("max_steps"),
         "case_timeout_sec": run.get("case_timeout_sec"),

@@ -177,7 +177,8 @@ export function EntryPage() {
     priceFor(modelKey(s), pricing, overrides, { date: packageDate(s.dirname), mode: priceMode })
   const status = priceStatus(modelKey(s), pricing)
   const missingPrice =
-    status === 'unavailable' ? 'n/a' : status === 'pending' ? 'pending' : '—'
+    s.token_usage_complete === false ? 'None'
+      : status === 'unavailable' ? 'n/a' : status === 'pending' ? 'pending' : '—'
   const modelUrl = modelLink(modelKey(s))
   const tied = tieCount(release, s)
   // Tinted against the rest of the release, as on the leaderboard.

@@ -185,3 +185,33 @@ test('a filter takes several values, each kept in the link', async ({ page }) =>
   await page.getByRole('button', { name: 'Clear filters' }).click()
   await expect(page.getByRole('button', { name: 'Model', exact: true })).toContainText('All')
 })
+
+test('leader cards contain readable model names and exclude unknown costs', async ({ page }, testInfo) => {
+  await page.goto('/#/')
+  const astra = page.locator('tr.entry-row').filter({ hasText: 'GPT-6 Astra' })
+  await expect(astra).toBeVisible()
+  await expect(astra).toContainText('None')
+  await expect(page.locator('.leader-card--cheap')).not.toContainText('GPT-6 Astra')
+  const response = await page.request.get('/data/index.json')
+  const { submissions } = await response.json()
+  const entry = submissions.find((s: { model_id: string }) => s.model_id === 'gpt-6-astra')
+  expect(entry.token_usage_complete).toBe(false)
+  expect(entry.task_tokens).toBeNull()
+  expect(entry.mean_tokens).toBeNull()
+  for (const width of (testInfo.project.name === 'desktop' ? [1280, 1920] : [page.viewportSize()!.width])) {
+    await page.setViewportSize({ width, height: 900 })
+    for (const card of await page.locator('.leader-card').all()) {
+      await expect(card.locator('.leader-card__name')).toBeVisible()
+      const sizes = await card.evaluate((el) => {
+        const card = el.getBoundingClientRect()
+        const name = el.querySelector('.leader-card__name')!.getBoundingClientRect()
+        return { overflow: el.scrollWidth - el.clientWidth, width: name.width, left: name.left - card.left, right: card.right - name.right }
+      })
+      expect(sizes.overflow).toBeLessThanOrEqual(1)
+      expect(sizes.width).toBeGreaterThan(50)
+      expect(sizes.left).toBeGreaterThanOrEqual(0)
+      expect(sizes.right).toBeGreaterThanOrEqual(0)
+    }
+    await page.screenshot({ path: testInfo.outputPath(`leaders-${width}.png`), fullPage: true })
+  }
+})

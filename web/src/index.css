@@ -453,10 +453,11 @@ code {
   color: var(--muted);
 }
 
-/* Model and harness share one line. */
+/* Keep the model above its harness and verification status. */
 .leader-card__who {
   min-width: 0;
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: center;
   gap: 0.4rem;
 }
@@ -475,7 +476,6 @@ code {
 }
 
 .leader-card__name {
-  flex: 0 1 auto;
   min-width: 0;
   margin: 0;
   font-size: 0.84rem;
@@ -483,24 +483,20 @@ code {
   letter-spacing: -0.02em;
   line-height: 1.25;
   color: #c9d2df;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 
 .leader-card__stack {
-  flex: 0 0 auto;
+  grid-column: 2;
+  min-width: 0;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.28rem;
   margin: 0;
   font-size: 0.76rem;
   color: var(--muted);
-  white-space: nowrap;
-}
-
-.leader-card__stack::before {
-  content: "·";
+  overflow-wrap: anywhere;
 }
 
 /*
@@ -530,18 +526,7 @@ code {
 
   .leader-card__who {
     grid-area: who;
-    flex-wrap: wrap;
     row-gap: 0.1rem;
-  }
-
-  /* The harness drops under the name so the name is never cut short. */
-  .leader-card__stack {
-    flex-basis: 100%;
-    padding-left: 1.9rem;
-  }
-
-  .leader-card__stack::before {
-    content: none;
   }
 
   .leader-card__value {
