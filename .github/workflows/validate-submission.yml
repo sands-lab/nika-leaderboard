@@ -29,6 +29,8 @@ jobs:
     outputs:
       packages: ${{ steps.discover.outputs.packages }}
       audit_matrix: ${{ steps.discover.outputs.audit_matrix }}
+      audit_packages: ${{ steps.discover.outputs.audit_packages }}
+      unverified_packages: ${{ steps.discover.outputs.unverified_packages }}
       scores_ref: ${{ steps.discover.outputs.scores_ref }}
       pr_number: ${{ steps.discover.outputs.pr_number }}
     steps:
@@ -44,14 +46,71 @@ jobs:
             if (files.length !== pr.changed_files) throw new Error('Incomplete PR file inventory.');
             const paths = files.flatMap(f => [f.filename, f.previous_filename].filter(Boolean));
             const packages = [...new Set(paths.map(path => path.match(/^submissions\/[^/]+\/[^/]+\//)?.[0].slice(0, -1)).filter(Boolean))].sort();
+            // Read policy from the trusted workflow revision, never from the entry PR.
+            let unverified = {};
+            try {
+              const {data} = await github.rest.repos.getContent({...context.repo, path: 'catalog/unverified.json', ref: context.sha});
+              unverified = JSON.parse(Buffer.from(data.content, 'base64').toString('utf8'));
+              if (!unverified || typeof unverified !== 'object' || Array.isArray(unverified)) throw new Error('Invalid unverified entry catalog.');
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            const unverifiedPackages = packages.filter(package => {
+              const review = unverified[package.slice('submissions/'.length)];
+              if (review === undefined) return false;
+              if (!review || typeof review.reason !== 'string' || !review.reason.trim()) throw new Error('An unverified entry requires a reason.');
+              return true;
+            });
+            const auditPackages = packages.filter(package => !unverifiedPackages.includes(package));
+            core.setOutput('audit_packages', auditPackages.join('\n'));
+            core.setOutput('unverified_packages', unverifiedPackages.join('\n'));
             core.setOutput('scores_ref', pr.head.sha);
             core.setOutput('pr_number', number);
             core.setOutput('packages', packages.join('\n'));
-            core.setOutput('audit_matrix', {include: packages.map(package => ({package, artifact: 'submission-audit-' + package.replaceAll('/', '-')}))});
+            core.setOutput('audit_matrix', {include: auditPackages.map(package => ({package, artifact: 'submission-audit-' + package.replaceAll('/', '-')}))});
+
+  unverified-scores:
+    needs: changes
+    if: needs.changes.outputs.unverified_packages != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          repository: sands-lab/nika
+          ref: ${{ vars.NIKA_REF || 'dev' }}
+          path: nika
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.changes.outputs.scores_ref }}
+          path: scores
+          sparse-checkout: submissions
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.12"
+      - name: Validate scores against the published release manifests
+        env:
+          PACKAGES: ${{ needs.changes.outputs.unverified_packages }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          # Keep validator code current and read published 0.2.0 task identities.
+          RELEASE_REF=ac4422d8a4a03be2b905e28edf72993d467e1b81
+          git -C nika fetch --depth 1 origin "$RELEASE_REF"
+          git -C nika restore --source "$RELEASE_REF" -- benchmark/releases/0.2.0
+          uv sync --project nika --no-dev
+          while IFS= read -r package; do
+            [[ -z "$package" ]] && continue
+            nika/.venv/bin/nika leaderboard validate "$GITHUB_WORKSPACE/scores/$package"
+            printf -- '- Unverified: `%s`. Scores package validated; trajectories not audited.\n' "$package" >> "$GITHUB_STEP_SUMMARY"
+          done <<< "$PACKAGES"
 
   trajectory-audit:
     needs: changes
-    if: needs.changes.outputs.packages != ''
+    if: needs.changes.outputs.audit_packages != ''
     strategy:
       fail-fast: false
       matrix: ${{ fromJSON(needs.changes.outputs.audit_matrix) }}
@@ -66,7 +125,7 @@ jobs:
       nika_ref: ${{ vars.NIKA_REF || 'dev' }}
 
   validate:
-    needs: [changes, trajectory-audit]
+    needs: [changes, trajectory-audit, unverified-scores]
     # Also run when discovery did not succeed, so a broken `changes` job fails
     # this required check instead of skipping it.
     if: ${{ !cancelled() }}
@@ -82,9 +141,15 @@ jobs:
           exit 1
 
       - name: Require trajectory audit
-        if: needs.changes.outputs.packages != '' && needs.trajectory-audit.result != 'success'
+        if: needs.changes.outputs.audit_packages != '' && needs.trajectory-audit.result != 'success'
         run: |
           echo "::error::Trajectory audit did not pass (${{ needs.trajectory-audit.result }}); inspect its evidence artifacts."
+          exit 1
+
+      - name: Require unverified scores validation
+        if: needs.changes.outputs.unverified_packages != '' && needs.unverified-scores.result != 'success'
+        run: |
+          echo "::error::Unverified scores validation did not pass (${{ needs.unverified-scores.result }})."
           exit 1
 
       - name: Report the required check on the audited PR commit
@@ -93,22 +158,27 @@ jobs:
         env:
           SCORES_REF: ${{ needs.changes.outputs.scores_ref }}
           DISCOVERY: ${{ needs.changes.result }}
-          PACKAGES: ${{ needs.changes.outputs.packages }}
+          AUDIT_PACKAGES: ${{ needs.changes.outputs.audit_packages }}
+          UNVERIFIED_PACKAGES: ${{ needs.changes.outputs.unverified_packages }}
+          UNVERIFIED_RESULT: ${{ needs.unverified-scores.result }}
           AUDIT_RESULT: ${{ needs.trajectory-audit.result }}
         with:
           script: |
             const number = context.payload.pull_request?.number || Number(context.payload.inputs?.pull_request);
             const {data: pr} = await github.rest.pulls.get({...context.repo, pull_number: number});
-            const passed = process.env.DISCOVERY === 'success' && (!process.env.PACKAGES || process.env.AUDIT_RESULT === 'success');
+            const passed = process.env.DISCOVERY === 'success' && (!process.env.AUDIT_PACKAGES || process.env.AUDIT_RESULT === 'success') && (!process.env.UNVERIFIED_PACKAGES || process.env.UNVERIFIED_RESULT === 'success');
+            const summary = process.env.UNVERIFIED_PACKAGES
+              ? 'Unverified entries require scores-package validation against published manifests. Trajectories and self-reported claims were not audited. Other entries require paired-package validation and model review.'
+              : 'Paired-package validation and model review must complete before accepting an entry.';
             await github.rest.checks.create({...context.repo, name: 'validate', head_sha: process.env.SCORES_REF || pr.head.sha,
               status: 'completed', conclusion: passed ? 'success' : 'failure',
               details_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
-              output: {title: passed ? 'Entry audit passed' : 'Entry audit failed', summary: 'Paired-package validation and model review must complete before accepting an entry.'}});
+              output: {title: passed ? 'Entry validation passed' : 'Entry validation failed', summary}});
 
 
   audit-report:
     needs: [changes, trajectory-audit]
-    if: ${{ !cancelled() && needs.changes.outputs.packages != '' }}
+    if: ${{ !cancelled() && needs.changes.outputs.audit_packages != '' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read

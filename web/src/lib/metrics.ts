@@ -325,7 +325,7 @@ export function exportCsv(
     ['tied', (s) => (s.rca_f1_ci && tieCount(rows, s) > 1 ? 'yes' : 'no')],
     ['release', (s) => s.benchmark_version],
     ['model', (s) => (s.model && s.reasoning_effort ? `${s.model} (${s.reasoning_effort})` : s.model)],
-    ['verified', (s) => (s.official ? 'yes' : 'no')],
+    ['verified', (s) => ((s.verification_status ? s.verification_status === 'verified' : s.official) ? 'yes' : 'no')],
     ['model_released', (s) => modelReleaseDate(modelKey(s))?.toISOString().slice(0, 10)],
     ['harness', (s) => s.framework],
     ['harness_tags', (s) => scaffoldTags(s).join('; ')],

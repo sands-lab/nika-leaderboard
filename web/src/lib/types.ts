@@ -94,6 +94,8 @@ export interface SubmissionSummary {
   created_at: string | null
   run_id: string | null
   official: boolean | null
+  verification_status?: 'verified' | 'unverified'
+  verification_reason?: string | null
   nika_git_commit?: string | null
   /** 95% bootstrap CI of mean RCA F1; null without per-trial data. */
   rca_f1_ci?: [number, number] | null

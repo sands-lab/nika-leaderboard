@@ -77,5 +77,6 @@ Every figure should state its result plainly and read at a glance; do not make r
 - Changes to leaderboard behavior, schemas, scoring, packing, or validation belong under `<NIKA_ROOT>`, with its tests, not in this archive.
 - The static leaderboard UI (`web/`, `scripts/`, `catalog/`) may be edited in this repository. Do not mutate integrity-bound submission files to make the UI look better; enrich via catalog/aggregation instead.
 - Do not weaken or bypass `.github/workflows/validate-submission.yml` to make invalid data pass. Fix the producer or regenerate the package.
+- Maintainers may accept self-reported entries through `catalog/unverified.json`, with an entry ID, reason, and source PR. This path requires scores-package validation and displays unverified status separately from `run.official`. Keep generated scores and identities unchanged. Merge only after the user's confirmation.
 - Preserve `submissions/.gitkeep` while the archive is empty.
 - Before handing off, run `git status --short` here and confirm that only the intended package, UI, catalog, or documentation files changed.
