@@ -42,7 +42,7 @@ jobs:
               hf_hub_download(dataset, f'{path}/{name}', repo_type='dataset', revision=revision, local_dir=root / 'input')
           report = audit_trajectories(root / 'input' / path)
           assert report['package']['n_trials'] == 1
-          write_report(report, root / 'review' / 'deterministic.json')
+          write_report(report, root / 'deterministic.json')
           summary = review_trajectories(root / 'input' / path, root / 'review', command=REVIEW_COMMAND)
           print(json.dumps({'trials':summary['trials'], 'complete':summary['complete'], 'errors':summary['errors']}))
           assert summary['complete']
@@ -52,4 +52,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: audit-integration-smoke
-          path: ${{ runner.temp }}/nika-audit-smoke-${{ github.run_id }}-${{ github.run_attempt }}/review/
+          path: ${{ runner.temp }}/nika-audit-smoke-${{ github.run_id }}-${{ github.run_attempt }}/
