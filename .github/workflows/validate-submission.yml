@@ -1,29 +1,23 @@
 name: Validate submission
 
 on:
-  pull_request:
+  pull_request_target:
+  workflow_dispatch:
+    inputs:
+      pull_request:
+        description: Entry pull request to audit
+        required: true
+        type: string
+
+concurrency:
+  group: trajectory-audit-${{ github.event.pull_request.number || inputs.pull_request }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
-  model-metadata:
-    name: model-metadata
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v9.0.0
-        with:
-          python-version: "3.12"
-      - name: Run catalog and data tests
-        run: uv run python -m unittest discover -s tests
-      # Checks the catalog files' format only. A submitted model with no
-      # release date or price is reported as pending and does not fail the
-      # PR; resolve-model-metadata.yml proposes its entry after merge.
-      - name: Validate model catalog format
-        run: uv run python scripts/validate_model_metadata.py
-
   # Finds the submission packages a PR adds or changes. The NIKA install and
   # validation below run only when there is at least one; other PRs skip the
   # `validate` job. The gate is a job condition rather than an `on.paths`
@@ -34,49 +28,114 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       packages: ${{ steps.discover.outputs.packages }}
+      audit_matrix: ${{ steps.discover.outputs.audit_matrix }}
+      audit_packages: ${{ steps.discover.outputs.audit_packages }}
+      unverified_packages: ${{ steps.discover.outputs.unverified_packages }}
+      scores_ref: ${{ steps.discover.outputs.scores_ref }}
+      pr_number: ${{ steps.discover.outputs.pr_number }}
     steps:
-      - name: Checkout PR
-        uses: actions/checkout@v7
-        with:
-          fetch-depth: 0
-
-      - name: Discover new submission packages
+      - name: Discover entry packages without executing PR code
         id: discover
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const number = context.payload.pull_request?.number || Number(context.payload.inputs?.pull_request);
+            if (!Number.isSafeInteger(number) || number < 1) throw new Error('A valid pull request number is required.');
+            const {data: pr} = await github.rest.pulls.get({...context.repo, pull_number: number});
+            const files = await github.paginate(github.rest.pulls.listFiles, {...context.repo, pull_number: number});
+            if (files.length !== pr.changed_files) throw new Error('Incomplete PR file inventory.');
+            const {data: current} = await github.rest.pulls.get({...context.repo, pull_number: number});
+            if (current.head.sha !== pr.head.sha || current.changed_files !== pr.changed_files) throw new Error('PR changed during package discovery; retry validation.');
+            const paths = files.flatMap(f => [f.filename, f.previous_filename].filter(Boolean));
+            const packages = [...new Set(paths.map(path => path.match(/^submissions\/[^/]+\/[^/]+\//)?.[0].slice(0, -1)).filter(Boolean))].sort();
+            // Read policy from the trusted workflow revision, never from the entry PR.
+            let unverified = {};
+            try {
+              const {data} = await github.rest.repos.getContent({...context.repo, path: 'catalog/unverified.json', ref: context.sha});
+              unverified = JSON.parse(Buffer.from(data.content, 'base64').toString('utf8'));
+              if (!unverified || typeof unverified !== 'object' || Array.isArray(unverified)) throw new Error('Invalid unverified entry catalog.');
+            } catch (error) {
+              if (error.status !== 404) throw error;
+            }
+            const unverifiedPackages = packages.filter(package => {
+              const review = unverified[package.slice('submissions/'.length)];
+              if (review === undefined) return false;
+              if (!review || typeof review.reason !== 'string' || !review.reason.trim()) throw new Error('An unverified entry requires a reason.');
+              return true;
+            });
+            const auditPackages = packages.filter(package => !unverifiedPackages.includes(package));
+            core.setOutput('audit_packages', auditPackages.join('\n'));
+            core.setOutput('unverified_packages', unverifiedPackages.join('\n'));
+            core.setOutput('scores_ref', pr.head.sha);
+            core.setOutput('pr_number', number);
+            core.setOutput('packages', packages.join('\n'));
+            core.setOutput('audit_matrix', {include: auditPackages.map(package => ({package, artifact: 'submission-audit-' + package.replaceAll('/', '-')}))});
+
+  unverified-scores:
+    needs: changes
+    if: needs.changes.outputs.unverified_packages != ''
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          repository: sands-lab/nika
+          ref: ${{ vars.NIKA_REF || 'dev' }}
+          path: nika
+          persist-credentials: false
+      - uses: actions/checkout@v7
+        with:
+          ref: ${{ needs.changes.outputs.scores_ref }}
+          path: scores
+          sparse-checkout: submissions
+          persist-credentials: false
+          # Read fork scores as data; execute only the trusted NIKA validator.
+          allow-unsafe-pr-checkout: true
+      - uses: astral-sh/setup-uv@v9.0.0
+        with:
+          python-version: "3.12"
+      - name: Validate scores against the published release manifests
+        env:
+          PACKAGES: ${{ needs.changes.outputs.unverified_packages }}
         shell: bash
         run: |
           set -euo pipefail
-          BASE="${{ github.event.pull_request.base.sha }}"
-          HEAD="${{ github.event.pull_request.head.sha }}"
-          mapfile -t CHANGED < <(
-            git diff --name-only --diff-filter=ACMR "$BASE"..."$HEAD" -- submissions \
-              | awk -F/ 'NF>=3 && $1=="submissions" { print $1"/"$2"/"$3 }' \
-              | sort -u
-          )
-          PACKAGES=()
-          for dir in "${CHANGED[@]:-}"; do
-            if [[ -f "$dir/metadata.yaml" && -f "$dir/results/identity.yaml" ]]; then
-              PACKAGES+=("$dir")
-            fi
-          done
-          if [[ ${#PACKAGES[@]} -eq 0 ]]; then
-            echo "No new submission packages found under submissions/; skipping validation."
-            echo "packages=" >> "$GITHUB_OUTPUT"
-            exit 0
-          fi
-          {
-            echo "packages<<EOF"
-            printf '%s\n' "${PACKAGES[@]}"
-            echo "EOF"
-          } >> "$GITHUB_OUTPUT"
-          echo "Found packages:"
-          printf '  - %s\n' "${PACKAGES[@]}"
+          # Keep validator code current and read published 0.2.0 task identities.
+          RELEASE_REF=ac4422d8a4a03be2b905e28edf72993d467e1b81
+          git -C nika fetch --depth 1 origin "$RELEASE_REF"
+          git -C nika restore --source "$RELEASE_REF" -- benchmark/releases/0.2.0
+          uv sync --project nika --no-dev
+          while IFS= read -r package; do
+            [[ -z "$package" ]] && continue
+            nika/.venv/bin/nika leaderboard validate "$GITHUB_WORKSPACE/scores/$package"
+            printf -- '- Unverified: `%s`. Scores package validated; trajectories not audited.\n' "$package" >> "$GITHUB_STEP_SUMMARY"
+          done <<< "$PACKAGES"
+
+  trajectory-audit:
+    needs: changes
+    if: needs.changes.outputs.audit_packages != ''
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJSON(needs.changes.outputs.audit_matrix) }}
+    uses: sands-lab/nika/.github/workflows/submission-audit.yml@dev
+    secrets:
+      HF_TOKEN: ${{ secrets.HF_TOKEN }}
+    with:
+      package: ${{ matrix.package }}
+      artifact_name: ${{ matrix.artifact }}
+      scores_repository: ${{ github.repository }}
+      scores_ref: ${{ needs.changes.outputs.scores_ref }}
 
   validate:
-    needs: changes
+    needs: [changes, trajectory-audit, unverified-scores]
     # Also run when discovery did not succeed, so a broken `changes` job fails
     # this required check instead of skipping it.
-    if: ${{ !cancelled() && (needs.changes.result != 'success' || needs.changes.outputs.packages != '') }}
+    if: ${{ !cancelled() }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      checks: write
     steps:
       - name: Require package discovery
         if: needs.changes.result != 'success'
@@ -84,88 +143,86 @@ jobs:
           echo "::error::Submission package discovery did not succeed (${{ needs.changes.result }}); see the changes job."
           exit 1
 
-      - name: Checkout PR
-        uses: actions/checkout@v7
+      - name: Require trajectory audit
+        if: needs.changes.outputs.audit_packages != '' && needs.trajectory-audit.result != 'success'
+        run: |
+          echo "::error::Trajectory audit did not pass (${{ needs.trajectory-audit.result }}); inspect its evidence artifacts."
+          exit 1
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v9.0.0
+      - name: Require unverified scores validation
+        if: needs.changes.outputs.unverified_packages != '' && needs.unverified-scores.result != 'success'
+        run: |
+          echo "::error::Unverified scores validation did not pass (${{ needs.unverified-scores.result }})."
+          exit 1
+
+      - name: Report the required check on the audited PR commit
+        if: always() && !cancelled()
+        uses: actions/github-script@v7
+        env:
+          SCORES_REF: ${{ needs.changes.outputs.scores_ref }}
+          DISCOVERY: ${{ needs.changes.result }}
+          AUDIT_PACKAGES: ${{ needs.changes.outputs.audit_packages }}
+          UNVERIFIED_PACKAGES: ${{ needs.changes.outputs.unverified_packages }}
+          UNVERIFIED_RESULT: ${{ needs.unverified-scores.result }}
+          AUDIT_RESULT: ${{ needs.trajectory-audit.result }}
         with:
-          python-version: "3.12"
+          script: |
+            const number = context.payload.pull_request?.number || Number(context.payload.inputs?.pull_request);
+            const {data: pr} = await github.rest.pulls.get({...context.repo, pull_number: number});
+            const passed = process.env.DISCOVERY === 'success' && (!process.env.AUDIT_PACKAGES || process.env.AUDIT_RESULT === 'success') && (!process.env.UNVERIFIED_PACKAGES || process.env.UNVERIFIED_RESULT === 'success');
+            const summary = process.env.UNVERIFIED_PACKAGES
+              ? 'Unverified entries require scores-package validation against published manifests. Trajectories and self-reported claims were not audited. Other entries require paired-package validation and model review.'
+              : 'Paired-package validation and model review must complete before accepting an entry.';
+            await github.rest.checks.create({...context.repo, name: 'validate', head_sha: process.env.SCORES_REF || pr.head.sha,
+              status: 'completed', conclusion: passed ? 'success' : 'failure',
+              details_url: `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`,
+              output: {title: passed ? 'Entry validation passed' : 'Entry validation failed', summary}});
 
-      - name: Install NIKA
-        env:
-          # Override with repo variable NIKA_REF to pin a branch/tag/commit.
-          NIKA_REF: ${{ vars.NIKA_REF }}
-        run: |
-          set -euo pipefail
-          REF="${NIKA_REF:-main}"
-          # Editable clone keeps benchmark/releases on disk (needed by validate).
-          git clone --depth 1 --branch "$REF" https://github.com/sands-lab/nika.git "$HOME/nika"
-          # uv sync, not pip: the CLI imports the default `labs` dependency group
-          # (docker, kathara), which pip does not install.
-          uv sync --project "$HOME/nika" --no-dev
-          echo "$HOME/nika/.venv/bin" >> "$GITHUB_PATH"
-          export PATH="$HOME/nika/.venv/bin:$PATH"
-          if ! nika --help 2>&1 | grep -q leaderboard; then
-            echo "::error::Installed NIKA from ref '${REF}' has no 'nika leaderboard' command."
-            nika --help || true
-            exit 1
-          fi
-          echo "Using NIKA ref: ${REF}"
-          nika leaderboard --help
 
-      - name: Validate packages
-        env:
-          PACKAGES: ${{ needs.changes.outputs.packages }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          FAILED=0
-          SUMMARY=""
-          while IFS= read -r pkg; do
-            [[ -z "$pkg" ]] && continue
-            echo "::group::validate $pkg"
-            if nika leaderboard validate "$GITHUB_WORKSPACE/$pkg"; then
-              SUMMARY+="- ✅ \`$pkg\`\n"
-            else
-              SUMMARY+="- ❌ \`$pkg\`\n"
-              FAILED=1
-            fi
-            echo "::endgroup::"
-          done <<< "$PACKAGES"
-          {
-            echo "## Leaderboard validation"
-            echo ""
-            echo -e "$SUMMARY"
-          } >> "$GITHUB_STEP_SUMMARY"
-          exit "$FAILED"
-
-  # Not a required check, by design: an entry shown without a model or vendor
-  # icon is a display gap, so the maintainer decides whether to merge. Runs
-  # only where icons can change: on PRs that add or change a submission
-  # package (checking those packages), and on the catalog bot's proposals
-  # from resolve-model-metadata.yml (checking every package). Other
-  # maintenance PRs skip it.
-  vendor-icons:
-    name: vendor-icons
-    needs: changes
-    if: ${{ needs.changes.outputs.packages != '' || github.head_ref == 'bot/model-metadata' }}
+  audit-report:
+    needs: [changes, trajectory-audit]
+    if: ${{ !cancelled() && needs.changes.outputs.audit_packages != '' }}
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read
+      pull-requests: write
     steps:
-      - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v9.0.0
+      - uses: actions/download-artifact@v4
+        continue-on-error: true
         with:
-          python-version: "3.12"
-      - name: Check model and vendor icons
+          pattern: submission-audit-*
+          path: audit-reports
+      - name: Report the audit on the pull request
+        uses: actions/github-script@v7
+        continue-on-error: true
         env:
-          PACKAGES: ${{ needs.changes.outputs.packages }}
-          CATALOG_BOT: ${{ github.head_ref == 'bot/model-metadata' }}
-        shell: bash
-        run: |
-          set -euo pipefail
-          if [[ "$CATALOG_BOT" == "true" ]]; then
-            ARGS=(--all)
-          else
-            mapfile -t ARGS <<< "$PACKAGES"
-          fi
-          uv run python scripts/check_vendor_icons.py --summary "$GITHUB_STEP_SUMMARY" "${ARGS[@]}"
+          AUDIT_RESULT: ${{ needs.trajectory-audit.result }}
+          PR_NUMBER: ${{ needs.changes.outputs.pr_number }}
+        with:
+          script: |
+            const fs = require('fs');
+            const path = require('path');
+            const marker = '<!-- nika-trajectory-audit -->';
+            const rows = [];
+            if (fs.existsSync('audit-reports')) {
+              for (const name of fs.readdirSync('audit-reports')) {
+                const file = path.join('audit-reports', name, 'audit.json');
+                if (!fs.existsSync(file)) continue;
+                const report = JSON.parse(fs.readFileSync(file, 'utf8'));
+                const slug = String(report.package?.slug || '').replace(/[^a-zA-Z0-9_.-]/g, '');
+                const verdict = ['pass', 'warn', 'block'].includes(report.verdict) ? report.verdict : 'unknown';
+                const trials = Number.isSafeInteger(report.package?.n_trials) ? report.package.n_trials : '?';
+                rows.push('| ' + slug + ' | ' + verdict + ' | ' + trials + ' |');
+              }
+            }
+            const runUrl = context.serverUrl + '/' + context.repo.owner + '/' + context.repo.repo + '/actions/runs/' + context.runId;
+            const body = marker + '\n## Trajectory audit\n\n' +
+              'Audit job: **' + process.env.AUDIT_RESULT + '**. [Reports and cited evidence](' + runUrl + ').\n\n' +
+              (rows.length ? '| Entry | Verdict | Trials |\n| --- | --- | --- |\n' + rows.join('\n') + '\n\n' : 'No completed audit report. Inspect the job failure before accepting this entry.\n\n') +
+              'Warnings require review. The audit preserves recorded trajectories and scores.';
+            await core.summary.addRaw(body).write();
+            const comments = await github.paginate(github.rest.issues.listComments, {...context.repo, issue_number: Number(process.env.PR_NUMBER)});
+            const previous = comments.find(c => c.user?.login === 'github-actions[bot]' && c.body?.includes(marker));
+            if (previous) await github.rest.issues.updateComment({...context.repo, comment_id: previous.id, body});
+            else await github.rest.issues.createComment({...context.repo, issue_number: Number(process.env.PR_NUMBER), body});

@@ -89,7 +89,7 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
     ['Qwen3.8-27B-FP8', '2026-08-13', 'https://huggingface.co/Qwen/Qwen3.8-27B-FP8'],
     ['OTel-2.0-LLM-31B-IT', '2026-07-23', 'https://huggingface.co/farbodtavakkoli/OTel-2.0-LLM-31B-IT'],
   ]) {
-    const entry = submissions.find((s: { model: string }) => s.model === model)
+    const entry = submissions.find((s: { model: string; framework: string }) => s.model === model && s.framework === 'Claude Code')
     expect(entry.name).toBe(`${model} · Claude Code`)
     expect(entry.submission_name).toBeTruthy()
     const row = page
@@ -116,7 +116,8 @@ test('model metadata and generated entry labels reach the leaderboard', async ({
       await expect(row.getByRole('img', { name: 'AT&T' }))
         .toHaveAttribute('src', /providers\/hf\/att\.webp$/)
     }
-    await row.locator('td').first().click()
+    await row.locator('.model-name').focus()
+    await row.locator('.model-name').press('Enter')
     await expect(page.locator('.lede')).toContainText(entry.name)
     for (const label of ['Trajectories on Hugging Face', 'Model page']) {
       await expect(page.getByRole('link', { name: label, exact: true }).first()).toBeVisible()
@@ -183,4 +184,40 @@ test('a filter takes several values, each kept in the link', async ({ page }) =>
   await expect(page.locator('.multi-select__menu')).toHaveCount(0)
   await page.getByRole('button', { name: 'Clear filters' }).click()
   await expect(page.getByRole('button', { name: 'Model', exact: true })).toContainText('All')
+})
+
+test('leader cards contain readable model names and exclude unknown costs', async ({ page }, testInfo) => {
+  await page.goto('/#/')
+  const astra = page.locator('tr.entry-row').filter({ hasText: 'GPT-6 Astra' })
+  await expect(astra).toBeVisible()
+  await expect(astra).toContainText('None')
+  await expect(page.locator('.leader-card--cheap')).not.toContainText('GPT-6 Astra')
+  await expect(page.locator('.leaders').getByText('Unverified', { exact: true })).toHaveCount(0)
+  await expect(page.locator('.leader-card--best').getByLabel('unverified', { exact: true })).toBeVisible()
+  const response = await page.request.get('/data/index.json')
+  const { submissions } = await response.json()
+  const entry = submissions.find((s: { model_id: string }) => s.model_id === 'gpt-6-astra')
+  expect(entry.token_usage_complete).toBe(false)
+  expect(entry.task_tokens).toBeNull()
+  expect(entry.mean_tokens).toBeNull()
+  for (const width of (testInfo.project.name === 'desktop' ? [1280, 1920] : [page.viewportSize()!.width])) {
+    await page.setViewportSize({ width, height: 900 })
+    await page.evaluate(() => document.fonts.ready)
+    for (const card of await page.locator('.leader-card').all()) {
+      const sizes = await card.evaluate((el) => {
+        const name = el.querySelector('.leader-card__name')!.getBoundingClientRect()
+        const who = el.querySelector('.leader-card__who')!.getBoundingClientRect()
+        const value = el.querySelector('.leader-card__value')!.getBoundingClientRect()
+        const axis = el.querySelector('.leader-card__axis')!.getBoundingClientRect()
+        return { overflow: el.scrollWidth - el.clientWidth, modelWidth: name.width, valueGap: value.left - who.right, belowTitle: value.top - axis.bottom, bottomGap: Math.abs(value.bottom - who.bottom) }
+      })
+      expect(sizes.overflow).toBeLessThanOrEqual(1)
+      expect(sizes.modelWidth).toBeGreaterThan(0)
+      expect(sizes.bottomGap).toBeLessThanOrEqual(1)
+      expect(sizes.valueGap).toBeGreaterThanOrEqual(0)
+      expect(sizes.belowTitle).toBeGreaterThanOrEqual(0)
+    }
+    await page.screenshot({ path: testInfo.outputPath(`leaders-${width}.png`), fullPage: true, animations: 'disabled' })
+    await page.locator('.leaders').screenshot({ path: testInfo.outputPath(`cards-${width}.png`), animations: 'disabled' })
+  }
 })

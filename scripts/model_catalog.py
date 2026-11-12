@@ -42,6 +42,30 @@ def find_key(table: dict[str, Any], model: str | None) -> str | None:
     return next((key for key in table if model_slug(key) == slug), None)
 
 
+def model_display_name(model: str | None, models: dict[str, Any]) -> str | None:
+    """Use the reviewed name, or format an unresolved ID without dropping its variant."""
+    key = find_key(models, model)
+    if key:
+        return models[key]["name"]
+    if not model or " " in model:
+        return model
+    spelling = {
+        word.casefold(): word
+        for entry in models.values()
+        for word in re.split(r"[\s_-]+", entry["name"])
+    }
+    words = re.split(r"[_-]+", model.rsplit("/", 1)[-1])
+    return " ".join(
+        spelling.get(word.casefold())
+        or (
+            word.upper()
+            if re.fullmatch(r"(?i)(?:\d+(?:\.\d+)?[bmt]|a\d+b|(?:fp|bf|int)\d+)", word)
+            else word[:1].upper() + word[1:]
+        )
+        for word in words
+    )
+
+
 def package_date(dirname: str) -> str | None:
     """ISO date from a package directory's ``YYYYMMDD_`` prefix."""
     match = PACKAGE_DATE_RE.match(dirname)

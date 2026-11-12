@@ -1,0 +1,61 @@
+info:
+  name: VENETA WorldModel, Telco edition
+  authors: VENETA Inc.
+  org: VENETA Inc.
+  site: https://veneta.ai
+  report: null
+  logo: null
+  email: null
+  github: null
+agent:
+  model: claude-opus-5-5
+  framework: VENETA WorldModel
+  tools:
+  - containerlab_srl_mcp_server
+  - k8s_mcp_server
+  - kathara_base_mcp_server
+  - pingmesh_mcp_server
+  - packet_capture_mcp_server
+  - kathara_frr_mcp_server
+  - kathara_bmv2_mcp_server
+  - kathara_sdn_mcp_server
+  - kathara_telemetry_mcp_server
+  - task_mcp_server
+  skills: []
+  optimization_methods:
+  - governed memory & self-improvement layer
+  - coverage reminder
+  tags:
+  - memory
+  - single-run
+  - dev-derived-seed
+  extra:
+    "governed memory & self-improvement layer_variant": "API-model profile"
+    model_profile: "API-model profile: the model is reached through its provider's API with the benchmark's standard client; the open-weight profile of the same layer (self-hosted models) differs in serving and local-model client settings only"
+    runs: 1
+    run_note: 'Single official run (85 cases x 3 trials); the leaderboard''s within-run
+      bootstrap interval applies. A confirming run of the same stack scored 0.830
+      and is not submitted (run #1 submitted per pre-registration).'
+    layer: 'VENETA WorldModel governed memory & self-improvement layer: seed of 74
+      fault-signature rows written from the public dev split (one per dev fault type,
+      no test content) plus rows adapted from the SADE community skills; recall by
+      task text and by evidence; outcomes of earlier cases in the same run written
+      back and recalled with same-case exclusion'
+    harness_controls: step-budget guard (one closing reminder); one-shot coverage reminder before a no-fault verdict; context compaction only when the prompt exceeds the window; type
+      aid appended to the report before submission
+    trajectories: not included in this submission; to be published with the write-up
+    llm_provider: anthropic
+    reasoning_effort: medium
+    max_tokens: 32768
+    max_steps: 40
+    nika_agent_id: veneta_agent_v12:VenetaScopedAgentV12
+    seed_active_rows: 200
+    seed_sade_skill_rows: 121
+    seed_contract_rows: 5
+    seed_fault_signature_rows: 74
+    seed_fault_signature_rows_with_outputs_clause: 10
+    seed_archived_rows_never_recalled: 74
+    seed_fault_signature_text_sha256: 743b1f4ab883b1e84f986215aa5a25b889f2f155b266051739a03e3f046ed297
+    seed_fault_signature_text_sha256_method: "SHA-256 over the 74 active fault-signature texts, sorted, one per line; exact command available to the maintainers on request"
+    seed_source_split: dev (nika-bench 0.2.0 dev split); no test content
+    seed_hash_matches_submitted_run_memory: true

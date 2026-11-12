@@ -121,5 +121,20 @@
     "model_page": "https://huggingface.co/ornith-ai/Ornith-1.5-122B",
     "hf_repo": "ornith-ai/Ornith-1.5-122B",
     "retrieved_via": "huggingface-api"
+  },
+  "gpt-6-astra": {
+    "name": "GPT-6 Astra",
+    "released": "2026-09-04",
+    "release_source": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+    "model_page": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+    "retrieved_via": "models.dev"
+  },
+  "gemma-4-31b-fp8": {
+    "name": "Gemma 4 31B IT FP8 Dynamic",
+    "released": "2026-04-06",
+    "release_source": "https://huggingface.co/RedHatAI/gemma-4-31B-it-FP8-dynamic/commit/9840c96b882fde8a2bfa8f12dcf72912603e7202",
+    "model_page": "https://huggingface.co/RedHatAI/gemma-4-31B-it-FP8-dynamic",
+    "hf_repo": "RedHatAI/gemma-4-31B-it-FP8-dynamic",
+    "retrieved_via": "huggingface-api"
   }
 }

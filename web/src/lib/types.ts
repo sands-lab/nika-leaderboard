@@ -79,6 +79,8 @@ export interface SubmissionSummary {
   n_agent_failed: number | null
   success_rate: number | null
   token_totals: TokenTotals
+  /** False when some trials lack usage; partial counts cannot estimate cost. */
+  token_usage_complete?: boolean
   steps_totals: StepsTotals
   /** Mean (in+out) tokens per expected trial. */
   mean_tokens: number | null
@@ -94,6 +96,8 @@ export interface SubmissionSummary {
   created_at: string | null
   run_id: string | null
   official: boolean | null
+  verification_status?: 'verified' | 'unverified'
+  verification_reason?: string | null
   nika_git_commit?: string | null
   /** 95% bootstrap CI of mean RCA F1; null without per-trial data. */
   rca_f1_ci?: [number, number] | null

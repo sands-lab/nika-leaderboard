@@ -18,7 +18,7 @@ import yaml
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from model_catalog import find_key, validate_catalog  # noqa: E402
+from model_catalog import find_key, model_display_name, validate_catalog  # noqa: E402
 from vendors import (  # noqa: E402
     load_hf_orgs,
     load_lobehub,
@@ -278,6 +278,13 @@ def aggregate_trials(
         problem = t.get("problem") or ""
         meta = catalog_lookup.get(f"{scenario}__{problem}", {})
         metrics = t.get("metrics") or {}
+        in_tokens = metrics.get("in_tokens")
+        out_tokens = metrics.get("out_tokens")
+        # Treat zero usage on active trials as missing accounting.
+        if in_tokens == out_tokens == 0 and (
+            metrics.get("steps") or metrics.get("tool_calls")
+        ):
+            in_tokens = out_tokens = None
 
         if "predicted_fault_types" in t:
             predicted = normalize_name_list(t.get("predicted_fault_types"))
@@ -316,8 +323,8 @@ def aggregate_trials(
                 "detection_score": score_or_zero(metrics.get("detection_score")),
                 "localization_f1": score_or_zero(metrics.get("localization_f1")),
                 "rca_f1": score_or_zero(metrics.get("rca_f1")),
-                "in_tokens": metrics.get("in_tokens"),
-                "out_tokens": metrics.get("out_tokens"),
+                "in_tokens": in_tokens,
+                "out_tokens": out_tokens,
                 "steps": metrics.get("steps"),
                 "tool_calls": metrics.get("tool_calls"),
                 "tool_errors": metrics.get("tool_errors"),
@@ -327,7 +334,7 @@ def aggregate_trials(
 
 
 def task_tokens(trials: list[dict[str, Any]]) -> list[list[int]] | None:
-    """Mean [in, out] tokens per case over its repeats; None without per-trial counts.
+    """Mean [in, out] tokens per case; None when any trial lacks counts.
 
     The site prices each pair and takes the median, so one runaway case does
     not set the cost of a typical task.
@@ -335,11 +342,11 @@ def task_tokens(trials: list[dict[str, Any]]) -> list[list[int]] | None:
     sums: dict[str, list[float]] = {}
     for t in trials:
         in_tok, out_tok = t.get("in_tokens"), t.get("out_tokens")
-        if in_tok is None and out_tok is None:
-            continue
+        if in_tok is None or out_tok is None:
+            return None
         acc = sums.setdefault(str(t.get("case_key")), [0.0, 0.0, 0])
-        acc[0] += float(in_tok or 0)
-        acc[1] += float(out_tok or 0)
+        acc[0] += float(in_tok)
+        acc[1] += float(out_tok)
         acc[2] += 1
     if not sums:
         return None
@@ -359,13 +366,16 @@ def model_identity(repo_root: Path, submitted: str | None) -> dict[str, str | No
     """Display name and catalog key for a submitted ``agent.model``.
 
     Submitters spell models freely (``claude-sonnet-5-5``, ``Claude Opus 5.5``).
-    Once the model is catalogued, every page shows the catalog's display name;
-    until then the submitted string stands in.
+    Once the model is catalogued, every page shows the catalog's display name.
+    Until then, format the submitted ID without inventing catalog metadata.
     """
     models = model_catalog(repo_root)
     key = find_key(models, submitted)
-    name = (models.get(key) or {}).get("name") if key else None
-    return {"model": name or submitted, "model_id": key, "submitted_model": submitted}
+    return {
+        "model": model_display_name(submitted, models),
+        "model_id": key,
+        "submitted_model": submitted,
+    }
 
 
 @functools.cache
@@ -438,6 +448,18 @@ def load_submission(
     agent = metadata.get("agent") or {}
     bench = identity.get("benchmark") or {}
     run = identity.get("run") or {}
+    reviews_path = repo_root / "catalog" / "unverified.json"
+    reviews = load_json(reviews_path) if reviews_path.is_file() else {}
+    review = reviews.get(pid)
+    if pid in reviews and (
+        not isinstance(review, dict)
+        or not isinstance(review.get("reason"), str)
+        or not review["reason"].strip()
+    ):
+        raise ValueError(f"Unverified entry {pid} requires a reason")
+    verification_status = (
+        "unverified" if review is not None or not run.get("official") else "verified"
+    )
 
     n_expected = int(metrics.get("n_trials_expected") or 0) or len(trials)
     raw_n_success = metrics.get("n_success")
@@ -448,18 +470,23 @@ def load_submission(
         n_success = int(raw_n_success)
         success_rate = (n_success / n_expected) if n_expected else 0.0
     token_totals = metrics.get("token_totals") or {}
+    token_usage_complete = bool(trials) and all(
+        t["in_tokens"] is not None and t["out_tokens"] is not None for t in trials
+    )
     steps_totals = metrics.get("steps_totals") or {}
     in_tokens = float(token_totals.get("in_tokens") or 0)
     out_tokens = float(token_totals.get("out_tokens") or 0)
     steps = float(steps_totals.get("steps") or 0)
     denom = float(n_expected) if n_expected else 0.0
-    mean_tokens = ((in_tokens + out_tokens) / denom) if denom else None
+    mean_tokens = (
+        (in_tokens + out_tokens) / denom if denom and token_usage_complete else None
+    )
     mean_steps = (steps / denom) if denom else None
 
     original_traj_rel = identity.get("trajectories_relpath")
     traj_rel = original_traj_rel
     trajectories_url = None
-    if isinstance(traj_rel, str) and traj_rel.strip():
+    if review is None and isinstance(traj_rel, str) and traj_rel.strip():
         framework = harness_name(agent.get("framework") or run.get("agent_type"))
         model = agent.get("model") or run.get("model")
         date = dirname.split("_", 1)[0]
@@ -511,16 +538,19 @@ def load_submission(
             round(success_rate, 6) if success_rate is not None else None
         ),
         "token_totals": token_totals,
+        "token_usage_complete": token_usage_complete,
         "steps_totals": steps_totals,
         "mean_tokens": round(mean_tokens, 3) if mean_tokens is not None else None,
         "mean_steps": round(mean_steps, 3) if mean_steps is not None else None,
-        "total_tokens": int(in_tokens + out_tokens),
+        "total_tokens": int(in_tokens + out_tokens) if token_usage_complete else None,
         "task_tokens": task_tokens(trials),
         "max_steps": run.get("max_steps"),
         "case_timeout_sec": run.get("case_timeout_sec"),
         "created_at": identity.get("created_at"),
         "run_id": run.get("run_id"),
         "official": run.get("official"),
+        "verification_status": verification_status,
+        "verification_reason": review["reason"] if review else None,
         "nika_git_commit": run.get("nika_git_commit"),
     }
 
@@ -576,11 +606,11 @@ def rank_statistics(
     summaries: list[dict[str, Any]],
     scores: dict[str, dict[str, float] | None],
 ) -> None:
-    """Annotate summaries with bootstrap CIs, ``beaten_by`` and ex-aequo ranks.
+    """Annotate summaries with bootstrap CIs, ``beaten_by`` and consecutive ranks.
 
-    ``rank = 1 + |beaten_by|``: an entry only drops below those that are
-    significantly better on the paired difference, so neighbours that are
-    statistically indistinguishable share a rank. Entries without per-trial
+    An entry only drops below those that are significantly better on the paired
+    difference, so statistically indistinguishable neighbours share a rank.
+    The next distinct group takes the next integer. Entries without per-trial
     data fall back to point-estimate comparison.
     """
     alpha = (1.0 - CONFIDENCE) / 2.0
@@ -631,7 +661,10 @@ def rank_statistics(
                 if better:
                     s["beaten_by"].append(other["id"])
             s["beaten_by"].sort()
-            s["rank"] = 1 + len(s["beaten_by"])
+        levels = sorted({len(s["beaten_by"]) for s in members})
+        rank_of = {n: i + 1 for i, n in enumerate(levels)}
+        for s in members:
+            s["rank"] = rank_of[len(s["beaten_by"])]
 
 
 def unique_sorted(values: set[Any]) -> list[Any]:

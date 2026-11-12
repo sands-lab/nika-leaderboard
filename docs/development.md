@@ -38,7 +38,13 @@ uv run python scripts/validate_model_metadata.py
 uv run python scripts/build_leaderboard_data.py --skip-catalog-refresh
 ```
 
-The validator checks catalog format, including source URLs, dates, rates, quote ordering, and that every icon file exists. Models missing from the catalogs are reported as pending, not validation failures. The `model-metadata` job runs these tests and the validator on every pull request. A separate `validate` job uses the NIKA CLI to validate submission packages that the pull request adds or changes. It runs only when a `changes` job finds such a package; on other pull requests it is skipped, and GitHub counts the skipped job as passing.
+The catalog validator checks source URLs, dates, rates, quote ordering, and icon files. Missing models remain pending. The `model-metadata` job runs these checks on each pull request.
+
+The required `validate` check runs when `changes` finds a new or changed scores package. It delegates package validation and trajectory auditing to NIKA’s reusable workflow, then requires that audit to succeed. Blocking findings and incomplete audits fail validation. Other maintenance PRs skip this check.
+
+The reusable workflow uses `NIKA_REF`, with its pinned auditor commit as the default. The selected revision must provide `leaderboard validate --fetch-trajectories`. It downloads the paired trajectories at an immutable Hub revision and publishes JSON reports with cited evidence. The PR comment links those reports; warnings require maintainer review. Forks with read-only comment tokens retain their reports in Actions artifacts and the job summary.
+
+For restricted trajectories, configure the repository secret `HF_TOKEN`. Validation runs from the trusted base workflow on `pull_request_target`; it reads PR packages as data and delegates execution to pinned NIKA code. Catalog tests and icon checks run separately on `pull_request` without audit credentials. The `nika-audit` runner uses its local Codex subscription for automatic model review and proposes new knowledge through issues and a draft NIKA PR.
 
 The `vendor-icons` job reports packages that the site would show without a model or vendor icon, with the `catalog/vendors.json` entry that would fix each one. A package passes when it has a saved icon, or when LobeHub or the vendor's Hugging Face organization has one that the resolver will download after merge. The job runs only on pull requests that add or change a submission package, checking those packages, and on the resolver bot's catalog proposals, checking every package. Other maintenance pull requests skip it. It is deliberately not a required check: a failure marks a display gap, and the maintainer decides whether to merge anyway. To run it locally:
 
@@ -194,7 +200,7 @@ Entry links use hash routes such as `#/entry/<release>/<package>`. When an ident
 
 ### Ranking and uncertainty
 
-Entries are compared within a benchmark release and split. Rank is one plus the number of entries with a significantly higher mean RCA F1, allowing ties when differences are not statistically distinguishable. Filtering recomputes ranks over the visible entries.
+Entries are compared within a benchmark release and split. Entries that are statistically indistinguishable share a rank, and the next group takes the next integer, so a tie at 1 is followed by 2. Filtering recomputes ranks over the visible entries.
 
 The builder uses a paired cluster bootstrap over benchmark tasks (`case_key`): 10,000 resamples, seed 0, and 95% confidence intervals. All trials of a task stay together, and compared entries use the same resampled tasks. The displayed margin is half the width of the percentile interval; the tooltip shows the full interval. Entries without usable per-trial results fall back to point-estimate comparison. See `rank_statistics` in [the data builder](../scripts/build_leaderboard_data.py) and [statistics tests](../tests/test_statistics.py).
 

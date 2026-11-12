@@ -4,7 +4,14 @@ import tempfile
 import unittest
 from pathlib import Path
 
-from scripts.model_catalog import find_key, model_slug, package_date, select_quote, validate_catalog
+from scripts.model_catalog import (
+    find_key,
+    model_display_name,
+    model_slug,
+    package_date,
+    select_quote,
+    validate_catalog,
+)
 from scripts.validate_model_metadata import pending_models, validate_models
 
 REPO = Path(__file__).resolve().parents[1]
@@ -13,6 +20,17 @@ PRICING = json.loads((REPO / "catalog/pricing.json").read_text())
 
 
 class CatalogFormatTest(unittest.TestCase):
+    def test_display_names_preserve_catalog_names_and_unresolved_variants(self):
+        models = {"gemma-4-31b-it": {"name": "Gemma 4 31B IT"}}
+        self.assertEqual(model_display_name("gemma-4-31b-it", models), "Gemma 4 31B IT")
+        self.assertEqual(model_display_name("gemma-4-31b-fp8", models), "Gemma 4 31B FP8")
+        self.assertEqual(
+            model_display_name("gemma-4-31B-it-FP8-dynamic", models),
+            "Gemma 4 31B IT FP8 Dynamic",
+        )
+        self.assertEqual(model_display_name("new-model-7b-int4", {}), "New Model 7B INT4")
+        self.assertIsNone(model_display_name(None, models))
+
     def test_checked_in_catalog_is_valid(self):
         self.assertEqual(validate_models(REPO), [])
 

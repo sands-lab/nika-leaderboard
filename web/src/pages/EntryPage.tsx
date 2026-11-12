@@ -177,7 +177,8 @@ export function EntryPage() {
     priceFor(modelKey(s), pricing, overrides, { date: packageDate(s.dirname), mode: priceMode })
   const status = priceStatus(modelKey(s), pricing)
   const missingPrice =
-    status === 'unavailable' ? 'n/a' : status === 'pending' ? 'pending' : '—'
+    s.token_usage_complete === false ? 'None'
+      : status === 'unavailable' ? 'n/a' : status === 'pending' ? 'pending' : '—'
   const modelUrl = modelLink(modelKey(s))
   const tied = tieCount(release, s)
   // Tinted against the rest of the release, as on the leaderboard.
@@ -211,7 +212,7 @@ export function EntryPage() {
               </a>
             ) : s.model ?? s.name}
             {s.model && s.reasoning_effort ? ` (${s.reasoning_effort})` : ''}
-            <VerifiedMark official={s.official} />
+            <VerifiedMark official={s.official} status={s.verification_status} reason={s.verification_reason} />
           </h1>
           <p className="lede">
             {s.name} · NIKA {s.benchmark_version}
@@ -367,6 +368,9 @@ export function EntryPage() {
               'Official run',
               s.official == null ? null : s.official ? 'Yes' : 'No, self-reported',
             ],
+            ['Verification', (s.verification_status ?? (s.official ? 'verified' : 'unverified')) === 'unverified'
+              ? `Unverified: ${s.verification_reason || 'scores are self-reported'}`
+              : 'Verified: packaged from an official release run'],
             ['Submitted', s.created_at && formatDateUtc(s.created_at)],
           ]}
         />
@@ -414,7 +418,9 @@ export function EntryPage() {
             ['Run size', hasTokens && runSize],
             [
               'Accounting',
-              !hasTokens && 'This package reports no token counts, so no cost',
+              s.token_usage_complete === false
+                ? 'Token accounting is incomplete; cost is unavailable.'
+                : !hasTokens && 'This package reports no token counts, so no cost',
             ],
           ]}
         />

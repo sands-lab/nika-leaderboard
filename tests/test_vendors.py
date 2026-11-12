@@ -122,6 +122,15 @@ class VendorIdTest(unittest.TestCase):
             "Qwen/Qwen3.5-27B",
         )
         self.assertEqual(model_hf_repo({}, "X", {"hf_repo": "org/x"}, None, "custom"), "org/x")
+        self.assertEqual(
+            model_hf_repo({}, "X", {"model_repository": "org/quantized-x"}, None, "custom"),
+            "org/quantized-x",
+        )
+        self.assertEqual(
+            model_hf_repo({}, "X", {"hf_repo": "org/x", "model_repository": "other/x"}, None, "custom"),
+            "org/x",
+        )
+        self.assertIsNone(model_hf_repo({}, "X", {"model_repository": "https://example.com/x"}, None, "custom"))
         # A self-hosted run may record the repo as its model ID.
         self.assertEqual(
             model_hf_repo({}, "Ornith-1.5-122B", None, "ornith-ai/Ornith-1.5-122B", "custom"),

@@ -342,28 +342,22 @@ code {
   line-height: 1.55;
 }
 
-/*
- * Leader tiles: a compact stat tile each - label, number, then who - sized to
- * content rather than stretched to a quarter of the page, which had left the
- * name and its number at opposite ends of a wide card. The group is centred.
- */
+/* Equal-width cards with model information and values aligned at the bottom. */
 .leaders {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 1rem;
-  margin: 0.6rem 0 0.9rem;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  margin: 0 0 1.1rem;
 }
 
 /* Compact on purpose: the tiles are a summary; the table is the page. */
 .leader-card {
   --accent: var(--muted);
-  flex: 0 1 19rem;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  gap: 0.28rem;
-  padding: 0.6rem 0.95rem 0.65rem;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
   background: var(--panel);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -424,13 +418,23 @@ code {
 
 .leader-card__value {
   display: flex;
-  align-items: baseline;
-  gap: 0.4rem;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0;
   margin: 0;
+  flex-shrink: 0;
+}
+
+.leader-card__body {
+  display: flex;
+  flex: 1;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.6rem;
 }
 
 .leader-card__number {
-  font-size: 1.45rem;
+  font-size: 1.2rem;
   font-weight: 700;
   letter-spacing: -0.04em;
   font-variant-numeric: tabular-nums;
@@ -446,27 +450,29 @@ code {
 }
 
 .leader-card__unit {
-  font-size: 0.66rem;
+  font-size: 0.64rem;
   font-weight: 600;
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--muted);
 }
 
-/* Model and harness share one line. */
+/* Keep the model above its harness and verification status. */
 .leader-card__who {
   min-width: 0;
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
   gap: 0.4rem;
+  row-gap: 0.2rem;
 }
 
 .leader-card__who .provider-icon {
-  flex: none;
   margin: 0;
 }
 
 .leader-card__name a {
+  min-width: 0;
   color: inherit;
 }
 
@@ -474,86 +480,45 @@ code {
   color: var(--brand-ink);
 }
 
-.leader-card__name {
-  flex: 0 1 auto;
+.leader-card .leader-card__name {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
   min-width: 0;
   margin: 0;
-  font-size: 0.84rem;
-  font-weight: 550;
+  font-size: 0.98rem;
+  font-weight: 650;
   letter-spacing: -0.02em;
-  line-height: 1.25;
+  line-height: 1.2;
   color: #c9d2df;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
+}
+
+.leader-card__name .verified-mark {
+  flex: none;
+  margin-left: 0;
 }
 
 .leader-card__stack {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 0.28rem;
+  grid-column: 2;
+  min-width: 0;
   margin: 0;
   font-size: 0.76rem;
   color: var(--muted);
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
-.leader-card__stack::before {
-  content: "·";
+@media (max-width: 1100px) {
+  .leaders {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
-/*
- * Phones: four slim full-width rows - label and who on the left, the number
- * on the right - so the summary stays short and the table starts on screen.
- */
+/* Use full-width cards on phones. */
 @media (max-width: 620px) {
   .leaders {
+    grid-template-columns: 1fr;
     gap: 0.6rem;
-  }
-
-  .leader-card {
-    flex: 1 1 100%;
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    grid-template-areas:
-      "axis value"
-      "who value";
-    column-gap: 0.75rem;
-    row-gap: 0.3rem;
-    padding: 0.7rem 0.9rem;
-  }
-
-  .leader-card__axis {
-    grid-area: axis;
-  }
-
-  .leader-card__who {
-    grid-area: who;
-    flex-wrap: wrap;
-    row-gap: 0.1rem;
-  }
-
-  /* The harness drops under the name so the name is never cut short. */
-  .leader-card__stack {
-    flex-basis: 100%;
-    padding-left: 1.9rem;
-  }
-
-  .leader-card__stack::before {
-    content: none;
-  }
-
-  .leader-card__value {
-    grid-area: value;
-    align-self: center;
-    flex-direction: column;
-    align-items: flex-end;
-    gap: 0;
-  }
-
-  .leader-card__number {
-    font-size: 1.3rem;
   }
 
   /* CSV downloads and extra columns are desk tasks; on a phone the row keeps
