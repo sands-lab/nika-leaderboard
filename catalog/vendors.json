@@ -4,7 +4,9 @@
     "note": "OTel-2.0-LLM is published from a personal account; https://about.att.com/blogs/2026/the-tokenomics-equation.html credits AT&T."
   },
   "deepseek-ai": {
-    "llm_providers": ["deepseek"]
+    "icon": "deepseek.svg",
+    "llm_providers": ["deepseek"],
+    "note": "Official DeepSeek icon from https://github.com/deepseek-ai/awesome-deepseek-integration/blob/172dc8b74a0d549f4bce9850f7fe6a25b37a5ac7/docs/_logo%20svg/ICON.svg. Repository license: CC0-1.0 (https://github.com/deepseek-ai/awesome-deepseek-integration/blob/172dc8b74a0d549f4bce9850f7fe6a25b37a5ac7/LICENSE). For descriptive identification under the brand guidelines: https://github.com/deepseek-ai/awesome-deepseek-integration/blob/172dc8b74a0d549f4bce9850f7fe6a25b37a5ac7/docs/_logo%20svg/guidelines.md."
   },
   "google": {
     "models": ["gemma-4-31b-fp8"]
