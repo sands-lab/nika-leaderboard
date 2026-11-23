@@ -1,0 +1,20 @@
+info:
+  name: DeepSeek V4 Pro 0813 + ReAct
+  authors: Zhihao Wang
+  org: null
+  site: null
+  report: null
+  logo: null
+  email: null
+  github: https://github.com/sands-lab/nika
+agent:
+  model: deepseek/deepseek-v4-pro-0813
+  framework: ReAct
+  tools: []
+  skills: []
+  optimization_methods: []
+  tags: []
+  extra:
+    hf_repo: deepseek-ai/DeepSeek-V4-Pro-0813
+    hf_revision: 72e1d3230f6c080a530b0a1d46f8eb4602340597
+    hf_revision_source: latest
