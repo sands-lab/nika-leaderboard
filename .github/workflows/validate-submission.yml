@@ -8,6 +8,10 @@ on:
         description: Entry pull request to audit
         required: true
         type: string
+      publish_proposals:
+        description: Open NIKA issues and a draft knowledge PR for new audit rules
+        default: false
+        type: boolean
 
 concurrency:
   group: trajectory-audit-${{ github.event.pull_request.number || inputs.pull_request }}
@@ -126,6 +130,7 @@ jobs:
       artifact_name: ${{ matrix.artifact }}
       scores_repository: ${{ github.repository }}
       scores_ref: ${{ needs.changes.outputs.scores_ref }}
+      publish_proposals: ${{ github.event_name == 'workflow_dispatch' && inputs.publish_proposals == true }}
 
   validate:
     needs: [changes, trajectory-audit, unverified-scores]
