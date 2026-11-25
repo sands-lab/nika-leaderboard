@@ -1,0 +1,39 @@
+created_at: '2026-11-23T13:20:07+00:00'
+benchmark:
+  id: nika-bench
+  version: 0.2.0
+  ref: nika-bench@0.2.0
+  split: test
+  case_count: 85
+  n_trials: 3
+  scoring_id: rule-based
+  leaderboard_primary: rca_f1
+run:
+  run_id: 7837ecffaf24b6e1
+  official: true
+  agent_type: byo.langgraph
+  model: deepseek/deepseek-v4-pro-0813
+  llm_provider: custom
+  max_steps: 100
+  reasoning_effort: medium
+  case_timeout_sec: 15000
+  nika_git_commit: 543fcae713ea58f3c3021ac6a5f74333a180cad1
+  source_result_dir: react
+  schema_version: 1
+  provenance:
+    frontend:
+      version: 1.0.0
+      commit: 543fcae713ea58f3c3021ac6a5f74333a180cad1
+      dirty: false
+    engine:
+      release: 0.2.0
+      api: 1
+      tag: null
+      commit: 543fcae713ea58f3c3021ac6a5f74333a180cad1
+      dirty: false
+      image: null
+    host:
+      docker: 29.9.3
+      kernel: 6.8.0-149-generic
+trajectories_relpath: trajectories/0.2.0/20261123_react_deepseek_deepseek_v4_pro_0813
+scores_package: null
