@@ -2501,8 +2501,10 @@ a.model-name:hover {
   }
 
   /*
-   * Phones: the margin moves to the entry page and the set widths shrink, so
-   * a model name fits on one line instead of breaking at its hyphens.
+   * Phones: the margin moves to the entry page and the set widths shrink.
+   * Rank and Model stay pinned while the rest scrolls sideways, so Model gets
+   * a set width and its names wrap: sized to the longest name on one line, the
+   * pinned pair would fill the screen and leave no room for the scores.
    */
   .data-table--entries .ci-range {
     display: none;
@@ -2558,7 +2560,7 @@ a.model-name:hover {
   }
 
   .data-table--entries .model-th {
-    width: auto;
+    width: 9.5rem;
   }
 
   .data-table--entries .w-rca {
@@ -2581,7 +2583,10 @@ a.model-name:hover {
   }
 
   .data-table--entries .model-name {
-    white-space: nowrap;
+    min-width: 0;
+    white-space: normal;
+    /* A name with no break point still fits the set width. */
+    overflow-wrap: anywhere;
   }
 }
 
