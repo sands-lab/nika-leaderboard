@@ -136,5 +136,27 @@
     "model_page": "https://huggingface.co/RedHatAI/gemma-4-31B-it-FP8-dynamic",
     "hf_repo": "RedHatAI/gemma-4-31B-it-FP8-dynamic",
     "retrieved_via": "huggingface-api"
+  },
+  "gpt-6.2-astra": {
+    "name": "GPT-6.2 Astra",
+    "released": "2026-11-17",
+    "release_source": "https://developers.openai.com/api/docs/models/gpt-6.2-astra",
+    "model_page": "https://developers.openai.com/api/docs/models/gpt-6.2-astra",
+    "retrieved_via": "models.dev"
+  },
+  "gpt-6.2-sol": {
+    "name": "GPT-6.2 Sol",
+    "released": "2026-11-17",
+    "release_source": "https://developers.openai.com/api/docs/models/gpt-6.2-sol",
+    "model_page": "https://developers.openai.com/api/docs/models/gpt-6.2-sol",
+    "retrieved_via": "models.dev"
+  },
+  "deepseek-deepseek-v4-pro-0813": {
+    "name": "DeepSeek V4 Pro 0813",
+    "released": "2026-08-13",
+    "release_source": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813/commit/b689b7315e92cc6c8f76f3be3a23bc56645dc608",
+    "model_page": "https://huggingface.co/deepseek-ai/DeepSeek-V4-Pro-0813",
+    "hf_repo": "deepseek-ai/DeepSeek-V4-Pro-0813",
+    "retrieved_via": "huggingface-api"
   }
 }

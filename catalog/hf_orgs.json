@@ -11,6 +11,11 @@
     "avatar_url": "https://cdn-avatars.huggingface.co/v1/production/uploads/61ac8f8a00d01045fca0ad2f/OH592ZUsPejiLVObR9GAo.png",
     "retrieved": "2026-10-25"
   },
+  "deepseek-ai": {
+    "org": "deepseek-ai",
+    "label": "DeepSeek",
+    "retrieved": "2026-11-27"
+  },
   "google": {
     "org": "google",
     "label": "Google",
